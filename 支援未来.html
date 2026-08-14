@@ -23,7 +23,7 @@
     position: sticky;
     top: 0;
     flex-shrink: 0;
-    width: 320px;
+    width: 400px;                    /* 左侧目录加宽 */
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
@@ -99,7 +99,8 @@
     padding: 40px 48px 80px 48px;
     max-width: 900px;
     min-width: 0;
-    margin: 0 auto;
+    margin-left: 30px;               /* 正文向左调整，不再居中 */
+    margin-right: auto;
   }
 
   /* ========== 文档标题 ========== */
@@ -248,9 +249,9 @@
     font-size: 10.5pt;
   }
 
-  /* ========== 变量占位符 ========== */
+  /* ========== 变量占位符（修改为黑色） ========== */
   .variable {
-    color: #0E52D4;
+    color: #333333;                  /* 由蓝色改为黑色 */
     font-weight: 600;
   }
 
@@ -516,12 +517,29 @@
     document.getElementById('content').insertAdjacentHTML('beforeend', text);
   }
 
+  // 新增：把指令行中的括号内容拆分为独立段落
+  function splitParentheses() {
+    document.querySelectorAll('.highlight-block p').forEach(p => {
+      const html = p.innerHTML;
+      const idx = html.indexOf(' （');
+      if (idx !== -1) {
+        const before = html.substring(0, idx);
+        const paren = html.substring(idx + 1); // 去掉前面的空格，保留括号内容
+        p.innerHTML = before;
+        const newP = document.createElement('p');
+        newP.innerHTML = paren;
+        p.parentNode.insertBefore(newP, p.nextSibling);
+      }
+    });
+  }
+
   async function init() {
     await loadContent('zhunru.html');
     await loadContent('caigou.html');
     await loadContent('xiaoshou.html');
     await loadContent('shanhou.html');
     await loadContent('qinza.html');
+    splitParentheses();               // 全部加载后执行括号换行处理
   }
 
   window.addEventListener('DOMContentLoaded', init);
