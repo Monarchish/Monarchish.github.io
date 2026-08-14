@@ -16,19 +16,33 @@
   details details { margin-left:14px; }
   .level4 { display:block; margin-left:24px; padding:4px 0; color:#555; text-decoration:none; font-size:0.85rem; white-space:nowrap; }
   .level4:hover { color:#6c63ff; }
+  .faq-level4 { font-weight:400; font-size:0.85rem; color:#555; padding:4px 0; white-space:nowrap; }
+  .faq-level4:hover { color:#6c63ff; }
+  .level5 { display:block; margin-left:38px; padding:4px 0; color:#777; text-decoration:none; font-size:0.82rem; white-space:nowrap; }
+  .level5:hover { color:#6c63ff; }
+
   #content { margin-left:340px; padding:32px 40px; max-width:1000px; width:100%; }
   h2.end { font-size:1.8rem; margin:24px 0 16px; border-bottom:2px solid #e0e0e0; padding-bottom:8px; }
   h3.module { font-size:1.3rem; margin:20px 0 10px; color:#333; }
   h4.operation { font-size:1.1rem; margin:16px 0 8px; color:#555; }
-  pre { background:#f5f5f5; border:1px solid #e0e0e0; border-radius:6px; padding:16px; overflow-x:auto; white-space:pre-wrap; word-wrap:break-word; font-family:"Courier New",monospace; font-size:0.9rem; line-height:1.5; }
+  pre { background:#f5f5f5; border:1px solid #e0e0e0; border-radius:6px; padding:16px; overflow-x:auto; white-space:pre-wrap; word-wrap:break-word; font-family:"Courier New",monospace; font-size:0.9rem; line-height:1.85; }
   code { font-family:"Courier New",monospace; }
+
+  /* 关键词浅蓝色底色 */
+  .kw {
+    background:#d0e4ff;
+    padding:1px 4px;
+    border-radius:4px;
+    font-weight:600;
+    color:#1a3b6a;
+  }
 </style>
 </head>
 <body>
 
 <div id="sidebar">
   <h1>支援未来</h1>
-  <details open>
+  <details>
     <summary>准入端</summary>
     <details>
       <summary>准入端 · 准入</summary>
@@ -41,12 +55,12 @@
       <a class="level4" href="#准入端MDG查重">准入端 · MDG · 查重</a>
       <a class="level4" href="#准入端MDG组织架构">准入端 · MDG · 组织架构</a>
       <a class="level4" href="#准入端MDG添加抬头">准入端 · MDG · 添加抬头</a>
-      <details>
-        <summary>准入端 · MDG · FAQ</summary>
-        <a class="level4" href="#faq1">如何“跟踪MDG流程”？</a>
-        <a class="level4" href="#faq2">出现“你的连接不是专用连接”时</a>
-        <a class="level4" href="#faq3">出现“营业执照无法上传”时</a>
-        <a class="level4" href="#faq4">出现“当前用户无权限，请联系管理员！”时</a>
+      <details class="faq-details">
+        <summary class="faq-level4">准入端 · MDG · FAQ</summary>
+        <a class="level5" href="#faq1">如何“跟踪MDG流程”？</a>
+        <a class="level5" href="#faq2">出现“你的连接不是专用连接”时，该怎么办？</a>
+        <a class="level5" href="#faq3">出现“营业执照无法上传”时，该怎么办？</a>
+        <a class="level5" href="#faq4">出现“当前用户无权限，请联系管理员！”时，该怎么办？</a>
       </details>
     </details>
   </details>
@@ -375,5 +389,21 @@ Write “MDG用户权限申请表” - “附件信息” - “MDG账号及审�
 （MDG用户角色及审批权限收集表模板）
 Left Click “MDG用户权限申请表” - “提交”</pre>
 </div>
+
+<script>
+  (function() {
+    const keywords = ['Open','Write','Left Click','Right Click','Double Click','Ctrl \\+ C','Ctrl \\+ V','Ctrl \\+ D','Ctrl \\+ F','Ctrl \\+ S','Ctrl \\+ Alt \\+ A','Filter','Enter','Esc','And','Or'];
+    const pres = document.querySelectorAll('pre');
+    pres.forEach(pre => {
+      let html = pre.innerHTML;
+      keywords.forEach(kw => {
+        const re = new RegExp('\\b(' + kw + ')\\b', 'gi');
+        html = html.replace(re, '<span class="kw">$1</span>');
+      });
+      pre.innerHTML = html;
+    });
+  })();
+</script>
+
 </body>
 </html>
