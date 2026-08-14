@@ -3,88 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>支援未来 · Operational Cosmos Decoded</title>
+<title>支援未来</title>
 <style>
-  /* ===== 全局重置 ===== */
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  * { margin:0; padding:0; box-sizing:border-box; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif;
     background-color: #ffffff;
     color: #333333;
     line-height: 1.6;
     font-size: 11pt;
-    padding: 0;
-    max-width: 100%;
+    display: flex;
+    align-items: flex-start;
   }
 
-  /* ===== 左侧目录导航栏 ===== */
-  .sidebar {
-    position: fixed;
+  /* ========== 左侧固定目录（我们自己那套） ========== */
+  #sidebar {
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 260px;
+    flex-shrink: 0;
+    width: 560px;
+    min-width: 560px;
     height: 100vh;
     overflow-y: auto;
-    background-color: #fafafa;
+    overflow-x: auto;
+    background: #fafafa;
     border-right: 1px solid #e8e8e8;
-    padding: 20px 0;
+    padding: 20px 16px;
+    z-index: 100;
     font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif;
     font-size: 12px;
+    font-weight: 400;
     line-height: 1.2;
     color: #4A4A4A;
-    z-index: 100;
   }
-
-  .sidebar::-webkit-scrollbar {
-    width: 4px;
-  }
-  .sidebar::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 2px;
-  }
-
-  .sidebar-title {
+  #sidebar h1 {
     font-size: 14px;
     font-weight: 600;
     color: #1a1a1a;
-    padding: 0 16px 12px 16px;
+    padding: 0 0 12px 0;
     border-bottom: 1px solid #e8e8e8;
     margin-bottom: 8px;
+    white-space: nowrap;
   }
-
-  .sidebar-item {
-    padding: 4px 16px;
+  details { margin-bottom: 2px; }
+  summary {
     cursor: pointer;
-    transition: background-color 0.15s;
-    border-left: 3px solid transparent;
+    list-style: none;
+    font-weight: 400;
+    color: #4A4A4A;
+    padding: 4px 0;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: color 0.15s;
   }
-  .sidebar-item:hover {
-    background-color: #f0f0f0;
-  }
-  .sidebar-item.active {
-    background-color: #e6eefa;
-    border-left-color: #98c1ff;
-    color: #1a1a1a;
-  }
+  summary:hover { color: #0066CC; }
+  details[open] > summary { color: #0066CC; }
+  details details { margin-left: 14px; }
 
-  .sidebar-item.level-1 { padding-left: 16px; font-weight: 600; }
-  .sidebar-item.level-2 { padding-left: 32px; }
-  .sidebar-item.level-3 { padding-left: 48px; }
-  .sidebar-item.level-4 { padding-left: 64px; }
+  .level4 {
+    display: block;
+    margin-left: 24px;
+    padding: 4px 0;
+    color: #4A4A4A;
+    text-decoration: none;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: color 0.15s;
+  }
+  .level4:hover { color: #0066CC; }
 
-  /* ===== 主内容区 ===== */
-  .main-content {
-    margin-left: 260px;
+  .faq-details { margin-left: 0; }
+  .faq-level4 {
+    font-weight: 400;
+    font-size: 12px;
+    color: #4A4A4A;
+    padding: 4px 0;
+    margin-left: 18px;
+    white-space: nowrap;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-level4:hover { color: #0066CC; }
+
+  .level5 {
+    display: block;
+    margin-left: 38px;
+    padding: 4px 0;
+    color: #4A4A4A;
+    text-decoration: none;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .level5:hover { color: #0066CC; }
+
+  /* ========== 右侧正文区（智能文档风格） ========== */
+  #content {
+    flex: 1;
     padding: 40px 48px 80px 48px;
     max-width: 900px;
+    min-width: 0;
   }
 
-  /* ===== 文档大标题 ===== */
+  /* 文档大标题 */
   .doc-title {
     font-size: 22pt;
     font-weight: bold;
@@ -96,7 +117,7 @@
     border-bottom: 2px solid #e0e0e0;
   }
 
-  /* ===== 标题层级 ===== */
+  /* 标题1：第一层 */
   h1 {
     font-size: 18pt;
     font-weight: bold;
@@ -108,6 +129,7 @@
     border-bottom: 1px solid #e8e8e8;
   }
 
+  /* 标题2：第二层 */
   h2 {
     font-size: 15pt;
     font-weight: bold;
@@ -117,6 +139,7 @@
     margin-bottom: 14px;
   }
 
+  /* 标题3：第三层 */
   h3 {
     font-size: 13pt;
     font-weight: bold;
@@ -126,6 +149,7 @@
     margin-bottom: 10px;
   }
 
+  /* 标题4：第四层（FAQ条目） */
   h4 {
     font-size: 11.5pt;
     font-weight: bold;
@@ -135,7 +159,7 @@
     margin-bottom: 8px;
   }
 
-  /* ===== 正文段落 ===== */
+  /* 普通正文段落 */
   p {
     font-size: 11pt;
     line-height: 1.6;
@@ -144,7 +168,7 @@
     margin-bottom: 8px;
   }
 
-  /* ===== 🔔 高亮块（蓝色） ===== */
+  /* 🔔 高亮块（蓝色） */
   .highlight-block {
     background-color: #E6EEFA;
     border-left: 4px solid #98C1FF;
@@ -162,7 +186,7 @@
     margin-bottom: 0;
   }
 
-  /* ===== ⚠️ 警告/注意块 ===== */
+  /* ⚠️ 警告块 */
   .warning-block {
     background-color: #FFF3E0;
     border-left: 4px solid #FFB74D;
@@ -180,7 +204,7 @@
     margin-bottom: 0;
   }
 
-  /* ===== 行内代码 ===== */
+  /* 行内代码 */
   code, .inline-code {
     font-family: "SF Mono", "Fira Code", "Consolas", "Courier New", monospace;
     font-size: 10pt;
@@ -190,7 +214,7 @@
     border-radius: 3px;
   }
 
-  /* ===== 代码块 ===== */
+  /* 代码块 */
   pre {
     background-color: #F2F2F2;
     border: 1px solid #e0e0e0;
@@ -210,14 +234,14 @@
     font-size: inherit;
   }
 
-  /* ===== 分隔线 ===== */
+  /* 分隔线 */
   hr {
     border: none;
     border-top: 1px solid #cccccc;
     margin: 24px 0;
   }
 
-  /* ===== 等号分隔线（模拟智能文档的 ==== 样式） ===== */
+  /* 等号分隔线 */
   .section-divider {
     text-align: center;
     color: #999999;
@@ -225,35 +249,10 @@
     letter-spacing: 2px;
     margin: 28px 0;
     user-select: none;
+    overflow: hidden;
   }
 
-  /* ===== 无序列表 ===== */
-  ul {
-    list-style-type: disc;
-    padding-left: 24px;
-    margin: 8px 0;
-    line-height: 1.6;
-    font-size: 11pt;
-  }
-  ul li {
-    margin-bottom: 4px;
-  }
-  ul li::marker {
-    color: #666;
-  }
-
-  /* ===== 有序列表 ===== */
-  ol {
-    padding-left: 24px;
-    margin: 8px 0;
-    line-height: 1.6;
-    font-size: 11pt;
-  }
-  ol li {
-    margin-bottom: 4px;
-  }
-
-  /* ===== 加粗指令词（如 Open / Write / Left Click 等） ===== */
+  /* 加粗指令词 */
   .cmd {
     font-weight: bold;
     background-color: #F2F2F2;
@@ -262,13 +261,13 @@
     font-size: 10.5pt;
   }
 
-  /* ===== 变量占位符（【】） ===== */
+  /* 变量占位符 */
   .variable {
     color: #0E52D4;
     font-weight: 600;
   }
 
-  /* ===== Or 选项 ===== */
+  /* Or 选项 */
   .or-option {
     font-weight: bold;
     background-color: #F2F2F2;
@@ -276,7 +275,7 @@
     border-radius: 2px;
   }
 
-  /* ===== 引用块 ===== */
+  /* 引用块 */
   blockquote {
     border-left: 3px solid #ddd;
     padding: 8px 16px;
@@ -287,159 +286,52 @@
     font-size: 11pt;
     line-height: 1.6;
   }
-
-  /* ===== 响应式 ===== */
-  @media (max-width: 768px) {
-    .sidebar {
-      position: relative;
-      width: 100%;
-      height: auto;
-      border-right: none;
-      border-bottom: 1px solid #e8e8e8;
-    }
-    .main-content {
-      margin-left: 0;
-      padding: 24px 20px;
-    }
-  }
 </style>
 </head>
 <body>
 
-<!-- ===== 左侧目录导航栏 ===== -->
-<nav class="sidebar">
-  <div class="sidebar-title">📋 目录</div>
-  <div class="sidebar-item level-1 active">准入端</div>
-  <div class="sidebar-item level-2">准入端 · 准入</div>
-  <div class="sidebar-item level-3">邮件审批</div>
-  <div class="sidebar-item level-3">客户档案表</div>
-  <div class="sidebar-item level-3">业务供应商及客户准入申请流程</div>
-  <div class="sidebar-item level-2">准入端 · MDG</div>
-  <div class="sidebar-item level-3">查重</div>
-  <div class="sidebar-item level-3">组织架构</div>
-  <div class="sidebar-item level-3">添加抬头</div>
-  <div class="sidebar-item level-3">FAQ</div>
-  <div class="sidebar-item level-1">采购端</div>
-  <div class="sidebar-item level-2">采购端 · 订货</div>
-  <div class="sidebar-item level-2">采购端 · 宝钢 期货（预）订货</div>
-  <div class="sidebar-item level-2">采购端 · 宝钢 期货订货</div>
-  <div class="sidebar-item level-2">采购端 · 华菱 现货订货</div>
-  <div class="sidebar-item level-2">采购端 · 同步</div>
-  <div class="sidebar-item level-1">销售端</div>
-  <div class="sidebar-item level-2">销售端 · 让步单</div>
-  <div class="sidebar-item level-2">销售端 · 插行</div>
-  <div class="sidebar-item level-2">销售端 · 结案</div>
-  <div class="sidebar-item level-2">销售端 · 自由款</div>
-  <div class="sidebar-item level-2">销售端 · 电子提单</div>
-  <div class="sidebar-item level-2">销售端 · 入库</div>
-  <div class="sidebar-item level-2">销售端 · 转货权</div>
-  <div class="sidebar-item level-2">销售端 · 质量异议</div>
-  <div class="sidebar-item level-2">销售端 · 销售开票</div>
-  <div class="sidebar-item level-2">销售端 · 采购发票</div>
-  <div class="sidebar-item level-1">善后端</div>
-  <div class="sidebar-item level-2">勤杂组</div>
-</nav>
-
-<!-- ===== 主内容区 ===== -->
-<div class="main-content">
-
-  <!-- 文档标题 -->
-  <div class="doc-title">支援未来 Operational Cosmos Decoded</div>
-
-  <!-- ===== 标题1 示例 ===== -->
-  <h1>准入端</h1>
-
-  <!-- ===== 标题2 示例 ===== -->
-  <h2>准入端 · 准入</h2>
-
-  <!-- 等号分隔线 -->
-  <div class="section-divider">==============================================================</div>
-
-  <!-- ===== 标题3 示例 ===== -->
-  <h3>准入端 · 准入 · 邮件审批</h3>
-
-  <!-- 等号分隔线 -->
-  <div class="section-divider">==============================================================</div>
-
-  <!-- ===== 🔔 高亮块 示例 ===== -->
-  <div class="highlight-block">
-    <p><span class="cmd">Open</span> “W365 - 邮箱 - 写邮件”</p>
-    <p><span class="cmd">Write</span> “新邮件” - “收件人” （<span class="variable">【收件人】</span>）</p>
-    <p><span class="cmd">Write</span> “新邮件” - “抄送” （<span class="variable">【抄送】</span>）</p>
-    <p><span class="cmd">Write</span> “新邮件” - “主题” （新增客户申请：<span class="variable">【客户名称】</span> <span class="or-option">Or</span> 新增供应商申请：<span class="variable">【供应商名称】</span>）</p>
-    <p><span class="cmd">Left Click</span> “新邮件” - “发送”</p>
-  </div>
-
-  <!-- 等号分隔线 -->
-  <div class="section-divider">==============================================================</div>
-
-  <h3>准入端 · 准入 · 客户档案表</h3>
-
-  <div class="section-divider">==============================================================</div>
-
-  <div class="highlight-block">
-    <p><span class="cmd">Open</span> “客户档案表”</p>
-    <p><span class="cmd">Write</span> “客户档案表” - “客户基本信息” - “客户名称” （<span class="variable">【客户名称】</span>）</p>
-    <p><span class="cmd">Write</span> “客户档案表” - “客户基本信息” - “注册/办公地址” （<span class="variable">【注册/办公地址】</span>）</p>
-    <p><span class="cmd">Write</span> “客户档案表” - “客户基本信息” - “企业性质” （央企 <span class="or-option">Or</span> 国企 <span class="or-option">Or</span> 外企 <span class="or-option">Or</span> 合资 <span class="or-option">Or</span> 民企 <span class="or-option">Or</span> 个体）</p>
-  </div>
-
-  <!-- ===== ⚠️ 警告块 示例 ===== -->
-  <div class="warning-block">
-    <p>⚠ 注意看“R - U”是否为“TRUE”。如果不是则需要检查原因。</p>
-  </div>
-
-  <!-- ===== 标题4 示例 ===== -->
-  <h4>• 如何“跟踪MDG流程”？</h4>
-
-  <div class="highlight-block">
-    <p><span class="cmd">Open</span> “集团网站 - 专题门户 - SAP应用 - MDG - 业务伙伴治理 - /nwbc - 业务伙伴治理- 变更请求和文档 - 我的变更申请”</p>
-  </div>
-
-  <h4>• 出现“你的连接不是专用连接”时，该怎么办？</h4>
-
-  <div class="highlight-block">
-    <p><span class="cmd">Open</span> “高级”</p>
-    <p><span class="cmd">Left Click</span> “高级” - “继续访问 hqprdmdap01.cimc.com (不安全)”</p>
-  </div>
-
-  <!-- ===== 普通正文段落 ===== -->
-  <p>这是普通正文段落的示例。智能文档预设了字符间距，怎么写都好看；天生连页，撰写阅读更连贯，完美呈现汇报效果。</p>
-
-  <!-- ===== 行内代码 示例 ===== -->
-  <p>你可以使用 <code class="inline-code">Ctrl + Shift + 0~6</code> 快速设置标题级别，或使用 <code class="inline-code">Ctrl + Shift + .</code> 设置引用块。</p>
-
-  <!-- ===== 代码块 示例 ===== -->
-  <pre><code>Sub GenerateDeliveryOrder()
-    Dim wb As Workbook
-    Dim wsSource As Worksheet, wsTarget As Worksheet
-    Set wb = ActiveWorkbook
-    Set wsSource = wb.Sheets("———转货权———")
-    MsgBox "委托书生成完成。"
-End Sub</code></pre>
-
-  <!-- ===== 引用块 ===== -->
-  <blockquote>
-    智能文档省去了字体设置功能，提供整套的文字风格方案可供选择。
-  </blockquote>
-
-  <!-- ===== 无序列表 ===== -->
-  <ul>
-    <li>准入端 · 准入</li>
-    <li>准入端 · MDG</li>
-    <li>采购端 · 订货</li>
-    <li>销售端 · 转货权</li>
-  </ul>
-
-  <!-- ===== 有序列表 ===== -->
-  <ol>
-    <li>打开系统</li>
-    <li>填写信息</li>
-    <li>提交审批</li>
-    <li>等待反馈</li>
-  </ol>
-
+<div id="sidebar">
+  <h1>支援未来</h1>
+  <details>
+    <summary>准入端</summary>
+    <details>
+      <summary>准入端 · 准入</summary>
+      <a class="level4" href="#准入端准入邮件审批">准入端 · 准入 · 邮件审批</a>
+      <a class="level4" href="#准入端准入客户档案表">准入端 · 准入 · 客户档案表</a>
+      <a class="level4" href="#准入端准入业务供应商及客户准入申请流程">准入端 · 准入 · 业务供应商及客户准入申请流程</a>
+    </details>
+    <details>
+      <summary>准入端 · MDG</summary>
+      <a class="level4" href="#准入端MDG查重">准入端 · MDG · 查重</a>
+      <a class="level4" href="#准入端MDG组织架构">准入端 · MDG · 组织架构</a>
+      <a class="level4" href="#准入端MDG添加抬头">准入端 · MDG · 添加抬头</a>
+      <details class="faq-details">
+        <summary class="faq-level4">准入端 · MDG · FAQ</summary>
+        <a class="level5" href="#faq1">如何“跟踪MDG流程”？</a>
+        <a class="level5" href="#faq2">出现“你的连接不是专用连接”时，该怎么办？</a>
+        <a class="level5" href="#faq3">出现“营业执照无法上传”时，该怎么办？</a>
+        <a class="level5" href="#faq4">出现“当前用户无权限，请联系管理员！”时，该怎么办？</a>
+      </details>
+    </details>
+  </details>
 </div>
+
+<div id="content"></div>
+
+<script>
+  async function loadContent(file) {
+    const res = await fetch(file);
+    const text = await res.text();
+    document.getElementById('content').insertAdjacentHTML('beforeend', text);
+  }
+
+  async function init() {
+    await loadContent('zhunru.html');
+    // 后续添加其他端文件后在这里加载
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
+</script>
 
 </body>
 </html>
