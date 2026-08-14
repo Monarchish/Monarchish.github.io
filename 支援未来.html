@@ -12,32 +12,29 @@
     --sidebar-bg: #f7f9fc;
     --content-bg: #ffffff;
     --border: #d5deeb;
-    --text: #1a1a1a;
-    --text-secondary: #555;
-    --code-bg: #E6EEFA;              /* 正文代码块浅蓝背景 */
-    --keyword-bg: #F2F2F2;           /* 关键词灰色底 */
-    --code-text: #1a1a1a;            /* 代码文字深色 */
-    --keyword-text: #1a1a1a;
+    --text: #000000;
+    --sidebar-text: #333333;
+    --code-bg: #E6EEFA;
+    --keyword-bg: #F2F2F2;
   }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                 "PingFang SC", "Hiragino Sans GB",
-                 "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 15px;
-    line-height: 1.75;
+    font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
     color: var(--text);
     background: var(--content-bg);
     display: flex;
     align-items: flex-start;
   }
 
-  /* 左侧固定目录 */
+  /* ========== 左侧固定目录 ========== */
   #sidebar {
     position: sticky;
     top: 0;
     flex-shrink: 0;
-    width: 380px;
+    width: 440px;                    /* 加宽，保证显示全部目录文字 */
+    min-width: 440px;
     height: 100vh;
     overflow-y: auto;
     overflow-x: auto;
@@ -45,25 +42,27 @@
     border-right: 1px solid var(--border);
     padding: 24px 16px;
     z-index: 100;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.7;
+    font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-size: 12px;                 /* 左侧目录 12px */
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--sidebar-text);
   }
   #sidebar h1 {
-    font-size: 1.2rem;
+    font-size: 13px;
     margin-bottom: 12px;
     white-space: nowrap;
     font-weight: 600;
-    color: var(--text);
+    color: var(--sidebar-text);
   }
   details { margin-bottom: 2px; }
   summary {
     cursor: pointer;
     list-style: none;
-    font-weight: 600;
-    color: var(--text-secondary);
+    font-weight: 400;
+    color: var(--sidebar-text);
     padding: 4px 0;
-    font-size: 14px;
+    font-size: 12px;
     white-space: nowrap;
     transition: color 0.2s;
   }
@@ -75,9 +74,9 @@
     display: block;
     margin-left: 24px;
     padding: 4px 0;
-    color: var(--text-secondary);
+    color: var(--sidebar-text);
     text-decoration: none;
-    font-size: 14px;
+    font-size: 12px;
     white-space: nowrap;
     transition: color 0.2s;
   }
@@ -85,9 +84,9 @@
 
   .faq-details { margin-left: 0; }
   .faq-level4 {
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--sidebar-text);
     padding: 4px 0;
     margin-left: 18px;
     white-space: nowrap;
@@ -100,72 +99,91 @@
     display: block;
     margin-left: 38px;
     padding: 4px 0;
-    color: #777;
+    color: var(--sidebar-text);
     text-decoration: none;
-    font-size: 14px;
+    font-size: 12px;
     white-space: nowrap;
   }
   .level5:hover { color: var(--primary); }
 
-  /* 右侧正文区 */
+  /* ========== 右侧正文区 ========== */
   #content {
     flex: 1;
     padding: 32px 40px;
-    max-width: 900px;
+    max-width: 1000px;
     min-width: 0;
   }
 
+  /* 标题2：第一层（准入端） */
   h2.end {
-    font-size: 1.7rem;
-    margin: 24px 0 16px;
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 8px;
-    font-weight: 600;
+    font-size: 22pt;
+    font-weight: bold;
+    line-height: 1.4;
+    text-align: left;
+    margin: 24pt 0 12pt 0;
     color: var(--text);
   }
 
+  /* 标题3：第二层（准入端 · 准入） */
   h3.module {
-    font-size: 1.3rem;
-    margin: 20px 0 10px;
+    font-size: 18pt;
+    font-weight: bold;
+    line-height: 1.4;
+    text-align: left;
+    margin: 18pt 0 9pt 0;
     color: var(--text);
-    font-weight: 600;
   }
 
+  /* 标题4：第三层（准入端 · 准入 · 邮件审批） */
   h4.operation {
-    font-size: 1.1rem;
-    margin: 16px 0 8px;
-    color: var(--text-secondary);
-    font-weight: 600;
+    font-size: 15pt;
+    font-weight: bold;
+    line-height: 1.4;
+    text-align: left;
+    margin: 12pt 0 6pt 0;
+    color: var(--text);
   }
 
+  /* 正文块 */
   pre {
-    background: var(--code-bg);      /* 浅蓝背景 #E6EEFA */
+    background: var(--code-bg);
     border: 1px solid #d0dcee;
     border-radius: 8px;
     padding: 16px;
-    margin: 12px 0;
+    margin: 0 0 6pt 0;               /* 正文段后 6pt */
     overflow-x: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
-    font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Courier, monospace;
-    font-size: 14px;
-    line-height: 1.75;
-    color: var(--code-text);         /* 深色文字 */
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;  /* 正文使用系统无衬线字体 */
+    font-size: 11pt;
+    font-weight: normal;
+    line-height: 1.6;
+    text-align: justify;              /* 两端对齐 */
+    color: var(--text);
   }
 
   code {
     font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Courier, monospace;
-    font-size: 14px;
+    font-size: 11pt;
     color: inherit;
   }
 
   /* 关键词灰色底纹 */
   .kw {
-    background: var(--keyword-bg);   /* 灰色 #F2F2F2 */
+    background: var(--keyword-bg);
     padding: 1px 4px;
     border-radius: 4px;
     font-weight: 700;
-    color: var(--keyword-text);
+    color: #1a1a1a;
+  }
+
+  /* FAQ 第四层条目 */
+  .operation {
+    font-size: 11pt;
+    font-weight: normal;
+    line-height: 1.6;
+    margin: 0 0 6pt 0;
+    color: var(--text);
   }
 </style>
 </head>
