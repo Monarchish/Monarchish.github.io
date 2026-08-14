@@ -6,12 +6,17 @@
 <title>支援未来</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
+
   body {
-    font-family: "宋体", SimSun, serif;
-    background:#ffffff;
-    color:#1a1a1a;
-    display:flex;
-    align-items:flex-start;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 "PingFang SC", "Hiragino Sans GB",
+                 "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    color: #1a1a1a;
+    background: #ffffff;
+    display: flex;
+    align-items: flex-start;
   }
 
   /* 左侧固定目录 */
@@ -19,7 +24,7 @@
     position: sticky;
     top: 0;
     flex-shrink: 0;
-    width: 380px;                 /* 固定宽度，不随展开关闭变化 */
+    width: 380px;
     height: 100vh;
     overflow-y: auto;
     overflow-x: auto;
@@ -27,11 +32,15 @@
     border-right: 1px solid #e0e0e0;
     padding: 20px 16px;
     z-index: 100;
+    font-family: inherit;          /* 继承 body 字体 */
+    font-size: 15px;               /* 与聊天字体一致 */
+    line-height: 1.75;             /* 与聊天行距一致 */
   }
   #sidebar h1 {
     font-size: 1.3rem;
     margin-bottom: 12px;
     white-space: nowrap;
+    font-weight: 600;
   }
   details { margin-bottom: 2px; }
   summary {
@@ -40,7 +49,7 @@
     font-weight: 600;
     color: #333;
     padding: 4px 0;
-    font-size: 0.95rem;
+    font-size: 15px;               /* 与聊天字体一致 */
     white-space: nowrap;
   }
   summary:hover { color: #6c63ff; }
@@ -53,32 +62,31 @@
     padding: 4px 0;
     color: #555;
     text-decoration: none;
-    font-size: 0.85rem;
+    font-size: 15px;               /* 与聊天字体一致 */
     white-space: nowrap;
   }
   .level4:hover { color: #6c63ff; }
 
-  .faq-details {
-    margin-left: 0;
-  }
+  .faq-details { margin-left: 0; }
   .faq-level4 {
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 15px;               /* 与聊天字体一致 */
     color: #555;
     padding: 4px 0;
-    margin-left: 18px;             /* FAQ 标题稍微靠左 */
+    margin-left: 18px;
     white-space: nowrap;
     cursor: pointer;
     list-style: none;
   }
   .faq-level4:hover { color: #6c63ff; }
+
   .level5 {
     display: block;
     margin-left: 38px;
     padding: 4px 0;
     color: #777;
     text-decoration: none;
-    font-size: 0.82rem;
+    font-size: 15px;               /* 与聊天字体一致 */
     white-space: nowrap;
   }
   .level5:hover { color: #6c63ff; }
@@ -112,16 +120,17 @@
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     padding: 16px;
+    margin: 12px 0;
     overflow-x: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
-    font-family: "宋体", SimSun, serif;
-    font-size: 11px;                 /* 按你的要求改为宋体11号 */
-    line-height: 1.85;
+    font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 15px;               /* 与聊天字体大小一致 */
+    line-height: 1.75;             /* 与聊天行距一致 */
   }
   code {
-    font-family: "宋体", SimSun, serif;
-    font-size: 11px;
+    font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 15px;
   }
 
   /* 关键词灰色淡底色，加粗 */
@@ -165,10 +174,8 @@
 <div id="content"></div>
 
 <script>
-  // 关键词列表
   const keywords = ['Open','Write','Left Click','Right Click','Double Click','Ctrl \\+ C','Ctrl \\+ V','Ctrl \\+ D','Ctrl \\+ F','Ctrl \\+ S','Ctrl \\+ Alt \\+ A','Filter','Enter','Esc','And','Or'];
 
-  // 给关键词加高亮
   function highlightKeywords() {
     document.querySelectorAll('pre').forEach(pre => {
       let html = pre.innerHTML;
@@ -180,7 +187,6 @@
     });
   }
 
-  // 动态加载内容文件
   async function loadContent(file) {
     const res = await fetch(file);
     const text = await res.text();
@@ -189,11 +195,7 @@
 
   async function init() {
     await loadContent('zhunru.html');
-    // 后续添加其他端：
-    // await loadContent('caigou.html');
-    // await loadContent('xiaoshou.html');
-    // await loadContent('shanghou.html');
-    // await loadContent('qinzha.html');
+    // 后续添加其他端文件后在这里加载
     highlightKeywords();
   }
 
