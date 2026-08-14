@@ -8,16 +8,16 @@
   * { margin:0; padding:0; box-sizing:border-box; }
 
   :root {
-    --primary: #0066CC;             /* 主题蓝色 */
-    --sidebar-bg: #f7f9fc;          /* 左侧目录浅灰背景 */
-    --content-bg: #ffffff;          /* 页面整体背景 */
-    --border: #e0e5ee;
+    --primary: #0066CC;
+    --sidebar-bg: #f7f9fc;
+    --content-bg: #ffffff;
+    --border: #d5deeb;
     --text: #1a1a1a;
     --text-secondary: #555;
-    --code-bg: #0066CC;             /* 正文代码块背景蓝色 */
-    --keyword-bg: #F2F2F2;          /* 关键词灰色底 */
-    --code-text: #ffffff;           /* 代码默认文字颜色 */
-    --keyword-text: #1a1a1a;        /* 关键词文字颜色 */
+    --code-bg: #E6EEFA;              /* 正文代码块浅蓝背景 */
+    --keyword-bg: #F2F2F2;           /* 关键词灰色底 */
+    --code-text: #1a1a1a;            /* 代码文字深色 */
+    --keyword-text: #1a1a1a;
   }
 
   body {
@@ -139,8 +139,8 @@
   }
 
   pre {
-    background: var(--code-bg);       /* 蓝色背景 #0066CC */
-    border: 1px solid #0050a0;        /* 深蓝边框，增加层次 */
+    background: var(--code-bg);      /* 浅蓝背景 #E6EEFA */
+    border: 1px solid #d0dcee;
     border-radius: 8px;
     padding: 16px;
     margin: 12px 0;
@@ -150,7 +150,7 @@
     font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Courier, monospace;
     font-size: 14px;
     line-height: 1.75;
-    color: var(--code-text);          /* 白色文字 */
+    color: var(--code-text);         /* 深色文字 */
   }
 
   code {
@@ -161,11 +161,11 @@
 
   /* 关键词灰色底纹 */
   .kw {
-    background: var(--keyword-bg);    /* 灰色 #F2F2F2 */
+    background: var(--keyword-bg);   /* 灰色 #F2F2F2 */
     padding: 1px 4px;
     border-radius: 4px;
     font-weight: 700;
-    color: var(--keyword-text);       /* 深色文字 */
+    color: var(--keyword-text);
   }
 </style>
 </head>
