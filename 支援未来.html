@@ -4,677 +4,650 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>支援未来 · Operational Cosmos Decoded</title>
+<!-- marked.js 用于将 Markdown 渲染为 HTML -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
-  /* ===== 全局重置 ===== */
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif;
-    background-color: #ffffff;
-    color: #333333;
-    line-height: 1.6;
-    font-size: 11pt;
-    display: flex;
-  }
+/* ========== 全局重置 ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
-  /* ===== 左侧目录导航栏 ===== */
-  .sidebar {
+body {
+    font-family: -apple-system, "微软雅黑", "PingFang SC", "Helvetica Neue", sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+    background: #ffffff;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ========== 左侧目录栏 ========== */
+#sidebar {
     position: fixed;
     top: 0;
     left: 0;
     width: 280px;
     height: 100vh;
+    background: #f8f9fa;
+    border-right: 1px solid #e0e0e0;
     overflow-y: auto;
-    background-color: #fafafa;
-    border-right: 1px solid #e8e8e8;
+    z-index: 1000;
+    padding: 20px 0;
+    transition: transform 0.3s ease;
+}
+
+#sidebar.collapsed {
+    transform: translateX(-280px);
+}
+
+#sidebar-header {
+    padding: 0 16px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 8px;
+}
+
+#sidebar-header h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 0.5px;
+}
+
+#sidebar-header .subtitle {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* 目录树 */
+.toc-list {
+    list-style: none;
     padding: 0;
+    margin: 0;
+}
+
+.toc-item {
     font-size: 12px;
     line-height: 1.2;
     color: #4A4A4A;
-    z-index: 1000;
-    flex-shrink: 0;
-  }
-  .sidebar::-webkit-scrollbar { width: 4px; }
-  .sidebar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
-  
-  .sidebar-header {
-    padding: 16px 16px 12px 16px;
-    border-bottom: 1px solid #e8e8e8;
-    position: sticky;
-    top: 0;
-    background: #fafafa;
-    z-index: 10;
-  }
-  .sidebar-header h3 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin: 0;
-  }
-  .sidebar-header .sub {
-    font-size: 11px;
-    color: #999;
-    margin-top: 2px;
-  }
-
-  .sidebar-menu {
-    padding: 4px 0;
-  }
-
-  .sidebar-item {
-    display: block;
-    padding: 5px 16px;
     cursor: pointer;
-    transition: all 0.15s;
-    border-left: 3px solid transparent;
+    transition: background 0.15s;
+}
+
+.toc-item:hover {
+    background: #e8ecef;
+}
+
+.toc-item a {
     text-decoration: none;
-    color: #4A4A4A;
-    position: relative;
-    user-select: none;
-  }
-  .sidebar-item:hover {
-    background-color: #f0f0f0;
-    color: #1a1a1a;
-  }
-  .sidebar-item.active {
-    background-color: #e6eefa;
-    border-left-color: #98c1ff;
-    color: #1a1a1a;
-    font-weight: 500;
-  }
+    color: inherit;
+    display: block;
+    padding: 6px 16px;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+}
 
-  .sidebar-item.level-0 {
-    padding-left: 16px;
+.toc-item a:hover {
+    color: #1a73e8;
+}
+
+.toc-item a.active {
+    color: #1a73e8;
+    border-left-color: #1a73e8;
+    background: #e8f0fe;
     font-weight: 600;
-    font-size: 12.5px;
-    color: #1a1a1a;
-    margin-top: 4px;
-  }
-  .sidebar-item.level-1 { padding-left: 28px; font-weight: 500; }
-  .sidebar-item.level-2 { padding-left: 44px; }
-  .sidebar-item.level-3 { padding-left: 60px; font-size: 11.5px; color: #666; }
-  .sidebar-item.level-4 { padding-left: 76px; font-size: 11px; color: #888; }
+}
 
-  /* 折叠箭头 */
-  .sidebar-item.has-children::before {
-    content: "▾";
-    position: absolute;
-    left: 6px;
-    font-size: 10px;
-    color: #999;
-    transition: transform 0.2s;
-  }
-  .sidebar-item.has-children.collapsed::before {
-    transform: rotate(-90deg);
-  }
-  .sidebar-item.has-children.level-0::before { left: 4px; }
-  .sidebar-item.has-children.level-1::before { left: 16px; }
+/* 层级缩进 */
+.toc-level-1 { padding-left: 0; }
+.toc-level-1 > a { font-weight: 700; color: #1a1a1a; font-size: 13px; }
+.toc-level-2 { padding-left: 0; }
+.toc-level-2 > a { font-weight: 600; padding-left: 16px; }
+.toc-level-3 { padding-left: 0; }
+.toc-level-3 > a { padding-left: 32px; font-size: 11.5px; }
+.toc-level-4 { padding-left: 0; }
+.toc-level-4 > a { padding-left: 48px; font-size: 11px; color: #666; }
 
-  .sidebar-item.hidden {
-    display: none;
-  }
-
-  /* ===== 主内容区 ===== */
-  .main-content {
-    margin-left: 280px;
-    padding: 40px 56px 120px 56px;
-    max-width: 960px;
-    min-height: 100vh;
-    flex: 1;
-  }
-
-  /* ===== 文档大标题 ===== */
-  .doc-title {
-    font-size: 22pt;
-    font-weight: bold;
+/* 可折叠 */
+.toc-toggle {
+    display: inline-block;
+    width: 16px;
     text-align: center;
-    color: #000000;
-    line-height: 1.4;
-    margin-bottom: 48px;
-    padding-bottom: 24px;
-    border-bottom: 2px solid #e0e0e0;
-  }
+    cursor: pointer;
+    user-select: none;
+    color: #999;
+    font-size: 10px;
+    margin-right: 4px;
+    transition: transform 0.2s;
+}
 
-  /* ===== 标题层级 ===== */
-  h1, h2, h3, h4 {
-    scroll-margin-top: 20px;
-  }
-  h1 {
-    font-size: 18pt;
-    font-weight: bold;
+.toc-toggle.expanded {
+    transform: rotate(90deg);
+}
+
+.toc-children {
+    display: none;
+}
+
+.toc-children.expanded {
+    display: block;
+}
+
+/* 折叠按钮 */
+#toggle-btn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1001;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+    transition: all 0.2s;
+}
+
+#toggle-btn:hover {
+    background: #f0f0f0;
+    border-color: #bbb;
+}
+
+/* ========== 主内容区 ========== */
+#main-content {
+    margin-left: 280px;
+    flex: 1;
+    padding: 40px 48px 80px;
+    max-width: 960px;
+    transition: margin-left 0.3s ease;
+}
+
+#main-content.expanded {
+    margin-left: 0;
+}
+
+/* ========== Markdown 渲染样式 ========== */
+#content-area h1 {
+    font-size: 22pt;
+    font-weight: 700;
     color: #1a1a1a;
-    line-height: 1.4;
-    margin-top: 36px;
-    margin-bottom: 18px;
+    margin: 32px 0 16px;
     padding-bottom: 8px;
+    border-bottom: 2px solid #e8e8e8;
+    line-height: 1.3;
+}
+
+#content-area h1:first-child {
+    margin-top: 0;
+    font-size: 26pt;
+    border-bottom: 3px solid #1a73e8;
+    padding-bottom: 12px;
+}
+
+#content-area h2 {
+    font-size: 16pt;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 28px 0 12px;
+    padding-bottom: 6px;
     border-bottom: 1px solid #e8e8e8;
-  }
-  h2 {
-    font-size: 15pt;
-    font-weight: bold;
-    color: #2c3e50;
     line-height: 1.4;
-    margin-top: 28px;
-    margin-bottom: 14px;
-  }
-  h3 {
+}
+
+#content-area h3 {
     font-size: 13pt;
-    font-weight: bold;
-    color: #34495e;
-    line-height: 1.4;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  h4 {
+    font-weight: 600;
+    color: #2c2c2c;
+    margin: 24px 0 10px;
+    line-height: 1.5;
+}
+
+#content-area h4 {
     font-size: 11.5pt;
-    font-weight: bold;
-    color: #2c3e50;
-    line-height: 1.4;
-    margin-top: 16px;
-    margin-bottom: 8px;
-  }
+    font-weight: 600;
+    color: #333;
+    margin: 20px 0 8px;
+    line-height: 1.5;
+}
 
-  /* ===== 正文段落 ===== */
-  p {
-    font-size: 11pt;
+#content-area p {
+    margin: 8px 0;
     line-height: 1.6;
-    color: #333333;
-    text-align: justify;
-    margin-bottom: 8px;
-  }
+}
 
-  /* ===== 🔔 高亮块（蓝色） ===== */
-  .highlight-block {
-    background-color: #E6EEFA;
+#content-area strong {
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* 高亮块（对应智能文档的蓝色底色块） */
+#content-area blockquote {
+    background: #E6EEFA;
     border-left: 4px solid #98C1FF;
-    border-radius: 4px;
-    padding: 10px 20px;
     margin: 12px 0;
+    padding: 12px 16px;
+    border-radius: 4px;
     line-height: 1.6;
-    font-size: 11pt;
-    color: #333333;
-  }
-  .highlight-block p { margin-bottom: 4px; }
-  .highlight-block p:last-child { margin-bottom: 0; }
+}
 
-  /* ===== ⚠️ 警告/注意块 ===== */
-  .warning-block {
-    background-color: #FFF3E0;
+#content-area blockquote p {
+    margin: 4px 0;
+}
+
+/* 警告块（⚠️） */
+#content-area .warning-block {
+    background: #FFF3E0;
     border-left: 4px solid #FFB74D;
-    border-radius: 4px;
-    padding: 10px 20px;
     margin: 12px 0;
+    padding: 10px 16px;
+    border-radius: 4px;
     line-height: 1.6;
-    font-size: 11pt;
-    color: #333333;
-  }
-  .warning-block p { margin-bottom: 4px; }
-  .warning-block p:last-child { margin-bottom: 0; }
+}
 
-  /* ===== 行内代码 ===== */
-  code, .inline-code {
-    font-family: "SF Mono", "Fira Code", "Consolas", "Courier New", monospace;
-    font-size: 10pt;
+/* 行内代码 */
+#content-area code {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 0.9em;
+    background: #F2F2F2;
     color: #d63384;
-    background-color: #F2F2F2;
     padding: 2px 6px;
     border-radius: 3px;
-  }
+}
 
-  /* ===== 代码块 ===== */
-  pre {
-    background-color: #F2F2F2;
+/* 代码块 */
+#content-area pre {
+    background: #f5f5f5;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     padding: 12px 16px;
-    margin: 12px 0;
     overflow-x: auto;
-    font-family: "SF Mono", "Fira Code", "Consolas", "Courier New", monospace;
-    font-size: 10pt;
-    line-height: 1.5;
-    color: #333333;
-  }
-  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
-
-  /* ===== 分隔线 ===== */
-  .section-divider {
-    text-align: center;
-    color: #cccccc;
-    font-size: 11pt;
-    letter-spacing: 2px;
-    margin: 24px 0;
-    user-select: none;
-    border: none;
-    border-top: 1px solid #e8e8e8;
-    padding-top: 24px;
-  }
-
-  /* ===== 指令词 ===== */
-  .cmd {
-    font-weight: bold;
-    background-color: #F2F2F2;
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-size: 10.5pt;
-    color: #1a1a1a;
-  }
-
-  /* ===== 变量占位符 ===== */
-  .variable {
-    color: #0E52D4;
-    font-weight: 600;
-  }
-
-  /* ===== Or 选项 ===== */
-  .or-option {
-    font-weight: bold;
-    background-color: #F2F2F2;
-    padding: 1px 4px;
-    border-radius: 3px;
-  }
-
-  /* ===== 引用块 ===== */
-  blockquote {
-    border-left: 3px solid #ddd;
-    padding: 8px 16px;
     margin: 12px 0;
-    color: #666;
-    background-color: #f9f9f9;
-    border-radius: 0 4px 4px 0;
-    font-size: 11pt;
-    line-height: 1.6;
-  }
+    line-height: 1.5;
+}
 
-  /* ===== 列表 ===== */
-  ul, ol {
-    padding-left: 24px;
+#content-area pre code {
+    background: none;
+    color: #333;
+    padding: 0;
+    font-size: 0.9em;
+}
+
+/* 列表 */
+#content-area ul, #content-area ol {
     margin: 8px 0;
+    padding-left: 24px;
     line-height: 1.6;
-    font-size: 11pt;
-  }
-  ul li, ol li { margin-bottom: 4px; }
-  ul li::marker { color: #666; }
+}
 
-  /* ===== 响应式 ===== */
-  @media (max-width: 768px) {
-    body { flex-direction: column; }
-    .sidebar {
-      position: relative;
-      width: 100%;
-      height: auto;
-      max-height: 300px;
-      border-right: none;
-      border-bottom: 1px solid #e8e8e8;
+#content-area li {
+    margin: 4px 0;
+}
+
+/* 表格 */
+#content-area table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 10.5pt;
+}
+
+#content-area th, #content-area td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+#content-area th {
+    background: #f5f7fa;
+    font-weight: 600;
+}
+
+#content-area tr:nth-child(even) {
+    background: #fafafa;
+}
+
+/* 水平分割线 */
+#content-area hr {
+    border: none;
+    border-top: 2px solid #e8e8e8;
+    margin: 24px 0;
+}
+
+/* 模块分隔线（智能文档的 ===== 样式） */
+#content-area .module-divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
+}
+
+/* 🔔 和 ⚠ 符号 */
+#content-area .icon-bell {
+    color: #1a73e8;
+}
+
+#content-area .icon-warning {
+    color: #E65100;
+}
+
+/* ========== 加载状态 ========== */
+#loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #999;
+    font-size: 14px;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #1a73e8;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 12px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 768px) {
+    #sidebar {
+        width: 240px;
+        transform: translateX(-240px);
     }
-    .main-content {
-      margin-left: 0;
-      padding: 24px 20px;
+    #sidebar.mobile-visible {
+        transform: translateX(0);
     }
-  }
+    #main-content {
+        margin-left: 0;
+        padding: 24px 20px 60px;
+    }
+    #toggle-btn {
+        display: block;
+    }
+}
 </style>
 </head>
 <body>
 
-<!-- ===== 左侧目录导航栏 ===== -->
-<nav class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <h3>📋 支援未来</h3>
-    <div class="sub">Operational Cosmos Decoded</div>
-  </div>
-  <div class="sidebar-menu" id="sidebarMenu">
-    <!-- 目录由 JavaScript 自动生成 -->
-  </div>
+<!-- 侧栏折叠按钮 -->
+<button id="toggle-btn" onclick="toggleSidebar()" title="切换目录">☰</button>
+
+<!-- 左侧目录栏 -->
+<nav id="sidebar">
+    <div id="sidebar-header">
+        <h2>📋 支援未来</h2>
+        <div class="subtitle">Operational Cosmos Decoded</div>
+    </div>
+    <ul id="toc" class="toc-list">
+        <!-- 由 JavaScript 动态生成 -->
+    </ul>
 </nav>
 
-<!-- ===== 主内容区 ===== -->
-<div class="main-content" id="mainContent">
-  <!-- 内容由 JavaScript 动态渲染 -->
-</div>
+<!-- 主内容区 -->
+<main id="main-content">
+    <div id="content-area">
+        <div id="loading">
+            <div class="spinner"></div>
+            <span>正在加载内容...</span>
+        </div>
+    </div>
+</main>
 
 <script>
-// ============================================================
-// 1. 文档数据结构
-// ============================================================
-const docData = {
-  title: "支援未来 Operational Cosmos Decoded",
-  sections: [
-    // ==================== 准入端 ====================
-    {
-      id: "准入端",
-      level: 0,
-      text: "准入端",
-      children: [
-        {
-          id: "准入端-准入",
-          level: 1,
-          text: "准入端 · 准入",
-          children: [
-            { id: "准入端-准入-邮件审批", level: 2, text: "邮件审批" },
-            { id: "准入端-准入-客户档案表", level: 2, text: "客户档案表" },
-            { id: "准入端-准入-业务供应商及客户准入申请流程", level: 2, text: "业务供应商及客户准入申请流程" }
-          ]
-        },
-        {
-          id: "准入端-MDG",
-          level: 1,
-          text: "准入端 · MDG",
-          children: [
-            { id: "准入端-MDG-查重", level: 2, text: "查重" },
-            { id: "准入端-MDG-组织架构", level: 2, text: "组织架构" },
-            { id: "准入端-MDG-添加抬头", level: 2, text: "添加抬头" },
-            { id: "准入端-MDG-FAQ", level: 2, text: "FAQ" }
-          ]
-        }
-      ]
-    },
-    // ==================== 采购端 ====================
-    {
-      id: "采购端",
-      level: 0,
-      text: "采购端",
-      children: [
-        {
-          id: "采购端-订货",
-          level: 1,
-          text: "采购端 · 订货",
-          children: [
-            { id: "采购端-订货-PSR码编辑", level: 2, text: "PSR码编辑" },
-            { id: "采购端-订货-客户模板编辑", level: 2, text: "客户模板编辑" },
-            { id: "采购端-订货-订货卡编辑", level: 2, text: "订货卡编辑" },
-            { id: "采购端-订货-订货卡检查与提交", level: 2, text: "订货卡检查与提交" },
-            { id: "采购端-订货-订货卡二次检查", level: 2, text: "订货卡二次检查" },
-            { id: "采购端-订货-FAQ", level: 2, text: "FAQ" }
-          ]
-        },
-        {
-          id: "采购端-宝钢期货预订货",
-          level: 1,
-          text: "采购端 · 宝钢 期货（预）订货",
-          children: [
-            { id: "采购端-宝钢期货预订货-确认合同金额", level: 2, text: "确认合同金额" },
-            { id: "采购端-宝钢期货预订货-领取合同号", level: 2, text: "领取合同号" },
-            { id: "采购端-宝钢期货预订货-贸易总表下载", level: 2, text: "贸易总表下载" },
-            { id: "采购端-宝钢期货预订货-销售合同编辑", level: 2, text: "销售合同编辑" },
-            { id: "采购端-宝钢期货预订货-草约下载", level: 2, text: "草约下载" },
-            { id: "采购端-宝钢期货预订货-同创浦江业务合作申请流程", level: 2, text: "同创浦江业务合作申请流程" },
-            { id: "采购端-宝钢期货预订货-同创浦江合同审批流程", level: 2, text: "同创浦江合同审批流程" },
-            { id: "采购端-宝钢期货预订货-同创浦江付款申请流程", level: 2, text: "同创浦江付款申请流程" },
-            { id: "采购端-宝钢期货预订货-同创浦江合同审批流程变更", level: 2, text: "同创浦江合同审批流程-变更" },
-            { id: "采购端-宝钢期货预订货-台账编辑", level: 2, text: "台账编辑" },
-            { id: "采购端-宝钢期货预订货-FAQ", level: 2, text: "FAQ" }
-          ]
-        },
-        {
-          id: "采购端-宝钢期货订货",
-          level: 1,
-          text: "采购端 · 宝钢 期货订货",
-          children: [
-            { id: "采购端-宝钢期货订货-领取合同号", level: 2, text: "领取合同号" },
-            { id: "采购端-宝钢期货订货-贸易总表下载", level: 2, text: "贸易总表下载" },
-            { id: "采购端-宝钢期货订货-销售合同编辑", level: 2, text: "销售合同编辑" },
-            { id: "采购端-宝钢期货订货-草约下载", level: 2, text: "草约下载" },
-            { id: "采购端-宝钢期货订货-同创浦江业务合作申请流程", level: 2, text: "同创浦江业务合作申请流程" },
-            { id: "采购端-宝钢期货订货-同创浦江合同审批流程", level: 2, text: "同创浦江合同审批流程" },
-            { id: "采购端-宝钢期货订货-同创浦江付款申请流程", level: 2, text: "同创浦江付款申请流程" },
-            { id: "采购端-宝钢期货订货-台账编辑", level: 2, text: "台账编辑" },
-            { id: "采购端-宝钢期货订货-FAQ", level: 2, text: "FAQ" }
-          ]
-        },
-        {
-          id: "采购端-华菱现货订货",
-          level: 1,
-          text: "采购端 · 华菱 现货订货",
-          children: [
-            { id: "采购端-华菱现货订货-草约确认", level: 2, text: "草约确认" },
-            { id: "采购端-华菱现货订货-领取合同号", level: 2, text: "领取合同号" },
-            { id: "采购端-华菱现货订货-销售合同编辑", level: 2, text: "销售合同编辑" },
-            { id: "采购端-华菱现货订货-索要定金", level: 2, text: "索要定金" },
-            { id: "采购端-华菱现货订货-同创浦江业务合作申请流程", level: 2, text: "同创浦江业务合作申请流程" },
-            { id: "采购端-华菱现货订货-同创浦江合同审批流程", level: 2, text: "同创浦江合同审批流程" },
-            { id: "采购端-华菱现货订货-同创浦江付款申请流程", level: 2, text: "同创浦江付款申请流程" },
-            { id: "采购端-华菱现货订货-台账编辑", level: 2, text: "台账编辑" },
-            { id: "采购端-华菱现货订货-FAQ", level: 2, text: "FAQ" }
-          ]
-        },
-        {
-          id: "采购端-同步",
-          level: 1,
-          text: "采购端 · 同步",
-          children: [
-            { id: "采购端-同步-采购合同导入", level: 2, text: "采购合同导入" },
-            { id: "采购端-同步-销售合同导入", level: 2, text: "销售合同导入" },
-            { id: "采购端-同步-配定金", level: 2, text: "配定金" },
-            { id: "采购端-同步-社会库抬头变更", level: 2, text: "社会库抬头变更" },
-            { id: "采购端-同步-FAQ", level: 2, text: "FAQ" }
-          ]
-        }
-      ]
-    },
-    // ==================== 销售端 ====================
-    {
-      id: "销售端",
-      level: 0,
-      text: "销售端",
-      children: [
-        { id: "销售端-让步单", level: 1, text: "销售端 · 让步单", children: [
-          { id: "销售端-让步单-让步单查询", level: 2, text: "让步单查询" },
-          { id: "销售端-让步单-让步单咨询", level: 2, text: "让步单咨询" },
-          { id: "销售端-让步单-让步单回复", level: 2, text: "让步单回复" },
-          { id: "销售端-让步单-FAQ", level: 2, text: "FAQ" }
-        ]},
-        { id: "销售端-插行", level: 1, text: "销售端 · 插行", children: [
-          { id: "销售端-插行-准发下载", level: 2, text: "准发下载" },
-          { id: "销售端-插行-整理表格", level: 2, text: "整理表格" },
-          { id: "销售端-插行-台账编辑", level: 2, text: "台账编辑" },
-          { id: "销售端-插行-FAQ", level: 2, text: "FAQ" }
-        ]},
-        { id: "销售端-结案", level: 1, text: "销售端 · 结案", children: [
-          { id: "销售端-结案-订单跟踪下载", level: 2, text: "订单跟踪下载" },
-          { id: "销售端-结案-台账编辑", level: 2, text: "台账编辑" },
-          { id: "销售端-结案-生产跟踪查询", level: 2, text: "生产跟踪查询" },
-          { id: "销售端-结案-FAQ", level: 2, text: "FAQ" }
-        ]},
-        { id: "销售端-自由款", level: 1, text: "销售端 · 自由款", children: [
-          { id: "销售端-自由款-自由款查询", level: 2, text: "自由款查询" },
-          { id: "销售端-自由款-自由款记录", level: 2, text: "自由款记录" },
-          { id: "销售端-自由款-收货单位为中集同创", level: 2, text: "收货单位为中集同创" },
-          { id: "销售端-自由款-客户为安裕麟和凌硕", level: 2, text: "客户为安裕麟和凌硕" },
-          { id: "销售端-自由款-FAQ", level: 2, text: "FAQ" }
-        ]},
-        { id: "销售端-电子提单", level: 1, text: "销售端 · 电子提单", children: [
-          { id: "销售端-电子提单-欠款查询", level: 2, text: "欠款查询" },
-          { id: "销售端-电子提单-欠款配款", level: 2, text: "欠款配款" },
-          { id: "销售端-电子提单-FAQ", level: 2, text: "FAQ" }
-        ]},
-        { id: "销售端-入库", level: 1, text: "销售端 · 入库", children: [
-          { id: "销售端-入库-云仓库存下载", level: 2, text: "云仓库存下载" },
-          { id: "销售端-入库-台账编辑", level: 2, text: "台账编辑" },
-          { id: "销售端-入库-告知客户", level: 2, text: "告知客户" },
-          { id: "销售端-入库-采购到货单编辑", level: 2, text: "采购到货单编辑" },
-          { id: "销售端-入库-采购到货单导入", level: 2, text: "采购到货单导入" },
-          { id: "销售端-入库-FAQ", level: 2, text: "FAQ" }
-        ]},
-        { id: "销售端-转货权", level: 1, text: "销售端 · 转货权", children: [
-          { id: "销售端-转货权-台账登记", level: 2, text: "台账登记" },
-          { id: "销售端-转货权-配款", level: 2, text: "配款" },
-          { id: "销售端-转货权-FAQ", level: 2, text: "FAQ" }
-        ]},
-        { id: "销售端-质量异议", level: 1, text: "销售端 · 质量异议", children: [
-          { id: "销售端-质量异议-需求抱怨", level: 2, text: "需求抱怨" },
-          { id: "销售端-质量异议-折扣处理登记表", level: 2, text: "折扣处理登记表" },
-          { id: "销售端-质量异议-折扣单编辑", level: 2, text: "折扣单编辑" },
-          { id: "销售端-质量异议-FAQ", level: 2, text: "FAQ" }
-        ]},
-        { id: "销售端-销售开票", level: 1, text: "销售端 · 销售开票", children: [
-          { id: "销售端-销售开票-销售出库", level: 2, text: "销售出库" },
-          { id: "销售端-销售开票-应收结算", level: 2, text: "应收结算" },
-          { id: "销售端-销售开票-台账登记", level: 2, text: "台账登记" },
-          { id: "销售端-销售开票-结算单编辑", level: 2, text: "结算单编辑" },
-          { id: "销售端-销售开票-FAQ", level: 2, text: "FAQ" }
-        ]},
-        { id: "销售端-采购发票", level: 1, text: "销售端 · 采购发票", children: [
-          { id: "销售端-采购发票-宝钢发票", level: 2, text: "宝钢发票" },
-          { id: "销售端-采购发票-JFE发票", level: 2, text: "JFE发票" },
-          { id: "销售端-采购发票-FAQ", level: 2, text: "FAQ" }
-        ]}
-      ]
-    },
-    // ==================== 善后端 ====================
-    {
-      id: "善后端",
-      level: 0,
-      text: "善后端",
-      children: [
-        { id: "善后端-财务需要采购合同", level: 1, text: "善后端 · 财务需要采购合同", children: [
-          { id: "善后端-财务需要采购合同-操作流程", level: 2, text: "操作流程" }
-        ]},
-        { id: "善后端-月末资金归集", level: 1, text: "善后端 · 月末资金归集", children: [
-          { id: "善后端-月末资金归集-通知客户", level: 2, text: "通知客户" }
-        ]},
-        { id: "善后端-月末财务余款", level: 1, text: "善后端 · 月末财务余款", children: [
-          { id: "善后端-月末财务余款-通知客户", level: 2, text: "通知客户" }
-        ]},
-        { id: "善后端-年中年末对账函", level: 1, text: "善后端 · 年中年末对账函", children: [
-          { id: "善后端-对账函-对账函流程", level: 2, text: "对账函流程" }
-        ]},
-        { id: "善后端-退款申请", level: 1, text: "善后端 · 退款申请", children: [
-          { id: "善后端-退款申请-退款申请单", level: 2, text: "退款申请单" }
-        ]},
-        { id: "善后端-待确认成本", level: 1, text: "善后端 · 待确认成本", children: [
-          { id: "善后端-待确认成本-通知客户", level: 2, text: "通知客户" }
-        ]}
-      ]
-    },
-    // ==================== 勤杂组 ====================
-    {
-      id: "勤杂组",
-      level: 0,
-      text: "勤杂组",
-      children: [
-        { id: "勤杂组-OTL操作手册编写规范", level: 1, text: "勤杂组 · OTL操作手册编写规范", children: [
-          { id: "勤杂组-OTL操作手册编写规范-历史", level: 2, text: "历史" },
-          { id: "勤杂组-OTL操作手册编写规范-纲要", level: 2, text: "纲要" }
-        ]},
-        { id: "勤杂组-用印申请", level: 1, text: "勤杂组 · 用印申请", children: [
-          { id: "勤杂组-用印申请-同创浦江申请用印流程公章", level: 2, text: "同创浦江申请用印流程（公章）" }
-        ]},
-        { id: "勤杂组-退款申请", level: 1, text: "勤杂组 · 退款申请", children: [
-          { id: "勤杂组-退款申请-退款流程", level: 2, text: "退款流程" }
-        ]},
-        { id: "勤杂组-员工月度考核表", level: 1, text: "勤杂组 · 员工月度考核表", children: [
-          { id: "勤杂组-员工月度考核表-考核表编辑", level: 2, text: "考核表编辑" }
-        ]},
-        { id: "勤杂组-未到卷查询", level: 1, text: "勤杂组 · 未到卷查询", children: [
-          { id: "勤杂组-未到卷查询-问仓库", level: 2, text: "问仓库" },
-          { id: "勤杂组-未到卷查询-查出厂码单", level: 2, text: "查出厂码单" },
-          { id: "勤杂组-未到卷查询-查送货单", level: 2, text: "查送货单" }
-        ]},
-        { id: "勤杂组-新装C9", level: 1, text: "勤杂组 · 新装C9", children: [
-          { id: "勤杂组-新装C9-获取权限", level: 2, text: "获取权限" }
-        ]},
-        { id: "勤杂组-无法连接到Internet", level: 1, text: "勤杂组 · 无法连接到Internet", children: [
-          { id: "勤杂组-无法连接到Internet-重启", level: 2, text: "重启" },
-          { id: "勤杂组-无法连接到Internet-飞行模式", level: 2, text: "飞行模式" },
-          { id: "勤杂组-无法连接到Internet-网络适配器", level: 2, text: "网络适配器" }
-        ]},
-        { id: "勤杂组-宏程序", level: 1, text: "勤杂组 · 宏程序", children: [
-          { id: "勤杂组-宏程序-手工提单", level: 2, text: "手工提单" }
-        ]}
-      ]
-    }
-  ]
-};
+// ========== Markdown 文件列表 ==========
+const MARKDOWN_FILES = [
+    { id: 'zhunru',   title: '准入端',   file: '准入端.md' },
+    { id: 'caigou',   title: '采购端',   file: '采购端.md' },
+    { id: 'xiaoshou', title: '销售端',   file: '销售端.md' },
+    { id: 'shanshou', title: '善后端',   file: '善后端.md' },
+    { id: 'qinza',    title: '勤杂组',   file: '勤杂组.md' }
+];
 
-// ============================================================
-// 2. 渲染目录
-// ============================================================
-function renderSidebar() {
-  const menu = document.getElementById('sidebarMenu');
-  menu.innerHTML = '';
-  
-  function addItem(section, depth) {
+// ========== 全局状态 ==========
+let allContent = '';        // 所有 Markdown 拼接
+let tocData = [];           // 目录数据
+let currentSection = null;  // 当前可见的 section
+
+// ========== 加载所有 Markdown 文件 ==========
+async function loadAllMarkdown() {
+    const contentArea = document.getElementById('content-area');
+    
+    try {
+        let combined = '';
+        for (const md of MARKDOWN_FILES) {
+            const response = await fetch(md.file);
+            if (!response.ok) {
+                console.warn(`加载 ${md.file} 失败: ${response.status}`);
+                combined += `\n\n## ${md.title}\n\n> ⚠️ 文件 ${md.file} 加载失败，请确认文件已上传。\n\n`;
+                continue;
+            }
+            const text = await response.text();
+            combined += '\n\n' + text;
+        }
+        
+        allContent = combined;
+        
+        // 生成目录
+        generateToc(combined);
+        
+        // 渲染内容
+        renderContent(combined);
+        
+    } catch (err) {
+        contentArea.innerHTML = `<div style="padding:40px;color:#c00;">
+            <h2>加载失败</h2>
+            <p>${err.message}</p>
+            <p>请确保：</p>
+            <ul>
+                <li>五个 .md 文件已上传到同一目录</li>
+                <li>文件名为：准入端.md、采购端.md、销售端.md、善后端.md、勤杂组.md</li>
+                <li>通过 HTTP 服务器访问（而非直接打开本地文件）</li>
+            </ul>
+        </div>`;
+    }
+}
+
+// ========== 生成目录树 ==========
+function generateToc(markdown) {
+    // 用 marked.lexer 解析 Markdown 结构
+    const tokens = marked.lexer(markdown);
+    const toc = [];
+    let currentH1 = null, currentH2 = null, currentH3 = null;
+    
+    for (const token of tokens) {
+        if (token.type === 'heading' && token.depth >= 1 && token.depth <= 4) {
+            const id = token.text.replace(/\s+/g, '-').replace(/[·•]/g, '').replace(/[^\w\u4e00-\u9fff-]/g, '').toLowerCase();
+            const item = { 
+                text: token.text, 
+                id: id, 
+                depth: token.depth,
+                children: []
+            };
+            
+            if (token.depth === 1) {
+                toc.push(item);
+                currentH1 = item;
+                currentH2 = null;
+                currentH3 = null;
+            } else if (token.depth === 2) {
+                if (currentH1) {
+                    currentH1.children.push(item);
+                } else {
+                    toc.push(item);
+                }
+                currentH2 = item;
+                currentH3 = null;
+            } else if (token.depth === 3) {
+                if (currentH2) {
+                    currentH2.children.push(item);
+                } else if (currentH1) {
+                    currentH1.children.push(item);
+                } else {
+                    toc.push(item);
+                }
+                currentH3 = item;
+            } else if (token.depth === 4) {
+                if (currentH3) {
+                    currentH3.children.push(item);
+                } else if (currentH2) {
+                    currentH2.children.push(item);
+                } else if (currentH1) {
+                    currentH1.children.push(item);
+                } else {
+                    toc.push(item);
+                }
+            }
+        }
+    }
+    
+    tocData = toc;
+    renderToc(toc);
+}
+
+// ========== 渲染目录树 ==========
+function renderToc(toc) {
+    const container = document.getElementById('toc');
+    container.innerHTML = '';
+    
+    for (const item of toc) {
+        const li = createTocItem(item, 0);
+        container.appendChild(li);
+    }
+}
+
+function createTocItem(item, level) {
+    const li = document.createElement('li');
+    li.className = `toc-item toc-level-${Math.min(level + 1, 4)}`;
+    
+    const hasChildren = item.children && item.children.length > 0;
+    
+    // 链接
     const a = document.createElement('a');
-    a.className = `sidebar-item level-${depth}`;
-    a.href = `#${section.id}`;
-    a.textContent = section.text;
-    a.dataset.id = section.id;
-    
-    if (section.children && section.children.length > 0) {
-      a.classList.add('has-children');
-    }
-    
+    a.href = `#${item.id}`;
+    a.textContent = item.text;
     a.addEventListener('click', function(e) {
-      // 高亮当前项
-      document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-      this.classList.add('active');
-      
-      // 如果是可折叠项，点击箭头区域切换折叠
-      // 但由于我们使用锚点跳转，点击会跳转，这里不做折叠切换
+        e.preventDefault();
+        const target = document.getElementById(item.id);
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        // 高亮当前
+        document.querySelectorAll('.toc-item a').forEach(el => el.classList.remove('active'));
+        this.classList.add('active');
     });
     
-    menu.appendChild(a);
-    
-    if (section.children && section.children.length > 0) {
-      section.children.forEach(child => addItem(child, depth + 1));
+    if (hasChildren) {
+        // 可折叠
+        const toggle = document.createElement('span');
+        toggle.className = 'toc-toggle expanded';
+        toggle.textContent = '▶';
+        toggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('expanded');
+            const children = this.parentElement.querySelector('.toc-children');
+            if (children) {
+                children.classList.toggle('expanded');
+            }
+        });
+        li.appendChild(toggle);
+        li.appendChild(a);
+        
+        const childrenUl = document.createElement('ul');
+        childrenUl.className = 'toc-children expanded';
+        for (const child of item.children) {
+            const childLi = createTocItem(child, level + 1);
+            childrenUl.appendChild(childLi);
+        }
+        li.appendChild(childrenUl);
+    } else {
+        li.appendChild(a);
     }
-  }
-  
-  docData.sections.forEach(section => addItem(section, 0));
+    
+    return li;
 }
 
-// ============================================================
-// 3. 渲染内容
-// ============================================================
-function renderContent() {
-  const container = document.getElementById('mainContent');
-  let html = '';
-  
-  // 文档标题
-  html += `<div class="doc-title">${docData.title}</div>`;
-  
-  // 递归渲染章节
-  function renderSection(section, depth) {
-    const tag = ['h1', 'h2', 'h3', 'h4'][Math.min(depth, 3)];
-    html += `<${tag} id="${section.id}">${section.text}</${tag}>`;
+// ========== 渲染 Markdown 内容 ==========
+function renderContent(markdown) {
+    // 使用 marked 渲染
+    const renderer = new marked.Renderer();
     
-    if (section.children && section.children.length > 0) {
-      section.children.forEach(child => renderSection(child, depth + 1));
-    }
-  }
-  
-  docData.sections.forEach(section => renderSection(section, 0));
-  
-  container.innerHTML = html;
-}
-
-// ============================================================
-// 4. 初始化
-// ============================================================
-renderSidebar();
-renderContent();
-
-// 滚动监听高亮当前目录项
-document.addEventListener('scroll', function() {
-  const sections = document.querySelectorAll('h1, h2, h3, h4');
-  let currentId = '';
-  
-  sections.forEach(section => {
-    const rect = section.getBoundingClientRect();
-    if (rect.top <= 100) {
-      currentId = section.id;
-    }
-  });
-  
-  if (currentId) {
-    document.querySelectorAll('.sidebar-item').forEach(el => {
-      el.classList.remove('active');
-      if (el.dataset.id === currentId) {
-        el.classList.add('active');
-      }
+    // 自定义标题渲染（添加锚点 id）
+    renderer.heading = function(text, level) {
+        const id = text.replace(/\s+/g, '-').replace(/[·•]/g, '').replace(/[^\w\u4e00-\u9fff-]/g, '').toLowerCase();
+        return `<h${level} id="${id}">${text}</h${level}>`;
+    };
+    
+    // 自定义 blockquote 渲染（高亮块）
+    renderer.blockquote = function(quote) {
+        return `<blockquote>${quote}</blockquote>`;
+    };
+    
+    // 自定义代码渲染
+    renderer.codespan = function(code) {
+        return `<code>${code}</code>`;
+    };
+    
+    // 自定义段落渲染（处理 ⚠ 警告行）
+    renderer.paragraph = function(text) {
+        if (text.startsWith('⚠')) {
+            return `<div class="warning-block">${text}</div>`;
+        }
+        return `<p>${text}</p>`;
+    };
+    
+    marked.setOptions({
+        renderer: renderer,
+        breaks: true,
+        gfm: true
     });
-  }
-});
+    
+    const html = marked.parse(markdown);
+    document.getElementById('content-area').innerHTML = html;
+    
+    // 移除加载状态
+    document.getElementById('loading')?.remove();
+}
+
+// ========== 侧栏折叠 ==========
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main-content');
+    sidebar.classList.toggle('collapsed');
+    main.classList.toggle('expanded');
+}
+
+// ========== 页面滚动高亮当前目录项 ==========
+function updateActiveTocItem() {
+    const headings = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id]');
+    let currentId = null;
+    
+    for (const heading of headings) {
+        const rect = heading.getBoundingClientRect();
+        if (rect.top <= 100) {
+            currentId = heading.id;
+        }
+    }
+    
+    if (currentId) {
+        document.querySelectorAll('.toc-item a').forEach(el => {
+            el.classList.remove('active');
+            if (el.getAttribute('href') === `#${currentId}`) {
+                el.classList.add('active');
+            }
+        });
+    }
+}
+
+window.addEventListener('scroll', updateActiveTocItem);
+
+// ========== 启动 ==========
+document.addEventListener('DOMContentLoaded', loadAllMarkdown);
 </script>
 
 </body>
