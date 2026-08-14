@@ -8,14 +8,14 @@
   * { margin:0; padding:0; box-sizing:border-box; }
 
   :root {
-    --primary: #1e6fff;
-    --primary-light: #e8f0ff;
-    --sidebar-bg: #f7f9fc;
+    --primary: #0066CC;           /* 主题蓝色 */
+    --sidebar-bg: #f7f9fc;        /* 左侧目录浅灰背景 */
     --content-bg: #ffffff;
     --border: #e0e5ee;
     --text: #1a1a1a;
     --text-secondary: #555;
-    --keyword-bg: #f0f2f5;
+    --code-bg: #F2F2F2;           /* 代码背景色 */
+    --keyword-bg: #F2F2F2;        /* 关键字底纹 */
   }
 
   body {
@@ -35,7 +35,7 @@
     position: sticky;
     top: 0;
     flex-shrink: 0;
-    width: 320px;
+    width: 380px;                 /* 固定宽度，保持完整显示 */
     height: 100vh;
     overflow-y: auto;
     overflow-x: auto;
@@ -137,7 +137,7 @@
   }
 
   pre {
-    background: var(--content-bg);
+    background: var(--code-bg);   /* 代码背景 #F2F2F2 */
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 16px;
@@ -155,7 +155,7 @@
     font-size: 14px;
   }
 
-  /* 关键词灰色淡底色 */
+  /* 关键词灰色底纹 */
   .kw {
     background: var(--keyword-bg);
     padding: 1px 4px;
