@@ -1,0 +1,1671 @@
+<div class="doc-title">采购端</div>
+
+<h1 id="采购端">采购端</h1>
+
+<h2 id="采购端·订货">采购端 · 订货</h2>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端订货PSR码编辑">采购端 · 订货 · PSR码编辑</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “群聊”</p>
+  <p><span class="cmd">Ctrl + C</span> “宝钢期货(确认下单)(凡川)”</p>
+  <p><span class="cmd">Open</span> “4t容量慢 - 40.【凡川-上海宝钢】 - 钢贸 - 当前下单月 - 1、下单明细”</p>
+  <p><span class="cmd">Ctrl + V</span></p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单)(凡川)”</p>
+  <p><span class="cmd">Ctrl + C</span> “下单时间（A）”</p>
+  <p><span class="cmd">Ctrl + C</span> “产线（B）”</p>
+  <p><span class="cmd">Ctrl + C</span> “牌号（C）”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（D）”</p>
+  <p><span class="cmd">Ctrl + C</span> “厚度（E）”</p>
+  <p><span class="cmd">Ctrl + C</span> “宽度（F）”</p>
+  <p><span class="cmd">Ctrl + C</span> “长度（G）”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货量（H）”</p>
+  <p><span class="cmd">Ctrl + C</span> “下家（I）”</p>
+  <p><span class="cmd">Ctrl + C</span> “要求(默认FB+8M+16T)（J）”</p>
+  <p><span class="cmd">Ctrl + C</span> “流向（K）”</p>
+  <p><span class="cmd">Ctrl + C</span> “备注1（L）”</p>
+  <p><span class="cmd">Ctrl + C</span> “备注2（M）”</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + V</span> “订货卡（A）”</p>
+  <p><span class="cmd">Ctrl + D</span> “FB（R）”</p>
+  <p><span class="cmd">Ctrl + D</span> “FC（V）”</p>
+  <p><span class="cmd">Write</span> “PSR（N）” （FB <span class="or-option">Or</span> FC）</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 若 “要求(默认FB+8M+7-16T)（J）”无备注或备注为 FB 则填写 FB</p>
+  <p>⚠ 若 “要求(默认FB+8M+7-16T)（J）”备注为 FC 则填写 FC</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Ctrl + S</span></p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端订货客户模板编辑">采购端 · 订货 · 客户模板编辑</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + C</span> “牌号（C）”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（D）”</p>
+  <p><span class="cmd">Open</span> “顺序号 - 批次号 - 吨位 - 客户 - 仓库”</p>
+  <p><span class="cmd">Ctrl + V</span> “牌号（B）”</p>
+  <p><span class="cmd">Alt + 5</span> “厚度（C）”</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货量（H）”</p>
+  <p><span class="cmd">Open</span> “顺序号 - 批次号 - 吨位 - 客户 - 仓库”</p>
+  <p><span class="cmd">Ctrl + V</span> “订货量（E）”</p>
+  <p><span class="cmd">Write</span> “表面质量代码（F）” （FB <span class="or-option">Or</span> FC）</p>
+  <p><span class="cmd">Write</span> “包装方式代码（G）” （8m <span class="or-option">Or</span> 2m <span class="or-option">Or</span> n0 <span class="or-option">Or</span> n1 <span class="or-option">Or</span> m8）</p>
+  <p><span class="cmd">Write</span> “最小件重（H）” （<span class="variable">【最小件重】</span>）</p>
+  <p><span class="cmd">Write</span> “最大件重（I）” （<span class="variable">【最大件重】</span>）</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + C</span> “PSR（N）”</p>
+  <p><span class="cmd">Open</span> “顺序号 - 批次号 - 吨位 - 客户 - 仓库”</p>
+  <p><span class="cmd">Ctrl + V</span> “PSR（J）”</p>
+  <p><span class="cmd">Write</span> “钢卷内径（K）” （<span class="variable">【钢卷内径】</span>）</p>
+  <p><span class="cmd">Write</span> “切边形态（L）” （C）</p>
+  <p><span class="cmd">Write</span> “件重代码（M）” （L99）</p>
+  <p><span class="cmd">Write</span> “品种附属码（N）” （TL11）</p>
+  <p><span class="cmd">Write</span> “apn（O）” （LA50）</p>
+  <p><span class="cmd">Write</span> “好面朝向（P）” （1）</p>
+  <p><span class="cmd">Write</span> “涂油重量代码（Q）” （03）</p>
+  <p><span class="cmd">Write</span> “按周月交货标记（R）” （C）</p>
+  <p><span class="cmd">Write</span> “目标件重（S）” （= 最大件重（I））</p>
+  <p><span class="cmd">Ctrl + D</span> “钢卷内径（K）”</p>
+  <p><span class="cmd">Ctrl + D</span> “切边形态（L）”</p>
+  <p><span class="cmd">Ctrl + D</span> “件重代码（M）”</p>
+  <p><span class="cmd">Ctrl + D</span> “品种附属码（N）”</p>
+  <p><span class="cmd">Ctrl + D</span> “apn（O）”</p>
+  <p><span class="cmd">Ctrl + D</span> “好面朝向（P）”</p>
+  <p><span class="cmd">Ctrl + D</span> “涂油重量代码（Q）”</p>
+  <p><span class="cmd">Ctrl + D</span> “按周月交货标记（R）”</p>
+  <p><span class="cmd">Ctrl + D</span> “目标件重（S）”</p>
+  <p><span class="cmd">Write</span> “交货期YYYYMMDD（A）” （<span class="variable">【交货期YYYYMMDD】</span>）</p>
+  <p><span class="cmd">Ctrl + D</span> “交货期YYYYMMDD（A）”</p>
+  <p><span class="cmd">Ctrl + S</span></p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端订货订货卡编辑">采购端 · 订货 · 订货卡编辑</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “4t容量慢 - 40.【凡川-上海宝钢】 - 钢贸 - 01.汇总表”</p>
+  <p><span class="cmd">Write</span> “订货量（F）” （<span class="variable">【订货量】</span>）</p>
+  <p><span class="cmd">Write</span> “仓库（I）” （<span class="variable">【仓库】</span>）</p>
+  <p><span class="cmd">Ctrl + C</span> 之前的对应仓库的 “订货卡号（B）”</p>
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订货管理 - 订货卡”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “复制订货卡”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “重置”</p>
+  <p><span class="cmd">Ctrl + V</span> “订货卡” - “订货卡号”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “主项”</p>
+  <p><span class="cmd">Write</span> “订货卡” - “最早交货月” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订货卡” - “导入” （<span class="variable">【顺序号 - 批次号 - 吨位 - 客户 - 仓库】</span>）</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “保存”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “确定”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货卡” - “订货卡片号”</p>
+  <p><span class="cmd">Open</span> “汇总表”</p>
+  <p><span class="cmd">Ctrl + V</span> “订货卡号（B）”</p>
+  <p><span class="cmd">Ctrl + S</span></p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端订货订货卡检查与提交">采购端 · 订货 · 订货卡检查与提交</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + C</span> “牌号（C）”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（D）”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货量（H）”</p>
+  <p><span class="cmd">Ctrl + C</span> “要求（J）”</p>
+  <p><span class="cmd">Ctrl + C</span> “流向备注（K）”</p>
+  <p><span class="cmd">Ctrl + C</span> “PSR（N）”</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板 - 散单核对”</p>
+  <p><span class="cmd">Ctrl + V</span> “牌号（A）”</p>
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订货管理 - 订货卡”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “返回”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “重置”</p>
+  <p><span class="cmd">Write</span> “订货卡” - “交货期起” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订货卡” - “交货期止” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订货卡” - “最终用户” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “订货卡” - “订货卡状态” （客户录入）</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “下载”</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “下载文件”</p>
+  <p><span class="cmd">Filter</span> “订货卡子项号（C）” （升序）</p>
+  <p><span class="cmd">Ctrl + C</span> “子项订货重量（K）”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格描述（P）”</p>
+  <p><span class="cmd">Ctrl + C</span> “牌号（Q）”</p>
+  <p><span class="cmd">Ctrl + C</span> “最大件重（U）”</p>
+  <p><span class="cmd">Ctrl + C</span> “最小件重（V）”</p>
+  <p><span class="cmd">Ctrl + C</span> “表面质量（Z）”</p>
+  <p><span class="cmd">Ctrl + C</span> “包装方式（AC）”</p>
+  <p><span class="cmd">Ctrl + C</span> “PSR（AD）”</p>
+  <p><span class="cmd">Ctrl + C</span> “交货地点（AI）”</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板 - 散单核对”</p>
+  <p><span class="cmd">Ctrl + V</span> “子项订货重量（H）”</p>
+  <p><span class="cmd">Ctrl + D</span> “牌号（R）”</p>
+  <p><span class="cmd">Ctrl + D</span> “规格（S）”</p>
+  <p><span class="cmd">Ctrl + D</span> “订货量（T）”</p>
+  <p><span class="cmd">Ctrl + D</span> “PSR（U）”</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 注意看“R - U”是否为“TRUE”。如果不是则需要检查原因。</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Ctrl + S</span></p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订货管理 - 订货卡”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “◻️”</p>
+  <p><span class="cmd">Left Click</span> “订货卡” - “提交”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端订货订货卡二次检查">采购端 · 订货 · 订货卡二次检查</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “重置”</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期起” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期止” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “最终用户” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “订单号”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “导出”</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “合同子项”</p>
+  <p><span class="cmd">Ctrl + C</span> “尺寸规格（E）”</p>
+  <p><span class="cmd">Ctrl + C</span> “牌号（F）”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货重量（H）”</p>
+  <p><span class="cmd">Ctrl + C</span> “最大件重（M）”</p>
+  <p><span class="cmd">Ctrl + C</span> “最小件重（N）”</p>
+  <p><span class="cmd">Ctrl + C</span> “包装方式代码（Z）”</p>
+  <p><span class="cmd">Ctrl + C</span> “交货地点（AE）”</p>
+  <p><span class="cmd">Ctrl + C</span> “PSR（AM）”</p>
+  <p><span class="cmd">Ctrl + C</span> “表面质量（BD）”</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板 - 散单核对”</p>
+  <p><span class="cmd">Ctrl + V</span> “尺寸规格（W）”</p>
+  <p><span class="cmd">Ctrl + D</span> “牌号（AG）”</p>
+  <p><span class="cmd">Ctrl + D</span> “规格（AH）”</p>
+  <p><span class="cmd">Ctrl + D</span> “订货量（AI）”</p>
+  <p><span class="cmd">Ctrl + D</span> “PSR（AJ）”</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 注意看“AG - AJ”是否为“TRUE”。如果不是则需要检查原因。</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Ctrl + S</span></p>
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Ctrl + C</span> “订单总览” - “订单号”</p>
+  <p><span class="cmd">Open</span> “汇总表”</p>
+  <p><span class="cmd">Ctrl + V</span> “合同号（C）”</p>
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Ctrl + C</span> “订单总览” - “总金额（含税）”</p>
+  <p><span class="cmd">Open</span> “汇总表”</p>
+  <p><span class="cmd">Ctrl + V</span> “采购合同金额（G）”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端订货FAQ">采购端 · 订货 · FAQ</h3>
+
+<h4 id="caigoufaq1">• 如何“变更订货卡”？</h4>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “重置”</p>
+  <p><span class="cmd">Write</span> “订单总览” - “钢厂订单号” （<span class="variable">【钢厂订单号】</span>）</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询”</p>
+  <p><span class="cmd">Ctrl + C</span> “订单号”</p>
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单变更”</p>
+  <p><span class="cmd">Left Click</span> “订单变更” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订单变更” - “重置”</p>
+  <p><span class="cmd">Ctrl + V</span> “订单变更” - “订单号”</p>
+  <p><span class="cmd">Left Click</span> “订单变更” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订单变更” - “订单号”</p>
+  <p><span class="cmd">Left Click</span> “订单变更” - “申请变更”</p>
+  <p><span class="cmd">Write</span> “订单变更” - “变更原因” （<span class="variable">【变更原因】</span>）</p>
+  <p><span class="cmd">Left Click</span> “订单变更” - “选择需变更的订单子项” （<span class="variable">【选择需变更的订单子项】</span>）</p>
+  <p><span class="cmd">Left Click</span> “订单变更” - “选择变更范围” （<span class="variable">【选择变更范围】</span>）</p>
+  <p><span class="cmd">Left Click</span> “订单变更” - “生成变更信息 - 生成”</p>
+  <p><span class="cmd">Write</span> “订单变更” - “子项变更内容 - 变更后值” （<span class="variable">【变更后值】</span>）</p>
+  <p><span class="cmd">Left Click</span> “订单变更” - “提交”</p>
+</div>
+
+<h4 id="caigoufaq2">• 如何“在次月首日与客户核对订货是否有误”？</h4>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “重置”</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期起” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期止” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “最终用户” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “Excel下载 - 贸易总表”</p>
+  <p><span class="cmd">Open</span> “汇总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “合同号（C）”</p>
+  <p><span class="cmd">Ctrl + C</span> “客户（J）”</p>
+  <p><span class="cmd">Open</span> “下载文件”</p>
+  <p><span class="cmd">Ctrl + V</span> “（BZ）”</p>
+  <p><span class="cmd">Write</span> “（BY）” （= VLOOKUP （销售订单号（I），BZ：CA，2，0））</p>
+  <p><span class="cmd">Ctrl + D</span> “（BY）”</p>
+  <p><span class="cmd">Right Click</span> “钢厂订单号（Q）” （在右侧插入列）</p>
+  <p><span class="cmd">Ctrl + C</span> “（BZ）”</p>
+  <p><span class="cmd">Ctrl + V</span> “（R）”</p>
+  <p><span class="cmd">Right Click</span> “（BZ）” （删除）</p>
+  <p><span class="cmd">Right Click</span> “（CA）” （删除）</p>
+  <p><span class="cmd">Right Click</span> “（CB）” （删除）</p>
+  <p><span class="cmd">Ctrl + S</span></p>
+  <p>命名为贸易总表+日期，发给张晗。</p>
+  <p><span class="cmd">Open</span> “下载文件”</p>
+  <p><span class="cmd">Write</span> “客户（R）” （凌硕）</p>
+  <p><span class="cmd">Ctrl + C</span> “销售订单号（I）”</p>
+  <p><span class="cmd">Ctrl + C</span> “销售订单子项号（J）”</p>
+  <p><span class="cmd">Ctrl + C</span> “品种代码（K）”</p>
+  <p><span class="cmd">Ctrl + C</span> “品种名称（L）”</p>
+  <p><span class="cmd">Ctrl + C</span> “牌号（M）”</p>
+  <p><span class="cmd">Ctrl + C</span> “制造厂别代码（N）”</p>
+  <p><span class="cmd">Ctrl + C</span> “制造厂别（O）”</p>
+  <p><span class="cmd">Ctrl + C</span> “制造单元（P）”</p>
+  <p><span class="cmd">Ctrl + C</span> “钢厂订单号（Q）”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（S）”</p>
+  <p><span class="cmd">Ctrl + C</span> “钢卷内径（X）”</p>
+  <p><span class="cmd">Ctrl + C</span> “包装方式代码（Y）”</p>
+  <p><span class="cmd">Ctrl + C</span> “表面质量（Z）”</p>
+  <p><span class="cmd">Ctrl + C</span> “最小件重（AB）”</p>
+  <p><span class="cmd">Ctrl + C</span> “最大件重（AC）”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货重量（AE）”</p>
+  <p><span class="cmd">Ctrl + C</span> “收货单位名称（AW）”</p>
+  <p><span class="cmd">Ctrl + C</span> “apn（BD）”</p>
+  <p><span class="cmd">Ctrl + C</span> “psr（BE）”</p>
+  <p><span class="cmd">Ctrl + C</span> “终到站（BJ）”</p>
+  <p><span class="cmd">Ctrl + C</span> “产品描述（BT）”</p>
+  <p><span class="cmd">Ctrl + C</span> “切边形态（BV）”</p>
+  <p><span class="cmd">Ctrl + S</span></p>
+  <p>命名为贸易总表+日期，发给凌硕。</p>
+</div>
+
+<h4 id="caigoufaq3">• 出现“箱板订货”时，该怎么办？</h4>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + C</span> “牌号（C）”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（D）”</p>
+  <p><span class="cmd">Open</span> “顺序号 - 批次号 - 吨位 - 客户 - 仓库”</p>
+  <p><span class="cmd">Ctrl + V</span> “牌号（B）”</p>
+  <p><span class="cmd">Alt + 5</span> “厚度（C）”</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货量（G）”</p>
+  <p><span class="cmd">Open</span> “顺序号 - 批次号 - 吨位 - 客户 - 仓库”</p>
+  <p><span class="cmd">Ctrl + V</span> “订货量（F）”</p>
+  <p><span class="cmd">Write</span> “表面质量代码（G）” （FB <span class="or-option">Or</span> FC）</p>
+  <p><span class="cmd">Write</span> “包装方式代码（H）” （8m <span class="or-option">Or</span> 2m <span class="or-option">Or</span> n0 <span class="or-option">Or</span> n1 <span class="or-option">Or</span> m8）</p>
+  <p><span class="cmd">Write</span> “最小件重（I）” （<span class="variable">【最小件重】</span>）</p>
+  <p><span class="cmd">Write</span> “最大件重（J）” （<span class="variable">【最大件重】</span>）</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + C</span> “PSR（N）”</p>
+  <p><span class="cmd">Open</span> “顺序号 - 批次号 - 吨位 - 客户 - 仓库”</p>
+  <p><span class="cmd">Ctrl + V</span> “PSR（K）”</p>
+  <p><span class="cmd">Write</span> “钢卷内径（L）” （0）</p>
+  <p><span class="cmd">Write</span> “切边形态（M）” （C）</p>
+  <p><span class="cmd">Write</span> “件重代码（N）” （L99）</p>
+  <p><span class="cmd">Write</span> “品种附属码（O）” （TL11）</p>
+  <p><span class="cmd">Write</span> “apn（P）” （LA50）</p>
+  <p><span class="cmd">Write</span> “按周月交货标记（Q）” （C）</p>
+  <p><span class="cmd">Write</span> “最大宽度（R）” （= 规格（D））</p>
+  <p><span class="cmd">Write</span> “最小宽度（S）” （= 规格（D））</p>
+  <p><span class="cmd">Write</span> “最小长度（T）” （= 最大长度（E））</p>
+  <p><span class="cmd">Write</span> “最大件重（U）” （= 目标件重（J））</p>
+  <p><span class="cmd">Ctrl + D</span> “钢卷内径（L）”</p>
+  <p><span class="cmd">Ctrl + D</span> “切边形态（M）”</p>
+  <p><span class="cmd">Ctrl + D</span> “件重代码（N）”</p>
+  <p><span class="cmd">Ctrl + D</span> “品种附属码（O）”</p>
+  <p><span class="cmd">Ctrl + D</span> “apn（P）”</p>
+  <p><span class="cmd">Ctrl + D</span> “按周月交货标记（Q）”</p>
+  <p><span class="cmd">Ctrl + D</span> “最大宽度（R）”</p>
+  <p><span class="cmd">Ctrl + D</span> “最小宽度（S）”</p>
+  <p><span class="cmd">Ctrl + D</span> “最小长度（T）”</p>
+  <p><span class="cmd">Ctrl + D</span> “最大件重（U）”</p>
+  <p><span class="cmd">Write</span> “交货期YYYYMMDD（A）” （<span class="variable">【交货期YYYYMMDD】</span>）</p>
+  <p><span class="cmd">Ctrl + D</span> “交货期YYYYMMDD（A）”</p>
+  <p><span class="cmd">Ctrl + S</span></p>
+</div>
+
+<h4 id="caigoufaq4">• 出现“厚度TPB，厚度TPC”时，该怎么办？</h4>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + C</span> “牌号（C）”</p>
+  <p><span class="cmd">Open</span> “宝山冷轧热镀锌酸洗PSR+APN 01-03”</p>
+  <p><span class="cmd">Ctrl + F</span> “牌号（R）”</p>
+  <p><span class="cmd">Ctrl + V</span> “牌号（R）”</p>
+  <p><span class="cmd">Ctrl + C</span> “PSR（S）”</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + V</span> “PSR（N）”</p>
+</div>
+
+<h4 id="caigoufaq5">• 出现“没有的PSR码”时，该怎么办？</h4>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “PSR：2023版与旧版企标PSR对照清单”</p>
+  <p><span class="cmd">Filter</span> “牌号（G）” （<span class="variable">【牌号】</span>）</p>
+  <p><span class="cmd">Filter</span> “表面质量（P）” （<span class="variable">【表面质量】</span>）</p>
+  <p><span class="cmd">Filter</span> “热处理种类（S）” （-）</p>
+  <p><span class="cmd">Filter</span> “新版企标PSR（C）” （<span class="variable">【新版企标PSR】</span>）</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 11位的为正确PSR码</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Ctrl + C</span> “新版企标PSR（C）”</p>
+  <p><span class="cmd">Open</span> “宝钢期货(确认下单-中集)000-模板”</p>
+  <p><span class="cmd">Ctrl + V</span> “PSR（N）”</p>
+</div>
+
+<h2 id="采购端·宝钢期货预订货">采购端 · 宝钢 期货（预）订货</h2>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货预订货确认合同金额">采购端 · 宝钢 期货（预）订货 · 确认合同金额</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p>与美晨姐和财务确认好，预合同所需金额，在汇总表里，筛选出所需金额</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货预订货领取合同号">采购端 · 宝钢 期货（预）订货 · 领取合同号</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “中集同创浦江(上海)审批表编号领用登记表”</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “期别（A）” （<span class="variable">【期别】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “材料贸易编号（B）” （<span class="variable">【材料贸易编号】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “合同编号（C）” （<span class="variable">【合同编号】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “领用人（D）” （<span class="variable">【领用人】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “领用日期（E）” （<span class="variable">【当天】</span>）</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货预订货贸易总表下载">采购端 · 宝钢 期货（预）订货 · 贸易总表下载</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “重置”</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期起” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期止” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “最终用户” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “Excel下载 - 贸易总表”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货预订货销售合同编辑">采购端 · 宝钢 期货（预）订货 · 销售合同编辑</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “汇总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “合同号（C）”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + V</span> “（BZ）”</p>
+  <p><span class="cmd">Write</span> “（BY）” （= VLOOKUP （销售订单号（I），BZ：CA，2，0））</p>
+  <p><span class="cmd">Ctrl + D</span> “（BY）”</p>
+  <p><span class="cmd">Filter</span> “（BY）” （0）</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Write</span> “合同号” （<span class="variable">【编号】</span>）</p>
+  <p><span class="cmd">Write</span> “开始交货时间” （<span class="variable">【合同月】</span>）</p>
+  <p><span class="cmd">Write</span> “序号（A）” （<span class="variable">【编号】</span>）</p>
+  <p><span class="cmd">Write</span> “产地（B）” （宝山）</p>
+  <p><span class="cmd">Write</span> “品名（D）” （冷轧板卷）</p>
+  <p><span class="cmd">Write</span> “包装方式（M）” （简包装）</p>
+  <p><span class="cmd">Write</span> “总金额（元）（P）” （=单价(元/吨)（N） * 订货量(吨)（O））</p>
+  <p><span class="cmd">Ctrl + D</span> “产地（B）”</p>
+  <p><span class="cmd">Ctrl + D</span> “品名（D）”</p>
+  <p><span class="cmd">Ctrl + D</span> “包装方式（M）”</p>
+  <p><span class="cmd">Ctrl + D</span> “总金额（元）（P）”</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “钢厂订单号（Q）”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（R）”</p>
+  <p><span class="cmd">Ctrl + C</span> “销售价格(含税)（AJ）”</p>
+  <p><span class="cmd">Open</span> “销售合同 - Sheet1”</p>
+  <p><span class="cmd">Ctrl + V</span> “钢厂订单号（A）”</p>
+  <p><span class="cmd">Write</span> “运费（D）” （-）</p>
+  <p><span class="cmd">Write</span> “代理费（E）” （5）</p>
+  <p><span class="cmd">Write</span> “销售价格（采购价格+运费+代理费）（F）” （=采购价格(含税)（C） + 代理费（E））</p>
+  <p><span class="cmd">Ctrl + D</span> “运费（D）”</p>
+  <p><span class="cmd">Ctrl + D</span> “代理费（E）”</p>
+  <p><span class="cmd">Ctrl + D</span> “销售价格（采购价格+运费+代理费）（F）”</p>
+  <p><span class="cmd">Ctrl + C</span> “销售价格（采购价格+运费+代理费）（F）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “单价(元/吨)（N）”</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（R）”</p>
+  <p><span class="cmd">Ctrl + C</span> “产品描述（BS）”</p>
+  <p><span class="cmd">Open</span> “贸易总表 - Sheet1”</p>
+  <p><span class="cmd">Ctrl + V</span></p>
+  <p><span class="cmd">Write</span> “（C）” （-）</p>
+  <p><span class="cmd">Write</span> “（D）” （= 规格（A） & （C） & 产品描述（B））</p>
+  <p><span class="cmd">Ctrl + D</span> “（C）”</p>
+  <p><span class="cmd">Ctrl + D</span> “（D）”</p>
+  <p><span class="cmd">Ctrl + C</span> “（D）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “规格、技术标准、牌号、产线（F）”</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “最小件重（AA）”</p>
+  <p><span class="cmd">Ctrl + C</span> “最大件重（AB）”</p>
+  <p><span class="cmd">Open</span> “贸易总表 - Sheet2”</p>
+  <p><span class="cmd">Ctrl + V</span></p>
+  <p><span class="cmd">Write</span> “最小件重（A）” （转换为数字）</p>
+  <p><span class="cmd">Write</span> “最大件重（B）” （转换为数字）</p>
+  <p><span class="cmd">Write</span> “（C）” （-）</p>
+  <p><span class="cmd">Write</span> “（D）” （= 最小件重（A） & （C） & 最大件重（B））</p>
+  <p><span class="cmd">Ctrl + D</span> “（C）”</p>
+  <p><span class="cmd">Ctrl + D</span> “（D）”</p>
+  <p><span class="cmd">Ctrl + C</span> “（D）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “目标件重（L）”</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货重量（AD）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “订货量(吨)（O）”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “终到站（BI）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “交货地（Q）”</p>
+  <p><span class="cmd">Write</span> “交货地（Q）” （<span class="variable">【仓库简称】</span>）</p>
+  <p><span class="cmd">Open</span> “销售合同 - Sheet1”</p>
+  <p><span class="cmd">Write</span> “（G）” （= 代理费（E） / （销售价格（F） * 0.55% / 30））</p>
+  <p><span class="cmd">Ctrl + D</span> “（G）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Write</span> “6、货款支付” （合同基础计息基准日起为当月15日。以5月合同为例。实际计息基准日 为 基础计息基准日+【7】天（ “代理费/（销售单价*0.55%/30）”后Ctrl + D 求得平均数，即5月22日。逾期计息基准日为基础计息基准日+120天，即 9月12日。则 “6、货款支付”为 以本合同销售价格为基础，需方在 【2026年05月22日】至 【2026年09月12日】之间支付货款的，【2026年05月22日】起以0.55%/月按天向需方收取超期费用；【2026年09月12】日后支付货款的，自 【2026年09月13日】起以0.65%/月按天向需方收取超期费用。）</p>
+  <p><span class="cmd">Ctrl + S</span> “销售合同”</p>
+  <p>发给 张晗 确认盖章</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货预订货草约下载">采购端 · 宝钢 期货（预）订货 · 草约下载</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “汇总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “合同号（C）”</p>
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “重置”</p>
+  <p><span class="cmd">Ctrl + V</span> “订单总览” - “订单号”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “草约下载”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “下载”</p>
+  <p>重复步骤，全部下载完成后，打包成一个压缩包，命名为 “采购合同”。</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货预订货同创浦江业务合作申请流程">采购端 · 宝钢 期货（预）订货 · 同创浦江业务合作申请流程</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 同创板块 - SAP流程 - 同创浦江业务合作申请流程”</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “制单人” （<span class="variable">【制单人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “单据编号” （<span class="variable">【单据编号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “申请人” （<span class="variable">【申请人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “企业工号” （<span class="variable">【企业工号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “所属部门” （<span class="variable">【所属部门】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “所属岗位” （<span class="variable">【所属岗位】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “所属公司” （中集同创浦江(上海)贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “申请日期” （<span class="variable">【申请日期】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “流程说明” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “业务合作申请类型” （背靠背贸易）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “采购或销售审批人” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “卖方(供应商)” （上海宝钢钢材贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “卖方公司信息更新” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “买方(销售客户)” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “买方公司信息更新” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “供应商编码” （<span class="variable">【供应商编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “销售客户编码” （<span class="variable">【销售客户编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “序号” （1）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “物料名称” （冷轧板卷）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “物料编码” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “物料描述” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “规格” （<span class="variable">【规格】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “数量” （<span class="variable">【数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “计量单位” （吨）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “采购单价” （= （销售单价） - 5）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “销售单价” （= （预计销售合同标总价） / （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “备注” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “预计采购合同标总价” （= （采购单价） * （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “采购其他费用” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “付款条款” （全额预付）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “总数量” （<span class="variable">【总数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “其他” （具体意见：根据客户要求向钢厂进行采购，定向销售给客户，已落实相关资源，该业务风险可控并具备盈利空间，建议开展该采购业务。）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “预计销售合同标总价” （<span class="variable">【预计销售合同标总价】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “预计税前单价利润” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “税前总价利润” （<span class="variable">【税前总价利润】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “付款条款” （15%定金，带款期货）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “其他” （<span class="variable">【客户名称】</span>有需求共 <span class="variable">【X】</span>吨。向客户收取15%合同定金，加价5元每吨。自我司付款之日起至客户货款到我司账上为止，根据敞口部分(全额预付款扣除客户已支付定金的部分)按照0.55%月息(含税)按实际天数向客户收取超期费用;货到仓库后，货权在我司名下，客户分批带款提货;合同正常周期为签约日后180天，120天内按照0.55%月息(含税)标准计息，超过120天后按照0.65%月息(含税)标准计息，若超过180天不提货，我司保留没收定金并自行处理货物的权利。综上，此业务风险完全受控，合同履行有保障，并具有盈利空间，建议开展该钢材购销业务。）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “交易模式与之前” （一致）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “交易模式” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “营销确认” （许美晨）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “分管领导” （张暘）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “附件” （-）</p>
+  <p><span class="cmd">Left Click</span> “同创浦江业务合作申请表” - “提交”</p>
+  <p>审批通过后</p>
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 我的申请 - 同创浦江业务合作申请流程”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江业务合作申请表” - “打印”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江业务合作申请表” - “导出PDF”</p>
+</div>
+<h2 id="采购端·宝钢期货订货">采购端 · 宝钢 期货订货</h2>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货订货领取合同号">采购端 · 宝钢 期货订货 · 领取合同号</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “中集同创浦江(上海)审批表编号领用登记表”</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “期别（A）” （<span class="variable">【期别】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “材料贸易编号（B）” （<span class="variable">【材料贸易编号】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “合同编号（C）” （<span class="variable">【合同编号】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “领用人（D）” （<span class="variable">【领用人】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “领用日期（E）” （<span class="variable">【当天】</span>）</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货订货贸易总表下载">采购端 · 宝钢 期货订货 · 贸易总表下载</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “重置”</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期起” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期止” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “最终用户” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “Excel下载 - 贸易总表”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货订货销售合同编辑">采购端 · 宝钢 期货订货 · 销售合同编辑</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “汇总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “合同号（C）”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + V</span> “（BZ）”</p>
+  <p><span class="cmd">Write</span> “（BY）” （= VLOOKUP （销售订单号（I），BZ：CA，2，0））</p>
+  <p><span class="cmd">Ctrl + D</span> “（BY）”</p>
+  <p><span class="cmd">Filter</span> “（BY）” （0）</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Write</span> “合同号” （<span class="variable">【编号】</span>）</p>
+  <p><span class="cmd">Write</span> “开始交货时间” （<span class="variable">【合同月】</span>）</p>
+  <p><span class="cmd">Write</span> “序号（A）” （<span class="variable">【编号】</span>）</p>
+  <p><span class="cmd">Write</span> “产地（B）” （宝山）</p>
+  <p><span class="cmd">Write</span> “品名（D）” （冷轧板卷）</p>
+  <p><span class="cmd">Write</span> “包装方式（M）” （简包装）</p>
+  <p><span class="cmd">Write</span> “总金额（元）（P）” （=单价(元/吨)（N） * 订货量(吨)（O））</p>
+  <p><span class="cmd">Ctrl + D</span> “产地（B）”</p>
+  <p><span class="cmd">Ctrl + D</span> “品名（D）”</p>
+  <p><span class="cmd">Ctrl + D</span> “包装方式（M）”</p>
+  <p><span class="cmd">Ctrl + D</span> “总金额（元）（P）”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “钢厂订单号（Q）”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（R）”</p>
+  <p><span class="cmd">Ctrl + C</span> “销售价格(含税)（AJ）”</p>
+  <p><span class="cmd">Open</span> “销售合同 - Sheet1”</p>
+  <p><span class="cmd">Ctrl + V</span> “钢厂订单号（A）”</p>
+  <p><span class="cmd">Write</span> “运费（D）” （-）</p>
+  <p><span class="cmd">Write</span> “代理费（E）” （5）</p>
+  <p><span class="cmd">Write</span> “销售价格（采购价格+运费+代理费）（F）” （=采购价格(含税)（C） + 代理费（E））</p>
+  <p><span class="cmd">Ctrl + D</span> “运费（D）”</p>
+  <p><span class="cmd">Ctrl + D</span> “代理费（E）”</p>
+  <p><span class="cmd">Ctrl + D</span> “销售价格（采购价格+运费+代理费）（F）”</p>
+  <p><span class="cmd">Ctrl + C</span> “销售价格（采购价格+运费+代理费）（F）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “单价(元/吨)（N）”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（R）”</p>
+  <p><span class="cmd">Ctrl + C</span> “产品描述（BS）”</p>
+  <p><span class="cmd">Open</span> “贸易总表 - Sheet1”</p>
+  <p><span class="cmd">Ctrl + V</span></p>
+  <p><span class="cmd">Write</span> “（C）” （-）</p>
+  <p><span class="cmd">Write</span> “（D）” （= 规格（A） & （C） & 产品描述（B））</p>
+  <p><span class="cmd">Ctrl + D</span> “（C）”</p>
+  <p><span class="cmd">Ctrl + D</span> “（D）”</p>
+  <p><span class="cmd">Ctrl + C</span> “（D）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “规格、技术标准、牌号、产线（F）”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “最小件重（AA）”</p>
+  <p><span class="cmd">Ctrl + C</span> “最大件重（AB）”</p>
+  <p><span class="cmd">Open</span> “贸易总表 - Sheet2”</p>
+  <p><span class="cmd">Ctrl + V</span></p>
+  <p><span class="cmd">Write</span> “最小件重（A）” （转换为数字）</p>
+  <p><span class="cmd">Write</span> “最大件重（B）” （转换为数字）</p>
+  <p><span class="cmd">Write</span> “（C）” （-）</p>
+  <p><span class="cmd">Write</span> “（D）” （= 最小件重（A） & （C） & 最大件重（B））</p>
+  <p><span class="cmd">Ctrl + D</span> “（C）”</p>
+  <p><span class="cmd">Ctrl + D</span> “（D）”</p>
+  <p><span class="cmd">Ctrl + C</span> “（D）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “目标件重（L）”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货重量（AD）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “订货量(吨)（O）”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “终到站（BI）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “交货地（Q）”</p>
+  <p><span class="cmd">Write</span> “交货地（Q）” （<span class="variable">【仓库简称】</span>）</p>
+  <p><span class="cmd">Open</span> “销售合同 - Sheet1”</p>
+  <p><span class="cmd">Write</span> “（G）” （= 代理费（E） / （销售价格（F） * 0.55% / 30））</p>
+  <p><span class="cmd">Ctrl + D</span> “（G）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Write</span> “6、货款支付” （合同基础计息基准日起为当月15日。以5月合同为例。实际计息基准日 为 基础计息基准日+【7】天（ “代理费/（销售单价*0.55%/30）”后Ctrl + D 求得平均数，即5月22日。逾期计息基准日为基础计息基准日+120天，即 9月12日。则 “6、货款支付”为 以本合同销售价格为基础，需方在 【2026年05月22日】至 【2026年09月12日】之间支付货款的，【2026年05月22日】起以0.55%/月按天向需方收取超期费用；【2026年09月12】日后支付货款的，自 【2026年09月13日】起以0.65%/月按天向需方收取超期费用。）</p>
+  <p><span class="cmd">Ctrl + S</span> “销售合同”</p>
+  <p>发给客户确认盖章并传回盖章件且原件寄回</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货订货草约下载">采购端 · 宝钢 期货订货 · 草约下载</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “汇总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “合同号（C）”</p>
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “重置”</p>
+  <p><span class="cmd">Ctrl + V</span> “订单总览” - “订单号”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “草约下载”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “下载”</p>
+  <p>重复步骤，全部下载完成后，打包成一个压缩包，命名为 “采购合同”。</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货订货同创浦江业务合作申请流程">采购端 · 宝钢 期货订货 · 同创浦江业务合作申请流程</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 同创板块 - SAP流程 - 同创浦江业务合作申请流程”</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “制单人” （<span class="variable">【制单人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “单据编号” （<span class="variable">【单据编号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “申请人” （<span class="variable">【申请人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “企业工号” （<span class="variable">【企业工号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “所属部门” （<span class="variable">【所属部门】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “所属岗位” （<span class="variable">【所属岗位】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “所属公司” （中集同创浦江(上海)贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “申请日期” （<span class="variable">【申请日期】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “流程说明” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “业务合作申请类型” （背靠背贸易）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “采购或销售审批人” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “卖方(供应商)” （上海宝钢钢材贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “卖方公司信息更新” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “买方(销售客户)” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “买方公司信息更新” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “供应商编码” （<span class="variable">【供应商编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “销售客户编码” （<span class="variable">【销售客户编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “序号” （1）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “物料名称” （冷轧板卷）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “物料编码” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “物料描述” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “规格” （<span class="variable">【规格】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “数量” （<span class="variable">【数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “计量单位” （吨）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “采购单价” （= （销售单价） - 5）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “销售单价” （= （预计销售合同标总价） / （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “备注” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “预计采购合同标总价” （= （采购单价） * （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “采购其他费用” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “付款条款” （全额预付）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “总数量” （<span class="variable">【总数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “其他” （具体意见：根据客户要求向钢厂进行采购，定向销售给客户，已落实相关资源，该业务风险可控并具备盈利空间，建议开展该采购业务。）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “预计销售合同标总价” （<span class="variable">【预计销售合同标总价】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “预计税前单价利润” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “税前总价利润” （<span class="variable">【税前总价利润】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “付款条款” （15%定金，带款期货）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “其他” （<span class="variable">【客户名称】</span>有需求共 <span class="variable">【X】</span>吨。向客户收取15%合同定金，加价5元每吨。自我司付款之日起至客户货款到我司账上为止，根据敞口部分(全额预付款扣除客户已支付定金的部分)按照0.55%月息(含税)按实际天数向客户收取超期费用;货到仓库后，货权在我司名下，客户分批带款提货;合同正常周期为签约日后180天，120天内按照0.55%月息(含税)标准计息，超过120天后按照0.65%月息(含税)标准计息，若超过180天不提货，我司保留没收定金并自行处理货物的权利。综上，此业务风险完全受控，合同履行有保障，并具有盈利空间，建议开展该钢材购销业务。）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “交易模式与之前” （一致）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “交易模式” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “营销确认” （许美晨）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “分管领导” （张暘）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “附件” （-）</p>
+  <p><span class="cmd">Left Click</span> “同创浦江业务合作申请表” - “提交”</p>
+  <p>审批通过后</p>
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 我的申请 - 同创浦江业务合作申请流程”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江业务合作申请表” - “打印”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江业务合作申请表” - “导出PDF”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货订货同创浦江合同审批流程">采购端 · 宝钢 期货订货 · 同创浦江合同审批流程</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 同创板块 - SAP流程 - 同创浦江合同审批流程”</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “制单人” （<span class="variable">【制单人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “单据编号” （<span class="variable">【单据编号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “申请人” （<span class="variable">【申请人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “企业工号” （<span class="variable">【企业工号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “所属部门” （<span class="variable">【所属部门】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “所属岗位” （<span class="variable">【所属岗位】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “所属公司” （中集同创浦江(上海)贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “申请日期” （<span class="variable">【申请日期】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “流程说明” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “类型” （非框架）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “采购合同名称” （钢铁产品采购合同）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “销售合同名称” （<span class="variable">【销售合同名称】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “合同类型” （背靠背贸易合同-标准）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “合同类型编号” （<span class="variable">【合同类型编号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “客户名称” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “客户编码” （<span class="variable">【客户编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “供应商名称” （上海宝钢钢材贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “供应商编码” （<span class="variable">【供应商编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “交易货币” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “序号” （1）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “产品” （冷轧板卷）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “编号” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “规格” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “采购单价” （= （采购总金额） / （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “销售单价” （= （销售总金额） / （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “数量” （<span class="variable">【数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “计量单位” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “采购总金额” （<span class="variable">【采购总金额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “销售总金额” （<span class="variable">【销售总金额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “采购总数量” （<span class="variable">【采购总数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “销售总数量” （<span class="variable">【销售总数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “履约起始日” （<span class="variable">【履约起始日】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “履约截止日” （<span class="variable">【履约截止日】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “合同有关概述” （付款方式：6个月银行承兑汇票，15%定金。需方在 <span class="variable">【x】</span>至 <span class="variable">【x + 120】</span>之间支付货款的，<span class="variable">【x】</span>起以0.55%/月按天向需方收取超期费用；<span class="variable">【x + 120】</span>日后支付货款的，自 <span class="variable">【x + 121】</span>起以0.65%/月按天向需方收取超期费用。）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “审核信息” - “营销确认” （许美晨）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “审核信息” - “分管领导” （张暘）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “附件信息” - “附件” （采购合同，销售合同）</p>
+  <p><span class="cmd">Left Click</span> “同创浦江合同审批申请表” - “提交”</p>
+  <p>审批通过后</p>
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 我的申请 - 同创浦江合同审批申请表”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江合同审批申请表” - “打印”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江合同审批申请表” - “导出PDF”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货订货同创浦江付款申请流程">采购端 · 宝钢 期货订货 · 同创浦江付款申请流程</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 同创板块 - SAP流程 - 同创浦江付款申请流程”</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “制单人” （<span class="variable">【制单人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “单据编号” （<span class="variable">【单据编号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “申请人” （<span class="variable">【申请人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “企业工号” （<span class="variable">【企业工号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “所属部门” （<span class="variable">【所属部门】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “所属岗位” （<span class="variable">【所属岗位】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “所属公司” （中集同创浦江(上海)贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “申请日期” （<span class="variable">【申请日期】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “基本信息” - “类型” （业务类）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “基本信息” - “付款单位” （中集同创_中集同创浦江(上海)贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “业务合作申请单号” （<span class="variable">【业务合作申请单号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “供应商名称” （上海宝钢钢材贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “供应商编码” （<span class="variable">【供应商编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “合同采购总数量” （<span class="variable">【合同采购总数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “合同采购总额” （<span class="variable">【合同采购总额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款合同类型” （合同）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “款项类型” （货款）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款单位” （上海宝钢钢材贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款银行(银承)” （宝武集团财务有限责任公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款账号(银承)” （1001153819003242022）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款银行(现款)” （工行宝钢国贸支行）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款账号(现款)” （1001153819003242022）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “支付金额” （<span class="variable">【支付金额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “支付金额大写” （<span class="variable">【支付金额大写】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “币种” （人民币）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “汇率” （1）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款类型” （预付）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款条约” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “最迟付款日期” （<span class="variable">【当月最后一天】</span>）</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 一般都是做申请流程的当天，特殊情况除外</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “符合合同付款条件” （是）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款银行” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款方式说明” （根据 <span class="variable">【客户名称】</span> <span class="variable">【X】</span> 吨的需求。经与 <span class="variable">【供应商名称】</span> 的沟通，现有资源可供，付款方式为全额 六个月承兑 预付款。定金已收到。申请向 <span class="variable">【供应商名称】</span> 支付货款<span class="variable">【X】</span> 元。附：材料贸易采购业务申请表一份、材料贸易销售业务申请一份， <span class="variable">【供应商简称】</span> 草约付款清单见附件，销售合同（合同号：<span class="variable">【销售合同号】</span>）。）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款条件” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款条件说明” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “审批信息” - “支付金额” （<span class="variable">【支付金额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “审批信息” - “营销确认” （许美晨）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “审批信息” - “分管领导” （张暘）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “附件” （同创浦江业务合作申请流程、同创浦江合同审批流程、采购合同、销售合同、定金截图、采购合同清单）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “确认实付金额” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “确认实付金额(银承)” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “确认实付金额(现款)” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “支付金额（换算后）” （-）</p>
+  <p><span class="cmd">Left Click</span> “同创浦江付款申请表” - “提交”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货订货台账编辑">采购端 · 宝钢 期货订货 · 台账编辑</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “宝时达 - 全部菜单 - 订单管理 - 订单总览”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询请点我”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “重置”</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期起” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “交货期止” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “订单总览” - “最终用户” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “订单总览” - “Excel下载 - 贸易总表”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “销售订单号（I）”</p>
+  <p><span class="cmd">Ctrl + C</span> “牌号（M）”</p>
+  <p><span class="cmd">Ctrl + C</span> “钢厂订单号（Q）”</p>
+  <p><span class="cmd">Ctrl + C</span> “规格（R）”</p>
+  <p><span class="cmd">Ctrl + C</span> “订货重量（AD）”</p>
+  <p><span class="cmd">Ctrl + C</span> “销售价格(含税)（AJ）”</p>
+  <p><span class="cmd">Ctrl + C</span> “终到站（BI）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “订货量（Y）”</p>
+  <p><span class="cmd">Ctrl + X</span> “台账” - “销售订单号（Y）”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “采购合同（BA）”</p>
+  <p><span class="cmd">Ctrl + X</span> “台账” - “销售价格（含税）（AD）”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “采购单价含税（BB）”</p>
+  <p><span class="cmd">Ctrl + X</span> “台账” - “订货重量（AC）”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “订货量（Y）”</p>
+  <p><span class="cmd">Ctrl + X</span> “台账” - “牌号（Z）”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “牌号（AC）”</p>
+  <p><span class="cmd">Ctrl + X</span> “台账” - “钢厂订单号（AA）”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “钢厂资源号（AF）”</p>
+  <p><span class="cmd">Ctrl + X</span> “台账” - “规格（AB）”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “规格（AD）”</p>
+  <p><span class="cmd">Write</span> “台账” - “期别（Z）” （<span class="variable">【期别】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “品名（AA）” （冷轧板卷）</p>
+  <p><span class="cmd">Write</span> “台账” - “产地（AB）” （宝山）</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “期别（Z）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “品名（AA）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “产地（AB）”</p>
+  <p><span class="cmd">Write</span> “台账” - “客户（AG）” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “台账” - “销售单价（AH）” （= 采购单价含税（BB）+ 5）</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “销售单价（AH）”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “销售单价（AH）”</p>
+  <p><span class="cmd">Write</span> “台账” - “销售金额（AI）” （=吨位（T） * 销售单价（AH））</p>
+  <p><span class="cmd">Write</span> “台账” - “销售合同总额（AJ）” （=订货量（Y） * 销售单价（AH））</p>
+  <p><span class="cmd">Write</span> “台账” - “计息基准日（AK）” （<span class="variable">【计息基准日】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “利率（AL）” （<span class="variable">【利率】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “最后提货日（AM）” （<span class="variable">【最后提货日】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “逾期利率（AN）” （<span class="variable">【逾期利率】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “计息天数（AO）” （= IF （收货款日（W） < > 0 , IF ( 收货款日（W） < 最后提货日（AM） , 收货款日（W） - 计息基准日（AK） , 最后提货日（AM） - 计息基准日（AK） ） , 最后提货日（AM） - 计息基准日（AK）））</p>
+  <p><span class="cmd">Write</span> “台账” - “逾期计息天数（AP）” （= IF （ 最后提货日（AM）< TODAY（），IF（收货款日（W） > = 最后提货日（AM） ， IF（ 收货款日（W） < TODAY（） ， 收货款日（W） - 最后提货日（AM） ， TODAY（） - 最后提货日（AM）） ， 0） ， 0））</p>
+  <p><span class="cmd">Write</span> “台账” - “销售含息单价（AQ）” （=销售含息总价（AR） / 吨位（T））</p>
+  <p><span class="cmd">Write</span> “台账” - “销售含息总价（AR）” （=销售金额（AI） + 利息（AS））</p>
+  <p><span class="cmd">Write</span> “台账” - “利息（AS）” （=（销售金额（AI） * 利率（AL） / 30 * 计息天数（AO））+ （销售金额（AI） * 逾期利率（AN） / 30 * 逾期计息天数（AP）））</p>
+  <p><span class="cmd">Write</span> “台账” - “销售合同号（AT）” （<span class="variable">【销售合同号】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “C9采购合同编号（AU）” （= 销售合同号（AT） 删除 “ZJTCPJ-QH-”）</p>
+  <p><span class="cmd">Write</span> “台账” - “付款方式（AW）” （15%承兑）</p>
+  <p><span class="cmd">Write</span> “台账” - “销售合同状态（AX）” （执行）</p>
+  <p><span class="cmd">Write</span> “台账” - “部门（AY）” （汽车）</p>
+  <p><span class="cmd">Write</span> “台账” - “供应商（AZ）” （上海宝钢钢材贸易有限公司）</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “客户（AG）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售单价（AH）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售金额（AI）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售合同总额（AJ）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “计息基准日（AK）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “利率（AL）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “最后提货日（AM）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “逾期利率（AN）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “计息天数（AO）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “逾期计息天数（AP）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售含息单价（AQ）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售含息总价（AR）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “利息（AS）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售合同号（AT）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “C9采购合同编号（AU）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “付款方式（AW）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售合同状态（AX）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “部门（AY）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “供应商（AZ）”</p>
+  <p><span class="cmd">Write</span> “台账” - “采购总额（BC）” （=吨位（T） * 采购单价含税（BB））</p>
+  <p><span class="cmd">Write</span> “台账” - “采购合同总额（BD）” （=订货量（Y） * 采购单价含税（BB））</p>
+  <p><span class="cmd">Write</span> “台账” - “价格方式（BE）” （协议交货价）</p>
+  <p><span class="cmd">Write</span> “台账” - “钢贸-海运费预计单价（含税）（BF）” （0）</p>
+  <p><span class="cmd">Write</span> “台账” - “钢贸-海运费预计金额（含税）（BG）” （= 钢贸-海运费预计单价（含税）（BF） * 毛重（R））</p>
+  <p><span class="cmd">Write</span> “台账” - “单价（不含税）（BH）” （= 钢贸-海运费预计单价（含税）（BF） / 1.09）</p>
+  <p><span class="cmd">Write</span> “台账” - “金额（不含税）（BI）” （= 单价（不含税）（BH） * 毛重（R））</p>
+  <p><span class="cmd">Write</span> “台账” - “毛利（BO）” （= C9结算金额（Q） / 1.13 - 不含税金额（J） - 短驳金额（不含税）（G） - 金额（不含税）（BI））</p>
+  <p><span class="cmd">Write</span> “台账” - “串行校验列（BV）” （= EXACT （钢厂资源号（AF），（BW））</p>
+  <p><span class="cmd">Write</span> “台账” - “（BW）” （= VLOOKUP （捆包号（S），（BX）：（BY），2，0））</p>
+  <p><span class="cmd">Write</span> “台账” - “（CA）” （= VLOOKUP （钢厂资源号（AF），（CB）：（CC），2，0））</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “采购总额（BC）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “采购合同总额（BD）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “价格方式（BE）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “钢贸-海运费预计单价（含税）（BF）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “钢贸-海运费预计金额（含税）（BG）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “单价（不含税）（BH）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “金额（不含税）（BI）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “毛利（BO）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “串行校验列（BV）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “（BW）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “（CA）”</p>
+  <p><span class="cmd">Write</span> “台账” - “仓库（AE）” （<span class="variable">【仓库简称】</span>）</p>
+  <p><span class="cmd">Open</span> “汇总表”</p>
+  <p><span class="cmd">Ctrl + C</span> “合同号（C）”</p>
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Ctrl + V</span> “（CB）”</p>
+  <p><span class="cmd">Write</span> “（CA）” （= VLOOKUP （销售订单号（I），（CB）：（CC），2，0））</p>
+  <p><span class="cmd">Ctrl + D</span> “（CA）”</p>
+  <p><span class="cmd">Filter</span> “（CA）” （0）</p>
+  <p><span class="cmd">Ctrl + C</span> “钢厂订单号（Q）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “（CB）”</p>
+  <p><span class="cmd">Filter</span> “台账” - “（CA）” （0）</p>
+  <p><span class="cmd">Write</span> “台账” - “C9采购合同编号（AU）” （<span class="variable">【销售合同号】</span> + <span class="variable">【后缀】</span>）</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 复九兴：-01</p>
+  <p>⚠ 安裕麟：-02</p>
+  <p>⚠ 凌硕：-03</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Ctrl + S</span> “台账”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端宝钢期货订货FAQ">采购端 · 宝钢 期货订货 · FAQ</h3>
+
+<h4 id="caigoufaq6">• 出现“获取草约下载地址失败”时，该怎么办？</h4>
+
+<div class="highlight-block">
+  <p>告知美晨姐，找钢贸业务员操作</p>
+</div>
+
+<h2 id="采购端·华菱现货订货">采购端 · 华菱 现货订货</h2>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端华菱现货订货草约确认">采购端 · 华菱 现货订货 · 草约确认</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “W365 - 邮箱 - 中集上海现货订单”</p>
+  <p><span class="cmd">Left Click</span> “中集上海 检查单” - “下载”</p>
+  <p><span class="cmd">Open</span> “中集上海 检查单”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 核对“中集上海 检查单”和“华菱现货明细”的 吨位 和 金额 ，确认无误后</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “凡川沟通群”</p>
+  <p><span class="cmd">Write</span> “对话框” （@panwanjun 潘总，华菱现货订单烦请确认，谢谢！）</p>
+  <p><span class="cmd">Enter</span></p>
+  <p><span class="cmd">Ctrl + C</span> “中集上海 检查单”</p>
+  <p><span class="cmd">Ctrl + V</span> “对话框”</p>
+  <p><span class="cmd">Enter</span></p>
+  <p><span class="cmd">Ctrl + C</span> “华菱现货明细”</p>
+  <p><span class="cmd">Ctrl + V</span> “对话框”</p>
+  <p><span class="cmd">Enter</span></p>
+  <p>客户确认后</p>
+  <p><span class="cmd">Open</span> “W365 - 邮箱 - 中集上海现货订单”</p>
+  <p><span class="cmd">Left Click</span> “中集上海现货订单” - “全部回复”</p>
+  <p><span class="cmd">Write</span> “对话框” （夏经理，您好！订单确认无误，谢谢！）</p>
+  <p><span class="cmd">Left Click</span> “新邮件” - “发送”</p>
+  <p>我方确认后，华菱会将正式的采购合同以邮件的形式发送给我们</p>
+  <p><span class="cmd">Open</span> “W365 - 邮箱 - 答复: 回复：中集上海现货订单”</p>
+  <p><span class="cmd">Left Click</span> “中集上海 VAMA销售合同” - “下载”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端华菱现货订货领取合同号">采购端 · 华菱 现货订货 · 领取合同号</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “中集同创浦江(上海)审批表编号领用登记表”</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “期别（A）” （<span class="variable">【期别】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “材料贸易编号（B）” （<span class="variable">【材料贸易编号】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “合同编号（C）” （<span class="variable">【合同编号】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “领用人（D）” （<span class="variable">【领用人】</span>）</p>
+  <p><span class="cmd">Write</span> “中集同创浦江(上海)审批表编号领用登记表” - “领用日期（E）” （<span class="variable">【当天】</span>）</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 当月订货就领当月的编号，和期货合同不一样。</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端华菱现货订货销售合同编辑">采购端 · 华菱 现货订货 · 销售合同编辑</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Write</span> “合同号” （<span class="variable">【编号】</span>）</p>
+  <p><span class="cmd">Write</span> “开始交货时间” （<span class="variable">【当月】</span>）</p>
+  <p><span class="cmd">Write</span> “序号（A）” （<span class="variable">【编号】</span>）</p>
+  <p><span class="cmd">Write</span> “产地（B）” （华菱）</p>
+  <p><span class="cmd">Write</span> “品名（D）” （镀锌卷）</p>
+  <p><span class="cmd">Write</span> “包装方式（M）” （简包装）</p>
+  <p><span class="cmd">Write</span> “总金额（元）（P）” （=单价(元/吨)（N） * 订货量(吨)（O））</p>
+  <p><span class="cmd">Ctrl + D</span> “产地（B）”</p>
+  <p><span class="cmd">Ctrl + D</span> “品名（D）”</p>
+  <p><span class="cmd">Ctrl + D</span> “包装方式（M）”</p>
+  <p><span class="cmd">Ctrl + D</span> “总金额（元）（P）”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+  <p><span class="cmd">Filter</span> “外部钢种（D）” （<span class="variable">【外部钢种】</span>）</p>
+  <p><span class="cmd">Ctrl + C</span> “外部钢种（D）”</p>
+  <p><span class="cmd">Open</span> “销售合同 - Sheet1”</p>
+  <p><span class="cmd">Ctrl + V</span> “规格（A）”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+  <p><span class="cmd">Filter</span> “厚度（E）” （<span class="variable">【厚度】</span>）</p>
+  <p><span class="cmd">Ctrl + C</span> “厚度（E）”</p>
+  <p><span class="cmd">Open</span> “销售合同 - Sheet1”</p>
+  <p><span class="cmd">Ctrl + V</span> “规格（A）”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+  <p><span class="cmd">Filter</span> “宽度（F）” （<span class="variable">【宽度】</span>）</p>
+  <p><span class="cmd">Ctrl + C</span> “宽度（F）”</p>
+  <p><span class="cmd">Open</span> “销售合同 - Sheet1”</p>
+  <p><span class="cmd">Ctrl + V</span> “规格（A）”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+  <p><span class="cmd">Ctrl + C</span> “金额（J）”</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 有多少不同的价格就分多少列</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “销售合同 - Sheet1”</p>
+  <p><span class="cmd">Ctrl + V</span> “采购价格（B）”</p>
+  <p><span class="cmd">Write</span> “运费（D）” （-）</p>
+  <p><span class="cmd">Write</span> “代理费（E）” （5）</p>
+  <p><span class="cmd">Write</span> “销售价格（采购价格+运费+代理费）（F）” （=采购价格(含税)（B） + 运费（C） + 代理费（D））</p>
+  <p><span class="cmd">Ctrl + C</span> “销售价格（采购价格+运费+代理费）（F）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “单价(元/吨)（N）”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+  <p><span class="cmd">Ctrl + C</span> “库存数量（I）”</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “订货量(吨)（O）”</p>
+  <p><span class="cmd">Write</span> “交货地（Q）” （长建库）</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 基本不变特殊情况则特殊处理</p>
+</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “销售合同 - Sheet1”</p>
+  <p><span class="cmd">Write</span> “（G）” （= 代理费（G） / （销售价格（F） * 0.55% / 30））</p>
+  <p><span class="cmd">Open</span> “销售合同”</p>
+  <p><span class="cmd">Write</span> “6、货款支付” （合同基础计息基准日起为 当天次日。以7月合同为例。实际计息基准日 为 当天次日 +【7】天（ “代理费/（销售单价*0.55%/30）”，即8月7日。逾期计息基准日为基础计息基准日+120天，即 11月28日。则 “6、货款支付”为 以本合同销售价格为基础，需方在 【2026年08月07日】至 【2026年11月28日】之间支付货款的，【2026年08月07日】起以0.55%/月按天向需方收取超期费用；【2026年11月28】日后支付货款的，自 【2026年11月29日】起以0.65%/月按天向需方收取超期费用。）</p>
+  <p><span class="cmd">Ctrl + S</span> “销售合同”</p>
+  <p><span class="cmd">Ctrl + C</span> “销售合同”</p>
+  <p><span class="cmd">Open</span> “凡川对话框”</p>
+  <p><span class="cmd">Ctrl + V</span> “对话框”</p>
+  <p><span class="cmd">Write</span> “对话框” （@凡川朱军伟 朱经理，合同帮忙盖章，谢谢）</p>
+  <p>发给客户确认盖章并传回盖章件且原件寄回</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端华菱现货订货索要定金">采购端 · 华菱 现货订货 · 索要定金</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “凡川对话框”</p>
+  <p><span class="cmd">Ctrl + V</span> “对话框”</p>
+  <p><span class="cmd">Write</span> “对话框” （@panwanjun 潘总，烦请安排现货定金：<span class="variable">【x】</span>，谢谢！）</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端华菱现货订货同创浦江业务合作申请流程">采购端 · 华菱 现货订货 · 同创浦江业务合作申请流程</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 同创板块 - SAP流程 - 同创浦江业务合作申请流程”</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “制单人” （<span class="variable">【制单人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “单据编号” （<span class="variable">【单据编号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “申请人” （<span class="variable">【申请人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “企业工号” （<span class="variable">【企业工号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “所属部门” （<span class="variable">【所属部门】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “所属岗位” （<span class="variable">【所属岗位】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “所属公司” （中集同创浦江(上海)贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “申请信息” - “申请日期” （<span class="variable">【申请日期】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “流程说明” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “业务合作申请类型” （背靠背贸易）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “采购或销售审批人” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “卖方(供应商)” （华菱安赛乐米塔尔汽车板有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “卖方公司信息更新” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “买方(销售客户)” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “买方公司信息更新” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “供应商编码” （<span class="variable">【供应商编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “基本信息” - “销售客户编码” （<span class="variable">【销售客户编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “序号” （1）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “物料名称” （镀锌卷）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “物料编码” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “物料描述” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “规格” （<span class="variable">【规格】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “数量” （<span class="variable">【数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “计量单位” （吨）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “采购单价” （= （销售单价） - 5）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “销售单价” （= （预计销售合同标总价） / （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购及销售明细信息” - “备注” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “预计采购合同标总价” （= （采购单价） * （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “采购其他费用” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “付款条款” （全额预付）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “总数量” （<span class="variable">【总数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “采购业务信息” - “其他” （具体意见：根据客户要求向钢厂进行采购，定向销售给客户，已落实相关资源，该业务风险可控并具备盈利空间，建议开展该采购业务。）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “预计销售合同标总价” （<span class="variable">【预计销售合同标总价】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “预计税前单价利润” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “税前总价利润” （<span class="variable">【税前总价利润】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “付款条款” （15%定金，带款期货）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “销售业务信息” - “其他” （上海凡川有需求共 <span class="variable">【X】</span>吨。向客户收取15%合同定金，加价5元每吨。自我司付款之日起至客户货款到我司账上为止，根据敞口部分(全额预付款扣除客户已支付定金的部分)按照0.55%月息(含税)按实际天数向客户收取超期费用;货到仓库后，货权在我司名下，客户分批带款提货;合同正常周期为签约日后180天，120天内按照0.55%月息(含税)标准计息，超过120天后按照0.65%月息(含税)标准计息，若超过180天不提货，我司保留没收定金并自行处理货物的权利。综上，此业务风险完全受控，合同履行有保障，并具有盈利空间，建议开展该钢材购销业务。）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “交易模式与之前” （一致）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “交易模式” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “营销确认” （许美晨）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “分管领导” （张暘）</p>
+  <p><span class="cmd">Write</span> “同创浦江业务合作申请表” - “其他信息” - “附件” （-）</p>
+  <p><span class="cmd">Left Click</span> “同创浦江业务合作申请表” - “提交”</p>
+  <p>审批通过后</p>
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 我的申请 - 同创浦江业务合作申请流程”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江业务合作申请表” - “打印”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江业务合作申请表” - “导出PDF”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端华菱现货订货同创浦江合同审批流程">采购端 · 华菱 现货订货 · 同创浦江合同审批流程</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 同创板块 - SAP流程 - 同创浦江合同审批流程”</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “制单人” （<span class="variable">【制单人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “单据编号” （<span class="variable">【单据编号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “申请人” （<span class="variable">【申请人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “企业工号” （<span class="variable">【企业工号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “所属部门” （<span class="variable">【所属部门】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “所属岗位” （<span class="variable">【所属岗位】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “所属公司” （中集同创浦江(上海)贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “申请信息” - “申请日期” （<span class="variable">【申请日期】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “流程说明” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “类型” （非框架）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “采购合同名称” （钢铁产品采购合同）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “销售合同名称” （<span class="variable">【销售合同名称】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “合同类型” （背靠背贸易合同-标准）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “合同类型编号” （<span class="variable">【合同类型编号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “客户名称” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “客户编码” （<span class="variable">【客户编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “供应商名称” （华菱安赛乐米塔尔汽车板有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “供应商编码” （<span class="variable">【供应商编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “基本信息” - “交易货币” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “序号” （1）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “产品” （镀锌卷）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “编号” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “规格” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “采购单价” （= （采购总金额） / （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “销售单价” （= （销售总金额） / （数量））</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “数量” （<span class="variable">【数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “产品明细” - “计量单位” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “采购总金额” （<span class="variable">【采购总金额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “销售总金额” （<span class="variable">【销售总金额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “采购总数量” （<span class="variable">【采购总数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “销售总数量” （<span class="variable">【销售总数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “履约起始日” （<span class="variable">【履约起始日】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “履约截止日” （<span class="variable">【履约截止日】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “合同信息” - “合同有关概述” （付款方式：6个月银行承兑汇票，15%定金。需方在 <span class="variable">【x】</span>至 <span class="variable">【x + 120】</span>之间支付货款的，<span class="variable">【x】</span>起以0.55%/月按天向需方收取超期费用；<span class="variable">【x + 120】</span>日后支付货款的，自 <span class="variable">【x + 121】</span>起以0.65%/月按天向需方收取超期费用。）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “审核信息” - “营销确认” （许美晨）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “审核信息” - “分管领导” （张暘）</p>
+  <p><span class="cmd">Write</span> “同创浦江合同审批申请表” - “附件信息” - “附件” （采购合同，销售合同）</p>
+  <p><span class="cmd">Left Click</span> “同创浦江合同审批申请表” - “提交”</p>
+  <p>审批通过后</p>
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 我的申请 - 同创浦江合同审批申请表”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江合同审批申请表” - “打印”</p>
+  <p><span class="cmd">Left Click</span> “同创浦江合同审批申请表” - “导出PDF”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端华菱现货订货同创浦江付款申请流程">采购端 · 华菱 现货订货 · 同创浦江付款申请流程</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “集团网站 - 流程与公文 - 流程地图 - 同创板块 - SAP流程 - 同创浦江付款申请流程”</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “制单人” （<span class="variable">【制单人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “单据编号” （<span class="variable">【单据编号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “申请人” （<span class="variable">【申请人】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “企业工号” （<span class="variable">【企业工号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “所属部门” （<span class="variable">【所属部门】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “所属岗位” （<span class="variable">【所属岗位】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “所属公司” （中集同创浦江(上海)贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “申请信息” - “申请日期” （<span class="variable">【申请日期】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “基本信息” - “类型” （业务类）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “基本信息” - “付款单位” （中集同创_中集同创浦江(上海)贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “业务合作申请单号” （<span class="variable">【业务合作申请单号】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “供应商名称” （华菱安赛乐米塔尔汽车板有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “供应商编码” （<span class="variable">【供应商编码】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “合同采购总数量” （<span class="variable">【合同采购总数量】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “合同信息” - “合同采购总额” （<span class="variable">【合同采购总额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款合同类型” （合同）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “款项类型” （货款）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款单位” （华菱安赛乐米塔尔汽车板有限公司）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款银行(银承)” （中国银行涟钢支行）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款账号(银承)” （588557443279）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款银行(现款)” （中国银行涟钢支行）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “收款账号(现款)” （588557443279）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “支付金额” （<span class="variable">【支付金额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “支付金额大写” （<span class="variable">【支付金额大写】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “币种” （人民币）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “汇率” （1）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款类型” （预付）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款条约” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “最迟付款日期” （<span class="variable">【当天日期】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “符合合同付款条件” （是）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款银行” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款方式说明” （根据 上海凡川物资贸易有限公司 <span class="variable">【X】</span> 吨的需求。经与 华菱安赛乐米塔尔汽车板有限公司 的沟通，现有资源可供，付款方式为全额 现款 预付款。定金已收到。申请向 华菱安赛乐米塔尔汽车板有限公司 支付货款<span class="variable">【X】</span> 元。附：材料贸易采购业务申请表一份、材料贸易销售业务申请一份， 华菱安赛乐米塔尔汽车板有限公司 草约付款清单见附件，销售合同（合同号：<span class="variable">【销售合同号】</span>）。）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款条件” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “付款信息” - “付款条件说明” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “审批信息” - “支付金额” （<span class="variable">【支付金额】</span>）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “审批信息” - “营销确认” （许美晨）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “审批信息” - “分管领导” （张暘）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “附件” （同创浦江业务合作申请流程、同创浦江合同审批流程、采购合同，销售合同、定金截图）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “确认实付金额” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “确认实付金额(银承)” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “确认实付金额(现款)” （-）</p>
+  <p><span class="cmd">Write</span> “同创浦江付款申请表” - “附件信息” - “支付金额（换算后）” （-）</p>
+  <p><span class="cmd">Left Click</span> “同创浦江付款申请表” - “提交”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端华菱现货订货台账编辑">采购端 · 华菱 现货订货 · 台账编辑</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+  <p><span class="cmd">Ctrl + C</span> “华菱现货明细” - “库存数量（I）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “订货量（Y）”</p>
+  <p><span class="cmd">Write</span> “台账” - “期别（Z）” （<span class="variable">【期别】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “品名（AA）” （热镀锌板卷）</p>
+  <p><span class="cmd">Write</span> “台账” - “产地（AB）” （华菱）</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “期别（Z）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “品名（AA）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “产地（AB）”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+  <p><span class="cmd">Ctrl + C</span> “华菱现货明细” - “外部钢种（D）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “牌号（AC）”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+  <p><span class="cmd">Write</span> “华菱现货明细” - “厚度（E）” （转换为数字）</p>
+  <p><span class="cmd">Write</span> “华菱现货明细” - “宽度（F）” （转换为数字）</p>
+  <p><span class="cmd">Right Click</span> “华菱现货明细” - “宽度（F）” （在右侧插入列*3）</p>
+  <p><span class="cmd">Write</span> “华菱现货明细” - “（G）” （C）</p>
+  <p><span class="cmd">Write</span> “华菱现货明细” - “（H）” （*）</p>
+  <p><span class="cmd">Write</span> “华菱现货明细” - “（I）” （= 厚度（E） & （H） & 宽度（F） & （H） & （G））</p>
+  <p><span class="cmd">Ctrl + D</span> “华菱现货明细” - “（G）”</p>
+  <p><span class="cmd">Ctrl + D</span> “华菱现货明细” - “（H）”</p>
+  <p><span class="cmd">Ctrl + D</span> “华菱现货明细” - “（I）”</p>
+  <p><span class="cmd">Ctrl + C</span> “华菱现货明细” - “（I）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “规格（AD）”</p>
+  <p><span class="cmd">Write</span> “台账” - “仓库（AE）” （上海长建钢材加工有限公司）</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “仓库（AE）”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细 - Sheet1”</p>
+  <p><span class="cmd">Write</span> “华菱现货明细 - Sheet1” - “（A）” （HLXH）</p>
+  <p><span class="cmd">Write</span> “华菱现货明细 - Sheet1” - “（B）” （<span class="variable">【年 + 月 + 01】</span>）</p>
+  <p><span class="cmd">Ctrl + D</span> “华菱现货明细 - Sheet1” - “（A）”</p>
+  <p><span class="cmd">Double Click</span> “华菱现货明细 - Sheet1” - “（B）”</p>
+  <p><span class="cmd">Write</span> “华菱现货明细 - Sheet1” - “（C）” （= （A） & （B））</p>
+  <p><span class="cmd">Ctrl + D</span> “华菱现货明细 - Sheet1” - “（C）”</p>
+  <p><span class="cmd">Ctrl + C</span> “华菱现货明细 - Sheet1” - “（C）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “钢厂资源号（AF）”</p>
+  <p><span class="cmd">Write</span> “台账” - “客户（AG）” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “客户（AG）”</p>
+  <p><span class="cmd">Open</span> “华菱现货明细”</p>
+  <p><span class="cmd">Ctrl + C</span> “华菱现货明细” - “金额（M）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “采购单价含税（BB）”</p>
+  <p><span class="cmd">Write</span> “台账” - “采购总额（BC）” （=吨位（T） * 采购单价含税（BB））</p>
+  <p><span class="cmd">Write</span> “台账” - “采购合同总额（BD）” （=订货量（Y） * 采购单价含税（BB））</p>
+  <p><span class="cmd">Write</span> “台账” - “价格方式（BE）” （协议交货价）</p>
+  <p><span class="cmd">Write</span> “台账” - “钢贸-海运费预计单价（含税）（BF）” （0）</p>
+  <p><span class="cmd">Write</span> “台账” - “钢贸-海运费预计金额（含税）（BG）” （= 钢贸-海运费预计单价（含税）（BF） * 毛重（R））</p>
+  <p><span class="cmd">Write</span> “台账” - “单价（不含税）（BH）” （= 钢贸-海运费预计单价（含税）（BF） / 1.09）</p>
+  <p><span class="cmd">Write</span> “台账” - “金额（不含税）（BI）” （= 单价（不含税）（BH） * 毛重（R））</p>
+  <p><span class="cmd">Write</span> “台账” - “毛利（BO）” （= C9结算金额（Q） / 1.13 - 不含税金额（J） - 短驳金额（不含税）（G） - 金额（不含税）（BI））</p>
+  <p><span class="cmd">Write</span> “台账” - “串行校验列（BV）” （= EXACT （钢厂资源号（AF），（BW））</p>
+  <p><span class="cmd">Write</span> “台账” - “（BW）” （= VLOOKUP （捆包号（S），（BX）：（BY），2，0））</p>
+  <p><span class="cmd">Write</span> “台账” - “（CA）” （= VLOOKUP （钢厂资源号（AF），（CB）：（CC），2，0））</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “采购总额（BC）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “采购合同总额（BD）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “价格方式（BE）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “钢贸-海运费预计单价（含税）（BF）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “钢贸-海运费预计金额（含税）（BG）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “单价（不含税）（BH）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “金额（不含税）（BI）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “毛利（BO）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “串行校验列（BV）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “（BW）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “（CA）”</p>
+  <p><span class="cmd">Write</span> “台账” - “销售单价（AH）” （= 采购单价含税（BB）+ 5）</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “销售单价（AH）”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “销售单价（AH）”</p>
+  <p><span class="cmd">Write</span> “台账” - “销售金额（AI）” （=吨位（T） * 销售单价（AH））</p>
+  <p><span class="cmd">Write</span> “台账” - “销售合同总额（AJ）” （=订货量（Y） * 销售单价（AH））</p>
+  <p><span class="cmd">Write</span> “台账” - “计息基准日（AK）” （<span class="variable">【计息基准日】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “利率（AL）” （<span class="variable">【利率】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “最后提货日（AM）” （<span class="variable">【最后提货日】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “逾期利率（AN）” （<span class="variable">【逾期利率】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “计息天数（AO）” （= IF （收货款日（W） < > 0 , IF ( 收货款日（W） < 最后提货日（AM） , 收货款日（W） - 计息基准日（AK） , 最后提货日（AM） - 计息基准日（AK） ） , 最后提货日（AM） - 计息基准日（AK）））</p>
+  <p><span class="cmd">Write</span> “台账” - “逾期计息天数（AP）” （= IF （ 最后提货日（AM）< TODAY（），IF（收货款日（W） > = 最后提货日（AM） ， IF（ 收货款日（W） < TODAY（） ， 收货款日（W） - 最后提货日（AM） ， TODAY（） - 最后提货日（AM）） ， 0） ， 0））</p>
+  <p><span class="cmd">Write</span> “台账” - “销售含息单价（AQ）” （=销售含息总价（AR） / 吨位（T））</p>
+  <p><span class="cmd">Write</span> “台账” - “销售含息总价（AR）” （=销售金额（AI） + 利息（AS））</p>
+  <p><span class="cmd">Write</span> “台账” - “利息（AS）” （=（销售金额（AI） * 利率（AL） / 30 * 计息天数（AO））+ （销售金额（AI） * 逾期利率（AN） / 30 * 逾期计息天数（AP）））</p>
+  <p><span class="cmd">Write</span> “台账” - “销售合同号（AT）” （<span class="variable">【销售合同号】</span>）</p>
+  <p><span class="cmd">Write</span> “台账” - “C9采购合同编号（AU）” （= 销售合同号（AT） 删除 “ZJTCPJ-QH-”）</p>
+  <p><span class="cmd">Write</span> “台账” - “付款方式（AW）” （15%现款）</p>
+  <p><span class="cmd">Write</span> “台账” - “销售合同状态（AX）” （执行）</p>
+  <p><span class="cmd">Write</span> “台账” - “部门（AY）” （汽车）</p>
+  <p><span class="cmd">Write</span> “台账” - “供应商（AZ）” （华菱安赛乐米塔尔汽车板有限公司）</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售单价（AH）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售金额（AI）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售合同总额（AJ）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “计息基准日（AK）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “利率（AL）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “最后提货日（AM）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “逾期利率（AN）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “计息天数（AO）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “逾期计息天数（AP）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售含息单价（AQ）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售含息总价（AR）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “利息（AS）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售合同号（AT）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “C9采购合同编号（AU）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “付款方式（AW）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “销售合同状态（AX）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “部门（AY）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “供应商（AZ）”</p>
+  <p><span class="cmd">Open</span> “中集上海 VAMA销售合同”</p>
+  <p><span class="cmd">Ctrl + C</span> “中集上海 VAMA销售合同” - “订单确认”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “采购合同（BA）”</p>
+  <p><span class="cmd">Ctrl + S</span></p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端华菱现货订货FAQ">采购端 · 华菱 现货订货 · FAQ</h3>
+
+<h4 id="caigoufaq7">• 如何“查质保书”？</h4>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “中集上海 VAMA销售合同”</p>
+  <p><span class="cmd">Ctrl + C</span> “中集上海 VAMA销售合同” - “订单确认”</p>
+  <p><span class="cmd">Open</span> “华菱网站”</p>
+  <p><span class="cmd">Left Click</span> “华菱网站” - “个人办公 - 质保书查看”</p>
+  <p><span class="cmd">Ctrl + V</span> “华菱网站” - “销售订单”</p>
+  <p><span class="cmd">Left Click</span> “华菱网站” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “华菱网站” - “导出所有质保书”</p>
+  <p>发给 凡川 朱经理</p>
+</div>
+
+<h2 id="采购端·同步">采购端 · 同步</h2>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端同步采购合同导入">采购端 · 同步 · 采购合同导入</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Write</span> “台账” - “销售合同号（AT）” （<span class="variable">【销售合同号】</span>）</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “订货量（Y）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “品名（AA）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “产地（AB）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “牌号（AC）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “规格（AD）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “仓库（AE）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “钢厂资源号（AF）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “客户（AG）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “C9采购合同编号（AU）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “供应商（AZ）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “采购单价含税（BB）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “采购合同总额（BD）”</p>
+  <p><span class="cmd">Open</span> “C9采购合同模板”</p>
+  <p><span class="cmd">Ctrl + V</span> “C9采购合同模板” - “合同重量（A）”</p>
+  <p><span class="cmd">Ctrl + X</span> “C9采购合同模板” - “宽（F）”</p>
+  <p><span class="cmd">Ctrl + X</span> “C9采购合同模板” - “长（G）”</p>
+  <p><span class="cmd">Ctrl + X</span> “C9采购合同模板” - “到达仓库（H）”</p>
+  <p><span class="cmd">Ctrl + X</span> “C9采购合同模板” - “供方资源号（I）”</p>
+  <p><span class="cmd">Ctrl + X</span> “C9采购合同模板” - “需方单位（J）”</p>
+  <p><span class="cmd">Ctrl + X</span> “C9采购合同模板” - “合同号（K）”</p>
+  <p><span class="cmd">Ctrl + X</span> “C9采购合同模板” - “供货单位（L）”</p>
+  <p><span class="cmd">Ctrl + V</span> “C9采购合同模板” - “到达仓库（H）”</p>
+  <p><span class="cmd">Alt + 5</span> “C9采购合同模板” - “厚（E）”</p>
+  <p><span class="cmd">Ctrl + S</span> “C9采购合同模板”</p>
+  <p><span class="cmd">Open</span> “C9 - 采购管理 - 采购合同管理 - 采购合同导入”</p>
+  <p><span class="cmd">Left Click</span> “采购合同导入” - “浏览”</p>
+  <p><span class="cmd">Left Click</span> “采购合同导入” - “C9采购合同模板”</p>
+  <p><span class="cmd">Left Click</span> “采购合同导入” - “打开”</p>
+  <p><span class="cmd">Left Click</span> “采购合同导入” - “加载”</p>
+  <p><span class="cmd">Left Click</span> “采购合同导入” - “退出”</p>
+  <p><span class="cmd">Left Click</span> “采购合同导入” - “保存”</p>
+  <p><span class="cmd">Left Click</span> “采购合同导入” - “退出”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端同步销售合同导入">采购端 · 同步 · 销售合同导入</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Write</span> “台账” - “C9采购合同编号（AU）” （<span class="variable">【C9采购合同编号】</span>）</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “C9采购合同编号（AU）”</p>
+  <p><span class="cmd">Open</span> “C9 - 销售管理 - 销售合同 - 期货销售合同”</p>
+  <p><span class="cmd">Left Click</span> “期货销售合同” - “采购合同单号 - ⋯”</p>
+  <p><span class="cmd">Left Click</span> “期货销售合同” - “常用条件 - 合同号”</p>
+  <p><span class="cmd">Ctrl + V</span></p>
+  <p><span class="cmd">Left Click</span> “期货销售合同” - “查询”</p>
+  <p><span class="cmd">Left Click</span> “期货销售合同” - “全选”</p>
+  <p><span class="cmd">Left Click</span> “期货销售合同” - “确定”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Filter</span> “台账” - “订货量（Y）” （非空白）</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “销售单价（AH）”</p>
+  <p><span class="cmd">Open</span> “C9 - 销售管理 - 销售合同 - 期货销售合同”</p>
+  <p><span class="cmd">Ctrl + V</span> “期货销售合同” - “明细信息 - 含税销售单价”</p>
+  <p><span class="cmd">Enter</span>，↓，←（循环）</p>
+  <p><span class="cmd">Write</span> “期货销售合同” - “交货地点” （上海）</p>
+  <p><span class="cmd">Enter</span> “期货销售合同” - “交货地点”</p>
+  <p><span class="cmd">Write</span> “期货销售合同” - “交货期” （合同月的最后一天）</p>
+  <p><span class="cmd">Enter</span> “期货销售合同” - “交货期”</p>
+  <p><span class="cmd">Open</span> “C9 - 销售管理 - 销售合同 - 期货销售合同 - 计息”</p>
+  <p><span class="cmd">Write</span> “期货销售合同 - 计息” - “计息起始日” （=台账 - 计息基准日（AK））</p>
+  <p><span class="cmd">Write</span> “期货销售合同 - 计息” - “逾期起始日” （=台账 - 最后提货日（AM））</p>
+  <p><span class="cmd">Write</span> “期货销售合同 - 计息” - “基准利率‰月” （定金合同：=台账 - 利率（AL）* 10（百分号转千分号），全款合同：0）</p>
+  <p><span class="cmd">Write</span> “期货销售合同 - 计息” - “逾期利率‰月” （定金合同：=台账 - 逾期利率（AN）* 10（百分号转千分号），全款合同：0）</p>
+  <p><span class="cmd">Open</span> “C9 - 销售管理 - 销售合同 - 期货销售合同”</p>
+  <p><span class="cmd">Write</span> “期货销售合同” - “客户名称” （<span class="variable">【客户名称】</span>）</p>
+  <p><span class="cmd">Write</span> “期货销售合同” - “支付方式” （定金）</p>
+  <p><span class="cmd">Write</span> “期货销售合同” - “结算方式” （6个月银行承兑）</p>
+  <p><span class="cmd">Write</span> “期货销售合同” - “合同有效期（天）” （120）</p>
+  <p><span class="cmd">Write</span> “期货销售合同” - “定金比例（%）” （定金合同：15，全款合同：100）</p>
+  <p><span class="cmd">Write</span> “期货销售合同” - “签订地点” （上海）</p>
+  <p><span class="cmd">Ctrl + C</span> “期货销售合同” - “单据编号”</p>
+  <p><span class="cmd">Left Click</span> “期货销售合同” - “保存”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + V</span> “台账” - “C9采购合同编号（AU）”</p>
+  <p><span class="cmd">Ctrl + D</span> “台账” - “C9采购合同编号（AU）”</p>
+  <p><span class="cmd">Ctrl + S</span> “台账”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端同步配定金">采购端 · 同步 · 配定金</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “C9 - 财务管理 - 收付款管理 - 配款”</p>
+  <p><span class="cmd">Write</span> “配款” - “客户” （<span class="variable">【客户】</span>）</p>
+  <p><span class="cmd">Enter</span></p>
+  <p><span class="cmd">Right Click</span> “配款” - “合同单号” （降序）</p>
+  <p><span class="cmd">Write</span> “配定金” （<span class="variable">【配定金】</span>）</p>
+  <p><span class="cmd">Right Click</span> “配款” - “收款单可用额” （降序）</p>
+  <p><span class="cmd">Left Click</span> “配款” - “收款单可用额 - ◻️”</p>
+  <p><span class="cmd">Left Click</span> “配款” - “保存”</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端同步社会库抬头变更">采购端 · 同步 · 社会库抬头变更</h3>
+
+<div class="section-divider">==============================================================</div>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Write</span> “台账” - “订货量（Y）” （非空白）</p>
+  <p><span class="cmd">Write</span> “台账” - “期别（Z）” （对应月份）</p>
+  <p><span class="cmd">Write</span> “台账” - “产地（AB）” （宝山）</p>
+  <p><span class="cmd">Write</span> “台账” - “客户（AG）” （上海凡川物资贸易有限公司）</p>
+  <p><span class="cmd">Write</span> “台账” - “仓库（AE）” （上海长建钢材加工有限公司）</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “钢厂资源号（F）”</p>
+  <p><span class="cmd">Open</span> “提货单（X月转系统）”</p>
+  <p><span class="cmd">Ctrl + V</span> “钢厂资源号（A）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “品名（AA）”</p>
+  <p><span class="cmd">Open</span> “提货单（X月转系统）”</p>
+  <p><span class="cmd">Ctrl + V</span> “品种（B）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “吨位（T）”</p>
+  <p><span class="cmd">Open</span> “提货单（X月转系统）”</p>
+  <p><span class="cmd">Ctrl + V</span> “订货吨位（C）”</p>
+  <p><span class="cmd">Open</span> “台账”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “牌号（AC）”</p>
+  <p><span class="cmd">Ctrl + C</span> “台账” - “规格（AD）”</p>
+  <p><span class="cmd">Open</span> “提货单（X月转系统）”</p>
+  <p><span class="cmd">Ctrl + V</span> “牌号（D）”</p>
+  <p><span class="cmd">Ctrl + S</span></p>
+  <p>发给对应仓库。</p>
+</div>
+
+<div class="section-divider">==============================================================</div>
+
+<h3 id="采购端同步FAQ">采购端 · 同步 · FAQ</h3>
+
+<h4 id="caigoufaq8">• 如何“确保没有价外运费”？</h4>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “贸易总表”</p>
+  <p><span class="cmd">Filter</span> “价外运费汇总（BR）” （0）</p>
+</div>
+
+<div class="warning-block">
+  <p>⚠ 正确情况下都是一票制，运费算在具体单价里面，该列金额应该为0。如果产生了金额，则是钢贸模板应用错误成代收代付，出现该情况需告知美晨姐。</p>
+</div>
+
+<h4 id="caigoufaq9">• 出现“客户把销售合同原件寄回”时，该怎么办？</h4>
+
+<div class="highlight-block">
+  <p><span class="cmd">Open</span> “中集同创浦江(上海)审批表编号领用登记表”</p>
+  <p><span class="cmd">Filter</span> “合同编号（C）” （<span class="variable">【合同编号】</span>）</p>
+  <p><span class="cmd">Write</span> “备注（F）” （已盖）</p>
+  <p><span class="cmd">Ctrl + S</span> “中集同创浦江(上海)审批表编号领用登记表”</p>
+  <p>将原件交给美晨姐盖章归档</p>
+</div>
