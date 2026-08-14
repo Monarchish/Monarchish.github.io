@@ -7,14 +7,25 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
 
+  :root {
+    --primary: #1e6fff;
+    --primary-light: #e8f0ff;
+    --sidebar-bg: #f7f9fc;
+    --content-bg: #ffffff;
+    --border: #e0e5ee;
+    --text: #1a1a1a;
+    --text-secondary: #555;
+    --keyword-bg: #f0f2f5;
+  }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
                  "PingFang SC", "Hiragino Sans GB",
                  "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 15px;
     line-height: 1.75;
-    color: #1a1a1a;
-    background: #ffffff;
+    color: var(--text);
+    background: var(--content-bg);
     display: flex;
     align-items: flex-start;
   }
@@ -24,61 +35,64 @@
     position: sticky;
     top: 0;
     flex-shrink: 0;
-    width: 380px;
+    width: 320px;
     height: 100vh;
     overflow-y: auto;
     overflow-x: auto;
-    background: #f8f9fa;
-    border-right: 1px solid #e0e0e0;
-    padding: 20px 16px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
     z-index: 100;
-    font-family: inherit;          /* 继承 body 字体 */
-    font-size: 15px;               /* 与聊天字体一致 */
-    line-height: 1.75;             /* 与聊天行距一致 */
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.7;
   }
   #sidebar h1 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     margin-bottom: 12px;
     white-space: nowrap;
     font-weight: 600;
+    color: var(--text);
   }
   details { margin-bottom: 2px; }
   summary {
     cursor: pointer;
     list-style: none;
     font-weight: 600;
-    color: #333;
+    color: var(--text-secondary);
     padding: 4px 0;
-    font-size: 15px;               /* 与聊天字体一致 */
+    font-size: 14px;
     white-space: nowrap;
+    transition: color 0.2s;
   }
-  summary:hover { color: #6c63ff; }
-  details[open] > summary { color: #6c63ff; }
+  summary:hover { color: var(--primary); }
+  details[open] > summary { color: var(--primary); }
   details details { margin-left: 14px; }
 
   .level4 {
     display: block;
     margin-left: 24px;
     padding: 4px 0;
-    color: #555;
+    color: var(--text-secondary);
     text-decoration: none;
-    font-size: 15px;               /* 与聊天字体一致 */
+    font-size: 14px;
     white-space: nowrap;
+    transition: color 0.2s;
   }
-  .level4:hover { color: #6c63ff; }
+  .level4:hover { color: var(--primary); }
 
   .faq-details { margin-left: 0; }
   .faq-level4 {
     font-weight: 600;
-    font-size: 15px;               /* 与聊天字体一致 */
-    color: #555;
+    font-size: 14px;
+    color: var(--text-secondary);
     padding: 4px 0;
     margin-left: 18px;
     white-space: nowrap;
     cursor: pointer;
     list-style: none;
   }
-  .faq-level4:hover { color: #6c63ff; }
+  .faq-level4:hover { color: var(--primary); }
 
   .level5 {
     display: block;
@@ -86,60 +100,68 @@
     padding: 4px 0;
     color: #777;
     text-decoration: none;
-    font-size: 15px;               /* 与聊天字体一致 */
+    font-size: 14px;
     white-space: nowrap;
   }
-  .level5:hover { color: #6c63ff; }
+  .level5:hover { color: var(--primary); }
 
   /* 右侧正文区 */
   #content {
     flex: 1;
     padding: 32px 40px;
-    max-width: 1000px;
+    max-width: 900px;
     min-width: 0;
   }
+
   h2.end {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
     margin: 24px 0 16px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid var(--border);
     padding-bottom: 8px;
+    font-weight: 600;
+    color: var(--text);
   }
+
   h3.module {
     font-size: 1.3rem;
     margin: 20px 0 10px;
-    color: #333;
+    color: var(--text);
+    font-weight: 600;
   }
+
   h4.operation {
     font-size: 1.1rem;
     margin: 16px 0 8px;
-    color: #555;
+    color: var(--text-secondary);
+    font-weight: 600;
   }
 
   pre {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
+    background: var(--content-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
     padding: 16px;
     margin: 12px 0;
     overflow-x: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
     font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Courier, monospace;
-    font-size: 15px;               /* 与聊天字体大小一致 */
-    line-height: 1.75;             /* 与聊天行距一致 */
-  }
-  code {
-    font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Courier, monospace;
-    font-size: 15px;
+    font-size: 14px;
+    line-height: 1.75;
   }
 
-  /* 关键词灰色淡底色，加粗 */
+  code {
+    font-family: "SF Mono", "Consolas", "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 14px;
+  }
+
+  /* 关键词灰色淡底色 */
   .kw {
-    background: #f5f5f5;
+    background: var(--keyword-bg);
     padding: 1px 4px;
     border-radius: 4px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--text);
   }
 </style>
 </head>
