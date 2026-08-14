@@ -3,651 +3,528 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>支援未来 · Operational Cosmos Decoded</title>
-<!-- marked.js 用于将 Markdown 渲染为 HTML -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<title>支援未来</title>
 <style>
-/* ========== 全局重置 ========== */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+  * { margin:0; padding:0; box-sizing:border-box; }
 
-body {
-    font-family: -apple-system, "微软雅黑", "PingFang SC", "Helvetica Neue", sans-serif;
-    font-size: 11pt;
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif;
+    background-color: #ffffff;
+    color: #333333;
     line-height: 1.6;
-    color: #1a1a1a;
-    background: #ffffff;
+    font-size: 11pt;
     display: flex;
-    min-height: 100vh;
-}
+    align-items: flex-start;
+    max-width: 100%;
+  }
 
-/* ========== 左侧目录栏 ========== */
-#sidebar {
-    position: fixed;
+  /* ========== 左侧固定目录 ========== */
+  #sidebar {
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 280px;
+    flex-shrink: 0;
+    width: 320px;
     height: 100vh;
-    background: #f8f9fa;
-    border-right: 1px solid #e0e0e0;
     overflow-y: auto;
-    z-index: 1000;
+    overflow-x: hidden;
+    background-color: #fafafa;
+    border-right: 1px solid #e8e8e8;
     padding: 20px 0;
-    transition: transform 0.3s ease;
-}
-
-#sidebar.collapsed {
-    transform: translateX(-280px);
-}
-
-#sidebar-header {
-    padding: 0 16px 16px;
-    border-bottom: 1px solid #e0e0e0;
-    margin-bottom: 8px;
-}
-
-#sidebar-header h2 {
-    font-size: 14px;
-    font-weight: 700;
-    color: #1a1a1a;
-    letter-spacing: 0.5px;
-}
-
-#sidebar-header .subtitle {
-    font-size: 11px;
-    color: #888;
-    margin-top: 4px;
-}
-
-/* 目录树 */
-.toc-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.toc-item {
+    font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif;
     font-size: 12px;
     line-height: 1.2;
     color: #4A4A4A;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.toc-item:hover {
-    background: #e8ecef;
-}
-
-.toc-item a {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    padding: 6px 16px;
-    border-left: 3px solid transparent;
-    transition: all 0.15s;
-}
-
-.toc-item a:hover {
-    color: #1a73e8;
-}
-
-.toc-item a.active {
-    color: #1a73e8;
-    border-left-color: #1a73e8;
-    background: #e8f0fe;
-    font-weight: 600;
-}
-
-/* 层级缩进 */
-.toc-level-1 { padding-left: 0; }
-.toc-level-1 > a { font-weight: 700; color: #1a1a1a; font-size: 13px; }
-.toc-level-2 { padding-left: 0; }
-.toc-level-2 > a { font-weight: 600; padding-left: 16px; }
-.toc-level-3 { padding-left: 0; }
-.toc-level-3 > a { padding-left: 32px; font-size: 11.5px; }
-.toc-level-4 { padding-left: 0; }
-.toc-level-4 > a { padding-left: 48px; font-size: 11px; color: #666; }
-
-/* 可折叠 */
-.toc-toggle {
-    display: inline-block;
-    width: 16px;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    color: #999;
-    font-size: 10px;
-    margin-right: 4px;
-    transition: transform 0.2s;
-}
-
-.toc-toggle.expanded {
-    transform: rotate(90deg);
-}
-
-.toc-children {
-    display: none;
-}
-
-.toc-children.expanded {
-    display: block;
-}
-
-/* 折叠按钮 */
-#toggle-btn {
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    z-index: 1001;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 6px 10px;
-    cursor: pointer;
+    z-index: 100;
+  }
+  #sidebar h1 {
     font-size: 14px;
-    color: #555;
-    transition: all 0.2s;
-}
-
-#toggle-btn:hover {
-    background: #f0f0f0;
-    border-color: #bbb;
-}
-
-/* ========== 主内容区 ========== */
-#main-content {
-    margin-left: 280px;
-    flex: 1;
-    padding: 40px 48px 80px;
-    max-width: 960px;
-    transition: margin-left 0.3s ease;
-}
-
-#main-content.expanded {
-    margin-left: 0;
-}
-
-/* ========== Markdown 渲染样式 ========== */
-#content-area h1 {
-    font-size: 22pt;
-    font-weight: 700;
+    font-weight: 600;
     color: #1a1a1a;
-    margin: 32px 0 16px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #e8e8e8;
-    line-height: 1.3;
-}
-
-#content-area h1:first-child {
-    margin-top: 0;
-    font-size: 26pt;
-    border-bottom: 3px solid #1a73e8;
-    padding-bottom: 12px;
-}
-
-#content-area h2 {
-    font-size: 16pt;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 28px 0 12px;
-    padding-bottom: 6px;
+    padding: 0 16px 12px 16px;
     border-bottom: 1px solid #e8e8e8;
+    margin-bottom: 8px;
+    white-space: nowrap;
+  }
+  details { margin-bottom: 2px; }
+  summary {
+    cursor: pointer;
+    list-style: none;
+    font-weight: 400;
+    color: #4A4A4A;
+    padding: 4px 16px;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: background-color 0.15s;
+  }
+  summary:hover { background-color: #f0f0f0; color: #0066CC; }
+  details[open] > summary { color: #0066CC; }
+  details details { margin-left: 14px; }
+
+  .level4 {
+    display: block;
+    padding: 4px 16px 4px 48px;
+    color: #4A4A4A;
+    text-decoration: none;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: background-color 0.15s;
+  }
+  .level4:hover { background-color: #f0f0f0; color: #0066CC; }
+
+  .faq-details { margin-left: 0; }
+  .faq-level4 {
+    font-weight: 400;
+    font-size: 12px;
+    color: #4A4A4A;
+    padding: 4px 16px 4px 32px;
+    white-space: nowrap;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-level4:hover { background-color: #f0f0f0; color: #0066CC; }
+
+  .level5 {
+    display: block;
+    padding: 4px 16px 4px 64px;
+    color: #4A4A4A;
+    text-decoration: none;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .level5:hover { background-color: #f0f0f0; color: #0066CC; }
+
+  /* ========== 主内容区 ========== */
+  #content {
+    flex: 1;
+    padding: 40px 48px 80px 48px;
+    max-width: 900px;
+    min-width: 0;
+    margin: 0 auto;
+  }
+
+  /* ========== 文档标题 ========== */
+  .doc-title {
+    font-size: 22pt;
+    font-weight: bold;
+    text-align: center;
+    color: #000000;
     line-height: 1.4;
-}
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid #e0e0e0;
+  }
 
-#content-area h3 {
-    font-size: 13pt;
-    font-weight: 600;
-    color: #2c2c2c;
-    margin: 24px 0 10px;
-    line-height: 1.5;
-}
-
-#content-area h4 {
-    font-size: 11.5pt;
-    font-weight: 600;
-    color: #333;
-    margin: 20px 0 8px;
-    line-height: 1.5;
-}
-
-#content-area p {
-    margin: 8px 0;
-    line-height: 1.6;
-}
-
-#content-area strong {
-    font-weight: 700;
+  /* ========== 标题层级 ========== */
+  h1 {
+    font-size: 18pt;
+    font-weight: bold;
     color: #1a1a1a;
-}
+    line-height: 1.4;
+    margin-top: 36px;
+    margin-bottom: 18px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e8e8e8;
+  }
 
-/* 高亮块（对应智能文档的蓝色底色块） */
-#content-area blockquote {
-    background: #E6EEFA;
+  h2 {
+    font-size: 15pt;
+    font-weight: bold;
+    color: #2c3e50;
+    line-height: 1.4;
+    margin-top: 28px;
+    margin-bottom: 14px;
+  }
+
+  h3 {
+    font-size: 13pt;
+    font-weight: bold;
+    color: #34495e;
+    line-height: 1.4;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
+  h4 {
+    font-size: 11.5pt;
+    font-weight: bold;
+    color: #2c3e50;
+    line-height: 1.4;
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+
+  /* ========== 正文段落 ========== */
+  p {
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #333333;
+    text-align: justify;
+    margin-bottom: 8px;
+  }
+
+  /* ========== 🔔 高亮块（蓝色） ========== */
+  .highlight-block {
+    background-color: #E6EEFA;
     border-left: 4px solid #98C1FF;
-    margin: 12px 0;
-    padding: 12px 16px;
     border-radius: 4px;
+    padding: 10px 20px;
+    margin: 12px 0;
     line-height: 1.6;
-}
+    font-size: 11pt;
+    color: #333333;
+  }
+  .highlight-block p {
+    margin-bottom: 6px;
+  }
+  .highlight-block p:last-child {
+    margin-bottom: 0;
+  }
 
-#content-area blockquote p {
-    margin: 4px 0;
-}
-
-/* 警告块（⚠️） */
-#content-area .warning-block {
-    background: #FFF3E0;
+  /* ========== ⚠️ 警告/注意块 ========== */
+  .warning-block {
+    background-color: #FFF3E0;
     border-left: 4px solid #FFB74D;
-    margin: 12px 0;
-    padding: 10px 16px;
     border-radius: 4px;
+    padding: 10px 20px;
+    margin: 12px 0;
     line-height: 1.6;
-}
+    font-size: 11pt;
+    color: #333333;
+  }
+  .warning-block p {
+    margin-bottom: 6px;
+  }
+  .warning-block p:last-child {
+    margin-bottom: 0;
+  }
 
-/* 行内代码 */
-#content-area code {
-    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
-    font-size: 0.9em;
-    background: #F2F2F2;
+  /* ========== 行内代码 ========== */
+  code, .inline-code {
+    font-family: "SF Mono", "Fira Code", "Consolas", "Courier New", monospace;
+    font-size: 10pt;
     color: #d63384;
+    background-color: #F2F2F2;
     padding: 2px 6px;
     border-radius: 3px;
-}
+  }
 
-/* 代码块 */
-#content-area pre {
-    background: #f5f5f5;
+  /* ========== 代码块 ========== */
+  pre {
+    background-color: #F2F2F2;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     padding: 12px 16px;
+    margin: 12px 0;
     overflow-x: auto;
-    margin: 12px 0;
+    font-family: "SF Mono", "Fira Code", "Consolas", "Courier New", monospace;
+    font-size: 10pt;
     line-height: 1.5;
-}
-
-#content-area pre code {
+    color: #333333;
+  }
+  pre code {
     background: none;
-    color: #333;
     padding: 0;
-    font-size: 0.9em;
-}
+    color: inherit;
+    font-size: inherit;
+  }
 
-/* 列表 */
-#content-area ul, #content-area ol {
-    margin: 8px 0;
-    padding-left: 24px;
-    line-height: 1.6;
-}
+  /* ========== 等号分隔线 ========== */
+  .section-divider {
+    text-align: center;
+    color: #999999;
+    font-size: 11pt;
+    letter-spacing: 2px;
+    margin: 28px 0;
+    user-select: none;
+    overflow: hidden;
+  }
 
-#content-area li {
-    margin: 4px 0;
-}
-
-/* 表格 */
-#content-area table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 12px 0;
+  /* ========== 加粗指令词 ========== */
+  .cmd {
+    font-weight: bold;
+    background-color: #F2F2F2;
+    padding: 1px 4px;
+    border-radius: 2px;
     font-size: 10.5pt;
-}
+  }
 
-#content-area th, #content-area td {
-    border: 1px solid #ddd;
-    padding: 8px 12px;
-    text-align: left;
-}
-
-#content-area th {
-    background: #f5f7fa;
+  /* ========== 变量占位符 ========== */
+  .variable {
+    color: #0E52D4;
     font-weight: 600;
-}
+  }
 
-#content-area tr:nth-child(even) {
-    background: #fafafa;
-}
+  /* ========== Or 选项 ========== */
+  .or-option {
+    font-weight: bold;
+    background-color: #F2F2F2;
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
 
-/* 水平分割线 */
-#content-area hr {
-    border: none;
-    border-top: 2px solid #e8e8e8;
-    margin: 24px 0;
-}
-
-/* 模块分隔线（智能文档的 ===== 样式） */
-#content-area .module-divider {
-    border: none;
-    border-top: 1px solid #ccc;
-    margin: 20px 0;
-}
-
-/* 🔔 和 ⚠ 符号 */
-#content-area .icon-bell {
-    color: #1a73e8;
-}
-
-#content-area .icon-warning {
-    color: #E65100;
-}
-
-/* ========== 加载状态 ========== */
-#loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 200px;
-    color: #999;
-    font-size: 14px;
-}
-
-.spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid #e0e0e0;
-    border-top-color: #1a73e8;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-right: 12px;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* ========== 响应式 ========== */
-@media (max-width: 768px) {
-    #sidebar {
-        width: 240px;
-        transform: translateX(-240px);
-    }
-    #sidebar.mobile-visible {
-        transform: translateX(0);
-    }
-    #main-content {
-        margin-left: 0;
-        padding: 24px 20px 60px;
-    }
-    #toggle-btn {
-        display: block;
-    }
-}
+  /* ========== 引用块 ========== */
+  blockquote {
+    border-left: 3px solid #ddd;
+    padding: 8px 16px;
+    margin: 12px 0;
+    color: #666;
+    background-color: #f9f9f9;
+    border-radius: 0 4px 4px 0;
+    font-size: 11pt;
+    line-height: 1.6;
+  }
 </style>
 </head>
 <body>
 
-<!-- 侧栏折叠按钮 -->
-<button id="toggle-btn" onclick="toggleSidebar()" title="切换目录">☰</button>
+<div id="sidebar">
+  <h1>支援未来</h1>
 
-<!-- 左侧目录栏 -->
-<nav id="sidebar">
-    <div id="sidebar-header">
-        <h2>📋 支援未来</h2>
-        <div class="subtitle">Operational Cosmos Decoded</div>
-    </div>
-    <ul id="toc" class="toc-list">
-        <!-- 由 JavaScript 动态生成 -->
-    </ul>
-</nav>
+  <details>
+    <summary>准入端</summary>
+    <details>
+      <summary>准入端 · 准入</summary>
+      <a class="level4" href="#准入端准入邮件审批">准入端 · 准入 · 邮件审批</a>
+      <a class="level4" href="#准入端准入客户档案表">准入端 · 准入 · 客户档案表</a>
+      <a class="level4" href="#准入端准入业务供应商及客户准入申请流程">准入端 · 准入 · 业务供应商及客户准入申请流程</a>
+    </details>
+    <details>
+      <summary>准入端 · MDG</summary>
+      <a class="level4" href="#准入端MDG查重">准入端 · MDG · 查重</a>
+      <a class="level4" href="#准入端MDG组织架构">准入端 · MDG · 组织架构</a>
+      <a class="level4" href="#准入端MDG添加抬头">准入端 · MDG · 添加抬头</a>
+      <details class="faq-details">
+        <summary class="faq-level4">准入端 · MDG · FAQ</summary>
+        <a class="level5" href="#faq1">如何“跟踪MDG流程”？</a>
+        <a class="level5" href="#faq2">出现“你的连接不是专用连接”时，该怎么办？</a>
+        <a class="level5" href="#faq3">出现“营业执照无法上传”时，该怎么办？</a>
+        <a class="level5" href="#faq4">出现“当前用户无权限，请联系管理员！”时，该怎么办？</a>
+      </details>
+    </details>
+  </details>
 
-<!-- 主内容区 -->
-<main id="main-content">
-    <div id="content-area">
-        <div id="loading">
-            <div class="spinner"></div>
-            <span>正在加载内容...</span>
-        </div>
-    </div>
-</main>
+  <details>
+    <summary>采购端</summary>
+    <details>
+      <summary>采购端 · 订货</summary>
+      <a class="level4" href="#采购端订货PSR码编辑">PSR码编辑</a>
+      <a class="level4" href="#采购端订货客户模板编辑">客户模板编辑</a>
+      <a class="level4" href="#采购端订货订货卡编辑">订货卡编辑</a>
+      <a class="level4" href="#采购端订货订货卡检查与提交">订货卡检查与提交</a>
+      <a class="level4" href="#采购端订货订货卡二次检查">订货卡二次检查</a>
+      <a class="level4" href="#采购端订货FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>采购端 · 宝钢 期货（预）订货</summary>
+      <a class="level4" href="#采购端宝钢期货预订货确认合同金额">确认合同金额</a>
+      <a class="level4" href="#采购端宝钢期货预订货领取合同号">领取合同号</a>
+      <a class="level4" href="#采购端宝钢期货预订货贸易总表下载">贸易总表下载</a>
+      <a class="level4" href="#采购端宝钢期货预订货销售合同编辑">销售合同编辑</a>
+      <a class="level4" href="#采购端宝钢期货预订货草约下载">草约下载</a>
+      <a class="level4" href="#采购端宝钢期货预订货同创浦江业务合作申请流程">同创浦江业务合作申请流程</a>
+      <a class="level4" href="#采购端宝钢期货预订货同创浦江合同审批流程">同创浦江合同审批流程</a>
+      <a class="level4" href="#采购端宝钢期货预订货同创浦江付款申请流程">同创浦江付款申请流程</a>
+      <a class="level4" href="#采购端宝钢期货预订货同创浦江合同审批流程变更">同创浦江合同审批流程-变更</a>
+      <a class="level4" href="#采购端宝钢期货预订货台账编辑">台账编辑</a>
+      <a class="level4" href="#采购端宝钢期货预订货FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>采购端 · 宝钢 期货订货</summary>
+      <a class="level4" href="#采购端宝钢期货订货领取合同号">领取合同号</a>
+      <a class="level4" href="#采购端宝钢期货订货贸易总表下载">贸易总表下载</a>
+      <a class="level4" href="#采购端宝钢期货订货销售合同编辑">销售合同编辑</a>
+      <a class="level4" href="#采购端宝钢期货订货草约下载">草约下载</a>
+      <a class="level4" href="#采购端宝钢期货订货同创浦江业务合作申请流程">同创浦江业务合作申请流程</a>
+      <a class="level4" href="#采购端宝钢期货订货同创浦江合同审批流程">同创浦江合同审批流程</a>
+      <a class="level4" href="#采购端宝钢期货订货同创浦江付款申请流程">同创浦江付款申请流程</a>
+      <a class="level4" href="#采购端宝钢期货订货台账编辑">台账编辑</a>
+      <a class="level4" href="#采购端宝钢期货订货FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>采购端 · 华菱 现货订货</summary>
+      <a class="level4" href="#采购端华菱现货订货草约确认">草约确认</a>
+      <a class="level4" href="#采购端华菱现货订货领取合同号">领取合同号</a>
+      <a class="level4" href="#采购端华菱现货订货销售合同编辑">销售合同编辑</a>
+      <a class="level4" href="#采购端华菱现货订货索要定金">索要定金</a>
+      <a class="level4" href="#采购端华菱现货订货同创浦江业务合作申请流程">同创浦江业务合作申请流程</a>
+      <a class="level4" href="#采购端华菱现货订货同创浦江合同审批流程">同创浦江合同审批流程</a>
+      <a class="level4" href="#采购端华菱现货订货同创浦江付款申请流程">同创浦江付款申请流程</a>
+      <a class="level4" href="#采购端华菱现货订货台账编辑">台账编辑</a>
+      <a class="level4" href="#采购端华菱现货订货FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>采购端 · 同步</summary>
+      <a class="level4" href="#采购端同步采购合同导入">采购合同导入</a>
+      <a class="level4" href="#采购端同步销售合同导入">销售合同导入</a>
+      <a class="level4" href="#采购端同步配定金">配定金</a>
+      <a class="level4" href="#采购端同步社会库抬头变更">社会库抬头变更</a>
+      <a class="level4" href="#采购端同步FAQ">FAQ</a>
+    </details>
+  </details>
+
+  <details>
+    <summary>销售端</summary>
+    <details>
+      <summary>销售端 · 让步单</summary>
+      <a class="level4" href="#销售端让步单让步单查询">让步单查询</a>
+      <a class="level4" href="#销售端让步单让步单咨询">让步单咨询</a>
+      <a class="level4" href="#销售端让步单让步单回复">让步单回复</a>
+      <a class="level4" href="#销售端让步单FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>销售端 · 插行</summary>
+      <a class="level4" href="#销售端插行准发下载">准发下载</a>
+      <a class="level4" href="#销售端插行整理表格">整理表格</a>
+      <a class="level4" href="#销售端插行台账编辑">台账编辑</a>
+      <a class="level4" href="#销售端插行FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>销售端 · 结案</summary>
+      <a class="level4" href="#销售端结案订单跟踪下载">订单跟踪下载</a>
+      <a class="level4" href="#销售端结案台账编辑">台账编辑</a>
+      <a class="level4" href="#销售端结案生产跟踪查询">生产跟踪查询</a>
+      <a class="level4" href="#销售端结案FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>销售端 · 自由款</summary>
+      <a class="level4" href="#销售端自由款自由款查询">自由款查询</a>
+      <a class="level4" href="#销售端自由款自由款记录">自由款记录</a>
+      <a class="level4" href="#销售端自由款收货单位为中集同创">收货单位为中集同创</a>
+      <a class="level4" href="#销售端自由款客户为安裕麟和凌硕">客户为安裕麟和凌硕</a>
+      <a class="level4" href="#销售端自由款FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>销售端 · 电子提单</summary>
+      <a class="level4" href="#销售端电子提单欠款查询">欠款查询</a>
+      <a class="level4" href="#销售端电子提单欠款配款">欠款配款</a>
+      <a class="level4" href="#销售端电子提单FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>销售端 · 入库</summary>
+      <a class="level4" href="#销售端入库云仓库存下载">云仓库存下载</a>
+      <a class="level4" href="#销售端入库台账编辑">台账编辑</a>
+      <a class="level4" href="#销售端入库告知客户">告知客户</a>
+      <a class="level4" href="#销售端入库采购到货单编辑">采购到货单编辑</a>
+      <a class="level4" href="#销售端入库采购到货单导入">采购到货单导入</a>
+      <a class="level4" href="#销售端入库FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>销售端 · 转货权</summary>
+      <a class="level4" href="#销售端转货权台账登记">台账登记</a>
+      <a class="level4" href="#销售端转货权配款">配款</a>
+      <a class="level4" href="#销售端转货权FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>销售端 · 质量异议</summary>
+      <a class="level4" href="#销售端质量异议需求抱怨">需求抱怨</a>
+      <a class="level4" href="#销售端质量异议折扣处理登记表">折扣处理登记表</a>
+      <a class="level4" href="#销售端质量异议折扣单编辑">折扣单编辑</a>
+      <a class="level4" href="#销售端质量异议FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>销售端 · 销售开票</summary>
+      <a class="level4" href="#销售端销售开票销售出库">销售出库</a>
+      <a class="level4" href="#销售端销售开票应收结算">应收结算</a>
+      <a class="level4" href="#销售端销售开票台账登记">台账登记</a>
+      <a class="level4" href="#销售端销售开票结算单编辑">结算单编辑</a>
+      <a class="level4" href="#销售端销售开票FAQ">FAQ</a>
+    </details>
+    <details>
+      <summary>销售端 · 采购发票</summary>
+      <a class="level4" href="#销售端采购发票宝钢发票">宝钢发票</a>
+      <a class="level4" href="#销售端采购发票JFE发票">JFE发票</a>
+      <a class="level4" href="#销售端采购发票FAQ">FAQ</a>
+    </details>
+  </details>
+
+  <details>
+    <summary>善后端</summary>
+    <details>
+      <summary>善后端 · 财务需要采购合同</summary>
+      <a class="level4" href="#善后端财务需要采购合同操作流程">操作流程</a>
+    </details>
+    <details>
+      <summary>善后端 · 月末资金归集</summary>
+      <a class="level4" href="#善后端月末资金归集通知客户">通知客户</a>
+    </details>
+    <details>
+      <summary>善后端 · 月末财务余款</summary>
+      <a class="level4" href="#善后端月末财务余款通知客户">通知客户</a>
+    </details>
+    <details>
+      <summary>善后端 · 年中年末对账函</summary>
+      <a class="level4" href="#善后端年中年末对账函对账函流程">对账函流程</a>
+    </details>
+    <details>
+      <summary>善后端 · 退款申请</summary>
+      <a class="level4" href="#善后端退款申请退款申请单">退款申请单</a>
+    </details>
+    <details>
+      <summary>善后端 · 待确认成本</summary>
+      <a class="level4" href="#善后端待确认成本通知客户">通知客户</a>
+    </details>
+  </details>
+
+  <details>
+    <summary>勤杂组</summary>
+    <details>
+      <summary>勤杂组 · OTL操作手册编写规范</summary>
+      <a class="level4" href="#勤杂组OTL操作手册编写规范历史">历史</a>
+      <a class="level4" href="#勤杂组OTL操作手册编写规范纲要">纲要</a>
+    </details>
+    <details>
+      <summary>勤杂组 · 用印申请</summary>
+      <a class="level4" href="#勤杂组用印申请同创浦江申请用印流程">同创浦江申请用印流程（公章）</a>
+    </details>
+    <details>
+      <summary>勤杂组 · 退款申请</summary>
+      <a class="level4" href="#勤杂组退款申请退款流程">退款流程</a>
+    </details>
+    <details>
+      <summary>勤杂组 · 员工月度考核表</summary>
+      <a class="level4" href="#勤杂组员工月度考核表考核表编辑">考核表编辑</a>
+    </details>
+    <details>
+      <summary>勤杂组 · 未到卷查询</summary>
+      <a class="level4" href="#勤杂组未到卷查询问仓库">问仓库</a>
+      <a class="level4" href="#勤杂组未到卷查询查出厂码单">查出厂码单</a>
+      <a class="level4" href="#勤杂组未到卷查询查送货单">查送货单</a>
+    </details>
+    <details>
+      <summary>勤杂组 · 新装C9</summary>
+      <a class="level4" href="#勤杂组新装C9获取权限">获取权限</a>
+    </details>
+    <details>
+      <summary>勤杂组 · 无法连接到Internet</summary>
+      <a class="level4" href="#勤杂组无法连接到Internet重启">重启</a>
+      <a class="level4" href="#勤杂组无法连接到Internet飞行模式">飞行模式</a>
+      <a class="level4" href="#勤杂组无法连接到Internet网络适配器">网络适配器</a>
+    </details>
+    <details>
+      <summary>勤杂组 · 宏程序</summary>
+      <a class="level4" href="#勤杂组宏程序手工提单">手工提单</a>
+    </details>
+  </details>
+</div>
+
+<div id="content"></div>
 
 <script>
-// ========== Markdown 文件列表 ==========
-const MARKDOWN_FILES = [
-    { id: 'zhunru',   title: '准入端',   file: '准入端.md' },
-    { id: 'caigou',   title: '采购端',   file: '采购端.md' },
-    { id: 'xiaoshou', title: '销售端',   file: '销售端.md' },
-    { id: 'shanshou', title: '善后端',   file: '善后端.md' },
-    { id: 'qinza',    title: '勤杂组',   file: '勤杂组.md' }
-];
+  async function loadContent(file) {
+    const res = await fetch(file);
+    const text = await res.text();
+    document.getElementById('content').insertAdjacentHTML('beforeend', text);
+  }
 
-// ========== 全局状态 ==========
-let allContent = '';        // 所有 Markdown 拼接
-let tocData = [];           // 目录数据
-let currentSection = null;  // 当前可见的 section
+  async function init() {
+    await loadContent('zhunru.html');
+    await loadContent('caigou.html');
+    await loadContent('xiaoshou.html');
+    await loadContent('shanhou.html');
+    await loadContent('qinza.html');
+  }
 
-// ========== 加载所有 Markdown 文件 ==========
-async function loadAllMarkdown() {
-    const contentArea = document.getElementById('content-area');
-    
-    try {
-        let combined = '';
-        for (const md of MARKDOWN_FILES) {
-            const response = await fetch(md.file);
-            if (!response.ok) {
-                console.warn(`加载 ${md.file} 失败: ${response.status}`);
-                combined += `\n\n## ${md.title}\n\n> ⚠️ 文件 ${md.file} 加载失败，请确认文件已上传。\n\n`;
-                continue;
-            }
-            const text = await response.text();
-            combined += '\n\n' + text;
-        }
-        
-        allContent = combined;
-        
-        // 生成目录
-        generateToc(combined);
-        
-        // 渲染内容
-        renderContent(combined);
-        
-    } catch (err) {
-        contentArea.innerHTML = `<div style="padding:40px;color:#c00;">
-            <h2>加载失败</h2>
-            <p>${err.message}</p>
-            <p>请确保：</p>
-            <ul>
-                <li>五个 .md 文件已上传到同一目录</li>
-                <li>文件名为：准入端.md、采购端.md、销售端.md、善后端.md、勤杂组.md</li>
-                <li>通过 HTTP 服务器访问（而非直接打开本地文件）</li>
-            </ul>
-        </div>`;
-    }
-}
-
-// ========== 生成目录树 ==========
-function generateToc(markdown) {
-    // 用 marked.lexer 解析 Markdown 结构
-    const tokens = marked.lexer(markdown);
-    const toc = [];
-    let currentH1 = null, currentH2 = null, currentH3 = null;
-    
-    for (const token of tokens) {
-        if (token.type === 'heading' && token.depth >= 1 && token.depth <= 4) {
-            const id = token.text.replace(/\s+/g, '-').replace(/[·•]/g, '').replace(/[^\w\u4e00-\u9fff-]/g, '').toLowerCase();
-            const item = { 
-                text: token.text, 
-                id: id, 
-                depth: token.depth,
-                children: []
-            };
-            
-            if (token.depth === 1) {
-                toc.push(item);
-                currentH1 = item;
-                currentH2 = null;
-                currentH3 = null;
-            } else if (token.depth === 2) {
-                if (currentH1) {
-                    currentH1.children.push(item);
-                } else {
-                    toc.push(item);
-                }
-                currentH2 = item;
-                currentH3 = null;
-            } else if (token.depth === 3) {
-                if (currentH2) {
-                    currentH2.children.push(item);
-                } else if (currentH1) {
-                    currentH1.children.push(item);
-                } else {
-                    toc.push(item);
-                }
-                currentH3 = item;
-            } else if (token.depth === 4) {
-                if (currentH3) {
-                    currentH3.children.push(item);
-                } else if (currentH2) {
-                    currentH2.children.push(item);
-                } else if (currentH1) {
-                    currentH1.children.push(item);
-                } else {
-                    toc.push(item);
-                }
-            }
-        }
-    }
-    
-    tocData = toc;
-    renderToc(toc);
-}
-
-// ========== 渲染目录树 ==========
-function renderToc(toc) {
-    const container = document.getElementById('toc');
-    container.innerHTML = '';
-    
-    for (const item of toc) {
-        const li = createTocItem(item, 0);
-        container.appendChild(li);
-    }
-}
-
-function createTocItem(item, level) {
-    const li = document.createElement('li');
-    li.className = `toc-item toc-level-${Math.min(level + 1, 4)}`;
-    
-    const hasChildren = item.children && item.children.length > 0;
-    
-    // 链接
-    const a = document.createElement('a');
-    a.href = `#${item.id}`;
-    a.textContent = item.text;
-    a.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.getElementById(item.id);
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        // 高亮当前
-        document.querySelectorAll('.toc-item a').forEach(el => el.classList.remove('active'));
-        this.classList.add('active');
-    });
-    
-    if (hasChildren) {
-        // 可折叠
-        const toggle = document.createElement('span');
-        toggle.className = 'toc-toggle expanded';
-        toggle.textContent = '▶';
-        toggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            this.classList.toggle('expanded');
-            const children = this.parentElement.querySelector('.toc-children');
-            if (children) {
-                children.classList.toggle('expanded');
-            }
-        });
-        li.appendChild(toggle);
-        li.appendChild(a);
-        
-        const childrenUl = document.createElement('ul');
-        childrenUl.className = 'toc-children expanded';
-        for (const child of item.children) {
-            const childLi = createTocItem(child, level + 1);
-            childrenUl.appendChild(childLi);
-        }
-        li.appendChild(childrenUl);
-    } else {
-        li.appendChild(a);
-    }
-    
-    return li;
-}
-
-// ========== 渲染 Markdown 内容 ==========
-function renderContent(markdown) {
-    // 使用 marked 渲染
-    const renderer = new marked.Renderer();
-    
-    // 自定义标题渲染（添加锚点 id）
-    renderer.heading = function(text, level) {
-        const id = text.replace(/\s+/g, '-').replace(/[·•]/g, '').replace(/[^\w\u4e00-\u9fff-]/g, '').toLowerCase();
-        return `<h${level} id="${id}">${text}</h${level}>`;
-    };
-    
-    // 自定义 blockquote 渲染（高亮块）
-    renderer.blockquote = function(quote) {
-        return `<blockquote>${quote}</blockquote>`;
-    };
-    
-    // 自定义代码渲染
-    renderer.codespan = function(code) {
-        return `<code>${code}</code>`;
-    };
-    
-    // 自定义段落渲染（处理 ⚠ 警告行）
-    renderer.paragraph = function(text) {
-        if (text.startsWith('⚠')) {
-            return `<div class="warning-block">${text}</div>`;
-        }
-        return `<p>${text}</p>`;
-    };
-    
-    marked.setOptions({
-        renderer: renderer,
-        breaks: true,
-        gfm: true
-    });
-    
-    const html = marked.parse(markdown);
-    document.getElementById('content-area').innerHTML = html;
-    
-    // 移除加载状态
-    document.getElementById('loading')?.remove();
-}
-
-// ========== 侧栏折叠 ==========
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const main = document.getElementById('main-content');
-    sidebar.classList.toggle('collapsed');
-    main.classList.toggle('expanded');
-}
-
-// ========== 页面滚动高亮当前目录项 ==========
-function updateActiveTocItem() {
-    const headings = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id]');
-    let currentId = null;
-    
-    for (const heading of headings) {
-        const rect = heading.getBoundingClientRect();
-        if (rect.top <= 100) {
-            currentId = heading.id;
-        }
-    }
-    
-    if (currentId) {
-        document.querySelectorAll('.toc-item a').forEach(el => {
-            el.classList.remove('active');
-            if (el.getAttribute('href') === `#${currentId}`) {
-                el.classList.add('active');
-            }
-        });
-    }
-}
-
-window.addEventListener('scroll', updateActiveTocItem);
-
-// ========== 启动 ==========
-document.addEventListener('DOMContentLoaded', loadAllMarkdown);
+  window.addEventListener('DOMContentLoaded', init);
 </script>
 
 </body>
