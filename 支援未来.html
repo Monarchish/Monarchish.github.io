@@ -23,10 +23,20 @@
     --white: #FFFFFF;
   }
 
+  /* ===== 字体工具类 ===== */
+  .f12 { font-size: 12px; }
+  .f14 { font-size: 14px; }
+  .f16 { font-size: 16px; }
+  .f18 { font-size: 18px; }
+  .f20 { font-size: 20px; }
+  .f22 { font-size: 22px; }
+  .f24 { font-size: 24px; }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif;
     background: var(--bg);
     color: var(--text-body);
+    font-size: 14px;
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -44,14 +54,14 @@
     gap: 30px;
   }
   .logo {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     color: #fff;
     letter-spacing: 1px;
     margin-right: 12px;
   }
   .topnav a {
-    color: #979BA5;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 14px;
     padding: 10px 2px;
@@ -60,11 +70,27 @@
     transition: color 0.2s, border-color 0.2s;
     white-space: nowrap;
   }
-  .topnav a:hover { color: #C4C6CC; }
+  .topnav a:hover { color: var(--text-light); }
   .topnav a.active {
     color: #fff;
     font-weight: 600;
     border-bottom-color: #fff;
+  }
+
+  /* ===== 编辑按钮 ===== */
+  .edit-btn {
+    margin-left: auto;
+    color: var(--brand);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid var(--brand);
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+  .edit-btn:hover {
+    background: var(--brand-hover);
+    color: #fff;
   }
 
   /* ===== 主体布局 ===== */
@@ -170,7 +196,7 @@
     padding: 20px 12px;
   }
   .right-toc-title {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-main);
     margin-bottom: 10px;
@@ -202,7 +228,7 @@
 
   /* ===== 文档标题 ===== */
   .doc-title {
-    font-size: 30px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--text-main);
     margin-bottom: 14px;
@@ -227,7 +253,7 @@
 
   /* ===== 正文通用 ===== */
   h1 {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 600;
     color: var(--text-main);
     margin: 28px 0 14px;
@@ -241,13 +267,13 @@
     margin: 24px 0 12px;
   }
   h3 {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--text-main);
     margin: 20px 0 10px;
   }
   h4 {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-main);
     margin: 16px 0 8px;
@@ -292,6 +318,7 @@
   .variable {
     color: var(--text-main);
     font-weight: 600;
+    font-size: 14px;
   }
   .or-option {
     font-weight: 600;
@@ -319,7 +346,7 @@
     margin: 16px 0;
     overflow-x: auto;
     font-family: "SF Mono", "Consolas", "Courier New", monospace;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.7;
     color: var(--text-body);
   }
@@ -350,6 +377,7 @@
   <a data-tab="xiaoshou">销售端</a>
   <a data-tab="shanhou">善后端</a>
   <a data-tab="qinza">勤杂组</a>
+  <a class="edit-btn" id="edit-btn" target="_blank" href="#">编辑此页</a>
 </nav>
 
 <div class="layout">
@@ -451,19 +479,20 @@
 </div>
 
 <script>
+  const files = {
+    zhunru: 'zhunru.html',
+    caigou: 'caigou.html',
+    xiaoshou: 'xiaoshou.html',
+    shanhou: 'shanhou.html',
+    qinza: 'qinza.html'
+  };
+
   async function loadContent(file) {
     const res = await fetch(file);
     return await res.text();
   }
 
   async function init() {
-    const files = {
-      zhunru: 'zhunru.html',
-      caigou: 'caigou.html',
-      xiaoshou: 'xiaoshou.html',
-      shanhou: 'shanhou.html',
-      qinza: 'qinza.html'
-    };
     for (const [key, file] of Object.entries(files)) {
       document.getElementById('tab-' + key).innerHTML = await loadContent(file);
     }
@@ -483,6 +512,13 @@
     const names = {zhunru:'准入端', caigou:'采购端', xiaoshou:'销售端', shanhou:'善后端', qinza:'勤杂组'};
     document.getElementById('breadcrumb-end').textContent = names[tabName];
     generateRightToc(tabName);
+    updateEditBtn(tabName);
+  }
+
+  function updateEditBtn(tabName) {
+    const btn = document.getElementById('edit-btn');
+    const file = files[tabName];
+    btn.href = 'https://github.com/Monarchish/Monarchish.github.io/edit/main/' + file;
   }
 
   function generateRightToc(tabName) {
@@ -505,7 +541,9 @@
   }
 
   document.querySelectorAll('.topnav a').forEach(a => {
-    a.addEventListener('click', () => switchTab(a.dataset.tab));
+    a.addEventListener('click', () => {
+      if (a.dataset.tab) switchTab(a.dataset.tab);
+    });
   });
 
   document.addEventListener('click', e => {
