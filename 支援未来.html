@@ -1,365 +1,319 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>支援未来</title>
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的博客 · 工作SOP手册</title>
+  <style>
+    /* ========== 全局重置 & 蓝鲸风格变量 ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  :root {
-    --primary: #3a84ff;
-    --primary-light: #e8f1ff;
-    --sidebar-bg: #ffffff;
-    --content-bg: #f5f7fa;
-    --border: #e4e7ed;
-    --text: #1a1a1a;
-    --text-secondary: #555;
-    --header-bg: #1f2733;
-    --header-text: #b8c2cc;
-  }
+    :root {
+      --primary: #3a84ff;
+      --primary-light: #e8f1ff;
+      --sidebar-bg: #ffffff;
+      --content-bg: #f5f7fa;
+      --border: #e4e7ed;
+      --text: #1a1a1a;
+      --text-secondary: #555;
+      --header-bg: #1f2733;
+      --header-text: #b8c2cc;
+    }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif;
-    background: var(--content-bg);
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: var(--content-bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-  /* ========== 顶部黑色导航栏 ========== */
-  .topnav {
-    background: var(--header-bg);
-    height: 56px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    gap: 28px;
-    border-bottom: 1px solid #2c3744;
-  }
-  .logo {
-    font-size: 18px;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: 1px;
-    margin-right: 10px;
-  }
-  .topnav a {
-    color: var(--header-text);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 8px 4px;
-    border-bottom: 2px solid transparent;
-    transition: color 0.2s, border-color 0.2s;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .topnav a:hover { color: #ffffff; }
-  .topnav a.active {
-    color: #ffffff;
-    font-weight: 700;
-    border-bottom-color: #ffffff;
-  }
+    /* ========== 顶部导航栏 (深蓝黑) ========== */
+    .topnav {
+      background: var(--header-bg);
+      height: 56px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 28px;
+      border-bottom: 1px solid #2c3744;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 1px;
+      margin-right: 10px;
+    }
+    .logo span { color: var(--primary); }
+    .topnav a {
+      color: var(--header-text);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 4px;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .topnav a:hover { color: #ffffff; }
+    .topnav a.active {
+      color: #ffffff;
+      font-weight: 700;
+      border-bottom-color: var(--primary);
+    }
 
-  /* ========== 主体三栏布局 ========== */
-  .layout {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-  }
+    /* ========== 主体三栏布局 ========== */
+    .layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
 
-  /* ========== 左侧目录树 ========== */
-  .sidebar {
-    width: 260px;
-    min-width: 260px;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--border);
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 20px 0;
-    font-size: 14px;
-  }
-  .sidebar-title {
-    font-size: 18px;
-    font-weight: 700;
-    padding: 0 20px 16px 20px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
-  .side-group { display: none; }
-  .side-group.active { display: block; }
-  details { margin-bottom: 2px; }
-  summary {
-    cursor: pointer;
-    list-style: none;
-    font-weight: 500;
-    color: #4a4a4a;
-    padding: 6px 20px;
-    font-size: 14px;
-    white-space: nowrap;
-    transition: background-color 0.15s, color 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  summary::before {
-    content: "▸";
-    font-size: 12px;
-    color: #999;
-    transition: transform 0.2s;
-  }
-  details[open] > summary::before {
-    transform: rotate(90deg);
-  }
-  summary:hover { background: #f5f7fa; color: var(--primary); }
-  details[open] > summary { color: var(--primary); font-weight: 600; }
-  details details { margin-left: 0; }
-  .level4 {
-    display: block;
-    padding: 6px 20px 6px 44px;
-    color: #555;
-    text-decoration: none;
-    font-size: 13px;
-    white-space: nowrap;
-    transition: background-color 0.15s, color 0.15s;
-    border-left: 3px solid transparent;
-  }
-  .level4:hover { background: #f5f7fa; color: var(--primary); }
-  .faq-details { margin-left: 0; }
-  .faq-level4 {
-    font-weight: 500;
-    font-size: 13px;
-    color: #555;
-    padding: 6px 20px 6px 36px;
-    white-space: nowrap;
-    cursor: pointer;
-    list-style: none;
-  }
-  .faq-level4:hover { background: #f5f7fa; color: var(--primary); }
-  .level5 {
-    display: block;
-    padding: 5px 20px 5px 56px;
-    color: #777;
-    text-decoration: none;
-    font-size: 12px;
-    white-space: nowrap;
-  }
-  .level5:hover { background: #f5f7fa; color: var(--primary); }
+    /* ========== 左侧目录树 ========== */
+    .sidebar {
+      width: 280px;
+      min-width: 280px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 16px 0;
+      font-size: 14px;
+    }
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: 700;
+      padding: 0 20px 12px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+      color: var(--header-bg);
+    }
 
-  /* ========== 中间内容区 ========== */
-  .main-content {
-    flex: 1;
-    min-width: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 32px 48px;
-    background: var(--content-bg);
-  }
-  .content-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
+    /* 侧边栏分组切换 (对应顶部导航) */
+    .side-group { display: none; }
+    .side-group.active { display: block; }
 
-  /* ========== 右侧小目录 ========== */
-  .right-toc {
-    width: 180px;
-    min-width: 180px;
-    background: #ffffff;
-    border-left: 1px solid var(--border);
-    overflow-y: auto;
-    padding: 20px 12px;
-    font-size: 12px;
-    color: #555;
-  }
-  .right-toc h2 {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #333;
-  }
-  .right-toc a {
-    display: block;
-    padding: 3px 0;
-    color: #555;
-    text-decoration: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: color 0.15s;
-  }
-  .right-toc a:hover { color: var(--primary); }
+    /* 树形菜单样式 */
+    details { margin-bottom: 2px; }
+    summary {
+      cursor: pointer;
+      list-style: none;
+      font-weight: 500;
+      color: #4a4a4a;
+      padding: 6px 20px;
+      font-size: 14px;
+      white-space: nowrap;
+      transition: background-color 0.15s, color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 4px;
+      margin: 0 6px;
+    }
+    summary::before {
+      content: "▸";
+      font-size: 12px;
+      color: #999;
+      transition: transform 0.2s;
+      display: inline-block;
+      width: 16px;
+    }
+    details[open] > summary::before {
+      transform: rotate(90deg);
+    }
+    summary:hover { background: #f0f4ff; color: var(--primary); }
+    details[open] > summary { color: var(--primary); font-weight: 600; background: #f0f4ff; }
+    
+    details details { margin-left: 0; }
+    .level4 {
+      display: block;
+      padding: 5px 20px 5px 48px;
+      color: #555;
+      text-decoration: none;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background-color 0.15s, color 0.15s;
+      border-left: 3px solid transparent;
+      border-radius: 4px;
+      margin: 0 6px;
+    }
+    .level4:hover { background: #f5f7fa; color: var(--primary); }
+    .level4.active-link { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
 
-  /* ========== 面包屑 ========== */
-  .breadcrumb {
-    font-size: 13px;
-    color: #888;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-  }
-  .breadcrumb span { margin: 0 4px; }
-  .breadcrumb a { color: var(--primary); text-decoration: none; }
-  .breadcrumb a:hover { text-decoration: underline; }
+    .faq-details { margin-left: 0; }
+    .faq-level4 {
+      font-weight: 500;
+      font-size: 13px;
+      color: #555;
+      padding: 5px 20px 5px 48px;
+      white-space: nowrap;
+      cursor: pointer;
+      list-style: none;
+      border-radius: 4px;
+      margin: 0 6px;
+    }
+    .faq-level4:hover { background: #f5f7fa; color: var(--primary); }
+    .level5 {
+      display: block;
+      padding: 4px 20px 4px 64px;
+      color: #777;
+      text-decoration: none;
+      font-size: 12px;
+      white-space: nowrap;
+      border-radius: 4px;
+      margin: 0 6px;
+    }
+    .level5:hover { background: #f5f7fa; color: var(--primary); }
 
-  /* ========== 标题区 ========== */
-  .doc-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 16px;
-    line-height: 1.3;
-  }
+    /* ========== 中间内容区 ========== */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 32px 48px 60px 48px;
+      background: var(--content-bg);
+    }
+    .content-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-  /* ========== 正文样式 ========== */
-  h1 {
-    font-size: 18pt;
-    font-weight: bold;
-    color: #1a1a1a;
-    line-height: 1.4;
-    margin-top: 36px;
-    margin-bottom: 18px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e8e8e8;
-  }
-  h2 {
-    font-size: 15pt;
-    font-weight: bold;
-    color: #2c3e50;
-    line-height: 1.4;
-    margin-top: 28px;
-    margin-bottom: 14px;
-  }
-  h3 {
-    font-size: 13pt;
-    font-weight: bold;
-    color: #34495e;
-    line-height: 1.4;
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  h4 {
-    font-size: 11.5pt;
-    font-weight: bold;
-    color: #2c3e50;
-    line-height: 1.4;
-    margin-top: 16px;
-    margin-bottom: 8px;
-  }
-  p {
-    font-size: 11pt;
-    line-height: 1.6;
-    color: #333333;
-    text-align: justify;
-    margin-bottom: 8px;
-  }
-  .highlight-block {
-    background-color: #E6EEFA;
-    border-left: 4px solid #98C1FF;
-    border-radius: 4px;
-    padding: 10px 20px;
-    margin: 12px 0;
-    line-height: 1.6;
-    font-size: 11pt;
-    color: #333333;
-  }
-  .highlight-block p {
-    margin-bottom: 6px;
-  }
-  .highlight-block p:last-child {
-    margin-bottom: 0;
-  }
-  .warning-block {
-    background-color: #FFF3E0;
-    border-left: 4px solid #FFB74D;
-    border-radius: 4px;
-    padding: 10px 20px;
-    margin: 12px 0;
-    line-height: 1.6;
-    font-size: 11pt;
-    color: #333333;
-  }
-  .warning-block p {
-    margin-bottom: 6px;
-  }
-  .warning-block p:last-child {
-    margin-bottom: 0;
-  }
-  code, .inline-code {
-    font-family: "SF Mono", "Fira Code", "Consolas", "Courier New", monospace;
-    font-size: 10pt;
-    color: #d63384;
-    background-color: #F2F2F2;
-    padding: 2px 6px;
-    border-radius: 3px;
-  }
-  pre {
-    background-color: #F2F2F2;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    padding: 12px 16px;
-    margin: 12px 0;
-    overflow-x: auto;
-    font-family: "SF Mono", "Fira Code", "Consolas", "Courier New", monospace;
-    font-size: 10pt;
-    line-height: 1.5;
-    color: #333333;
-  }
-  pre code {
-    background: none;
-    padding: 0;
-    color: inherit;
-    font-size: inherit;
-  }
-  .section-divider {
-    text-align: center;
-    color: #999999;
-    font-size: 11pt;
-    letter-spacing: 2px;
-    margin: 28px 0;
-    user-select: none;
-    overflow: hidden;
-  }
-  .cmd {
-    font-weight: bold;
-    background-color: #F2F2F2;
-    padding: 1px 4px;
-    border-radius: 2px;
-    font-size: 10.5pt;
-  }
-  .variable {
-    color: #333333;
-    font-weight: 600;
-  }
-  .or-option {
-    font-weight: bold;
-    background-color: #F2F2F2;
-    padding: 1px 4px;
-    border-radius: 2px;
-  }
-  blockquote {
-    border-left: 3px solid #ddd;
-    padding: 8px 16px;
-    margin: 12px 0;
-    color: #666;
-    background-color: #f9f9f9;
-    border-radius: 0 4px 4px 0;
-    font-size: 11pt;
-    line-height: 1.6;
-  }
-</style>
+    /* ========== 右侧小目录 (TOC) ========== */
+    .right-toc {
+      width: 200px;
+      min-width: 200px;
+      background: #ffffff;
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 24px 16px;
+      font-size: 13px;
+      color: #555;
+    }
+    .right-toc h2 {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+      letter-spacing: 1px;
+    }
+    .right-toc a {
+      display: block;
+      padding: 4px 0 4px 8px;
+      color: #555;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.15s, border-left 0.15s;
+      border-left: 2px solid transparent;
+    }
+    .right-toc a:hover { color: var(--primary); border-left-color: var(--primary); padding-left: 12px; }
+
+    /* ========== 内容区通用样式 (博客/文档风格) ========== */
+    .breadcrumb {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .breadcrumb span { margin: 0 4px; }
+    .breadcrumb .current { color: #333; font-weight: 500; }
+
+    .doc-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .doc-meta {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 24px;
+    }
+
+    h1 { font-size: 22px; font-weight: 700; margin: 30px 0 16px 0; color: #1a1a1a; border-bottom: 1px solid #e8e8e8; padding-bottom: 8px; }
+    h2 { font-size: 18px; font-weight: 600; margin: 24px 0 12px 0; color: #2c3e50; }
+    h3 { font-size: 16px; font-weight: 600; margin: 20px 0 10px 0; color: #34495e; padding-left: 4px; }
+    p { font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 12px; }
+    ul, ol { padding-left: 24px; margin-bottom: 16px; }
+    li { font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 6px; }
+    .highlight-box {
+      background: #f0f7ff;
+      border-left: 4px solid var(--primary);
+      padding: 16px 20px;
+      margin: 16px 0;
+      border-radius: 4px;
+    }
+    code {
+      font-family: "SF Mono", "Consolas", monospace;
+      background: #f2f2f2;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #d63384;
+    }
+    /* 首页个人简介卡片 */
+    .hero-card {
+      background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%);
+      border-radius: 12px;
+      padding: 40px 48px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .hero-card h1 { border-bottom: none; font-size: 32px; margin-top: 0; }
+    .hero-card .sub { color: #666; font-size: 16px; margin-top: -8px; }
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .blog-card {
+      background: white;
+      padding: 20px 24px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+    .blog-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
+    .blog-card h4 { font-size: 16px; margin-bottom: 6px; color: var(--primary); }
+    .blog-card p { font-size: 14px; color: #666; margin-bottom: 0; }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 1024px) {
+      .right-toc { display: none; }
+      .sidebar { width: 240px; min-width: 240px; }
+      .main-content { padding: 24px 24px; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .topnav { overflow-x: auto; gap: 16px; padding: 0 12px; }
+      .topnav a { font-size: 13px; white-space: nowrap; }
+      .main-content { padding: 16px 16px; }
+      .hero-card { padding: 24px 20px; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- 顶部黑色导航栏 -->
+<!-- ===== 顶部导航栏 ===== -->
 <nav class="topnav" id="topnav">
-  <div class="logo">支援未来</div>
-  <a class="active" data-tab="zhunru">准入端</a>
+  <div class="logo">📘 <span>我的博客</span> · SOP</div>
+  <a class="active" data-tab="home">🏠 首页</a>
+  <a data-tab="zhunru">准入端</a>
   <a data-tab="caigou">采购端</a>
   <a data-tab="xiaoshou">销售端</a>
   <a data-tab="shanhou">善后端</a>
@@ -368,251 +322,177 @@
 
 <div class="layout">
 
-  <!-- 左侧目录树 -->
-  <aside class="sidebar">
-    <div class="sidebar-title">支援未来</div>
+  <!-- ===== 左侧目录树 ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-title">📂 工作 SOP 全流程</div>
 
-    <div class="side-group active" data-end="zhunru">
+    <!-- 首页（无菜单，占位） -->
+    <div class="side-group active" data-end="home">
+      <div style="padding: 20px; color: #999; font-size: 13px; text-align: center; border: 1px dashed #ddd; margin: 12px; border-radius: 8px;">
+        👋 欢迎<br><span style="font-size:12px;">这里是个人博客首页</span>
+      </div>
+    </div>
+
+    <!-- 准入端 -->
+    <div class="side-group" data-end="zhunru">
       <details open>
         <summary>准入端</summary>
         <details>
           <summary>准入端 · 准入</summary>
-          <a class="level4" href="#准入端准入邮件审批">准入端 · 准入 · 邮件审批</a>
-          <a class="level4" href="#准入端准入客户档案表">准入端 · 准入 · 客户档案表</a>
-          <a class="level4" href="#准入端准入业务供应商及客户准入申请流程">准入端 · 准入 · 业务供应商及客户准入申请流程</a>
+          <a class="level4" href="#准入端准入邮件审批">邮件审批</a>
+          <a class="level4" href="#准入端准入客户档案表">客户档案表</a>
+          <a class="level4" href="#准入端准入业务供应商及客户准入申请流程">供应商及客户准入申请</a>
         </details>
         <details>
           <summary>准入端 · MDG</summary>
-          <a class="level4" href="#准入端MDG查重">准入端 · MDG · 查重</a>
-          <a class="level4" href="#准入端MDG组织架构">准入端 · MDG · 组织架构</a>
-          <a class="level4" href="#准入端MDG添加抬头">准入端 · MDG · 添加抬头</a>
+          <a class="level4" href="#准入端MDG查重">查重</a>
+          <a class="level4" href="#准入端MDG组织架构">组织架构</a>
+          <a class="level4" href="#准入端MDG添加抬头">添加抬头</a>
           <details class="faq-details">
-            <summary class="faq-level4">准入端 · MDG · FAQ</summary>
+            <summary class="faq-level4">FAQ</summary>
             <a class="level5" href="#faq1">如何“跟踪MDG流程”？</a>
-            <a class="level5" href="#faq2">出现“你的连接不是专用连接”时，该怎么办？</a>
-            <a class="level5" href="#faq3">出现“营业执照无法上传”时，该怎么办？</a>
-            <a class="level5" href="#faq4">出现“当前用户无权限，请联系管理员！”时，该怎么办？</a>
+            <a class="level5" href="#faq2">“你的连接不是专用连接”怎么办？</a>
+            <a class="level5" href="#faq3">“营业执照无法上传”怎么办？</a>
           </details>
         </details>
       </details>
     </div>
 
+    <!-- 采购端 -->
     <div class="side-group" data-end="caigou">
       <details open>
         <summary>采购端</summary>
-        <details>
-          <summary>采购端 · 订货</summary>
+        <details><summary>采购端 · 订货</summary>
           <a class="level4" href="#采购端订货PSR码编辑">PSR码编辑</a>
           <a class="level4" href="#采购端订货客户模板编辑">客户模板编辑</a>
           <a class="level4" href="#采购端订货订货卡编辑">订货卡编辑</a>
           <a class="level4" href="#采购端订货订货卡检查与提交">订货卡检查与提交</a>
-          <a class="level4" href="#采购端订货订货卡二次检查">订货卡二次检查</a>
-          <a class="level4" href="#采购端订货FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>采购端 · 宝钢 期货（预）订货</summary>
+        <details><summary>采购端 · 宝钢 期货（预）订货</summary>
           <a class="level4" href="#采购端宝钢期货预订货确认合同金额">确认合同金额</a>
           <a class="level4" href="#采购端宝钢期货预订货领取合同号">领取合同号</a>
           <a class="level4" href="#采购端宝钢期货预订货贸易总表下载">贸易总表下载</a>
           <a class="level4" href="#采购端宝钢期货预订货销售合同编辑">销售合同编辑</a>
           <a class="level4" href="#采购端宝钢期货预订货草约下载">草约下载</a>
-          <a class="level4" href="#采购端宝钢期货预订货同创浦江业务合作申请流程">同创浦江业务合作申请流程</a>
-          <a class="level4" href="#采购端宝钢期货预订货同创浦江合同审批流程">同创浦江合同审批流程</a>
-          <a class="level4" href="#采购端宝钢期货预订货同创浦江付款申请流程">同创浦江付款申请流程</a>
-          <a class="level4" href="#采购端宝钢期货预订货同创浦江合同审批流程变更">同创浦江合同审批流程-变更</a>
           <a class="level4" href="#采购端宝钢期货预订货台账编辑">台账编辑</a>
-          <a class="level4" href="#采购端宝钢期货预订货FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>采购端 · 宝钢 期货订货</summary>
+        <details><summary>采购端 · 宝钢 期货订货</summary>
           <a class="level4" href="#采购端宝钢期货订货领取合同号">领取合同号</a>
           <a class="level4" href="#采购端宝钢期货订货贸易总表下载">贸易总表下载</a>
           <a class="level4" href="#采购端宝钢期货订货销售合同编辑">销售合同编辑</a>
           <a class="level4" href="#采购端宝钢期货订货草约下载">草约下载</a>
-          <a class="level4" href="#采购端宝钢期货订货同创浦江业务合作申请流程">同创浦江业务合作申请流程</a>
-          <a class="level4" href="#采购端宝钢期货订货同创浦江合同审批流程">同创浦江合同审批流程</a>
-          <a class="level4" href="#采购端宝钢期货订货同创浦江付款申请流程">同创浦江付款申请流程</a>
-          <a class="level4" href="#采购端宝钢期货订货台账编辑">台账编辑</a>
-          <a class="level4" href="#采购端宝钢期货订货FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>采购端 · 华菱 现货订货</summary>
+        <details><summary>采购端 · 华菱 现货订货</summary>
           <a class="level4" href="#采购端华菱现货订货草约确认">草约确认</a>
           <a class="level4" href="#采购端华菱现货订货领取合同号">领取合同号</a>
           <a class="level4" href="#采购端华菱现货订货销售合同编辑">销售合同编辑</a>
           <a class="level4" href="#采购端华菱现货订货索要定金">索要定金</a>
-          <a class="level4" href="#采购端华菱现货订货同创浦江业务合作申请流程">同创浦江业务合作申请流程</a>
-          <a class="level4" href="#采购端华菱现货订货同创浦江合同审批流程">同创浦江合同审批流程</a>
-          <a class="level4" href="#采购端华菱现货订货同创浦江付款申请流程">同创浦江付款申请流程</a>
-          <a class="level4" href="#采购端华菱现货订货台账编辑">台账编辑</a>
-          <a class="level4" href="#采购端华菱现货订货FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>采购端 · 同步</summary>
+        <details><summary>采购端 · 同步</summary>
           <a class="level4" href="#采购端同步采购合同导入">采购合同导入</a>
           <a class="level4" href="#采购端同步销售合同导入">销售合同导入</a>
           <a class="level4" href="#采购端同步配定金">配定金</a>
-          <a class="level4" href="#采购端同步社会库抬头变更">社会库抬头变更</a>
-          <a class="level4" href="#采购端同步FAQ">FAQ</a>
         </details>
       </details>
     </div>
 
+    <!-- 销售端 -->
     <div class="side-group" data-end="xiaoshou">
       <details open>
         <summary>销售端</summary>
-        <details>
-          <summary>销售端 · 让步单</summary>
+        <details><summary>销售端 · 让步单</summary>
           <a class="level4" href="#销售端让步单让步单查询">让步单查询</a>
           <a class="level4" href="#销售端让步单让步单咨询">让步单咨询</a>
           <a class="level4" href="#销售端让步单让步单回复">让步单回复</a>
-          <a class="level4" href="#销售端让步单FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>销售端 · 插行</summary>
+        <details><summary>销售端 · 插行</summary>
           <a class="level4" href="#销售端插行准发下载">准发下载</a>
           <a class="level4" href="#销售端插行整理表格">整理表格</a>
           <a class="level4" href="#销售端插行台账编辑">台账编辑</a>
-          <a class="level4" href="#销售端插行FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>销售端 · 结案</summary>
+        <details><summary>销售端 · 结案</summary>
           <a class="level4" href="#销售端结案订单跟踪下载">订单跟踪下载</a>
           <a class="level4" href="#销售端结案台账编辑">台账编辑</a>
           <a class="level4" href="#销售端结案生产跟踪查询">生产跟踪查询</a>
-          <a class="level4" href="#销售端结案FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>销售端 · 自由款</summary>
+        <details><summary>销售端 · 自由款</summary>
           <a class="level4" href="#销售端自由款自由款查询">自由款查询</a>
           <a class="level4" href="#销售端自由款自由款记录">自由款记录</a>
-          <a class="level4" href="#销售端自由款收货单位为中集同创">收货单位为中集同创</a>
-          <a class="level4" href="#销售端自由款客户为安裕麟和凌硕">客户为安裕麟和凌硕</a>
-          <a class="level4" href="#销售端自由款FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>销售端 · 电子提单</summary>
+        <details><summary>销售端 · 电子提单</summary>
           <a class="level4" href="#销售端电子提单欠款查询">欠款查询</a>
           <a class="level4" href="#销售端电子提单欠款配款">欠款配款</a>
-          <a class="level4" href="#销售端电子提单FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>销售端 · 入库</summary>
+        <details><summary>销售端 · 入库</summary>
           <a class="level4" href="#销售端入库云仓库存下载">云仓库存下载</a>
           <a class="level4" href="#销售端入库台账编辑">台账编辑</a>
           <a class="level4" href="#销售端入库告知客户">告知客户</a>
-          <a class="level4" href="#销售端入库采购到货单编辑">采购到货单编辑</a>
-          <a class="level4" href="#销售端入库采购到货单导入">采购到货单导入</a>
-          <a class="level4" href="#销售端入库FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>销售端 · 转货权</summary>
+        <details><summary>销售端 · 转货权</summary>
           <a class="level4" href="#销售端转货权台账登记">台账登记</a>
           <a class="level4" href="#销售端转货权配款">配款</a>
-          <a class="level4" href="#销售端转货权FAQ">FAQ</a>
         </details>
-        <details>
-          <summary>销售端 · 质量异议</summary>
+        <details><summary>销售端 · 质量异议</summary>
           <a class="level4" href="#销售端质量异议需求抱怨">需求抱怨</a>
           <a class="level4" href="#销售端质量异议折扣处理登记表">折扣处理登记表</a>
-          <a class="level4" href="#销售端质量异议折扣单编辑">折扣单编辑</a>
-          <a class="level4" href="#销售端质量异议FAQ">FAQ</a>
-        </details>
-        <details>
-          <summary>销售端 · 销售开票</summary>
-          <a class="level4" href="#销售端销售开票销售出库">销售出库</a>
-          <a class="level4" href="#销售端销售开票应收结算">应收结算</a>
-          <a class="level4" href="#销售端销售开票台账登记">台账登记</a>
-          <a class="level4" href="#销售端销售开票结算单编辑">结算单编辑</a>
-          <a class="level4" href="#销售端销售开票FAQ">FAQ</a>
-        </details>
-        <details>
-          <summary>销售端 · 采购发票</summary>
-          <a class="level4" href="#销售端采购发票宝钢发票">宝钢发票</a>
-          <a class="level4" href="#销售端采购发票JFE发票">JFE发票</a>
-          <a class="level4" href="#销售端采购发票FAQ">FAQ</a>
         </details>
       </details>
     </div>
 
+    <!-- 善后端 -->
     <div class="side-group" data-end="shanhou">
       <details open>
         <summary>善后端</summary>
-        <details>
-          <summary>善后端 · 财务需要采购合同</summary>
+        <details><summary>善后端 · 财务需要采购合同</summary>
           <a class="level4" href="#善后端财务需要采购合同操作流程">操作流程</a>
         </details>
-        <details>
-          <summary>善后端 · 月末资金归集</summary>
+        <details><summary>善后端 · 月末资金归集</summary>
           <a class="level4" href="#善后端月末资金归集通知客户">通知客户</a>
         </details>
-        <details>
-          <summary>善后端 · 月末财务余款</summary>
+        <details><summary>善后端 · 月末财务余款</summary>
           <a class="level4" href="#善后端月末财务余款通知客户">通知客户</a>
         </details>
-        <details>
-          <summary>善后端 · 年中年末对账函</summary>
+        <details><summary>善后端 · 年中年末对账函</summary>
           <a class="level4" href="#善后端年中年末对账函对账函流程">对账函流程</a>
         </details>
-        <details>
-          <summary>善后端 · 退款申请</summary>
+        <details><summary>善后端 · 退款申请</summary>
           <a class="level4" href="#善后端退款申请退款申请单">退款申请单</a>
-        </details>
-        <details>
-          <summary>善后端 · 待确认成本</summary>
-          <a class="level4" href="#善后端待确认成本通知客户">通知客户</a>
         </details>
       </details>
     </div>
 
+    <!-- 勤杂组 -->
     <div class="side-group" data-end="qinza">
       <details open>
         <summary>勤杂组</summary>
-        <details>
-          <summary>勤杂组 · OTL操作手册编写规范</summary>
+        <details><summary>勤杂组 · OTL操作手册编写规范</summary>
           <a class="level4" href="#勤杂组OTL操作手册编写规范历史">历史</a>
           <a class="level4" href="#勤杂组OTL操作手册编写规范纲要">纲要</a>
         </details>
-        <details>
-          <summary>勤杂组 · 用印申请</summary>
+        <details><summary>勤杂组 · 用印申请</summary>
           <a class="level4" href="#勤杂组用印申请同创浦江申请用印流程">同创浦江申请用印流程（公章）</a>
         </details>
-        <details>
-          <summary>勤杂组 · 退款申请</summary>
+        <details><summary>勤杂组 · 退款申请</summary>
           <a class="level4" href="#勤杂组退款申请退款流程">退款流程</a>
         </details>
-        <details>
-          <summary>勤杂组 · 员工月度考核表</summary>
-          <a class="level4" href="#勤杂组员工月度考核表考核表编辑">考核表编辑</a>
-        </details>
-        <details>
-          <summary>勤杂组 · 未到卷查询</summary>
-          <a class="level4" href="#勤杂组未到卷查询问仓库">问仓库</a>
-          <a class="level4" href="#勤杂组未到卷查询查出厂码单">查出厂码单</a>
-          <a class="level4" href="#勤杂组未到卷查询查送货单">查送货单</a>
-        </details>
-        <details>
-          <summary>勤杂组 · 新装C9</summary>
+        <details><summary>勤杂组 · 新装C9</summary>
           <a class="level4" href="#勤杂组新装C9获取权限">获取权限</a>
         </details>
-        <details>
-          <summary>勤杂组 · 无法连接到Internet</summary>
+        <details><summary>勤杂组 · 无法连接到Internet</summary>
           <a class="level4" href="#勤杂组无法连接到Internet重启">重启</a>
           <a class="level4" href="#勤杂组无法连接到Internet飞行模式">飞行模式</a>
           <a class="level4" href="#勤杂组无法连接到Internet网络适配器">网络适配器</a>
-        </details>
-        <details>
-          <summary>勤杂组 · 宏程序</summary>
-          <a class="level4" href="#勤杂组宏程序手工提单">手工提单</a>
         </details>
       </details>
     </div>
   </aside>
 
-  <!-- 中间内容区 -->
+  <!-- ===== 中间内容区 ===== -->
   <main class="main-content" id="main-content">
     <div class="content-inner">
-      <div class="tab-content active" id="tab-zhunru"></div>
+      <!-- 各个Tab对应的内容容器 -->
+      <div class="tab-content active" id="tab-home"></div>
+      <div class="tab-content" id="tab-zhunru"></div>
       <div class="tab-content" id="tab-caigou"></div>
       <div class="tab-content" id="tab-xiaoshou"></div>
       <div class="tab-content" id="tab-shanhou"></div>
@@ -620,98 +500,274 @@
     </div>
   </main>
 
-  <!-- 右侧小目录 -->
+  <!-- ===== 右侧小目录 ===== -->
   <aside class="right-toc">
-    <h2>本章目录</h2>
-    <div id="right-toc-links"></div>
+    <h2>📑 本章目录</h2>
+    <div id="right-toc-links"><div style="color:#ccc; font-size:13px;">点击左侧菜单加载内容</div></div>
   </aside>
 
 </div>
 
 <script>
-  async function loadContent(file) {
-    const res = await fetch(file);
-    const text = await res.text();
-    return text;
-  }
+  // ================================================================
+  // 1. 定义所有页面的 HTML 内容（纯文本，无需外部文件）
+  // ================================================================
+  const PAGES = {
 
-  async function init() {
-    const files = {
-      zhunru: 'zhunru.html',
-      caigou: 'caigou.html',
-      xiaoshou: 'xiaoshou.html',
-      shanhou: 'shanhou.html',
-      qinza: 'qinza.html'
-    };
+    // ---------- 首页（个人博客） ----------
+    home: `
+      <div class="hero-card">
+        <h1>👋 你好，我是 Monarchish</h1>
+        <p class="sub">欢迎来到我的个人博客 · 这里记录了我的工作 SOP 全流程与思考</p>
+        <p style="margin-top:16px;">这个站点采用 <strong>蓝鲸文档中心</strong> 风格设计，左侧是树形目录，右侧是章节目录。</p>
+        <p>目前内容聚焦于我在工作中沉淀的 <strong>标准操作程序（SOP）</strong>，涵盖准入、采购、销售、善后及勤杂事务。</p>
+      </div>
+      <h2>📌 近期更新</h2>
+      <div class="blog-grid">
+        <div class="blog-card"><h4>📄 准入端 · MDG 查重优化</h4><p>更新了查重流程中的新字段映射规则。</p></div>
+        <div class="blog-card"><h4>📄 采购端 · 宝钢期货订货</h4><p>补充了贸易总表下载后的数据核对步骤。</p></div>
+        <div class="blog-card"><h4>📄 销售端 · 让步单咨询</h4><p>增加了针对异常场景的 QA 问答。</p></div>
+      </div>
+      <p style="margin-top:24px; color:#999; font-size:14px;">💡 点击顶部导航栏切换不同业务端，左侧目录将同步切换。</p>
+    `,
 
-    for (const [key, file] of Object.entries(files)) {
-      const html = await loadContent(file);
-      document.getElementById('tab-' + key).innerHTML = html;
-    }
+    // ---------- 准入端 ----------
+    zhunru: `
+      <div class="breadcrumb">📂 工作SOP / <span class="current">准入端</span></div>
+      <h1 class="doc-title">准入端 · 操作手册</h1>
+      <div class="doc-meta">📅 最后更新：2026-08-17 | 维护人：Monarchish</div>
 
-    switchTab('zhunru');
-  }
+      <h2 id="准入端准入邮件审批">📧 邮件审批</h2>
+      <p>1. 登录公司邮箱，进入 <code>审批中心</code>。<br>2. 检查待审批列表中的“供应商/客户准入申请”。<br>3. 核对附件中的营业执照、法人信息，确认无误后点击 <strong>“通过”</strong>。</p>
 
+      <h2 id="准入端准入客户档案表">📋 客户档案表</h2>
+      <p>1. 在 C9 系统中进入 <code>客户管理</code> 模块。<br>2. 点击 <strong>“新增客户”</strong>，填写统一社会信用代码、公司全称、联系人信息。<br>3. 上传盖章版《客户准入承诺书》，保存后提交 MDG 流程。</p>
+
+      <h2 id="准入端准入业务供应商及客户准入申请流程">📑 供应商及客户准入申请</h2>
+      <p>1. 发起人填写《业务合作申请表》。<br>2. 部门负责人初审 → 法务合规复审 → 总经理终审。<br>3. 审批通过后，系统自动创建供应商/客户编号，并邮件通知业务端。</p>
+
+      <h2 id="准入端MDG查重">🔍 MDG 查重</h2>
+      <p>在 MDG 系统中输入“统一社会信用代码”或“公司名称关键词”，系统自动检索是否存在重复数据。</p>
+
+      <h2 id="准入端MDG组织架构">🏢 组织架构</h2>
+      <p>维护 MDG 中的部门层级关系，确保审批流指派人正确。</p>
+
+      <h2 id="准入端MDG添加抬头">📌 添加抬头</h2>
+      <p>在 MDG 主数据中维护 <strong>“付款方抬头”</strong> 和 <strong>“收货方抬头”</strong>，用于后续采购/销售合同生成。</p>
+
+      <h2 id="faq1">❓ FAQ：如何“跟踪MDG流程”？</h2>
+      <p>在 MDG 首页点击 <strong>“我的流程”</strong>，输入流程编号或申请人姓名，即可查看当前审批节点及处理人。</p>
+      <h2 id="faq2">❓ FAQ：“你的连接不是专用连接”怎么办？</h2>
+      <p>点击浏览器高级选项，选择 <strong>“继续前往”</strong>（如为公司内网证书问题，请联系 IT 刷新证书）。</p>
+      <h2 id="faq3">❓ FAQ：“营业执照无法上传”怎么办？</h2>
+      <p>检查文件大小是否超过 <strong>5MB</strong>，格式是否为 <code>.jpg</code> 或 <code>.png</code>。若仍失败，清理浏览器缓存后重试。</p>
+    `,
+
+    // ---------- 采购端（篇幅所限，此处提供结构示例，实际可无限扩充） ----------
+    caigou: `
+      <div class="breadcrumb">📂 工作SOP / <span class="current">采购端</span></div>
+      <h1 class="doc-title">采购端 · 操作手册</h1>
+      <div class="doc-meta">📅 最后更新：2026-08-17 | 维护人：Monarchish</div>
+
+      <h2 id="采购端订货PSR码编辑">🔖 PSR码编辑</h2>
+      <p>进入采购模块，选择 <strong>“PSR码维护”</strong>，根据钢厂新到资源创建或更新 PSR 码，关联材质、规格、卷重等信息。</p>
+
+      <h2 id="采购端订货客户模板编辑">📄 客户模板编辑</h2>
+      <p>在系统内维护常用客户的 <strong>订货模板</strong>（包含默认材质、公差、包装要求），减少重复录入。</p>
+
+      <h2 id="采购端订货订货卡编辑">🛒 订货卡编辑</h2>
+      <p>根据客户需求在订货卡中输入 <strong>品名、规格、数量、交货期</strong>，系统自动校验库存及可订货量。</p>
+
+      <h2 id="采购端订货订货卡检查与提交">✅ 订货卡检查与提交</h2>
+      <p>提交前需核对 <strong>价格</strong> 与 <strong>总金额</strong>，确认无误后点击“提交审批”，进入采购订单审批流。</p>
+
+      <h2 id="采购端宝钢期货预订货确认合同金额">💰 确认合同金额</h2>
+      <p>根据宝钢提供的基价 + 运费 + 杂费，计算最终合同单价，录入系统。</p>
+      
+      <h2 id="采购端宝钢期货预订货领取合同号">📜 领取合同号</h2>
+      <p>审批通过后，在系统中点击 <strong>“生成合同”</strong>，系统分配合同号（格式：CG-2026-XXXX）。</p>
+
+      <p style="margin-top:24px; color:#999;">... 更多采购端 SOP 条目（如贸易总表、草约下载、台账编辑等）可按相同结构继续追加 ...</p>
+    `,
+
+    // ---------- 销售端 ----------
+    xiaoshou: `
+      <div class="breadcrumb">📂 工作SOP / <span class="current">销售端</span></div>
+      <h1 class="doc-title">销售端 · 操作手册</h1>
+      <div class="doc-meta">📅 最后更新：2026-08-17 | 维护人：Monarchish</div>
+
+      <h2 id="销售端让步单让步单查询">🔍 让步单查询</h2>
+      <p>在 <strong>“质量管理”</strong> 模块输入让步单号或客户名称，查询让步审批状态及处置意见。</p>
+
+      <h2 id="销售端让步单让步单咨询">💬 让步单咨询</h2>
+      <p>若客户对让步结果有异议，可在系统内发起 <strong>“咨询”</strong>，由质量工程师 24 小时内回复。</p>
+
+      <h2 id="销售端插行准发下载">📥 准发下载</h2>
+      <p>在 <strong>“发货管理”</strong> 中下载 <code>准发清单.xlsx</code>，核对卷号、重量、发货日期。</p>
+
+      <h2 id="销售端结案订单跟踪下载">📦 订单跟踪下载</h2>
+      <p>进入 <strong>“订单跟踪”</strong> 报表，输入合同号，下载 PDF 格式的 <strong>全流程跟踪单</strong>（含生产、质检、物流节点）。</p>
+
+      <h2 id="销售端自由款自由款查询">💵 自由款查询</h2>
+      <p>在财务模块的 <strong>“预收款管理”</strong> 中，按客户名称或合同号查询剩余自由款项余额。</p>
+
+      <p style="margin-top:24px; color:#999;">... 更多销售端 SOP 条目（电子提单、入库、转货权、质量异议等）可继续追加 ...</p>
+    `,
+
+    // ---------- 善后端 ----------
+    shanhou: `
+      <div class="breadcrumb">📂 工作SOP / <span class="current">善后端</span></div>
+      <h1 class="doc-title">善后端 · 操作手册</h1>
+      <div class="doc-meta">📅 最后更新：2026-08-17 | 维护人：Monarchish</div>
+
+      <h2 id="善后端财务需要采购合同操作流程">📄 财务需要采购合同</h2>
+      <p>当财务部门需要调取采购合同原件时，流程如下：<br>1. 在 C9 系统中导出 <strong>合同 PDF</strong>。<br>2. 邮件发送至财务部指定邮箱，并抄送部门负责人。<br>3. 在 <strong>“档案借阅登记表”</strong> 中登记借阅记录。</p>
+
+      <h2 id="善后端月末资金归集通知客户">💰 月末资金归集通知客户</h2>
+      <p>每月 25 日，导出 <strong>“客户资金余额表”</strong>，通过邮件或企业微信通知客户核对资金，提醒其在 30 日前完成付款或退款申请。</p>
+
+      <h2 id="善后端月末财务余款通知客户">💳 月末财务余款通知客户</h2>
+      <p>针对历史结余款项较大的客户，单独发送《余款确认函》，确认余额是否转作下月货款或申请退回。</p>
+
+      <h2 id="善后端年中年末对账函对账函流程">📑 年中年末对账函流程</h2>
+      <p>每年 6 月 30 日及 12 月 31 日前，发起 <strong>“对账函盖章申请”</strong>，经财务复核后，扫描发送客户盖章，原件归档。</p>
+    `,
+
+    // ---------- 勤杂组 ----------
+    qinza: `
+      <div class="breadcrumb">📂 工作SOP / <span class="current">勤杂组</span></div>
+      <h1 class="doc-title">勤杂组 · 操作手册</h1>
+      <div class="doc-meta">📅 最后更新：2026-08-17 | 维护人：Monarchish</div>
+
+      <h2 id="勤杂组OTL操作手册编写规范历史">📜 OTL操作手册编写规范 · 历史</h2>
+      <p>本手册自 <strong>2024年3月</strong> 起建立，初始版本基于线下 Word 文档整理。</p>
+
+      <h2 id="勤杂组OTL操作手册编写规范纲要">📋 OTL操作手册编写规范 · 纲要</h2>
+      <ul>
+        <li>每个流程必须包含：<strong>目的、适用范围、责任人、操作步骤、异常处理</strong>。</li>
+        <li>步骤描述需配合 <strong>系统截图</strong>（存放于公司共享盘）。</li>
+        <li>每年 <strong>1 月</strong> 和 <strong>7 月</strong> 进行版本复审。</li>
+      </ul>
+
+      <h2 id="勤杂组用印申请同创浦江申请用印流程">🖊️ 同创浦江申请用印流程（公章）</h2>
+      <p>在 OA 系统发起 <strong>“用印申请单”</strong>，上传用印文件扫描件，经部门领导审批后，携带纸质版到行政部盖章。</p>
+
+      <h2 id="勤杂组新装C9获取权限">💻 新装C9获取权限</h2>
+      <p>联系 IT 部门分配 C9 账号，初始密码为 <code>c9@2026</code>，首次登录需修改密码并绑定手机令牌。</p>
+
+      <h2 id="勤杂组无法连接到Internet重启">🔄 无法连接到Internet · 重启</h2>
+      <p>第一步：重启电脑和路由器。80% 的问题可以通过重启解决。</p>
+      <h2 id="勤杂组无法连接到Internet飞行模式">✈️ 飞行模式</h2>
+      <p>检查笔记本的 <strong>“飞行模式”</strong> 是否被误开启，关闭后重连 Wi-Fi。</p>
+      <h2 id="勤杂组无法连接到Internet网络适配器">🔧 网络适配器</h2>
+      <p>在 <code>控制面板 > 网络和共享中心 > 更改适配器设置</code> 中，禁用并重新启用 <strong>“以太网”</strong> 或 <strong>“WLAN”</strong>。</p>
+    `
+  };
+
+  // ================================================================
+  // 2. 核心交互逻辑
+  // ================================================================
+
+  // 切换 Tab
   function switchTab(tabName) {
+    // 更新顶部导航高亮
     document.querySelectorAll('.topnav a').forEach(a => {
       a.classList.toggle('active', a.dataset.tab === tabName);
     });
 
-    document.querySelectorAll('.tab-content').forEach(tab => {
-      tab.classList.toggle('active', tab.id === 'tab-' + tabName);
-    });
-
+    // 更新左侧菜单分组
     document.querySelectorAll('.side-group').forEach(group => {
       group.classList.toggle('active', group.dataset.end === tabName);
     });
 
+    // 更新右侧内容
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.toggle('active', tab.id === 'tab-' + tabName);
+    });
+
+    // 加载对应页面内容
+    const contentDiv = document.getElementById('tab-' + tabName);
+    if (PAGES[tabName]) {
+      contentDiv.innerHTML = PAGES[tabName];
+    }
+
+    // 重新生成右侧 TOC
     generateRightToc(tabName);
+
+    // 滚动到顶部
+    document.getElementById('main-content').scrollTop = 0;
   }
 
+  // 生成右侧章节目录 (自动抓取 h2, h3)
   function generateRightToc(tabName) {
+    const container = document.getElementById('right-toc-links');
     const content = document.getElementById('tab-' + tabName);
-    const h3s = content.querySelectorAll('h3');
-    const rightTocLinks = document.getElementById('right-toc-links');
-    rightTocLinks.innerHTML = '';
+    if (!content) return;
 
-    h3s.forEach(h3 => {
-      const a = document.createElement('a');
-      a.textContent = h3.textContent;
-      a.href = '#' + h3.id;
+    // 抓取 h2 和 h3 作为目录
+    const headers = content.querySelectorAll('h2, h3');
+    if (headers.length === 0) {
+      container.innerHTML = '<div style="color:#ccc; font-size:13px;">暂无章节标题</div>';
+      return;
+    }
+
+    let html = '';
+    headers.forEach(h => {
+      // 确保有 id 用于锚点
+      if (!h.id) {
+        h.id = 'h-' + Math.random().toString(36).substr(2, 6);
+      }
+      const indent = h.tagName === 'H3' ? 'padding-left: 16px; font-size:12px;' : 'font-weight:600;';
+      html += `<a href="#${h.id}" style="${indent}">${h.textContent}</a>`;
+    });
+    container.innerHTML = html;
+
+    // 点击平滑滚动
+    container.querySelectorAll('a').forEach(a => {
       a.addEventListener('click', function(e) {
         e.preventDefault();
-        scrollToElement(h3);
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          const wrapper = document.getElementById('main-content');
+          const top = target.getBoundingClientRect().top - wrapper.getBoundingClientRect().top + wrapper.scrollTop - 10;
+          wrapper.scrollTo({ top, behavior: 'smooth' });
+        }
       });
-      rightTocLinks.appendChild(a);
     });
   }
 
-  function scrollToElement(el) {
-    const wrapper = document.getElementById('main-content');
-    const top = el.getBoundingClientRect().top - wrapper.getBoundingClientRect().top + wrapper.scrollTop - 10;
-    wrapper.scrollTo({ top, behavior: 'smooth' });
-  }
-
-  document.querySelectorAll('.topnav a').forEach(a => {
-    a.addEventListener('click', function() {
-      switchTab(this.dataset.tab);
-    });
-  });
-
+  // 监听左侧菜单点击 (锚点跳转)
   document.addEventListener('click', function(e) {
-    const link = e.target.closest('a.level4, a.level5');
+    const link = e.target.closest('.level4, .level5');
     if (!link) return;
     const href = link.getAttribute('href');
     if (href && href.startsWith('#')) {
       e.preventDefault();
       const target = document.querySelector(href);
       if (target) {
-        scrollToElement(target);
+        const wrapper = document.getElementById('main-content');
+        const top = target.getBoundingClientRect().top - wrapper.getBoundingClientRect().top + wrapper.scrollTop - 10;
+        wrapper.scrollTo({ top, behavior: 'smooth' });
+        // 高亮当前点击的菜单项
+        document.querySelectorAll('.level4, .level5').forEach(el => el.classList.remove('active-link'));
+        link.classList.add('active-link');
       }
     }
   });
 
-  window.addEventListener('DOMContentLoaded', init);
+  // 顶部导航点击切换
+  document.querySelectorAll('.topnav a').forEach(a => {
+    a.addEventListener('click', function() {
+      switchTab(this.dataset.tab);
+    });
+  });
+
+  // ================================================================
+  // 3. 初始化 (默认加载首页)
+  // ================================================================
+  window.addEventListener('DOMContentLoaded', function() {
+    switchTab('home');
+  });
 </script>
 
 </body>
