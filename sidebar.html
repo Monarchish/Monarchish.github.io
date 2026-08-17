@@ -1,22 +1,243 @@
-<!-- ===== 首页 ===== -->
-<div class="page-block active" id="page-home">
-    <div class="breadcrumb">支援未来 > 首页</div>
-    <div class="page-header">
-        <h1>个人简介</h1>
-        <a class="edit-btn" href="https://github.com/你的用户名/你的用户名.github.io/edit/main/content-home.html" target="_blank">编辑此页</a>
+<div class="sidebar-group active" data-group="home">
+    <div style="padding: 30px 16px; color: #8a9aa8; font-size: 14px; text-align: center; line-height: 1.8;">
+        <div style="font-size: 32px; color: #3a84ff; margin-bottom: 12px;">🏠</div>
+        欢迎来到<br><strong style="color: #1e2a3a; font-size: 16px;">支援未来</strong><br>
+        请从顶部导航选择分类<br>
+        或点击左侧菜单查看具体内容
     </div>
-    <div class="page-content">
-        <p>你好！我是 <strong>Mobius</strong>。这里是我的工作文档中心。</p>
-        <h2>关于我</h2>
-        <p>请在这里填写你的个人简介。</p>
-        <h2>本站导航</h2>
-        <ul>
-            <li><strong>准入</strong> — 供应商及客户准入流程</li>
-            <li><strong>采购</strong> — 订货、期货、现货、同步</li>
-            <li><strong>销售</strong> — 让步单、插行、结案等</li>
-            <li><strong>财务</strong> — 资金归集、对账、退款</li>
-            <li><strong>其他</strong> — OTL规范、用印、考核等</li>
-        </ul>
-    </div>
-    <div class="footer-meta">最近更新：2026-08-17 | 由 Mobius 用 GitHub Pages 构建</div>
 </div>
+
+<div class="sidebar-group" data-group="zhunru">
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">准入 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="zhunru-zhunru-youjian">邮件审批</a>
+            <a data-page="zhunru-zhunru-kehudanganbiao">客户档案表</a>
+            <a data-page="zhunru-zhunru-shenqingliucheng">业务供应商及客户准入申请流程</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">MDG <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="zhunru-mdg-chazhong">查重</a>
+            <a data-page="zhunru-mdg-zuzhijiagou">组织架构</a>
+            <a data-page="zhunru-mdg-tianjiatou">添加抬头</a>
+            <a data-page="zhunru-mdg-faq">FAQ</a>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-group" data-group="caigou">
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">订货 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caigou-dinghuo-psr">PSR码编辑</a>
+            <a data-page="caigou-dinghuo-khmb">客户模板编辑</a>
+            <a data-page="caigou-dinghuo-dhk">订货卡编辑</a>
+            <a data-page="caigou-dinghuo-jc">订货卡检查与提交</a>
+            <a data-page="caigou-dinghuo-jc2">订货卡二次检查</a>
+            <a data-page="caigou-dinghuo-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">宝钢期货（预）订货 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caigou-baogang-htje">确认合同金额</a>
+            <a data-page="caigou-baogang-ht">领取合同号</a>
+            <a data-page="caigou-baogang-myzb">贸易总表下载</a>
+            <a data-page="caigou-baogang-xsht">销售合同编辑</a>
+            <a data-page="caigou-baogang-cyxz">草约下载</a>
+            <a data-page="caigou-baogang-tc">同创浦江业务合作申请流程</a>
+            <a data-page="caigou-baogang-tcsp">同创浦江合同审批流程</a>
+            <a data-page="caigou-baogang-tcfk">同创浦江付款申请流程</a>
+            <a data-page="caigou-baogang-tcchange">同创浦江合同审批流程-变更</a>
+            <a data-page="caigou-baogang-tz">台账编辑</a>
+            <a data-page="caigou-baogang-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">华菱现货订货 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caigou-hualing-cyqr">草约确认</a>
+            <a data-page="caigou-hualing-ht">领取合同号</a>
+            <a data-page="caigou-hualing-xsht">销售合同编辑</a>
+            <a data-page="caigou-hualing-dj">索要定金</a>
+            <a data-page="caigou-hualing-tc">同创浦江业务合作申请流程</a>
+            <a data-page="caigou-hualing-tcsp">同创浦江合同审批流程</a>
+            <a data-page="caigou-hualing-tcfk">同创浦江付款申请流程</a>
+            <a data-page="caigou-hualing-tz">台账编辑</a>
+            <a data-page="caigou-hualing-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">同步 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caigou-tongbu-cght">采购合同导入</a>
+            <a data-page="caigou-tongbu-xsht">销售合同导入</a>
+            <a data-page="caigou-tongbu-pdj">配定金</a>
+            <a data-page="caigou-tongbu-shk">社会库抬头变更</a>
+            <a data-page="caigou-tongbu-faq">FAQ</a>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-group" data-group="xiaoshou">
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">让步单 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-rangbudan-cx">让步单查询</a>
+            <a data-page="xiaoshou-rangbudan-zx">让步单咨询</a>
+            <a data-page="xiaoshou-rangbudan-hf">让步单回复</a>
+            <a data-page="xiaoshou-rangbudan-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">插行 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-chaxing-zf">准发下载</a>
+            <a data-page="xiaoshou-chaxing-zl">整理表格</a>
+            <a data-page="xiaoshou-chaxing-tz">台账编辑</a>
+            <a data-page="xiaoshou-chaxing-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">结案 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-jiean-dd">订单跟踪下载</a>
+            <a data-page="xiaoshou-jiean-tz">台账编辑</a>
+            <a data-page="xiaoshou-jiean-sc">生产跟踪查询</a>
+            <a data-page="xiaoshou-jiean-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">自由款 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-ziyoukuan-cx">自由款查询</a>
+            <a data-page="xiaoshou-ziyoukuan-jl">自由款记录</a>
+            <a data-page="xiaoshou-ziyoukuan-sh">收货单位为中集同创</a>
+            <a data-page="xiaoshou-ziyoukuan-kh">客户为安裕麟和凌硕</a>
+            <a data-page="xiaoshou-ziyoukuan-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">电子提单 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-dzdt-qk">欠款查询</a>
+            <a data-page="xiaoshou-dzdt-pk">欠款配款</a>
+            <a data-page="xiaoshou-dzdt-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">入库 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-ruku-yc">云仓库存下载</a>
+            <a data-page="xiaoshou-ruku-tz">台账编辑</a>
+            <a data-page="xiaoshou-ruku-gz">告知客户</a>
+            <a data-page="xiaoshou-ruku-cgdd">采购到货单编辑</a>
+            <a data-page="xiaoshou-ruku-cgdr">采购到货单导入</a>
+            <a data-page="xiaoshou-ruku-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">转货权 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-zhuanhq-tz">台账登记</a>
+            <a data-page="xiaoshou-zhuanhq-pk">配款</a>
+            <a data-page="xiaoshou-zhuanhq-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">质量异议 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-zlyy-xq">需求抱怨</a>
+            <a data-page="xiaoshou-zlyy-zhekou">折扣处理登记表</a>
+            <a data-page="xiaoshou-zlyy-zhekoubj">折扣单编辑</a>
+            <a data-page="xiaoshou-zlyy-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">销售开票 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-kaipiao-ck">销售出库</a>
+            <a data-page="xiaoshou-kaipiao-ys">应收结算</a>
+            <a data-page="xiaoshou-kaipiao-tz">台账登记</a>
+            <a data-page="xiaoshou-kaipiao-js">结算单编辑</a>
+            <a data-page="xiaoshou-kaipiao-faq">FAQ</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">采购发票 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="xiaoshou-cgfp-bg">宝钢发票</a>
+            <a data-page="xiaoshou-cgfp-jfe">JFE发票</a>
+            <a data-page="xiaoshou-cgfp-faq">FAQ</a>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-group" data-group="caiwu">
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">财务需要采购合同 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caiwu-cght-cz">操作流程</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">月末资金归集 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caiwu-zjgj-tz">通知客户</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">月末财务余款 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caiwu-yk-tz">通知客户</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">年中年末对账函 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caiwu-dzh-lc">对账函流程</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">退款申请 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caiwu-tksq-db">退款申请单</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">待确认成本 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="caiwu-cb-tz">通知客户</a>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-group" data-group="qita">
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">OTL操作手册编写规范 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="qita-otl-ls">历史</a>
+            <a data-page="qita-otl-gy">纲要</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">用印申请 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="qita-yy-gz">同创浦江申请用印流程（公章）</a>
+            <a data-page="qita-yy-tk">退款流程</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">员工月度考核表 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="qita-kh-bj">考核表编辑</a>
+        </div>
+    </div>
+    <div class="menu-group">
+        <div class="group-title" onclick="toggleMenu(this)">未到卷查询 <span class="arrow">▶</span></div>
+        <div class="sub-items">
+            <a data-page="qita-wdj-ck">问仓库</a>
+            <a data-page="qita-wdj-cm">查出厂码单</a>
+            <a data-page="
