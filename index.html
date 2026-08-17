@@ -6,7 +6,6 @@
     <title>支援未来 · 工作文档中心</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
     <style>
-        /* ===== 全局重置 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -25,7 +24,6 @@
             text-decoration: none;
             color: #3a84ff;
         }
-        /* ===== 整体容器 ===== */
         .app {
             display: flex;
             flex-direction: column;
@@ -35,7 +33,6 @@
             background: #ffffff;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
         }
-        /* ===== 顶部导航栏 ===== */
         .top-nav {
             display: flex;
             align-items: center;
@@ -75,13 +72,11 @@
             background: #eef3fe;
             color: #3a84ff;
         }
-        /* ===== 主体：侧边栏 + 内容 ===== */
         .main-body {
             display: flex;
             flex: 1;
             position: relative;
         }
-        /* ===== 侧边栏 ===== */
         .sidebar {
             width: 260px;
             background: #fafbfc;
@@ -149,7 +144,6 @@
             font-weight: 500;
             border-left-color: #3a84ff;
         }
-        /* ===== 右侧内容区 ===== */
         .content-wrapper {
             flex: 1;
             display: flex;
@@ -255,7 +249,6 @@
             font-size: 13px;
             color: #8a9aa8;
         }
-        /* ===== 右侧 TOC（本页指引） ===== */
         .toc-wrapper {
             width: 200px;
             flex-shrink: 0;
@@ -305,21 +298,18 @@
             border-left-color: #3a84ff;
             font-weight: 500;
         }
-        /* ===== 内容区块默认隐藏 ===== */
         .page-block {
             display: none;
         }
         .page-block.active {
             display: block;
         }
-        /* ===== 侧边栏菜单组切换（按顶部tab） ===== */
         .sidebar-group {
             display: none;
         }
         .sidebar-group.active {
             display: block;
         }
-        /* ===== 响应式 ===== */
         @media (max-width: 1024px) {
             .toc-wrapper {
                 display: none !important;
@@ -363,7 +353,6 @@
 
     <div class="app">
 
-        <!-- ===== 顶部导航栏 ===== -->
         <header class="top-nav">
             <div class="logo">支援未来</div>
             <button class="nav-item active" data-tab="home">首页</button>
@@ -374,42 +363,26 @@
             <button class="nav-item" data-tab="qita">其他</button>
         </header>
 
-        <!-- ===== 主体 ===== -->
         <div class="main-body">
 
-            <!-- ===== 侧边栏（由 sidebar.html 动态加载） ===== -->
-            <aside class="sidebar" id="sidebar">
-                <!-- 内容通过 fetch 加载 sidebar.html -->
-            </aside>
+            <aside class="sidebar" id="sidebar"></aside>
 
-            <!-- ===== 内容区 + TOC ===== -->
             <div class="content-wrapper">
 
-                <!-- ===== 主内容区 ===== -->
                 <main class="content-area" id="contentArea">
-                    <!-- 内容通过 fetch 加载对应的 content-*.html -->
                     <div id="contentLoader">加载中...</div>
                 </main>
 
-                <!-- ===== 右侧 TOC（本页指引） ===== -->
                 <aside class="toc-wrapper" id="tocWrapper">
                     <div class="toc-title">本页指引</div>
-                    <ul class="toc-list" id="tocList">
-                        <!-- 由 JavaScript 动态生成 -->
-                    </ul>
+                    <ul class="toc-list" id="tocList"></ul>
                 </aside>
 
             </div>
         </div>
     </div>
 
-    <!-- ========================================================= -->
-    <!-- JavaScript -->
-    <!-- ========================================================= -->
     <script>
-        // =========================================================
-        // 配置：页面加载映射
-        // =========================================================
         const contentMap = {
             'home': 'content-home.html',
             'zhunru': 'content-zhunru.html',
@@ -419,31 +392,21 @@
             'qita': 'content-qita.html'
         };
 
-        // 当前激活的 tab
         let currentTab = 'home';
-        // 当前激活的页面 ID（用于高亮侧边栏）
         let currentPageId = 'home';
 
-        // =========================================================
-        // 1. 加载侧边栏
-        // =========================================================
         async function loadSidebar() {
             try {
                 const resp = await fetch('sidebar.html');
                 const html = await resp.text();
                 document.getElementById('sidebar').innerHTML = html;
-                // 侧边栏加载完成后，绑定菜单点击事件
                 bindSidebarEvents();
-                // 设置默认高亮
                 highlightSidebarItem('home');
             } catch (e) {
-                console.warn('侧边栏加载失败，使用默认菜单', e);
+                console.warn('侧边栏加载失败', e);
             }
         }
 
-        // =========================================================
-        // 2. 加载内容
-        // =========================================================
         async function loadContent(tab, pageId) {
             const loader = document.getElementById('contentLoader');
             const file = contentMap[tab];
@@ -453,7 +416,6 @@
                 const resp = await fetch(file);
                 let html = await resp.text();
 
-                // 提取对应 pageId 的内容区块
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
                 const targetBlock = tempDiv.querySelector(`#page-${pageId}`);
@@ -461,11 +423,9 @@
                 if (targetBlock) {
                     loader.innerHTML = targetBlock.outerHTML;
                 } else {
-                    // 如果没找到精确匹配，尝试找该 tab 下的第一个区块
                     const firstBlock = tempDiv.querySelector('.page-block');
                     if (firstBlock) {
                         loader.innerHTML = firstBlock.outerHTML;
-                        // 更新 pageId 为实际的 id
                         const actualId = firstBlock.id.replace('page-', '');
                         currentPageId = actualId;
                         highlightSidebarItem(actualId);
@@ -474,13 +434,8 @@
                     }
                 }
 
-                // 重新绑定编辑按钮的锚点（因为重新插入了 HTML）
                 fixEditButtons();
-
-                // 生成 TOC
                 generateTOC();
-
-                // 滚动到顶部
                 document.getElementById('contentArea').scrollTop = 0;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -490,17 +445,11 @@
             }
         }
 
-        // =========================================================
-        // 3. 绑定侧边栏事件
-        // =========================================================
         function bindSidebarEvents() {
-            // 3.1 菜单折叠/展开
             document.querySelectorAll('.sidebar .menu-group .group-title').forEach(el => {
                 el.removeEventListener('click', toggleMenu);
                 el.addEventListener('click', toggleMenu);
             });
-
-            // 3.2 菜单项点击切换页面
             document.querySelectorAll('.sidebar .sub-items a').forEach(link => {
                 link.removeEventListener('click', handleMenuItemClick);
                 link.addEventListener('click', handleMenuItemClick);
@@ -523,18 +472,15 @@
             const pageId = link.dataset.page;
             if (!pageId) return;
 
-            // 根据 pageId 推断 tab
             const tab = pageId.split('-')[0];
             if (!tab) return;
 
             currentPageId = pageId;
             currentTab = tab;
 
-            // 高亮侧边栏
             document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
             link.classList.add('active');
 
-            // 切换顶部导航高亮
             document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
             const navMap = {
                 'home': '首页',
@@ -551,12 +497,10 @@
                 }
             });
 
-            // 切换侧边栏显示
             document.querySelectorAll('.sidebar-group').forEach(g => {
                 g.classList.toggle('active', g.dataset.group === tab);
             });
 
-            // 加载内容
             loadContent(tab, pageId);
         }
 
@@ -566,9 +510,6 @@
             });
         }
 
-        // =========================================================
-        // 4. 顶部导航切换
-        // =========================================================
         document.querySelectorAll('.top-nav .nav-item').forEach(item => {
             item.addEventListener('click', function() {
                 const tab = this.dataset.tab;
@@ -576,25 +517,20 @@
 
                 currentTab = tab;
 
-                // 更新顶部按钮高亮
                 document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
                 this.classList.add('active');
 
-                // 切换侧边栏显示
                 document.querySelectorAll('.sidebar-group').forEach(g => {
                     g.classList.toggle('active', g.dataset.group === tab);
                 });
 
-                // 如果 tab 是 'home'，特殊处理
                 if (tab === 'home') {
                     currentPageId = 'home';
-                    // 取消侧边栏高亮
                     document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
                     loadContent('home', 'home');
                     return;
                 }
 
-                // 激活该侧边栏的第一个菜单项
                 const activeGroup = document.querySelector(`.sidebar-group.active`);
                 if (activeGroup) {
                     const firstLink = activeGroup.querySelector('.sub-items a');
@@ -611,9 +547,6 @@
             });
         });
 
-        // =========================================================
-        // 5. 生成 TOC（本页指引）
-        // =========================================================
         function generateTOC() {
             const tocList = document.getElementById('tocList');
             const tocWrapper = document.getElementById('tocWrapper');
@@ -634,7 +567,6 @@
             tocWrapper.classList.add('visible');
 
             headings.forEach((h2, index) => {
-                // 为每个 h2 添加 id（如果还没有的话）
                 if (!h2.id) {
                     h2.id = 'toc-' + index;
                 }
@@ -647,7 +579,6 @@
                 tocList.appendChild(li);
             });
 
-            // TOC 点击平滑滚动
             tocList.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -655,14 +586,12 @@
                     const targetEl = document.getElementById(targetId);
                     if (targetEl) {
                         targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        // 高亮当前 TOC
                         tocList.querySelectorAll('a').forEach(a => a.classList.remove('active-toc'));
                         this.classList.add('active-toc');
                     }
                 });
             });
 
-            // 滚动监听高亮 TOC
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -677,25 +606,13 @@
             headings.forEach(h2 => observer.observe(h2));
         }
 
-        // =========================================================
-        // 6. 修复编辑按钮的锚点链接
-        // =========================================================
-        function fixEditButtons() {
-            // 编辑按钮的链接已经包含锚点，无需额外修复
-            // 但需要确保点击编辑按钮时，能正确跳转到 GitHub 的对应位置
-            // 锚点格式: #page-xxxxx
-        }
+        function fixEditButtons() {}
 
-        // =========================================================
-        // 7. 初始化
-        // =========================================================
         async function init() {
             await loadSidebar();
-            // 默认加载首页
             await loadContent('home', 'home');
         }
 
-        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', init);
     </script>
 
