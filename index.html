@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>支援未来 · 工作文档中心</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f7fa;
+            color: #1e2a3a;
+            line-height: 1.6;
+        }
+        a {
+            text-decoration: none;
+            color: #3a84ff;
+        }
+        /* ===== 整体容器 ===== */
+        .app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 1440px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+        }
+        /* ===== 顶部导航栏 ===== */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            height: 60px;
+            background: #ffffff;
+            border-bottom: 1px solid #e9edf4;
+            flex-shrink: 0;
+            gap: 6px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .top-nav .logo {
+            font-size: 18px;
+            font-weight: 600;
+            color: #3a84ff;
+            margin-right: 32px;
+            white-space: nowrap;
+        }
+        .top-nav .nav-item {
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5a6e;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+            background: transparent;
+        }
+        .top-nav .nav-item:hover {
+            background: #f0f4fe;
+            color: #3a84ff;
+        }
+        .top-nav .nav-item.active {
+            background: #eef3fe;
+            color: #3a84ff;
+        }
+        /* ===== 主体：侧边栏 + 内容 ===== */
+        .main-body {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 260px;
+            background: #fafbfc;
+            border-right: 1px solid #e9edf4;
+            padding: 12px 8px 30px 8px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            max-height: calc(100vh - 60px);
+            position: sticky;
+            top: 60px;
+        }
+        .sidebar .menu-group {
+            margin-bottom: 2px;
+        }
+        .sidebar .menu-group .group-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e2a3a;
+            padding: 8px 12px 4px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px;
+            transition: background 0.1s;
+            user-select: none;
+        }
+        .sidebar .menu-group .group-title:hover {
+            background: #f0f4fe;
+        }
+        .sidebar .menu-group .group-title .arrow {
+            font-size: 11px;
+            color: #8a9aa8;
+            transition: transform 0.2s;
+        }
+        .sidebar .menu-group .group-title .arrow.open {
+            transform: rotate(90deg);
+        }
+        .sidebar .menu-group .sub-items {
+            padding-left: 4px;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.3s ease;
+        }
+        .sidebar .menu-group .sub-items.open {
+            max-height: 1200px;
+        }
+        .sidebar .menu-group .sub-items a {
+            display: block;
+            padding: 5px 12px 5px 28px;
+            font-size: 14px;
+            color: #4a5a6e;
+            border-radius: 4px;
+            transition: all 0.1s;
+            cursor: pointer;
+            border-left: 2px solid transparent;
+        }
+        .sidebar .menu-group .sub-items a:hover {
+            background: #eef3fe;
+            color: #3a84ff;
+        }
+        .sidebar .menu-group .sub-items a.active {
+            background: #eef3fe;
+            color: #3a84ff;
+            font-weight: 500;
+            border-left-color: #3a84ff;
+        }
+        /* ===== 右侧内容区 ===== */
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            min-height: 600px;
+        }
+        .content-area {
+            flex: 1;
+            padding: 28px 40px 50px 40px;
+            background: #ffffff;
+            min-width: 0;
+        }
+        .content-area .breadcrumb {
+            font-size: 13px;
+            color: #8a9aa8;
+            margin-bottom: 12px;
+        }
+        .content-area .breadcrumb span {
+            color: #4a5a6e;
+        }
+        .content-area .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eef2f6;
+            padding-bottom: 14px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .content-area .page-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e2a3a;
+        }
+        .content-area .page-header .edit-btn {
+            background: #f0f4fe;
+            color: #3a84ff;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .content-area .page-header .edit-btn:hover {
+            background: #dce6fa;
+        }
+        .content-area .page-content {
+            font-size: 15px;
+            color: #2c3e50;
+        }
+        .content-area .page-content h2 {
+            font-size: 19px;
+            font-weight: 600;
+            margin: 28px 0 12px 0;
+            color: #1e2a3a;
+            padding-top: 8px;
+            border-bottom: 1px solid #f0f2f5;
+            padding-bottom: 6px;
+        }
+        .content-area .page-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 18px 0 8px 0;
+            color: #2c3e50;
+        }
+        .content-area .page-content p {
+            margin-bottom: 12px;
+        }
+        .content-area .page-content ul {
+            padding-left: 22px;
+            margin-bottom: 12px;
+        }
+        .content-area .page-content li {
+            margin-bottom: 5px;
+        }
+        .content-area .page-content .faq-list {
+            margin-top: 8px;
+        }
+        .content-area .page-content .faq-item {
+            background: #f8fafe;
+            border-left: 3px solid #3a84ff;
+            padding: 12px 18px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .content-area .page-content .faq-item .faq-q {
+            font-weight: 600;
+            color: #1e2a3a;
+        }
+        .content-area .page-content .faq-item .faq-a {
+            margin-top: 4px;
+            color: #3a4a5e;
+        }
+        .content-area .footer-meta {
+            margin-top: 40px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f6;
+            font-size: 13px;
+            color: #8a9aa8;
+        }
+        /* ===== 右侧 TOC（本页指引） ===== */
+        .toc-wrapper {
+            width: 200px;
+            flex-shrink: 0;
+            padding: 28px 16px 30px 16px;
+            background: #fafbfc;
+            border-left: 1px solid #e9edf4;
+            position: sticky;
+            top: 60px;
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+            display: none;
+        }
+        .toc-wrapper.visible {
+            display: block;
+        }
+        .toc-wrapper .toc-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e2a3a;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9edf4;
+            margin-bottom: 10px;
+        }
+        .toc-wrapper .toc-list {
+            list-style: none;
+            padding: 0;
+        }
+        .toc-wrapper .toc-list li {
+            margin-bottom: 4px;
+        }
+        .toc-wrapper .toc-list a {
+            display: block;
+            padding: 4px 8px;
+            font-size: 13px;
+            color: #4a5a6e;
+            border-radius: 4px;
+            transition: all 0.1s;
+            border-left: 2px solid transparent;
+        }
+        .toc-wrapper .toc-list a:hover {
+            background: #eef3fe;
+            color: #3a84ff;
+        }
+        .toc-wrapper .toc-list a.active-toc {
+            background: #eef3fe;
+            color: #3a84ff;
+            border-left-color: #3a84ff;
+            font-weight: 500;
+        }
+        /* ===== 内容区块默认隐藏 ===== */
+        .page-block {
+            display: none;
+        }
+        .page-block.active {
+            display: block;
+        }
+        /* ===== 侧边栏菜单组切换（按顶部tab） ===== */
+        .sidebar-group {
+            display: none;
+        }
+        .sidebar-group.active {
+            display: block;
+        }
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .toc-wrapper {
+                display: none !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 0 12px;
+                flex-wrap: wrap;
+                height: auto;
+                gap: 3px;
+            }
+            .top-nav .logo {
+                margin-right: 12px;
+                font-size: 15px;
+            }
+            .top-nav .nav-item {
+                padding: 4px 10px;
+                font-size: 13px;
+            }
+            .sidebar {
+                width: 200px;
+                padding: 8px 4px;
+                max-height: none;
+                position: relative;
+                top: 0;
+            }
+            .content-area {
+                padding: 16px 14px 30px 14px;
+            }
+            .main-body {
+                flex-direction: column;
+            }
+            .content-wrapper {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app">
+
+        <!-- ===== 顶部导航栏 ===== -->
+        <header class="top-nav">
+            <div class="logo">支援未来</div>
+            <button class="nav-item active" data-tab="home">首页</button>
+            <button class="nav-item" data-tab="zhunru">准入</button>
+            <button class="nav-item" data-tab="caigou">采购</button>
+            <button class="nav-item" data-tab="xiaoshou">销售</button>
+            <button class="nav-item" data-tab="caiwu">财务</button>
+            <button class="nav-item" data-tab="qita">其他</button>
+        </header>
+
+        <!-- ===== 主体 ===== -->
+        <div class="main-body">
+
+            <!-- ===== 侧边栏（由 sidebar.html 动态加载） ===== -->
+            <aside class="sidebar" id="sidebar">
+                <!-- 内容通过 fetch 加载 sidebar.html -->
+            </aside>
+
+            <!-- ===== 内容区 + TOC ===== -->
+            <div class="content-wrapper">
+
+                <!-- ===== 主内容区 ===== -->
+                <main class="content-area" id="contentArea">
+                    <!-- 内容通过 fetch 加载对应的 content-*.html -->
+                    <div id="contentLoader">加载中...</div>
+                </main>
+
+                <!-- ===== 右侧 TOC（本页指引） ===== -->
+                <aside class="toc-wrapper" id="tocWrapper">
+                    <div class="toc-title">本页指引</div>
+                    <ul class="toc-list" id="tocList">
+                        <!-- 由 JavaScript 动态生成 -->
+                    </ul>
+                </aside>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- JavaScript -->
+    <!-- ========================================================= -->
+    <script>
+        // =========================================================
+        // 配置：页面加载映射
+        // =========================================================
+        const contentMap = {
+            'home': 'content-home.html',
+            'zhunru': 'content-zhunru.html',
+            'caigou': 'content-caigou.html',
+            'xiaoshou': 'content-xiaoshou.html',
+            'caiwu': 'content-caiwu.html',
+            'qita': 'content-qita.html'
+        };
+
+        // 当前激活的 tab
+        let currentTab = 'home';
+        // 当前激活的页面 ID（用于高亮侧边栏）
+        let currentPageId = 'home';
+
+        // =========================================================
+        // 1. 加载侧边栏
+        // =========================================================
+        async function loadSidebar() {
+            try {
+                const resp = await fetch('sidebar.html');
+                const html = await resp.text();
+                document.getElementById('sidebar').innerHTML = html;
+                // 侧边栏加载完成后，绑定菜单点击事件
+                bindSidebarEvents();
+                // 设置默认高亮
+                highlightSidebarItem('home');
+            } catch (e) {
+                console.warn('侧边栏加载失败，使用默认菜单', e);
+            }
+        }
+
+        // =========================================================
+        // 2. 加载内容
+        // =========================================================
+        async function loadContent(tab, pageId) {
+            const loader = document.getElementById('contentLoader');
+            const file = contentMap[tab];
+            if (!file) return;
+
+            try {
+                const resp = await fetch(file);
+                let html = await resp.text();
+
+                // 提取对应 pageId 的内容区块
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const targetBlock = tempDiv.querySelector(`#page-${pageId}`);
+
+                if (targetBlock) {
+                    loader.innerHTML = targetBlock.outerHTML;
+                } else {
+                    // 如果没找到精确匹配，尝试找该 tab 下的第一个区块
+                    const firstBlock = tempDiv.querySelector('.page-block');
+                    if (firstBlock) {
+                        loader.innerHTML = firstBlock.outerHTML;
+                        // 更新 pageId 为实际的 id
+                        const actualId = firstBlock.id.replace('page-', '');
+                        currentPageId = actualId;
+                        highlightSidebarItem(actualId);
+                    } else {
+                        loader.innerHTML = `<p>未找到页面内容。</p>`;
+                    }
+                }
+
+                // 重新绑定编辑按钮的锚点（因为重新插入了 HTML）
+                fixEditButtons();
+
+                // 生成 TOC
+                generateTOC();
+
+                // 滚动到顶部
+                document.getElementById('contentArea').scrollTop = 0;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (e) {
+                console.error('内容加载失败:', e);
+                loader.innerHTML = `<p>内容加载失败，请刷新重试。</p>`;
+            }
+        }
+
+        // =========================================================
+        // 3. 绑定侧边栏事件
+        // =========================================================
+        function bindSidebarEvents() {
+            // 3.1 菜单折叠/展开
+            document.querySelectorAll('.sidebar .menu-group .group-title').forEach(el => {
+                el.removeEventListener('click', toggleMenu);
+                el.addEventListener('click', toggleMenu);
+            });
+
+            // 3.2 菜单项点击切换页面
+            document.querySelectorAll('.sidebar .sub-items a').forEach(link => {
+                link.removeEventListener('click', handleMenuItemClick);
+                link.addEventListener('click', handleMenuItemClick);
+            });
+        }
+
+        function toggleMenu(e) {
+            const el = e.currentTarget;
+            const arrow = el.querySelector('.arrow');
+            const subItems = el.nextElementSibling;
+            if (subItems && subItems.classList.contains('sub-items')) {
+                subItems.classList.toggle('open');
+                if (arrow) arrow.classList.toggle('open');
+            }
+        }
+
+        function handleMenuItemClick(e) {
+            e.preventDefault();
+            const link = e.currentTarget;
+            const pageId = link.dataset.page;
+            if (!pageId) return;
+
+            // 根据 pageId 推断 tab
+            const tab = pageId.split('-')[0];
+            if (!tab) return;
+
+            currentPageId = pageId;
+            currentTab = tab;
+
+            // 高亮侧边栏
+            document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+
+            // 切换顶部导航高亮
+            document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
+            const navMap = {
+                'home': '首页',
+                'zhunru': '准入',
+                'caigou': '采购',
+                'xiaoshou': '销售',
+                'caiwu': '财务',
+                'qita': '其他'
+            };
+            const navText = navMap[tab];
+            document.querySelectorAll('.top-nav .nav-item').forEach(n => {
+                if (n.textContent.trim() === navText) {
+                    n.classList.add('active');
+                }
+            });
+
+            // 切换侧边栏显示
+            document.querySelectorAll('.sidebar-group').forEach(g => {
+                g.classList.toggle('active', g.dataset.group === tab);
+            });
+
+            // 加载内容
+            loadContent(tab, pageId);
+        }
+
+        function highlightSidebarItem(pageId) {
+            document.querySelectorAll('.sidebar .sub-items a').forEach(a => {
+                a.classList.toggle('active', a.dataset.page === pageId);
+            });
+        }
+
+        // =========================================================
+        // 4. 顶部导航切换
+        // =========================================================
+        document.querySelectorAll('.top-nav .nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const tab = this.dataset.tab;
+                if (!tab) return;
+
+                currentTab = tab;
+
+                // 更新顶部按钮高亮
+                document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+
+                // 切换侧边栏显示
+                document.querySelectorAll('.sidebar-group').forEach(g => {
+                    g.classList.toggle('active', g.dataset.group === tab);
+                });
+
+                // 如果 tab 是 'home'，特殊处理
+                if (tab === 'home') {
+                    currentPageId = 'home';
+                    // 取消侧边栏高亮
+                    document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
+                    loadContent('home', 'home');
+                    return;
+                }
+
+                // 激活该侧边栏的第一个菜单项
+                const activeGroup = document.querySelector(`.sidebar-group.active`);
+                if (activeGroup) {
+                    const firstLink = activeGroup.querySelector('.sub-items a');
+                    if (firstLink) {
+                        document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
+                        firstLink.classList.add('active');
+                        const pageId = firstLink.dataset.page;
+                        if (pageId) {
+                            currentPageId = pageId;
+                            loadContent(tab, pageId);
+                        }
+                    }
+                }
+            });
+        });
+
+        // =========================================================
+        // 5. 生成 TOC（本页指引）
+        // =========================================================
+        function generateTOC() {
+            const tocList = document.getElementById('tocList');
+            const tocWrapper = document.getElementById('tocWrapper');
+            tocList.innerHTML = '';
+
+            const contentArea = document.querySelector('.content-area .page-content');
+            if (!contentArea) {
+                tocWrapper.classList.remove('visible');
+                return;
+            }
+
+            const headings = contentArea.querySelectorAll('h2');
+            if (headings.length === 0) {
+                tocWrapper.classList.remove('visible');
+                return;
+            }
+
+            tocWrapper.classList.add('visible');
+
+            headings.forEach((h2, index) => {
+                // 为每个 h2 添加 id（如果还没有的话）
+                if (!h2.id) {
+                    h2.id = 'toc-' + index;
+                }
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = '#' + h2.id;
+                a.textContent = h2.textContent;
+                a.dataset.target = h2.id;
+                li.appendChild(a);
+                tocList.appendChild(li);
+            });
+
+            // TOC 点击平滑滚动
+            tocList.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.dataset.target;
+                    const targetEl = document.getElementById(targetId);
+                    if (targetEl) {
+                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // 高亮当前 TOC
+                        tocList.querySelectorAll('a').forEach(a => a.classList.remove('active-toc'));
+                        this.classList.add('active-toc');
+                    }
+                });
+            });
+
+            // 滚动监听高亮 TOC
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id;
+                        tocList.querySelectorAll('a').forEach(a => {
+                            a.classList.toggle('active-toc', a.dataset.target === id);
+                        });
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            headings.forEach(h2 => observer.observe(h2));
+        }
+
+        // =========================================================
+        // 6. 修复编辑按钮的锚点链接
+        // =========================================================
+        function fixEditButtons() {
+            // 编辑按钮的链接已经包含锚点，无需额外修复
+            // 但需要确保点击编辑按钮时，能正确跳转到 GitHub 的对应位置
+            // 锚点格式: #page-xxxxx
+        }
+
+        // =========================================================
+        // 7. 初始化
+        // =========================================================
+        async function init() {
+            await loadSidebar();
+            // 默认加载首页
+            await loadContent('home', 'home');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+</body>
+</html>
