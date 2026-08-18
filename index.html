@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>支援未来 · 工作文档中心</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://unpkg.com/marked@9.1.6/marked.min.js"></script>
     <script>
         if (typeof marked === 'undefined') {
             window.marked = {
@@ -16,7 +14,6 @@
             };
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
     <style>
         * {
             margin: 0;
@@ -27,9 +24,9 @@
             scroll-behavior: smooth;
         }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #f5f7fa;
-            color: #1e2a3a;
+            color: #1a1a1a;
             line-height: 1.6;
         }
         a {
@@ -41,18 +38,16 @@
             text-decoration: underline;
         }
 
-        /* ===== 整体容器 ===== */
         .app {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            max-width: 1440px;
-            margin: 0 auto;
+            max-width: 100%;
             background: #ffffff;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
         }
 
-        /* ===== 顶部导航栏（蓝鲸黑色风格） ===== */
+        /* 顶部导航 - 占满宽度 */
         .top-nav {
             display: flex;
             align-items: center;
@@ -60,10 +55,11 @@
             height: 52px;
             background: #1e2a3a;
             flex-shrink: 0;
-            gap: 4px;
+            gap: 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            width: 100%;
         }
         .top-nav .logo {
             font-size: 16px;
@@ -77,7 +73,7 @@
             color: #3a84ff;
         }
         .top-nav .nav-item {
-            padding: 0 18px;
+            padding: 0 20px;
             height: 52px;
             font-size: 14px;
             font-weight: 500;
@@ -90,6 +86,7 @@
             display: flex;
             align-items: center;
             letter-spacing: 0.3px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .top-nav .nav-item:hover {
             color: #ffffff;
@@ -109,14 +106,12 @@
             border-radius: 2px 2px 0 0;
         }
 
-        /* ===== 主体 ===== */
         .main-body {
             display: flex;
             flex: 1;
             position: relative;
         }
 
-        /* ===== 左侧边栏（蓝鲸风格） ===== */
         .sidebar {
             width: 260px;
             background: #fafbfc;
@@ -128,8 +123,6 @@
             position: sticky;
             top: 52px;
         }
-
-        /* 侧边栏分类标题（如"准入"） */
         .sidebar .sidebar-category {
             font-size: 14px;
             font-weight: 600;
@@ -138,7 +131,6 @@
             border-bottom: 1px solid #e9edf4;
             margin-bottom: 8px;
         }
-
         .sidebar .menu-group {
             margin-bottom: 2px;
         }
@@ -154,6 +146,7 @@
             border-radius: 4px;
             transition: background 0.1s;
             user-select: none;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .sidebar .menu-group .group-title:hover {
             background: #f0f4fe;
@@ -184,6 +177,7 @@
             transition: all 0.1s;
             cursor: pointer;
             border-left: 2px solid transparent;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .sidebar .menu-group .sub-items a:hover {
             background: #eef3fe;
@@ -195,8 +189,6 @@
             font-weight: 500;
             border-left-color: #3a84ff;
         }
-
-        /* 三级菜单（FAQ 嵌套） */
         .sidebar .sub-faq {
             margin-top: 2px;
         }
@@ -215,12 +207,6 @@
             font-size: 13px;
         }
 
-        /* 移除版本号等多余文字 */
-        .sidebar .sidebar-version {
-            display: none;
-        }
-
-        /* ===== 右侧内容区 ===== */
         .content-wrapper {
             flex: 1;
             display: flex;
@@ -233,11 +219,11 @@
             min-width: 0;
         }
 
-        /* 面包屑 */
         .content-area .breadcrumb {
             font-size: 13px;
             color: #8a9aa8;
             margin-bottom: 12px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .content-area .breadcrumb a {
             color: #3a84ff;
@@ -245,9 +231,6 @@
         }
         .content-area .breadcrumb a:hover {
             text-decoration: underline;
-        }
-        .content-area .breadcrumb span {
-            color: #4a5a6e;
         }
 
         .content-area .page-header {
@@ -261,9 +244,11 @@
             gap: 10px;
         }
         .content-area .page-header h1 {
-            font-size: 24px;
+            font-size: 22pt;
             font-weight: 600;
-            color: #1e2a3a;
+            color: #1a1a1a;
+            line-height: 1.6;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .content-area .page-header .edit-btn {
             background: #f0f4fe;
@@ -278,31 +263,58 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .content-area .page-header .edit-btn:hover {
             background: #dce6fa;
         }
+
         .content-area .page-content {
-            font-size: 15px;
-            color: #2c3e50;
+            font-size: 11pt;
+            color: #1a1a1a;
+            line-height: 1.6;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .content-area .page-content h1 {
+            font-size: 22pt;
+            font-weight: 600;
+            color: #1a1a1a;
+            line-height: 1.6;
+            margin: 0 0 16px 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .content-area .page-content h2 {
-            font-size: 19px;
+            font-size: 16pt;
             font-weight: 600;
+            color: #1a1a1a;
+            line-height: 1.5;
             margin: 28px 0 12px 0;
-            color: #1e2a3a;
             padding-top: 8px;
             border-bottom: 1px solid #f0f2f5;
             padding-bottom: 6px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .content-area .page-content h3 {
-            font-size: 16px;
+            font-size: 13pt;
             font-weight: 600;
+            color: #2c2c2c;
+            line-height: 1.5;
             margin: 18px 0 8px 0;
-            color: #2c3e50;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .content-area .page-content h4 {
+            font-size: 11.5pt;
+            font-weight: 600;
+            color: #333333;
+            line-height: 1.5;
+            margin: 14px 0 6px 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .content-area .page-content p {
             margin-bottom: 12px;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #1a1a1a;
         }
         .content-area .page-content ul {
             padding-left: 22px;
@@ -310,16 +322,40 @@
         }
         .content-area .page-content li {
             margin-bottom: 5px;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #1a1a1a;
         }
+        .content-area .page-content ol {
+            padding-left: 22px;
+            margin-bottom: 12px;
+        }
+        .content-area .page-content ol li {
+            margin-bottom: 5px;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #1a1a1a;
+        }
+
+        /* 动作关键词样式 */
+        .content-area .page-content .action {
+            background: #F2F2F2;
+            color: #d63384;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+            border-radius: 3px;
+            padding: 1px 6px;
+        }
+
         .content-area .footer-meta {
             margin-top: 40px;
             padding-top: 16px;
             border-top: 1px solid #eef2f6;
             font-size: 13px;
             color: #8a9aa8;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== 右侧 TOC（本页指引） ===== */
         .toc-wrapper {
             width: 200px;
             flex-shrink: 0;
@@ -342,6 +378,7 @@
             padding-bottom: 10px;
             border-bottom: 1px solid #e9edf4;
             margin-bottom: 10px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .toc-wrapper .toc-list {
             list-style: none;
@@ -358,6 +395,7 @@
             border-radius: 4px;
             transition: all 0.1s;
             border-left: 2px solid transparent;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .toc-wrapper .toc-list a:hover {
             background: #eef3fe;
@@ -383,7 +421,6 @@
             display: block;
         }
 
-        /* ===== Markdown 内容样式 ===== */
         .markdown-body table {
             border-collapse: collapse;
             width: 100%;
@@ -394,6 +431,8 @@
             border: 1px solid #e9edf4;
             padding: 8px 14px;
             text-align: left;
+            font-size: 11pt;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .markdown-body table th {
             background: #f5f7fa;
@@ -405,13 +444,15 @@
             margin: 16px 0;
             background: #f5f8fe;
             border-radius: 4px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .markdown-body code {
-            background: #f0f4fe;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #1e2a3a;
+            background: #F2F2F2;
+            color: #d63384;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+            border-radius: 3px;
+            padding: 1px 6px;
         }
         .markdown-body pre {
             background: #f5f7fa;
@@ -420,7 +461,6 @@
             overflow-x: auto;
         }
 
-        /* ===== 响应式 ===== */
         @media (max-width: 1024px) {
             .toc-wrapper {
                 display: none !important;
@@ -465,7 +505,6 @@
 
     <div class="app">
 
-        <!-- ===== 顶部导航（黑色 + 蓝色下划线） ===== -->
         <header class="top-nav">
             <div class="logo">支援<span>未来</span></div>
             <button class="nav-item active" data-tab="home">首页</button>
@@ -496,9 +535,6 @@
     </div>
 
     <script>
-        // =========================================================
-        // 页面名称映射
-        // =========================================================
         const pageNameMap = {
             '1.1.1.邮件审批': '邮件审批',
             '1.1.2.客户档案表': '客户档案表',
@@ -515,9 +551,6 @@
         let currentTab = 'home';
         let currentPageId = 'home';
 
-        // =========================================================
-        // 侧边栏加载
-        // =========================================================
         async function loadSidebar() {
             try {
                 const resp = await fetch('sidebar.html');
@@ -530,15 +563,12 @@
             }
         }
 
-        // =========================================================
-        // 内容加载
-        // =========================================================
         async function loadContent(tab, pageId) {
             const loader = document.getElementById('contentLoader');
 
             let filePath;
             if (tab === 'zhunru') {
-                filePath = `docs/准入/${pageId}.md`;
+                filePath = `docs/zhunru/${pageId}.md`;
             } else if (tab === 'home') {
                 filePath = 'docs/home.md';
             } else {
@@ -578,14 +608,14 @@
             }
         }
 
-        // =========================================================
-        // 面包屑生成
-        // =========================================================
         function getBreadcrumb(tab, pageId) {
             if (tab === 'zhunru') {
                 if (pageId && pageId.startsWith('1.1.')) {
                     return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > 准入 > ${pageNameMap[pageId] || pageId}`;
                 } else if (pageId && pageId.startsWith('1.2.')) {
+                    if (pageId.startsWith('1.2.4.')) {
+                        return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > MDG > FAQ > ${pageNameMap[pageId] || pageId}`;
+                    }
                     return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > MDG > ${pageNameMap[pageId] || pageId}`;
                 }
                 return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > ${pageNameMap[pageId] || pageId}`;
@@ -598,9 +628,6 @@
             return match ? match[1] : '页面';
         }
 
-        // =========================================================
-        // Tab 切换
-        // =========================================================
         function switchTab(tab) {
             document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
             document.querySelector(`.top-nav .nav-item[data-tab="${tab}"]`)?.classList.add('active');
@@ -628,9 +655,6 @@
             }
         }
 
-        // =========================================================
-        // 侧边栏事件绑定
-        // =========================================================
         function bindSidebarEvents() {
             document.querySelectorAll('.sidebar .menu-group .group-title').forEach(el => {
                 el.removeEventListener('click', toggleMenu);
@@ -704,9 +728,6 @@
             });
         }
 
-        // =========================================================
-        // 顶部导航点击
-        // =========================================================
         document.querySelectorAll('.top-nav .nav-item').forEach(item => {
             item.addEventListener('click', function() {
                 const tab = this.dataset.tab;
@@ -715,9 +736,6 @@
             });
         });
 
-        // =========================================================
-        // TOC 生成
-        // =========================================================
         function generateTOC() {
             const tocList = document.getElementById('tocList');
             const tocWrapper = document.getElementById('tocWrapper');
@@ -777,9 +795,6 @@
             headings.forEach(h2 => observer.observe(h2));
         }
 
-        // =========================================================
-        // 初始化
-        // =========================================================
         async function init() {
             await loadSidebar();
             await loadContent('home', 'home');
