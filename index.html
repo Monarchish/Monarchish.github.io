@@ -38,15 +38,7 @@
             text-decoration: underline;
         }
 
-        .app {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            max-width: 100%;
-            background: #ffffff;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
-        }
-
+        /* ===== 顶部导航 - 独立占满全屏宽度 ===== */
         .top-nav {
             display: flex;
             align-items: center;
@@ -105,12 +97,24 @@
             border-radius: 2px 2px 0 0;
         }
 
+        /* ===== 主内容容器 - 固定宽度居中 ===== */
+        .app {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 52px);
+            max-width: 1440px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+        }
+
         .main-body {
             display: flex;
             flex: 1;
             position: relative;
         }
 
+        /* ===== 侧边栏 ===== */
         .sidebar {
             width: 260px;
             background: #fafbfc;
@@ -206,6 +210,7 @@
             font-size: 13px;
         }
 
+        /* ===== 正文区域 ===== */
         .content-wrapper {
             flex: 1;
             display: flex;
@@ -345,6 +350,7 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
+        /* ===== TOC ===== */
         .toc-wrapper {
             width: 200px;
             flex-shrink: 0;
@@ -492,17 +498,19 @@
 </head>
 <body>
 
-    <div class="app">
+    <!-- ===== 顶部导航 - 独立于主容器外，占满全屏 ===== -->
+    <header class="top-nav">
+        <div class="logo">支援<span>未来</span></div>
+        <button class="nav-item active" data-tab="home">首页</button>
+        <button class="nav-item" data-tab="zhunru">准入</button>
+        <button class="nav-item" data-tab="caigou">采购</button>
+        <button class="nav-item" data-tab="xiaoshou">销售</button>
+        <button class="nav-item" data-tab="caiwu">财务</button>
+        <button class="nav-item" data-tab="qita">其他</button>
+    </header>
 
-        <header class="top-nav">
-            <div class="logo">支援<span>未来</span></div>
-            <button class="nav-item active" data-tab="home">首页</button>
-            <button class="nav-item" data-tab="zhunru">准入</button>
-            <button class="nav-item" data-tab="caigou">采购</button>
-            <button class="nav-item" data-tab="xiaoshou">销售</button>
-            <button class="nav-item" data-tab="caiwu">财务</button>
-            <button class="nav-item" data-tab="qita">其他</button>
-        </header>
+    <!-- ===== 主内容容器 - 固定宽度居中 ===== -->
+    <div class="app">
 
         <div class="main-body">
 
