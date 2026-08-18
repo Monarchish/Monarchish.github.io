@@ -15,6 +15,11 @@
         }
     </script>
     <style>
+        /* 强制所有 strong 加粗 */
+        strong {
+            font-weight: 700 !important;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -274,7 +279,7 @@
             background: #dce6fa;
         }
 
-        /* 正文区域隐藏 h1，因为标题已经在 page-header 里了 */
+        /* 正文区域隐藏 h1 */
         .content-area .page-content h1 {
             display: none;
         }
@@ -433,8 +438,7 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== 操作关键词样式 ===== */
-        /* 方式一：strong 标签直接应用样式 */
+        /* 操作关键词样式：灰底 + 深灰字 + 加粗 */
         .markdown-body strong {
             background: #F2F2F2 !important;
             color: #333333 !important;
@@ -442,10 +446,9 @@
             font-size: 0.9em !important;
             border-radius: 3px !important;
             padding: 1px 8px !important;
-            font-weight: 900 !important;
+            font-weight: 700 !important;
         }
 
-        /* 方式二：code 标签（备用） */
         .markdown-body code {
             background: transparent !important;
             color: #1a1a1a !important;
@@ -724,11 +727,9 @@
                     return;
                 }
                 const mdText = await resp.text();
-                // 从 Markdown 中移除 # 标题行，避免正文中显示重复标题
                 const mdTextWithoutTitle = mdText.replace(/^#\s+.+\n/, '');
                 const htmlContent = marked.parse(mdTextWithoutTitle);
 
-                // 提取标题用于 page-header
                 const titleMatch = mdText.match(/^#\s+(.+)$/m);
                 const pageTitle = titleMatch ? titleMatch[1] : (pageNameMap[pageId] || '页面');
 
@@ -817,11 +818,6 @@
                 return ` > <a href="javascript:void(0)" onclick="switchTab('qita')">其他</a> > ${pageNameMap[pageId] || pageId}`;
             }
             return ` > ${tab}`;
-        }
-
-        function getPageTitle(mdText) {
-            const match = mdText.match(/^#\s+(.+)$/m);
-            return match ? match[1] : '页面';
         }
 
         function switchTab(tab) {
