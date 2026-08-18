@@ -434,6 +434,7 @@
         }
 
         /* ===== 操作关键词样式：灰底 + 深灰字 + 加粗 ===== */
+        /* 情况1: strong 包裹 code */
         .markdown-body strong code {
             background: #F2F2F2 !important;
             color: #333333 !important;
@@ -444,7 +445,18 @@
             font-weight: 700 !important;
         }
 
-        /* ===== 普通 code 不变 ===== */
+        /* 情况2: code 包裹 strong（备用） */
+        .markdown-body code strong {
+            background: #F2F2F2 !important;
+            color: #333333 !important;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
+            font-size: 0.9em !important;
+            border-radius: 3px !important;
+            padding: 1px 8px !important;
+            font-weight: 700 !important;
+        }
+
+        /* 普通 code 不变 */
         .markdown-body code {
             background: transparent;
             color: #1a1a1a;
