@@ -15,11 +15,6 @@
         }
     </script>
     <style>
-        /* 强制所有 strong 加粗 */
-        strong {
-            font-weight: 700 !important;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -279,7 +274,6 @@
             background: #dce6fa;
         }
 
-        /* 正文区域隐藏 h1 */
         .content-area .page-content h1 {
             display: none;
         }
@@ -438,8 +432,8 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* 操作关键词样式：灰底 + 深灰字 + 加粗 */
-        .markdown-body strong {
+        /* ===== 操作关键词样式 ===== */
+        .action-keyword {
             background: #F2F2F2 !important;
             color: #333333 !important;
             font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
@@ -447,14 +441,6 @@
             border-radius: 3px !important;
             padding: 1px 8px !important;
             font-weight: 700 !important;
-        }
-
-        .markdown-body code {
-            background: transparent !important;
-            color: #1a1a1a !important;
-            font-family: inherit !important;
-            font-size: 1em !important;
-            padding: 0 !important;
         }
 
         .markdown-body pre {
@@ -532,6 +518,48 @@
     </div>
 
     <script>
+        // =========================================================
+        // 关键词列表
+        // =========================================================
+        const actionKeywords = [
+            'Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
+            'Filter', 'Ctrl \\+ C', 'Ctrl \\+ V', 'Ctrl \\+ D', 'Ctrl \\+ F',
+            'Ctrl \\+ S', 'Ctrl \\+ Alt \\+ A', 'Ctrl \\+ Alt \\+ P', 'Ctrl \\+ N',
+            'Ctrl \\+ ;', 'Enter', 'Esc', 'Alt \\+ 2', 'Alt \\+ 5',
+            'Or', 'And'
+        ];
+
+        // 构建正则表达式，匹配关键词
+        const keywordRegex = new RegExp('\\b(' + actionKeywords.join('|') + ')\\b', 'g');
+
+        // =========================================================
+        // 处理 HTML，给关键词加样式
+        // =========================================================
+        function wrapKeywordsInHtml(html) {
+            // 在文本节点中替换关键词（简单处理：直接替换整个 HTML 中的关键词）
+            // 注意：要避免替换 HTML 标签内的内容
+            let result = html;
+            // 对每个关键词进行替换，用 <span class="action-keyword">关键词</span> 包裹
+            const keywords = ['Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
+                'Filter', 'Ctrl + C', 'Ctrl + V', 'Ctrl + D', 'Ctrl + F',
+                'Ctrl + S', 'Ctrl + Alt + A', 'Ctrl + Alt + P', 'Ctrl + N',
+                'Ctrl + ;', 'Enter', 'Esc', 'Alt + 2', 'Alt + 5',
+                'Or', 'And'
+            ];
+            // 按长度降序排列，避免短词先匹配
+            keywords.sort((a, b) => b.length - a.length);
+            for (const kw of keywords) {
+                // 转义特殊字符
+                const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp('(?![^<]*>)' + escaped + '(?![^<]*>)', 'g');
+                result = result.replace(regex, `<span class="action-keyword">${kw}</span>`);
+            }
+            return result;
+        }
+
+        // =========================================================
+        // 页面映射
+        // =========================================================
         const pageNameMap = {
             '1.1.1.邮件审批': '邮件审批',
             '1.1.2.客户档案表': '客户档案表',
@@ -727,8 +755,13 @@
                     return;
                 }
                 const mdText = await resp.text();
+                // 移除标题行
                 const mdTextWithoutTitle = mdText.replace(/^#\s+.+\n/, '');
-                const htmlContent = marked.parse(mdTextWithoutTitle);
+                let htmlContent = marked.parse(mdTextWithoutTitle);
+
+                // 给关键词加样式（不区分大小写，但保留原样）
+                // 先处理 HTML 实体，避免干扰
+                htmlContent = wrapKeywordsInHtml(htmlContent);
 
                 const titleMatch = mdText.match(/^#\s+(.+)$/m);
                 const pageTitle = titleMatch ? titleMatch[1] : (pageNameMap[pageId] || '页面');
