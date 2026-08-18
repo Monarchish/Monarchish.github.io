@@ -9,7 +9,7 @@
         if (typeof marked === 'undefined') {
             window.marked = {
                 parse: function(text) {
-                    return '<pre style="white-space:pre-wrap;word-break:break-word;">' + text + '</pre>';
+                    return '<pre style="white-space:pre-wrap;word-break:break-word;background:#f5f7fa;padding:16px;border-radius:6px;">' + text + '</pre>';
                 }
             };
         }
@@ -47,7 +47,6 @@
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
         }
 
-        /* 顶部导航 - 占满宽度 */
         .top-nav {
             display: flex;
             align-items: center;
@@ -335,16 +334,6 @@
             font-size: 11pt;
             line-height: 1.6;
             color: #1a1a1a;
-        }
-
-        /* 动作关键词样式 */
-        .content-area .page-content .action {
-            background: #F2F2F2;
-            color: #d63384;
-            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-            font-size: 0.9em;
-            border-radius: 3px;
-            padding: 1px 6px;
         }
 
         .content-area .footer-meta {
