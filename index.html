@@ -4,12 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>支援未来 · 工作文档中心</title>
-    <!-- 多个 CDN 源，提高加载成功率 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://unpkg.com/marked@9.1.6/marked.min.js"></script>
     <script>
-        // 备用方案：如果 marked 未定义，提供一个最简 fallback
         if (typeof marked === 'undefined') {
             window.marked = {
                 parse: function(text) {
@@ -37,6 +35,10 @@
         a {
             text-decoration: none;
             color: #3a84ff;
+            cursor: pointer;
+        }
+        a:hover {
+            text-decoration: underline;
         }
         .app {
             display: flex;
@@ -158,6 +160,15 @@
             font-weight: 500;
             border-left-color: #3a84ff;
         }
+        /* FAQ 嵌套菜单缩进 */
+        .sidebar .sub-faq .group-title {
+            padding-left: 28px;
+            font-weight: 500;
+            color: #4a5a6e;
+        }
+        .sidebar .sub-faq .sub-items a {
+            padding-left: 44px;
+        }
         .content-wrapper {
             flex: 1;
             display: flex;
@@ -173,6 +184,13 @@
             font-size: 13px;
             color: #8a9aa8;
             margin-bottom: 12px;
+        }
+        .content-area .breadcrumb a {
+            color: #3a84ff;
+            text-decoration: none;
+        }
+        .content-area .breadcrumb a:hover {
+            text-decoration: underline;
         }
         .content-area .breadcrumb span {
             color: #4a5a6e;
@@ -237,24 +255,6 @@
         }
         .content-area .page-content li {
             margin-bottom: 5px;
-        }
-        .content-area .page-content .faq-list {
-            margin-top: 8px;
-        }
-        .content-area .page-content .faq-item {
-            background: #f8fafe;
-            border-left: 3px solid #3a84ff;
-            padding: 12px 18px;
-            border-radius: 4px;
-            margin-bottom: 12px;
-        }
-        .content-area .page-content .faq-item .faq-q {
-            font-weight: 600;
-            color: #1e2a3a;
-        }
-        .content-area .page-content .faq-item .faq-a {
-            margin-top: 4px;
-            color: #3a4a5e;
         }
         .content-area .footer-meta {
             margin-top: 40px;
@@ -444,6 +444,20 @@
         let currentTab = 'home';
         let currentPageId = 'home';
 
+        // 页面显示名称映射
+        const pageNameMap = {
+            '1.1.1.邮件审批': '邮件审批',
+            '1.1.2.客户档案表': '客户档案表',
+            '1.1.3.业务供应商及客户准入申请流程': '业务供应商及客户准入申请流程',
+            '1.2.1.查重': '查重',
+            '1.2.2.组织架构': '组织架构',
+            '1.2.3.添加抬头': '添加抬头',
+            '1.2.4.1.跟踪MDG流程': '跟踪MDG流程',
+            '1.2.4.2.连接不是专用连接': '连接不是专用连接',
+            '1.2.4.3.营业执照无法上传': '营业执照无法上传',
+            '1.2.4.4.用户无权限': '用户无权限'
+        };
+
         async function loadSidebar() {
             try {
                 const resp = await fetch('sidebar.html');
@@ -475,11 +489,13 @@
                     return;
                 }
                 const mdText = await resp.text();
-                // 使用 marked 解析 Markdown
                 const htmlContent = marked.parse(mdText);
                 loader.innerHTML = `
                     <div class="page-block active" id="page-${pageId || tab}">
-                        <div class="breadcrumb">支援未来 > ${tab}</div>
+                        <div class="breadcrumb">
+                            <a href="javascript:void(0)" onclick="switchTab('home')">支援未来</a>
+                            ${getBreadcrumb(tab, pageId)}
+                        </div>
                         <div class="page-header">
                             <h1>${getPageTitle(mdText)}</h1>
                             <a class="edit-btn" href="https://github.com/Monarchish/Monarchish.github.io/edit/main/${filePath}" target="_blank">编辑此页</a>
@@ -499,9 +515,48 @@
             }
         }
 
+        function getBreadcrumb(tab, pageId) {
+            if (tab === 'zhunru') {
+                if (pageId && pageId.startsWith('1.1.')) {
+                    return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > 准入 > ${pageNameMap[pageId] || pageId}`;
+                } else if (pageId && pageId.startsWith('1.2.')) {
+                    return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > MDG > ${pageNameMap[pageId] || pageId}`;
+                }
+                return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > ${pageNameMap[pageId] || pageId}`;
+            }
+            return ` > ${tab}`;
+        }
+
         function getPageTitle(mdText) {
             const match = mdText.match(/^#\s+(.+)$/m);
             return match ? match[1] : '页面';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelector(`.top-nav .nav-item[data-tab="${tab}"]`)?.classList.add('active');
+            document.querySelectorAll('.sidebar-group').forEach(g => {
+                g.classList.toggle('active', g.dataset.group === tab);
+            });
+            if (tab === 'home') {
+                currentPageId = 'home';
+                document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
+                loadContent('home', 'home');
+                return;
+            }
+            const activeGroup = document.querySelector(`.sidebar-group.active`);
+            if (activeGroup) {
+                const firstLink = activeGroup.querySelector('.sub-items a');
+                if (firstLink) {
+                    document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
+                    firstLink.classList.add('active');
+                    const pageId = firstLink.dataset.page;
+                    if (pageId) {
+                        currentPageId = pageId;
+                        loadContent(tab, pageId);
+                    }
+                }
+            }
         }
 
         function bindSidebarEvents() {
@@ -523,6 +578,7 @@
                 subItems.classList.toggle('open');
                 if (arrow) arrow.classList.toggle('open');
             }
+            e.stopPropagation();
         }
 
         function handleMenuItemClick(e) {
@@ -580,53 +636,7 @@
             item.addEventListener('click', function() {
                 const tab = this.dataset.tab;
                 if (!tab) return;
-
-                currentTab = tab;
-
-                document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
-                this.classList.add('active');
-
-                document.querySelectorAll('.sidebar-group').forEach(g => {
-                    g.classList.toggle('active', g.dataset.group === tab);
-                });
-
-                if (tab === 'home') {
-                    currentPageId = 'home';
-                    document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
-                    loadContent('home', 'home');
-                    return;
-                }
-
-                if (tab === 'zhunru') {
-                    const activeGroup = document.querySelector('.sidebar-group.active');
-                    if (activeGroup) {
-                        const firstLink = activeGroup.querySelector('.sub-items a');
-                        if (firstLink) {
-                            document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
-                            firstLink.classList.add('active');
-                            const pageId = firstLink.dataset.page;
-                            if (pageId) {
-                                currentPageId = pageId;
-                                loadContent(tab, pageId);
-                            }
-                        }
-                    }
-                    return;
-                }
-
-                const activeGroup = document.querySelector(`.sidebar-group.active`);
-                if (activeGroup) {
-                    const firstLink = activeGroup.querySelector('.sub-items a');
-                    if (firstLink) {
-                        document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
-                        firstLink.classList.add('active');
-                        const pageId = firstLink.dataset.page;
-                        if (pageId) {
-                            currentPageId = pageId;
-                            loadContent(tab, pageId);
-                        }
-                    }
-                }
+                switchTab(tab);
             });
         });
 
@@ -689,14 +699,15 @@
             headings.forEach(h2 => observer.observe(h2));
         }
 
-        function fixEditButtons() {}
-
         async function init() {
             await loadSidebar();
             await loadContent('home', 'home');
         }
 
         document.addEventListener('DOMContentLoaded', init);
+
+        // 暴露 switchTab 给全局
+        window.switchTab = switchTab;
     </script>
 
 </body>
