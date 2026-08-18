@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>支援未来 · 工作文档中心</title>
+    <title>支援未来</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <script>
         if (typeof marked === 'undefined') {
@@ -38,7 +38,6 @@
             text-decoration: underline;
         }
 
-        /* ===== 顶部导航 - 独立占满全屏宽度 ===== */
         .top-nav {
             display: flex;
             align-items: center;
@@ -97,7 +96,6 @@
             border-radius: 2px 2px 0 0;
         }
 
-        /* ===== 主内容容器 - 固定宽度居中 ===== */
         .app {
             display: flex;
             flex-direction: column;
@@ -115,7 +113,6 @@
             align-items: flex-start;
         }
 
-        /* ===== 左侧边栏 ===== */
         .sidebar {
             width: 260px;
             flex-shrink: 0;
@@ -212,7 +209,6 @@
             font-size: 13px;
         }
 
-        /* ===== 右侧内容区 ===== */
         .content-wrapper {
             flex: 1;
             display: flex;
@@ -220,7 +216,6 @@
             min-width: 0;
         }
 
-        /* ===== 正文区域 ===== */
         .content-area {
             flex: 1;
             padding: 28px 40px 50px 40px;
@@ -244,20 +239,13 @@
 
         .content-area .page-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-            border-bottom: 1px solid #eef2f6;
             padding-bottom: 14px;
             margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 10px;
-        }
-        .content-area .page-header h1 {
-            font-size: 22pt;
-            font-weight: 600;
-            color: #1a1a1a;
-            line-height: 1.6;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            border-bottom: 1px solid #eef2f6;
         }
         .content-area .page-header .edit-btn {
             background: #f0f4fe;
@@ -355,7 +343,6 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== TOC（本页指引） ===== */
         .toc-wrapper {
             width: 200px;
             flex-shrink: 0;
@@ -422,7 +409,6 @@
             display: block;
         }
 
-        /* ===== Markdown 内容样式 ===== */
         .markdown-body table {
             border-collapse: collapse;
             width: 100%;
@@ -449,17 +435,7 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== 操作关键词样式 ===== */
-        .markdown-body code {
-            background: #F2F2F2;
-            color: #d63384;
-            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-            font-size: 0.9em;
-            border-radius: 3px;
-            padding: 1px 8px;
-        }
-
-        /* 加粗的代码块（操作关键词） */
+        /* 操作关键词样式：灰底 + 深灰字 + 加粗 */
         .markdown-body strong code {
             background: #F2F2F2;
             color: #333333;
@@ -468,6 +444,15 @@
             border-radius: 3px;
             padding: 1px 8px;
             font-weight: 700;
+        }
+
+        /* 普通 code 不变 */
+        .markdown-body code {
+            background: transparent;
+            color: #1a1a1a;
+            font-family: inherit;
+            font-size: 1em;
+            padding: 0;
         }
 
         .markdown-body pre {
@@ -714,58 +699,57 @@
         }
 
         async function loadContent(tab, pageId) {
-    const loader = document.getElementById('contentLoader');
+            const loader = document.getElementById('contentLoader');
 
-    let filePath;
-    if (tab === 'zhunru') {
-        filePath = `docs/zhunru/${pageId}.md`;
-    } else if (tab === 'caigou') {
-        filePath = `docs/caigou/${pageId}.md`;
-    } else if (tab === 'xiaoshou') {
-        filePath = `docs/xiaoshou/${pageId}.md`;
-    } else if (tab === 'caiwu') {
-        filePath = `docs/caiwu/${pageId}.md`;
-    } else if (tab === 'qita') {
-        filePath = `docs/qita/${pageId}.md`;
-    } else if (tab === 'home') {
-        filePath = 'docs/home.md';
-    } else {
-        filePath = `docs/${tab}.md`;
-    }
+            let filePath;
+            if (tab === 'zhunru') {
+                filePath = `docs/zhunru/${pageId}.md`;
+            } else if (tab === 'caigou') {
+                filePath = `docs/caigou/${pageId}.md`;
+            } else if (tab === 'xiaoshou') {
+                filePath = `docs/xiaoshou/${pageId}.md`;
+            } else if (tab === 'caiwu') {
+                filePath = `docs/caiwu/${pageId}.md`;
+            } else if (tab === 'qita') {
+                filePath = `docs/qita/${pageId}.md`;
+            } else if (tab === 'home') {
+                filePath = 'docs/home.md';
+            } else {
+                filePath = `docs/${tab}.md`;
+            }
 
-    try {
-        const resp = await fetch(filePath);
-        if (!resp.ok) {
-            loader.innerHTML = `<p>页面加载失败，请刷新重试。</p>`;
-            return;
+            try {
+                const resp = await fetch(filePath);
+                if (!resp.ok) {
+                    loader.innerHTML = `<p>页面加载失败，请刷新重试。</p>`;
+                    return;
+                }
+                const mdText = await resp.text();
+                const htmlContent = marked.parse(mdText);
+                // 标题由 Markdown 的 # 提供，不再单独显示 h1
+                loader.innerHTML = `
+                    <div class="page-block active" id="page-${pageId || tab}">
+                        <div class="breadcrumb">
+                            <a href="javascript:void(0)" onclick="switchTab('home')">支援未来</a>
+                            ${getBreadcrumb(tab, pageId)}
+                        </div>
+                        <div class="page-header">
+                            <a class="edit-btn" href="https://github.com/Monarchish/Monarchish.github.io/edit/main/${filePath}" target="_blank">编辑此页</a>
+                        </div>
+                        <div class="page-content markdown-body">
+                            ${htmlContent}
+                        </div>
+                        <div class="footer-meta">最近更新：2026-08-18</div>
+                    </div>
+                `;
+                generateTOC();
+                document.getElementById('contentArea').scrollTop = 0;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) {
+                console.error('内容加载失败:', e);
+                loader.innerHTML = `<p>内容加载失败，请刷新重试。</p>`;
+            }
         }
-        const mdText = await resp.text();
-        const htmlContent = marked.parse(mdText);
-        // 优先从 pageNameMap 取标题，如果没有则从 Markdown 提取
-        const pageTitle = pageNameMap[pageId] || getPageTitle(mdText) || pageId || '页面';
-        loader.innerHTML = `
-            <div class="page-block active" id="page-${pageId || tab}">
-                <div class="breadcrumb">
-                    <a href="javascript:void(0)" onclick="switchTab('home')">支援未来</a>
-                    ${getBreadcrumb(tab, pageId)}
-                </div>
-                <div class="page-header">
-                    <a class="edit-btn" href="https://github.com/Monarchish/Monarchish.github.io/edit/main/${filePath}" target="_blank">编辑此页</a>
-                </div>
-                <div class="page-content markdown-body">
-                    ${htmlContent}
-                </div>
-                <div class="footer-meta">最近更新：2026-08-18</div>
-            </div>
-        `;
-        generateTOC();
-        document.getElementById('contentArea').scrollTop = 0;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (e) {
-        console.error('内容加载失败:', e);
-        loader.innerHTML = `<p>内容加载失败，请刷新重试。</p>`;
-    }
-}
 
         function getBreadcrumb(tab, pageId) {
             if (tab === 'zhunru') {
