@@ -108,23 +108,27 @@
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
         }
 
+        /* 使用 flex 确保 sidebar 和 content 并排，且 sidebar 固定 */
         .main-body {
             display: flex;
             flex: 1;
             position: relative;
+            align-items: flex-start; /* 防止内容被拉伸 */
         }
 
-        /* ===== 侧边栏 ===== */
+        /* ===== 左侧边栏 ===== */
         .sidebar {
             width: 260px;
+            flex-shrink: 0; /* 确保宽度不被压缩 */
             background: #fafbfc;
             border-right: 1px solid #e9edf4;
             padding: 16px 8px 30px 8px;
-            flex-shrink: 0;
             overflow-y: auto;
-            max-height: calc(100vh - 52px);
+            /* 固定定位，跟随滚动 */
             position: sticky;
             top: 52px;
+            max-height: calc(100vh - 52px);
+            align-self: flex-start;
         }
         .sidebar .sidebar-category {
             font-size: 14px;
@@ -210,12 +214,15 @@
             font-size: 13px;
         }
 
-        /* ===== 正文区域 ===== */
+        /* ===== 右侧内容区（包含正文和 TOC） ===== */
         .content-wrapper {
             flex: 1;
             display: flex;
             min-height: 600px;
+            min-width: 0; /* 防止溢出 */
         }
+
+        /* ===== 正文区域 ===== */
         .content-area {
             flex: 1;
             padding: 28px 40px 50px 40px;
@@ -350,7 +357,7 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== TOC ===== */
+        /* ===== TOC（本页指引） ===== */
         .toc-wrapper {
             width: 200px;
             flex-shrink: 0;
@@ -361,9 +368,10 @@
             top: 52px;
             max-height: calc(100vh - 52px);
             overflow-y: auto;
-            display: none;
+            align-self: flex-start; /* 防止被拉伸 */
         }
-        .toc-wrapper.visible {
+        /* 默认显示，不再依赖 visible 类 */
+        .toc-wrapper {
             display: block;
         }
         .toc-wrapper .toc-title {
@@ -456,6 +464,11 @@
             overflow-x: auto;
         }
 
+        /* 当 TOC 没有内容时，隐藏它 */
+        .toc-wrapper.empty {
+            display: none;
+        }
+
         @media (max-width: 1024px) {
             .toc-wrapper {
                 display: none !important;
@@ -498,7 +511,6 @@
 </head>
 <body>
 
-    <!-- ===== 顶部导航 - 独立于主容器外，占满全屏 ===== -->
     <header class="top-nav">
         <div class="logo">支援<span>未来</span></div>
         <button class="nav-item active" data-tab="home">首页</button>
@@ -509,24 +521,17 @@
         <button class="nav-item" data-tab="qita">其他</button>
     </header>
 
-    <!-- ===== 主内容容器 - 固定宽度居中 ===== -->
     <div class="app">
-
         <div class="main-body">
-
             <aside class="sidebar" id="sidebar"></aside>
-
             <div class="content-wrapper">
-
                 <main class="content-area" id="contentArea">
                     <div id="contentLoader">加载中...</div>
                 </main>
-
                 <aside class="toc-wrapper" id="tocWrapper">
                     <div class="toc-title">本页指引</div>
                     <ul class="toc-list" id="tocList"></ul>
                 </aside>
-
             </div>
         </div>
     </div>
@@ -740,17 +745,17 @@
 
             const contentArea = document.querySelector('.content-area .page-content');
             if (!contentArea) {
-                tocWrapper.classList.remove('visible');
+                tocWrapper.classList.add('empty');
                 return;
             }
 
             const headings = contentArea.querySelectorAll('h2');
             if (headings.length === 0) {
-                tocWrapper.classList.remove('visible');
+                tocWrapper.classList.add('empty');
                 return;
             }
 
-            tocWrapper.classList.add('visible');
+            tocWrapper.classList.remove('empty');
 
             headings.forEach((h2, index) => {
                 if (!h2.id) {
