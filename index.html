@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>支援未来</title>
+    <title>支援未来 · 工作文档中心</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <script>
         if (typeof marked === 'undefined') {
@@ -239,13 +239,21 @@
 
         .content-area .page-header {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid #eef2f6;
             padding-bottom: 14px;
             margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 10px;
-            border-bottom: 1px solid #eef2f6;
+        }
+        .content-area .page-header h1 {
+            font-size: 22pt;
+            font-weight: 600;
+            color: #1a1a1a;
+            line-height: 1.6;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
         }
         .content-area .page-header .edit-btn {
             background: #f0f4fe;
@@ -266,19 +274,9 @@
             background: #dce6fa;
         }
 
-        .content-area .page-content {
-            font-size: 11pt;
-            color: #1a1a1a;
-            line-height: 1.6;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-        }
+        /* 正文区域隐藏 h1，因为标题已经在 page-header 里了 */
         .content-area .page-content h1 {
-            font-size: 22pt;
-            font-weight: 600;
-            color: #1a1a1a;
-            line-height: 1.6;
-            margin: 0 0 16px 0;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            display: none;
         }
         .content-area .page-content h2 {
             font-size: 16pt;
@@ -725,8 +723,14 @@
                     return;
                 }
                 const mdText = await resp.text();
-                const htmlContent = marked.parse(mdText);
-                // 标题由 Markdown 的 # 提供，不再单独显示 h1
+                // 从 Markdown 中移除 # 标题行，避免正文中显示重复标题
+                const mdTextWithoutTitle = mdText.replace(/^#\s+.+\n/, '');
+                const htmlContent = marked.parse(mdTextWithoutTitle);
+
+                // 提取标题用于 page-header
+                const titleMatch = mdText.match(/^#\s+(.+)$/m);
+                const pageTitle = titleMatch ? titleMatch[1] : (pageNameMap[pageId] || '页面');
+
                 loader.innerHTML = `
                     <div class="page-block active" id="page-${pageId || tab}">
                         <div class="breadcrumb">
@@ -734,6 +738,7 @@
                             ${getBreadcrumb(tab, pageId)}
                         </div>
                         <div class="page-header">
+                            <h1>${pageTitle}</h1>
                             <a class="edit-btn" href="https://github.com/Monarchish/Monarchish.github.io/edit/main/${filePath}" target="_blank">编辑此页</a>
                         </div>
                         <div class="page-content markdown-body">
