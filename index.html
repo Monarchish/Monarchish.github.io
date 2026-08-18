@@ -40,6 +40,8 @@
         a:hover {
             text-decoration: underline;
         }
+
+        /* ===== 整体容器 ===== */
         .app {
             display: flex;
             flex-direction: column;
@@ -49,74 +51,107 @@
             background: #ffffff;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
         }
+
+        /* ===== 顶部导航栏（蓝鲸黑色风格） ===== */
         .top-nav {
             display: flex;
             align-items: center;
             padding: 0 40px;
-            height: 60px;
-            background: #ffffff;
-            border-bottom: 1px solid #e9edf4;
+            height: 52px;
+            background: #1e2a3a;
             flex-shrink: 0;
-            gap: 6px;
+            gap: 4px;
             position: sticky;
             top: 0;
             z-index: 100;
         }
         .top-nav .logo {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            color: #3a84ff;
-            margin-right: 32px;
+            color: #ffffff;
+            margin-right: 40px;
             white-space: nowrap;
+            letter-spacing: 0.5px;
+        }
+        .top-nav .logo span {
+            color: #3a84ff;
         }
         .top-nav .nav-item {
-            padding: 6px 16px;
-            border-radius: 6px;
+            padding: 0 18px;
+            height: 52px;
             font-size: 14px;
             font-weight: 500;
-            color: #4a5a6e;
+            color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.2s ease;
             border: none;
             background: transparent;
+            position: relative;
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.3px;
         }
         .top-nav .nav-item:hover {
-            background: #f0f4fe;
-            color: #3a84ff;
+            color: #ffffff;
         }
         .top-nav .nav-item.active {
-            background: #eef3fe;
-            color: #3a84ff;
+            color: #ffffff;
         }
+        .top-nav .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: #3a84ff;
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* ===== 主体 ===== */
         .main-body {
             display: flex;
             flex: 1;
             position: relative;
         }
+
+        /* ===== 左侧边栏（蓝鲸风格） ===== */
         .sidebar {
             width: 260px;
             background: #fafbfc;
             border-right: 1px solid #e9edf4;
-            padding: 12px 8px 30px 8px;
+            padding: 16px 8px 30px 8px;
             flex-shrink: 0;
             overflow-y: auto;
-            max-height: calc(100vh - 60px);
+            max-height: calc(100vh - 52px);
             position: sticky;
-            top: 60px;
+            top: 52px;
         }
+
+        /* 侧边栏分类标题（如"准入"） */
+        .sidebar .sidebar-category {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e2a3a;
+            padding: 8px 12px 12px 12px;
+            border-bottom: 1px solid #e9edf4;
+            margin-bottom: 8px;
+        }
+
         .sidebar .menu-group {
             margin-bottom: 2px;
         }
         .sidebar .menu-group .group-title {
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 500;
             color: #1e2a3a;
-            padding: 8px 12px 4px 12px;
+            padding: 6px 12px 4px 12px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 6px;
+            border-radius: 4px;
             transition: background 0.1s;
             user-select: none;
         }
@@ -124,7 +159,7 @@
             background: #f0f4fe;
         }
         .sidebar .menu-group .group-title .arrow {
-            font-size: 11px;
+            font-size: 10px;
             color: #8a9aa8;
             transition: transform 0.2s;
         }
@@ -135,15 +170,15 @@
             padding-left: 4px;
             overflow: hidden;
             max-height: 0;
-            transition: max-height 0.3s ease;
+            transition: max-height 0.25s ease;
         }
         .sidebar .menu-group .sub-items.open {
             max-height: 1200px;
         }
         .sidebar .menu-group .sub-items a {
             display: block;
-            padding: 5px 12px 5px 28px;
-            font-size: 14px;
+            padding: 4px 12px 4px 28px;
+            font-size: 13px;
             color: #4a5a6e;
             border-radius: 4px;
             transition: all 0.1s;
@@ -160,15 +195,32 @@
             font-weight: 500;
             border-left-color: #3a84ff;
         }
-        /* FAQ 嵌套菜单缩进 */
+
+        /* 三级菜单（FAQ 嵌套） */
+        .sidebar .sub-faq {
+            margin-top: 2px;
+        }
         .sidebar .sub-faq .group-title {
             padding-left: 28px;
+            font-size: 13px;
             font-weight: 500;
             color: #4a5a6e;
         }
+        .sidebar .sub-faq .group-title:hover {
+            background: #eef3fe;
+            color: #3a84ff;
+        }
         .sidebar .sub-faq .sub-items a {
             padding-left: 44px;
+            font-size: 13px;
         }
+
+        /* 移除版本号等多余文字 */
+        .sidebar .sidebar-version {
+            display: none;
+        }
+
+        /* ===== 右侧内容区 ===== */
         .content-wrapper {
             flex: 1;
             display: flex;
@@ -180,6 +232,8 @@
             background: #ffffff;
             min-width: 0;
         }
+
+        /* 面包屑 */
         .content-area .breadcrumb {
             font-size: 13px;
             color: #8a9aa8;
@@ -195,6 +249,7 @@
         .content-area .breadcrumb span {
             color: #4a5a6e;
         }
+
         .content-area .page-header {
             display: flex;
             justify-content: space-between;
@@ -263,6 +318,8 @@
             font-size: 13px;
             color: #8a9aa8;
         }
+
+        /* ===== 右侧 TOC（本页指引） ===== */
         .toc-wrapper {
             width: 200px;
             flex-shrink: 0;
@@ -270,8 +327,8 @@
             background: #fafbfc;
             border-left: 1px solid #e9edf4;
             position: sticky;
-            top: 60px;
-            max-height: calc(100vh - 60px);
+            top: 52px;
+            max-height: calc(100vh - 52px);
             overflow-y: auto;
             display: none;
         }
@@ -312,6 +369,7 @@
             border-left-color: #3a84ff;
             font-weight: 500;
         }
+
         .page-block {
             display: none;
         }
@@ -324,6 +382,8 @@
         .sidebar-group.active {
             display: block;
         }
+
+        /* ===== Markdown 内容样式 ===== */
         .markdown-body table {
             border-collapse: collapse;
             width: 100%;
@@ -359,6 +419,8 @@
             border-radius: 6px;
             overflow-x: auto;
         }
+
+        /* ===== 响应式 ===== */
         @media (max-width: 1024px) {
             .toc-wrapper {
                 display: none !important;
@@ -369,14 +431,15 @@
                 padding: 0 12px;
                 flex-wrap: wrap;
                 height: auto;
-                gap: 3px;
+                gap: 2px;
             }
             .top-nav .logo {
-                margin-right: 12px;
-                font-size: 15px;
+                margin-right: 16px;
+                font-size: 14px;
             }
             .top-nav .nav-item {
-                padding: 4px 10px;
+                padding: 0 12px;
+                height: 40px;
                 font-size: 13px;
             }
             .sidebar {
@@ -402,8 +465,9 @@
 
     <div class="app">
 
+        <!-- ===== 顶部导航（黑色 + 蓝色下划线） ===== -->
         <header class="top-nav">
-            <div class="logo">支援未来</div>
+            <div class="logo">支援<span>未来</span></div>
             <button class="nav-item active" data-tab="home">首页</button>
             <button class="nav-item" data-tab="zhunru">准入</button>
             <button class="nav-item" data-tab="caigou">采购</button>
@@ -432,19 +496,9 @@
     </div>
 
     <script>
-        const contentMap = {
-            'home': 'docs/home.md',
-            'zhunru': 'docs/准入/',
-            'caigou': 'docs/caigou.md',
-            'xiaoshou': 'docs/xiaoshou.md',
-            'caiwu': 'docs/caiwu.md',
-            'qita': 'docs/qita.md'
-        };
-
-        let currentTab = 'home';
-        let currentPageId = 'home';
-
-        // 页面显示名称映射
+        // =========================================================
+        // 页面名称映射
+        // =========================================================
         const pageNameMap = {
             '1.1.1.邮件审批': '邮件审批',
             '1.1.2.客户档案表': '客户档案表',
@@ -458,6 +512,12 @@
             '1.2.4.4.用户无权限': '用户无权限'
         };
 
+        let currentTab = 'home';
+        let currentPageId = 'home';
+
+        // =========================================================
+        // 侧边栏加载
+        // =========================================================
         async function loadSidebar() {
             try {
                 const resp = await fetch('sidebar.html');
@@ -470,6 +530,9 @@
             }
         }
 
+        // =========================================================
+        // 内容加载
+        // =========================================================
         async function loadContent(tab, pageId) {
             const loader = document.getElementById('contentLoader');
 
@@ -515,6 +578,9 @@
             }
         }
 
+        // =========================================================
+        // 面包屑生成
+        // =========================================================
         function getBreadcrumb(tab, pageId) {
             if (tab === 'zhunru') {
                 if (pageId && pageId.startsWith('1.1.')) {
@@ -532,6 +598,9 @@
             return match ? match[1] : '页面';
         }
 
+        // =========================================================
+        // Tab 切换
+        // =========================================================
         function switchTab(tab) {
             document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
             document.querySelector(`.top-nav .nav-item[data-tab="${tab}"]`)?.classList.add('active');
@@ -559,6 +628,9 @@
             }
         }
 
+        // =========================================================
+        // 侧边栏事件绑定
+        // =========================================================
         function bindSidebarEvents() {
             document.querySelectorAll('.sidebar .menu-group .group-title').forEach(el => {
                 el.removeEventListener('click', toggleMenu);
@@ -632,6 +704,9 @@
             });
         }
 
+        // =========================================================
+        // 顶部导航点击
+        // =========================================================
         document.querySelectorAll('.top-nav .nav-item').forEach(item => {
             item.addEventListener('click', function() {
                 const tab = this.dataset.tab;
@@ -640,6 +715,9 @@
             });
         });
 
+        // =========================================================
+        // TOC 生成
+        // =========================================================
         function generateTOC() {
             const tocList = document.getElementById('tocList');
             const tocWrapper = document.getElementById('tocWrapper');
@@ -699,14 +777,15 @@
             headings.forEach(h2 => observer.observe(h2));
         }
 
+        // =========================================================
+        // 初始化
+        // =========================================================
         async function init() {
             await loadSidebar();
             await loadContent('home', 'home');
         }
 
         document.addEventListener('DOMContentLoaded', init);
-
-        // 暴露 switchTab 给全局
         window.switchTab = switchTab;
     </script>
 
