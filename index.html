@@ -433,7 +433,8 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== 操作关键词样式：直接匹配 strong 标签 ===== */
+        /* ===== 操作关键词样式 ===== */
+        /* 方式一：strong 标签直接应用样式 */
         .markdown-body strong {
             background: #F2F2F2 !important;
             color: #333333 !important;
@@ -441,16 +442,16 @@
             font-size: 0.9em !important;
             border-radius: 3px !important;
             padding: 1px 8px !important;
-            font-weight: bold !important;
+            font-weight: 900 !important;
         }
 
-        /* 普通 code 不变 */
+        /* 方式二：code 标签（备用） */
         .markdown-body code {
-            background: transparent;
-            color: #1a1a1a;
-            font-family: inherit;
-            font-size: 1em;
-            padding: 0;
+            background: transparent !important;
+            color: #1a1a1a !important;
+            font-family: inherit !important;
+            font-size: 1em !important;
+            padding: 0 !important;
         }
 
         .markdown-body pre {
