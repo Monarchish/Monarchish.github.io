@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>支援未来 · 工作文档中心</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <script>
         if (typeof marked === 'undefined') {
             window.marked = {
@@ -15,7 +15,6 @@
         }
     </script>
     <style>
-        /* ===== 强制所有 strong 加粗 ===== */
         strong {
             font-weight: 700 !important;
         }
@@ -437,7 +436,6 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== 操作关键词样式 ===== */
         .action-keyword {
             background: #F2F2F2 !important;
             color: #333333 !important;
@@ -534,15 +532,13 @@
         ];
 
         // =========================================================
-        // 给关键词加样式（直接操作文本）
+        // 给关键词加样式
         // =========================================================
         function wrapKeywordsInHtml(html) {
             let result = html;
-            // 按长度降序排列
             const sorted = [...keywords].sort((a, b) => b.length - a.length);
             for (const kw of sorted) {
                 const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                // 只替换不在标签内的关键词
                 const regex = new RegExp('(?![^<]*>)' + escaped + '(?![^<]*>)', 'g');
                 result = result.replace(regex, `<span class="action-keyword">${kw}</span>`);
             }
@@ -563,7 +559,6 @@
             '1.2.4.2.连接不是专用连接': '连接不是专用连接',
             '1.2.4.3.营业执照无法上传': '营业执照无法上传',
             '1.2.4.4.用户无权限': '用户无权限',
-            // 采购
             '1.1.1.PSR码编辑': 'PSR码编辑',
             '1.1.2.客户模板编辑': '客户模板编辑',
             '1.1.3.订货卡编辑': '订货卡编辑',
@@ -610,7 +605,6 @@
             '1.5.4.社会库抬头变更': '社会库抬头变更',
             '1.5.5.1.确保没有价外运费': '如何"确保没有价外运费"？',
             '1.5.5.2.客户把销售合同原件寄回': '出现"客户把销售合同原件寄回"时，该怎么办？',
-            // 销售
             '2.1.1.让步单查询': '让步单查询',
             '2.1.2.让步单咨询': '让步单咨询',
             '2.1.3.让步单回复': '让步单回复',
@@ -682,14 +676,12 @@
             '2.10.2.JFE发票': 'JFE发票',
             '2.10.3.1.组织切换': '如何"组织切换"？',
             '2.10.3.2.发票与合同单价差异不为0': '出现"发票与合同单价差异不为0"时，该怎么办？',
-            // 财务
             '3.1.1.操作流程': '操作流程',
             '3.2.1.通知客户': '通知客户',
             '3.3.1.通知客户': '通知客户',
             '3.4.1.对账函流程': '对账函流程',
             '3.5.1.退款申请单': '退款申请单',
             '3.6.1.通知客户': '通知客户',
-            // 其他
             '4.1.1.历史': '历史',
             '4.1.2.纲要': '纲要',
             '4.2.1.同创浦江申请用印流程（公章）': '同创浦江申请用印流程（公章）',
@@ -747,10 +739,8 @@
                     return;
                 }
                 const mdText = await resp.text();
-                // 移除标题行
                 const mdTextWithoutTitle = mdText.replace(/^#\s+.+\n/, '');
                 let htmlContent = marked.parse(mdTextWithoutTitle);
-                // 给关键词加样式
                 htmlContent = wrapKeywordsInHtml(htmlContent);
 
                 const titleMatch = mdText.match(/^#\s+(.+)$/m);
@@ -883,6 +873,7 @@
 
         function toggleMenu(e) {
             const el = e.currentTarget;
+            if (!el) return;
             const arrow = el.querySelector('.arrow');
             const subItems = el.nextElementSibling;
             if (subItems && subItems.classList.contains('sub-items')) {
