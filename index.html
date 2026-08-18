@@ -539,6 +539,7 @@
             const sorted = [...keywords].sort((a, b) => b.length - a.length);
             for (const kw of sorted) {
                 const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                // 匹配关键词，但不匹配 HTML 标签内的内容
                 const regex = new RegExp('(?![^<]*>)' + escaped + '(?![^<]*>)', 'g');
                 result = result.replace(regex, `<span class="action-keyword">${kw}</span>`);
             }
