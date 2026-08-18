@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>支援未来 · 工作文档中心</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         if (typeof marked === 'undefined') {
             window.marked = {
@@ -15,6 +15,11 @@
         }
     </script>
     <style>
+        /* ===== 强制所有 strong 加粗 ===== */
+        strong {
+            font-weight: 700 !important;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -521,36 +526,23 @@
         // =========================================================
         // 关键词列表
         // =========================================================
-        const actionKeywords = [
-            'Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
-            'Filter', 'Ctrl \\+ C', 'Ctrl \\+ V', 'Ctrl \\+ D', 'Ctrl \\+ F',
-            'Ctrl \\+ S', 'Ctrl \\+ Alt \\+ A', 'Ctrl \\+ Alt \\+ P', 'Ctrl \\+ N',
-            'Ctrl \\+ ;', 'Enter', 'Esc', 'Alt \\+ 2', 'Alt \\+ 5',
+        const keywords = ['Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
+            'Filter', 'Ctrl + C', 'Ctrl + V', 'Ctrl + D', 'Ctrl + F',
+            'Ctrl + S', 'Ctrl + Alt + A', 'Ctrl + Alt + P', 'Ctrl + N',
+            'Ctrl + ;', 'Enter', 'Esc', 'Alt + 2', 'Alt + 5',
             'Or', 'And'
         ];
 
-        // 构建正则表达式，匹配关键词
-        const keywordRegex = new RegExp('\\b(' + actionKeywords.join('|') + ')\\b', 'g');
-
         // =========================================================
-        // 处理 HTML，给关键词加样式
+        // 给关键词加样式（直接操作文本）
         // =========================================================
         function wrapKeywordsInHtml(html) {
-            // 在文本节点中替换关键词（简单处理：直接替换整个 HTML 中的关键词）
-            // 注意：要避免替换 HTML 标签内的内容
             let result = html;
-            // 对每个关键词进行替换，用 <span class="action-keyword">关键词</span> 包裹
-            const keywords = ['Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
-                'Filter', 'Ctrl + C', 'Ctrl + V', 'Ctrl + D', 'Ctrl + F',
-                'Ctrl + S', 'Ctrl + Alt + A', 'Ctrl + Alt + P', 'Ctrl + N',
-                'Ctrl + ;', 'Enter', 'Esc', 'Alt + 2', 'Alt + 5',
-                'Or', 'And'
-            ];
-            // 按长度降序排列，避免短词先匹配
-            keywords.sort((a, b) => b.length - a.length);
-            for (const kw of keywords) {
-                // 转义特殊字符
+            // 按长度降序排列
+            const sorted = [...keywords].sort((a, b) => b.length - a.length);
+            for (const kw of sorted) {
                 const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                // 只替换不在标签内的关键词
                 const regex = new RegExp('(?![^<]*>)' + escaped + '(?![^<]*>)', 'g');
                 result = result.replace(regex, `<span class="action-keyword">${kw}</span>`);
             }
@@ -758,9 +750,7 @@
                 // 移除标题行
                 const mdTextWithoutTitle = mdText.replace(/^#\s+.+\n/, '');
                 let htmlContent = marked.parse(mdTextWithoutTitle);
-
-                // 给关键词加样式（不区分大小写，但保留原样）
-                // 先处理 HTML 实体，避免干扰
+                // 给关键词加样式
                 htmlContent = wrapKeywordsInHtml(htmlContent);
 
                 const titleMatch = mdText.match(/^#\s+(.+)$/m);
