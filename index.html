@@ -38,7 +38,7 @@
             text-decoration: underline;
         }
 
-        /* ===== 顶部导航（纯黑 + 斜体 logo） ===== */
+        /* ===== 顶部导航 ===== */
         .top-nav {
             display: flex;
             align-items: center;
@@ -220,11 +220,10 @@
         }
 
         .content-area {
-            flex: 1;
+            flex: 0 1 900px;
             padding: 28px 40px 50px 40px;
             background: #ffffff;
             min-width: 0;
-            max-width: 900px;
             width: 100%;
         }
 
@@ -345,60 +344,6 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== TOC ===== */
-        .toc-wrapper {
-            width: 200px;
-            flex-shrink: 0;
-            padding: 28px 16px 30px 16px;
-            background: #fafbfc;
-            border-left: 1px solid #e9edf4;
-            position: sticky;
-            top: 56px;
-            max-height: calc(100vh - 56px);
-            overflow-y: auto;
-            align-self: flex-start;
-            display: block;
-        }
-        .toc-wrapper .toc-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1e2a3a;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e9edf4;
-            margin-bottom: 10px;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-        }
-        .toc-wrapper .toc-list {
-            list-style: none;
-            padding: 0;
-        }
-        .toc-wrapper .toc-list li {
-            margin-bottom: 4px;
-        }
-        .toc-wrapper .toc-list a {
-            display: block;
-            padding: 4px 8px;
-            font-size: 13px;
-            color: #4a5a6e;
-            border-radius: 4px;
-            transition: all 0.1s;
-            border-left: 2px solid transparent;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-        }
-        .toc-wrapper .toc-list a:hover {
-            background: #eef3fe;
-            color: #3a84ff;
-        }
-        .toc-wrapper .toc-list a.active-toc {
-            background: #eef3fe;
-            color: #3a84ff;
-            border-left-color: #3a84ff;
-            font-weight: 500;
-        }
-        .toc-wrapper.empty {
-            display: none;
-        }
-
         .page-block {
             display: none;
         }
@@ -438,7 +383,6 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== 操作关键词样式 ===== */
         .action-keyword {
             background: #F2F2F2 !important;
             color: #333333 !important;
@@ -456,11 +400,6 @@
             overflow-x: auto;
         }
 
-        @media (max-width: 1024px) {
-            .toc-wrapper {
-                display: none !important;
-            }
-        }
         @media (max-width: 768px) {
             .top-nav {
                 padding: 0 12px;
@@ -515,10 +454,6 @@
                 <main class="content-area" id="contentArea">
                     <div id="contentLoader">加载中...</div>
                 </main>
-                <aside class="toc-wrapper" id="tocWrapper">
-                    <div class="toc-title">本页指引</div>
-                    <ul class="toc-list" id="tocList"></ul>
-                </aside>
             </div>
         </div>
     </div>
@@ -548,9 +483,6 @@
         let currentTab = 'home';
         let currentPageId = 'home';
 
-        // =========================================================
-        // 侧边栏加载
-        // =========================================================
         async function loadSidebar() {
             try {
                 const resp = await fetch('sidebar.html');
@@ -563,9 +495,6 @@
             }
         }
 
-        // =========================================================
-        // 内容加载
-        // =========================================================
         async function loadContent(tab, pageId) {
             const loader = document.getElementById('contentLoader');
 
@@ -608,7 +537,6 @@
                         <div class="footer-meta">最近更新：2026-08-19</div>
                     </div>
                 `;
-                generateTOC();
                 document.getElementById('contentArea').scrollTop = 0;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (e) {
@@ -617,18 +545,18 @@
             }
         }
 
-        // =========================================================
-        // 面包屑
-        // =========================================================
         function getBreadcrumb(tab, pageId) {
             if (tab === 'zhunru') {
                 if (pageId && pageId.startsWith('1.1.')) {
-                    return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > 准入 > ${pageId.replace(/^1\.1\.\d+\./, '')}`;
+                    const name = pageId.replace(/^1\.1\.\d+\./, '');
+                    return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > 准入 > ${name}`;
                 } else if (pageId && pageId.startsWith('1.2.')) {
                     if (pageId.startsWith('1.2.4.')) {
-                        return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > MDG > FAQ > ${pageId.replace(/^1\.2\.4\.\d+\./, '')}`;
+                        const name = pageId.replace(/^1\.2\.4\.\d+\./, '');
+                        return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > MDG > FAQ > ${name}`;
                     }
-                    return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > MDG > ${pageId.replace(/^1\.2\.\d+\./, '')}`;
+                    const name = pageId.replace(/^1\.2\.\d+\./, '');
+                    return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > MDG > ${name}`;
                 }
                 return ` > <a href="javascript:void(0)" onclick="switchTab('zhunru')">准入</a> > ${pageId}`;
             }
@@ -647,9 +575,6 @@
             return ` > ${tab}`;
         }
 
-        // =========================================================
-        // Tab 切换
-        // =========================================================
         function switchTab(tab) {
             document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
             document.querySelector(`.top-nav .nav-item[data-tab="${tab}"]`)?.classList.add('active');
@@ -677,9 +602,6 @@
             }
         }
 
-        // =========================================================
-        // 侧边栏事件
-        // =========================================================
         function bindSidebarEvents() {
             document.querySelectorAll('.sidebar .menu-group .group-title').forEach(el => {
                 el.removeEventListener('click', toggleMenu);
@@ -762,71 +684,6 @@
             });
         });
 
-        // =========================================================
-        // TOC
-        // =========================================================
-        function generateTOC() {
-            const tocList = document.getElementById('tocList');
-            const tocWrapper = document.getElementById('tocWrapper');
-            tocList.innerHTML = '';
-
-            const contentArea = document.querySelector('.content-area .page-content');
-            if (!contentArea) {
-                tocWrapper.classList.add('empty');
-                return;
-            }
-
-            const headings = contentArea.querySelectorAll('h2');
-            if (headings.length === 0) {
-                tocWrapper.classList.add('empty');
-                return;
-            }
-
-            tocWrapper.classList.remove('empty');
-
-            headings.forEach((h2, index) => {
-                if (!h2.id) {
-                    h2.id = 'toc-' + index;
-                }
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = '#' + h2.id;
-                a.textContent = h2.textContent;
-                a.dataset.target = h2.id;
-                li.appendChild(a);
-                tocList.appendChild(li);
-            });
-
-            tocList.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.dataset.target;
-                    const targetEl = document.getElementById(targetId);
-                    if (targetEl) {
-                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        tocList.querySelectorAll('a').forEach(a => a.classList.remove('active-toc'));
-                        this.classList.add('active-toc');
-                    }
-                });
-            });
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const id = entry.target.id;
-                        tocList.querySelectorAll('a').forEach(a => {
-                            a.classList.toggle('active-toc', a.dataset.target === id);
-                        });
-                    }
-                });
-            }, { threshold: 0.3 });
-
-            headings.forEach(h2 => observer.observe(h2));
-        }
-
-        // =========================================================
-        // 初始化
-        // =========================================================
         async function init() {
             await loadSidebar();
             await loadContent('home', 'home');
