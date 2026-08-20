@@ -45,7 +45,6 @@
             height: 56px;
             background: #000000;
             flex-shrink: 0;
-            gap: 0;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -59,39 +58,6 @@
             white-space: nowrap;
             letter-spacing: 0.5px;
             font-style: italic;
-        }
-        .top-nav .nav-item {
-            padding: 0 20px;
-            height: 56px;
-            font-size: 14px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.7);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            background: transparent;
-            position: relative;
-            display: flex;
-            align-items: center;
-            letter-spacing: 0.3px;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-        }
-        .top-nav .nav-item:hover {
-            color: #ffffff;
-        }
-        .top-nav .nav-item.active {
-            color: #ffffff;
-        }
-        .top-nav .nav-item.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 3px;
-            background: #3a84ff;
-            border-radius: 2px 2px 0 0;
         }
 
         .app {
@@ -123,22 +89,23 @@
             max-height: calc(100vh - 56px);
             align-self: flex-start;
         }
-        .sidebar .sidebar-category {
-            font-size: 14px;
-            font-weight: 600;
+        .sidebar .sidebar-title {
+            font-size: 16px;
+            font-weight: 700;
             color: #1e2a3a;
             padding: 8px 12px 12px 12px;
-            border-bottom: 1px solid #e9edf4;
-            margin-bottom: 8px;
+            border-bottom: 2px solid #3a84ff;
+            margin-bottom: 12px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         .sidebar .menu-group {
             margin-bottom: 2px;
         }
         .sidebar .menu-group .group-title {
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             color: #1e2a3a;
-            padding: 6px 12px 4px 12px;
+            padding: 8px 12px 4px 12px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
@@ -188,23 +155,6 @@
             color: #3a84ff;
             font-weight: 500;
             border-left-color: #3a84ff;
-        }
-        .sidebar .sub-faq {
-            margin-top: 2px;
-        }
-        .sidebar .sub-faq .group-title {
-            padding-left: 28px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #4a5a6e;
-        }
-        .sidebar .sub-faq .group-title:hover {
-            background: #eef3fe;
-            color: #3a84ff;
-        }
-        .sidebar .sub-faq .sub-items a {
-            padding-left: 44px;
-            font-size: 13px;
         }
 
         .content-wrapper {
@@ -511,11 +461,6 @@
                 margin-right: 16px;
                 font-size: 14px;
             }
-            .top-nav .nav-item {
-                padding: 0 12px;
-                height: 40px;
-                font-size: 13px;
-            }
             .sidebar {
                 width: 200px;
                 padding: 8px 4px;
@@ -542,12 +487,6 @@
 
     <header class="top-nav">
         <div class="logo">支援未来</div>
-        <button class="nav-item active" data-tab="home">首页</button>
-        <button class="nav-item" data-tab="zhunru">准入</button>
-        <button class="nav-item" data-tab="caigou">采购</button>
-        <button class="nav-item" data-tab="xiaoshou">销售</button>
-        <button class="nav-item" data-tab="caiwu">财务</button>
-        <button class="nav-item" data-tab="qita">其他</button>
     </header>
 
     <div class="app">
@@ -848,8 +787,6 @@
         }
 
         function switchTab(tab) {
-            document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
-            document.querySelector(`.top-nav .nav-item[data-tab="${tab}"]`)?.classList.add('active');
             document.querySelectorAll('.sidebar-group').forEach(g => {
                 g.classList.toggle('active', g.dataset.group === tab);
             });
@@ -919,22 +856,6 @@
             document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
             link.classList.add('active');
 
-            document.querySelectorAll('.top-nav .nav-item').forEach(n => n.classList.remove('active'));
-            const navMap = {
-                'home': '首页',
-                'zhunru': '准入',
-                'caigou': '采购',
-                'xiaoshou': '销售',
-                'caiwu': '财务',
-                'qita': '其他'
-            };
-            const navText = navMap[tab];
-            document.querySelectorAll('.top-nav .nav-item').forEach(n => {
-                if (n.textContent.trim() === navText) {
-                    n.classList.add('active');
-                }
-            });
-
             document.querySelectorAll('.sidebar-group').forEach(g => {
                 g.classList.toggle('active', g.dataset.group === tab);
             });
@@ -948,12 +869,9 @@
             });
         }
 
-        document.querySelectorAll('.top-nav .nav-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const tab = this.dataset.tab;
-                if (!tab) return;
-                switchTab(tab);
-            });
+        // 点击顶部logo返回首页
+        document.querySelector('.top-nav .logo').addEventListener('click', function() {
+            switchTab('home');
         });
 
         // =========================================================
