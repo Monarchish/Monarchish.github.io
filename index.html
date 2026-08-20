@@ -407,6 +407,7 @@
         .toc-parent .toc-label {
             font-weight: 600;
             color: #1e2a3a;
+            font-size: 13px;
         }
         .toc-children {
             list-style: none;
@@ -420,13 +421,24 @@
             max-height: 500px;
         }
         .toc-children a {
-            font-size: 12px;
-            color: #8a9aa8;
+            font-size: 13px;
+            color: #4a5a6e;
             padding-left: 4px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.1s;
+            border-left: 2px solid transparent;
         }
         .toc-children a:hover {
             background: #eef3fe;
             color: #3a84ff;
+        }
+        .toc-children a.active-toc {
+            background: #eef3fe;
+            color: #3a84ff;
+            border-left-color: #3a84ff;
+            font-weight: 500;
         }
         .toc-wrapper.empty {
             display: none;
@@ -639,7 +651,6 @@
                                 if (arrow) {
                                     const isOpen = children.classList.contains('open');
                                     arrow.textContent = isOpen ? '▶' : '▼';
-                                    arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
                                 }
                                 children.classList.toggle('open');
                             }
@@ -669,6 +680,17 @@
                     const a = document.createElement('a');
                     a.href = '#' + id;
                     a.textContent = text;
+                    a.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href').substring(1);
+                        const targetEl = document.getElementById(targetId);
+                        if (targetEl) {
+                            const navHeight = 56;
+                            const rect = targetEl.getBoundingClientRect();
+                            const scrollTop = window.pageYOffset + rect.top - navHeight;
+                            window.scrollTo({ top: scrollTop, behavior: 'smooth' });
+                        }
+                    });
                     li.appendChild(a);
                     tocList.appendChild(li);
                     faqContainer = null;
@@ -676,6 +698,17 @@
                     const a = document.createElement('a');
                     a.href = '#' + id;
                     a.textContent = text;
+                    a.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href').substring(1);
+                        const targetEl = document.getElementById(targetId);
+                        if (targetEl) {
+                            const navHeight = 56;
+                            const rect = targetEl.getBoundingClientRect();
+                            const scrollTop = window.pageYOffset + rect.top - navHeight;
+                            window.scrollTo({ top: scrollTop, behavior: 'smooth' });
+                        }
+                    });
                     const childLi = document.createElement('li');
                     childLi.appendChild(a);
                     const childUl = faqContainer.querySelector('.toc-children');
