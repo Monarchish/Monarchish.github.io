@@ -1,0 +1,24 @@
+<!-- ====== 右侧 TOC（本页指引） ====== -->
+<div class="toc-wrapper visible">
+    <div class="toc-title">📋 本页指引</div>
+    <ul class="toc-list">
+
+        <!-- 每个菜单项：href 指向页面内的锚点 id -->
+        <li><a href="#步骤1" onclick="scrollToAnchor('步骤1')">○ 步骤一</a></li>
+        <li><a href="#步骤2" onclick="scrollToAnchor('步骤2')">○ 步骤二</a></li>
+        <li><a href="#步骤3" onclick="scrollToAnchor('步骤3')">○ 步骤三</a></li>
+
+        <!-- 带子菜单的折叠项（类似 FAQ） -->
+        <li>
+            <div class="toc-parent" onclick="toggleTocMenu(this)">
+                <span>▶ 常见问题</span>
+            </div>
+            <ul class="toc-children">
+                <li><a href="#faq1" onclick="scrollToAnchor('faq1')">○ 问题一</a></li>
+                <li><a href="#faq2" onclick="scrollToAnchor('faq2')">○ 问题二</a></li>
+                <li><a href="#faq3" onclick="scrollToAnchor('faq3')">○ 问题三</a></li>
+            </ul>
+        </li>
+
+    </ul>
+</div>
