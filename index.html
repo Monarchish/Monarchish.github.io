@@ -38,7 +38,6 @@
             text-decoration: underline;
         }
 
-        /* ===== 顶部导航 ===== */
         .top-nav {
             display: flex;
             align-items: center;
@@ -95,7 +94,6 @@
             border-radius: 2px 2px 0 0;
         }
 
-        /* ===== 主内容容器 ===== */
         .app {
             display: flex;
             flex-direction: column;
@@ -113,7 +111,6 @@
             align-items: flex-start;
         }
 
-        /* ===== 侧边栏 ===== */
         .sidebar {
             width: 260px;
             flex-shrink: 0;
@@ -210,7 +207,6 @@
             font-size: 13px;
         }
 
-        /* ===== 内容区 ===== */
         .content-wrapper {
             flex: 1;
             display: flex;
@@ -344,7 +340,6 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
-        /* ===== 右侧 TOC 区域 ===== */
         .toc-wrapper {
             width: 200px;
             flex-shrink: 0;
@@ -355,6 +350,7 @@
             top: 56px;
             max-height: calc(100vh - 56px);
             overflow-y: auto;
+            overflow-x: hidden;
             align-self: flex-start;
             display: block;
         }
@@ -398,23 +394,34 @@
         .toc-wrapper .toc-parent {
             cursor: pointer;
             user-select: none;
+            display: flex;
+            align-items: center;
+            padding: 4px 0;
         }
-        .toc-wrapper .toc-parent span {
-            display: block;
-            padding: 4px 8px;
+        .toc-wrapper .toc-parent .toc-arrow {
+            font-size: 10px;
+            color: #8a9aa8;
+            margin-right: 4px;
+        }
+        .toc-wrapper .toc-parent .toc-label {
             font-weight: 600;
             color: #1e2a3a;
         }
         .toc-wrapper .toc-children {
             list-style: none;
-            padding-left: 8px;
+            padding-left: 16px;
             margin: 0;
-            display: none;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.3s ease;
+        }
+        .toc-wrapper .toc-children.open {
+            max-height: 500px;
         }
         .toc-wrapper .toc-children a {
-            padding-left: 16px;
             font-size: 12px;
             color: #8a9aa8;
+            padding-left: 4px;
         }
         .toc-wrapper .toc-children a:hover {
             background: #eef3fe;
@@ -546,7 +553,7 @@
 
     <script>
         // =========================================================
-        // 页面名称映射（用于面包屑显示）
+        // 页面名称映射
         // =========================================================
         const pageNameMap = {
             '1.1.1.邮件审批': '邮件审批',
@@ -616,11 +623,11 @@
             const parent = e.currentTarget;
             const children = parent.nextElementSibling;
             if (children && children.classList.contains('toc-children')) {
-                const isOpen = children.style.display !== 'none';
-                children.style.display = isOpen ? 'none' : 'block';
-                const span = parent.querySelector('span');
-                if (span) {
-                    span.textContent = isOpen ? '▶ ' + span.textContent.replace(/^[▼▶]\s*/, '') : '▼ ' + span.textContent.replace(/^[▼▶]\s*/, '');
+                children.classList.toggle('open');
+                const arrow = parent.querySelector('.toc-arrow');
+                if (arrow) {
+                    const isOpen = children.classList.contains('open');
+                    arrow.textContent = isOpen ? '▼' : '▶';
                 }
             }
         }
@@ -654,7 +661,7 @@
         }
 
         // =========================================================
-        // 内容加载（支持 include 语法）
+        // 内容加载
         // =========================================================
         async function loadContent(tab, pageId) {
             const loader = document.getElementById('contentLoader');
@@ -729,6 +736,8 @@
                 `;
                 document.getElementById('contentArea').scrollTop = 0;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                // 加载 TOC
+                await loadTOC();
             } catch (e) {
                 console.error('内容加载失败:', e);
                 loader.innerHTML = `<p>内容加载失败，请刷新重试。</p>`;
@@ -878,7 +887,6 @@
         async function init() {
             await loadSidebar();
             await loadContent('home', 'home');
-            await loadTOC();
         }
 
         document.addEventListener('DOMContentLoaded', init);
