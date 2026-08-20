@@ -38,6 +38,7 @@
             text-decoration: underline;
         }
 
+        /* ===== 顶部导航 ===== */
         .top-nav {
             display: flex;
             align-items: center;
@@ -94,6 +95,7 @@
             border-radius: 2px 2px 0 0;
         }
 
+        /* ===== 主内容容器 ===== */
         .app {
             display: flex;
             flex-direction: column;
@@ -111,6 +113,7 @@
             align-items: flex-start;
         }
 
+        /* ===== 侧边栏 ===== */
         .sidebar {
             width: 260px;
             flex-shrink: 0;
@@ -207,6 +210,7 @@
             font-size: 13px;
         }
 
+        /* ===== 内容区 ===== */
         .content-wrapper {
             flex: 1;
             display: flex;
@@ -340,6 +344,86 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
+        /* ===== 右侧 TOC 区域 ===== */
+        .toc-wrapper {
+            width: 200px;
+            flex-shrink: 0;
+            padding: 28px 16px 30px 16px;
+            background: #fafbfc;
+            border-left: 1px solid #e9edf4;
+            position: sticky;
+            top: 56px;
+            max-height: calc(100vh - 56px);
+            overflow-y: auto;
+            align-self: flex-start;
+            display: block;
+        }
+        .toc-wrapper .toc-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e2a3a;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9edf4;
+            margin-bottom: 10px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .toc-wrapper .toc-list {
+            list-style: none;
+            padding: 0;
+        }
+        .toc-wrapper .toc-list li {
+            margin-bottom: 4px;
+        }
+        .toc-wrapper .toc-list a {
+            display: block;
+            padding: 4px 8px;
+            font-size: 13px;
+            color: #4a5a6e;
+            border-radius: 4px;
+            transition: all 0.1s;
+            border-left: 2px solid transparent;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            cursor: pointer;
+        }
+        .toc-wrapper .toc-list a:hover {
+            background: #eef3fe;
+            color: #3a84ff;
+        }
+        .toc-wrapper .toc-list a.active-toc {
+            background: #eef3fe;
+            color: #3a84ff;
+            border-left-color: #3a84ff;
+            font-weight: 500;
+        }
+        .toc-wrapper .toc-parent {
+            cursor: pointer;
+            user-select: none;
+        }
+        .toc-wrapper .toc-parent span {
+            display: block;
+            padding: 4px 8px;
+            font-weight: 600;
+            color: #1e2a3a;
+        }
+        .toc-wrapper .toc-children {
+            list-style: none;
+            padding-left: 8px;
+            margin: 0;
+            display: none;
+        }
+        .toc-wrapper .toc-children a {
+            padding-left: 16px;
+            font-size: 12px;
+            color: #8a9aa8;
+        }
+        .toc-wrapper .toc-children a:hover {
+            background: #eef3fe;
+            color: #3a84ff;
+        }
+        .toc-wrapper.empty {
+            display: none;
+        }
+
         .page-block {
             display: none;
         }
@@ -428,6 +512,9 @@
             .content-wrapper {
                 flex-direction: column;
             }
+            .toc-wrapper {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -450,6 +537,9 @@
                 <main class="content-area" id="contentArea">
                     <div id="contentLoader">加载中...</div>
                 </main>
+                <aside class="toc-wrapper" id="tocWrapper">
+                    <div id="tocLoader">加载中...</div>
+                </aside>
             </div>
         </div>
     </div>
@@ -468,11 +558,12 @@
             '1.2.4.1.跟踪MDG流程': '跟踪MDG流程',
             '1.2.4.2.连接不是专用连接': '连接不是专用连接',
             '1.2.4.3.营业执照无法上传': '营业执照无法上传',
-            '1.2.4.4.用户无权限': '用户无权限'
+            '1.2.4.4.用户无权限': '用户无权限',
+            '3.1.让步单': '让步单'
         };
 
         // =========================================================
-        // 关键词列表（已修复组合键）
+        // 关键词列表
         // =========================================================
         const keywords = ['Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
             'Filter', 'Ctrl + C', 'Ctrl + V', 'Ctrl + D', 'Ctrl + F',
@@ -495,6 +586,61 @@
         let currentTab = 'home';
         let currentPageId = 'home';
 
+        // =========================================================
+        // 加载右侧 TOC
+        // =========================================================
+        async function loadTOC() {
+            try {
+                const resp = await fetch('toc.html');
+                const html = await resp.text();
+                document.getElementById('tocLoader').innerHTML = html;
+                bindTOCEvents();
+            } catch (e) {
+                console.warn('TOC 加载失败', e);
+                document.getElementById('tocLoader').innerHTML = '';
+            }
+        }
+
+        function bindTOCEvents() {
+            document.querySelectorAll('.toc-parent').forEach(el => {
+                el.removeEventListener('click', toggleTocMenu);
+                el.addEventListener('click', toggleTocMenu);
+            });
+            document.querySelectorAll('.toc-list a[href^="#"]').forEach(link => {
+                link.removeEventListener('click', scrollToAnchor);
+                link.addEventListener('click', scrollToAnchor);
+            });
+        }
+
+        function toggleTocMenu(e) {
+            const parent = e.currentTarget;
+            const children = parent.nextElementSibling;
+            if (children && children.classList.contains('toc-children')) {
+                const isOpen = children.style.display !== 'none';
+                children.style.display = isOpen ? 'none' : 'block';
+                const span = parent.querySelector('span');
+                if (span) {
+                    span.textContent = isOpen ? '▶ ' + span.textContent.replace(/^[▼▶]\s*/, '') : '▼ ' + span.textContent.replace(/^[▼▶]\s*/, '');
+                }
+            }
+        }
+
+        function scrollToAnchor(e) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
+            if (!href || !href.startsWith('#')) return;
+            const targetId = href.substring(1);
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.querySelectorAll('.toc-list a[href^="#"]').forEach(a => a.classList.remove('active-toc'));
+                this.classList.add('active-toc');
+            }
+        }
+
+        // =========================================================
+        // 侧边栏加载
+        // =========================================================
         async function loadSidebar() {
             try {
                 const resp = await fetch('sidebar.html');
@@ -507,6 +653,9 @@
             }
         }
 
+        // =========================================================
+        // 内容加载（支持 include 语法）
+        // =========================================================
         async function loadContent(tab, pageId) {
             const loader = document.getElementById('contentLoader');
 
@@ -533,7 +682,28 @@
                     loader.innerHTML = `<p>页面加载失败，请刷新重试。</p>`;
                     return;
                 }
-                const mdText = await resp.text();
+                let mdText = await resp.text();
+
+                // 处理 include 语法
+                const includeRegex = /<!--\s*include:\s*([^\s]+\.md)\s*-->/g;
+                let match;
+                while ((match = includeRegex.exec(mdText)) !== null) {
+                    const includeFile = match[1];
+                    const basePath = filePath.substring(0, filePath.lastIndexOf('/') + 1);
+                    const includePath = basePath + includeFile;
+                    try {
+                        const includeResp = await fetch(includePath);
+                        if (includeResp.ok) {
+                            const includeContent = await includeResp.text();
+                            mdText = mdText.replace(match[0], includeContent);
+                        } else {
+                            mdText = mdText.replace(match[0], `*（无法加载：${includeFile}）*`);
+                        }
+                    } catch (e) {
+                        mdText = mdText.replace(match[0], `*（加载失败：${includeFile}）*`);
+                    }
+                }
+
                 const mdTextWithoutTitle = mdText.replace(/^#\s+.+\n/, '');
                 let htmlContent = marked.parse(mdTextWithoutTitle);
                 htmlContent = wrapKeywordsInHtml(htmlContent);
@@ -554,7 +724,7 @@
                         <div class="page-content markdown-body">
                             ${htmlContent}
                         </div>
-                        <div class="footer-meta">最近更新：2026-08-19</div>
+                        <div class="footer-meta">最近更新：2026-08-20</div>
                     </div>
                 `;
                 document.getElementById('contentArea').scrollTop = 0;
@@ -702,9 +872,13 @@
             });
         });
 
+        // =========================================================
+        // 初始化
+        // =========================================================
         async function init() {
             await loadSidebar();
             await loadContent('home', 'home');
+            await loadTOC();
         }
 
         document.addEventListener('DOMContentLoaded', init);
