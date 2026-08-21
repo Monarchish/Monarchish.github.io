@@ -1,6 +1,8 @@
 // =========================================================
-// 文件清单（硬编码）
-// 格式：{ folder: "相对路径（不含二、支援未来/）", file: "文件名不含扩展名" }
+// 文件清单
+// folder: 相对于 二、支援未来/ 的路径
+// file: 文件名（不含 .md）
+// displayName: 仅作为 fallback，实际显示从 .md 的 # 标题读取
 // =========================================================
 const sidebarManifest = [
     // ===== 01、准入 =====
@@ -55,9 +57,6 @@ const keywords = ['Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
 
 let currentPageId = 'home';
 
-// =========================================================
-// 工具函数：包裹关键词
-// =========================================================
 function wrapKeywordsInHtml(html) {
     let result = html;
     const sorted = [...keywords].sort((a, b) => b.length - a.length);
@@ -200,24 +199,29 @@ function generateTOCFromContent() {
 // =========================================================
 async function loadSidebar() {
     const sidebar = document.getElementById('sidebar');
-    let html = '<div class="sidebar-title">📂 导航</div>';
+    let html = '<div class="sidebar-title">导航</div>';
 
+    // 按一级分类分组
     const groups = {};
     for (const item of sidebarManifest) {
-        if (!groups[item.folder]) groups[item.folder] = [];
-        groups[item.folder].push(item);
+        const firstLevel = item.folder.split('/')[0];
+        if (!groups[firstLevel]) groups[firstLevel] = [];
+        groups[firstLevel].push(item);
     }
 
-    for (const [folder, items] of Object.entries(groups)) {
-        // 提取分类显示名：取第一级（如 "01、准入"）
-        const firstLevel = folder.split('/')[0];
+    // 按数字顺序排序一级分类
+    const sortedFirstLevel = Object.keys(groups).sort();
+
+    for (const firstLevel of sortedFirstLevel) {
         const displayName = firstLevel.replace(/^\d+、/, '');
         html += `<div class="menu-group">`;
         html += `<div class="group-title" onclick="toggleMenu(this)">${displayName} <span class="arrow">▶</span></div>`;
         html += `<div class="sub-items">`;
 
+        const items = groups[firstLevel];
         for (const item of items) {
-            const title = await getTitleFromMd(folder, item.file);
+            // 从 .md 文件读取标题
+            const title = await getTitleFromMd(item.folder, item.file);
             html += `<a data-page="${item.file}">${title}</a>`;
         }
 
@@ -265,14 +269,6 @@ function handleMenuItemClick(e) {
     document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
     link.classList.add('active');
 
-    // 根据 pageId 前缀推断分类
-    let folder = '';
-    if (pageId.startsWith('01.')) folder = '01、准入';
-    else if (pageId.startsWith('02.')) folder = '02、采购';
-    else if (pageId.startsWith('03.')) folder = '03、销售';
-    else if (pageId.startsWith('04.')) folder = '04、财务';
-    else if (pageId.startsWith('05.')) folder = '05、其他';
-
     // 在 manifest 中查找完整路径
     let fullFolder = '';
     for (const item of sidebarManifest) {
@@ -282,7 +278,7 @@ function handleMenuItemClick(e) {
         }
     }
 
-    loadContent(folder, pageId, fullFolder);
+    loadContent(fullFolder, pageId);
 }
 
 function highlightSidebarItem(pageId) {
@@ -294,7 +290,7 @@ function highlightSidebarItem(pageId) {
 // =========================================================
 // 内容加载
 // =========================================================
-async function loadContent(tab, pageId, fullFolder) {
+async function loadContent(fullFolder, pageId) {
     const loader = document.getElementById('contentLoader');
 
     let filePath;
@@ -344,7 +340,8 @@ async function loadContent(tab, pageId, fullFolder) {
         if (pageId === 'home') {
             breadcrumb = ' > 首页';
         } else {
-            const folderDisplay = fullFolder.replace(/^\d+、/, '').replace(/\//g, ' > ');
+            const parts = fullFolder.split('/');
+            const folderDisplay = parts.map(p => p.replace(/^\d+、/, '')).join(' > ');
             breadcrumb = ` > ${folderDisplay} > ${pageTitle}`;
         }
 
@@ -379,7 +376,7 @@ async function loadContent(tab, pageId, fullFolder) {
 function switchToHome() {
     currentPageId = 'home';
     document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
-    loadContent('home', 'home', '');
+    loadContent('', 'home');
 }
 
 // =========================================================
@@ -399,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // =========================================================
 async function init() {
     await loadSidebar();
-    await loadContent('home', 'home', '');
+    await loadContent('', 'home');
 }
 
 window.init = init;
