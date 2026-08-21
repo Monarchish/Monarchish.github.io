@@ -1,0 +1,464 @@
+/* ===== 全局重置 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html {
+    scroll-behavior: smooth;
+}
+body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #f5f7fa;
+    color: #1a1a1a;
+    line-height: 1.6;
+}
+a {
+    text-decoration: none;
+    color: #3a84ff;
+    cursor: pointer;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* ===== 顶部导航 ===== */
+.top-nav {
+    display: flex;
+    align-items: center;
+    padding: 0 60px;
+    height: 56px;
+    background: #000000;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+}
+.top-nav .logo {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-right: 48px;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    font-style: italic;
+    cursor: pointer;
+}
+
+/* ===== 主容器 ===== */
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 56px);
+    max-width: 1440px;
+    margin: 0 auto;
+    background: #ffffff;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+}
+.main-body {
+    display: flex;
+    flex: 1;
+    position: relative;
+    align-items: flex-start;
+}
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: #fafbfc;
+    border-right: 1px solid #e9edf4;
+    padding: 16px 8px 30px 8px;
+    overflow-y: auto;
+    position: sticky;
+    top: 56px;
+    max-height: calc(100vh - 56px);
+    align-self: flex-start;
+}
+.sidebar .sidebar-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e2a3a;
+    padding: 8px 12px 12px 12px;
+    border-bottom: 2px solid #3a84ff;
+    margin-bottom: 12px;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.sidebar .menu-group {
+    margin-bottom: 2px;
+}
+.sidebar .menu-group .group-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e2a3a;
+    padding: 8px 12px 4px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    transition: background 0.1s;
+    user-select: none;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.sidebar .menu-group .group-title:hover {
+    background: #f0f4fe;
+}
+.sidebar .menu-group .group-title .arrow {
+    font-size: 10px;
+    color: #8a9aa8;
+    transition: transform 0.2s;
+}
+.sidebar .menu-group .group-title .arrow.open {
+    transform: rotate(90deg);
+}
+.sidebar .menu-group .sub-items {
+    padding-left: 4px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.25s ease;
+}
+.sidebar .menu-group .sub-items.open {
+    max-height: 1200px;
+}
+.sidebar .menu-group .sub-items a {
+    display: block;
+    padding: 4px 12px 4px 28px;
+    font-size: 13px;
+    color: #4a5a6e;
+    border-radius: 4px;
+    transition: all 0.1s;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.sidebar .menu-group .sub-items a:hover {
+    background: #eef3fe;
+    color: #3a84ff;
+}
+.sidebar .menu-group .sub-items a.active {
+    background: #eef3fe;
+    color: #3a84ff;
+    font-weight: 500;
+    border-left-color: #3a84ff;
+}
+
+/* ===== 内容区 ===== */
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    min-height: 600px;
+    min-width: 0;
+    justify-content: center;
+}
+.content-area {
+    flex: 0 1 900px;
+    padding: 28px 40px 50px 40px;
+    background: #ffffff;
+    min-width: 0;
+    width: 100%;
+}
+.content-area .breadcrumb {
+    font-size: 13px;
+    color: #8a9aa8;
+    margin-bottom: 12px;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.content-area .breadcrumb a {
+    color: #3a84ff;
+    text-decoration: none;
+}
+.content-area .breadcrumb a:hover {
+    text-decoration: underline;
+}
+.content-area .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eef2f6;
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.content-area .page-header h1 {
+    font-size: 22pt;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.6;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    margin: 0;
+}
+.content-area .page-header .edit-btn {
+    background: #f0f4fe;
+    color: #3a84ff;
+    border: none;
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.content-area .page-header .edit-btn:hover {
+    background: #dce6fa;
+}
+.content-area .page-content h1 {
+    display: none;
+}
+.content-area .page-content h2 {
+    font-size: 16pt;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.5;
+    margin: 28px 0 12px 0;
+    padding-top: 8px;
+    border-bottom: 1px solid #f0f2f5;
+    padding-bottom: 6px;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.content-area .page-content h3 {
+    font-size: 13pt;
+    font-weight: 600;
+    color: #2c2c2c;
+    line-height: 1.5;
+    margin: 18px 0 8px 0;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.content-area .page-content h4 {
+    font-size: 11.5pt;
+    font-weight: 600;
+    color: #333333;
+    line-height: 1.5;
+    margin: 14px 0 6px 0;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.content-area .page-content p {
+    margin-bottom: 12px;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+}
+.content-area .page-content ul {
+    padding-left: 22px;
+    margin-bottom: 12px;
+}
+.content-area .page-content li {
+    margin-bottom: 5px;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+}
+.content-area .page-content ol {
+    padding-left: 22px;
+    margin-bottom: 12px;
+}
+.content-area .page-content ol li {
+    margin-bottom: 5px;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+}
+.content-area .footer-meta {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid #eef2f6;
+    font-size: 13px;
+    color: #8a9aa8;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* ===== TOC ===== */
+.toc-wrapper {
+    width: 200px;
+    flex-shrink: 0;
+    padding: 28px 16px 30px 16px;
+    background: #fafbfc;
+    border-left: 1px solid #e9edf4;
+    position: sticky;
+    top: 56px;
+    max-height: calc(100vh - 56px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    align-self: flex-start;
+    display: block;
+}
+.toc-wrapper .toc-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e2a3a;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9edf4;
+    margin-bottom: 10px;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.toc-wrapper .toc-list {
+    list-style: none;
+    padding: 0;
+}
+.toc-wrapper .toc-list li {
+    margin-bottom: 4px;
+}
+.toc-wrapper .toc-list a {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #4a5a6e;
+    border-radius: 4px;
+    transition: all 0.1s;
+    border-left: 2px solid transparent;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    cursor: pointer;
+}
+.toc-wrapper .toc-list a:hover {
+    background: #eef3fe;
+    color: #3a84ff;
+}
+.toc-wrapper .toc-list a.active-toc {
+    background: #eef3fe;
+    color: #3a84ff;
+    border-left-color: #3a84ff;
+    font-weight: 500;
+}
+.toc-parent {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+}
+.toc-parent .toc-arrow {
+    font-size: 10px;
+    color: #8a9aa8;
+    margin-right: 4px;
+    transition: transform 0.2s;
+}
+.toc-parent .toc-label {
+    font-weight: 600;
+    color: #1e2a3a;
+    font-size: 13px;
+}
+.toc-children {
+    list-style: none;
+    padding-left: 16px;
+    margin: 0;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+}
+.toc-children.open {
+    max-height: 500px;
+}
+.toc-children a {
+    font-size: 13px;
+    color: #4a5a6e;
+    padding-left: 4px;
+    display: block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.1s;
+    border-left: 2px solid transparent;
+}
+.toc-children a:hover {
+    background: #eef3fe;
+    color: #3a84ff;
+}
+.toc-children a.active-toc {
+    background: #eef3fe;
+    color: #3a84ff;
+    border-left-color: #3a84ff;
+    font-weight: 500;
+}
+.toc-wrapper.empty {
+    display: none;
+}
+
+/* ===== 页面显示 ===== */
+.page-block {
+    display: none;
+}
+.page-block.active {
+    display: block;
+}
+
+/* ===== Markdown 内容 ===== */
+.markdown-body table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+.markdown-body table th,
+.markdown-body table td {
+    border: 1px solid #e9edf4;
+    padding: 8px 14px;
+    text-align: left;
+    font-size: 11pt;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.markdown-body table th {
+    background: #f5f7fa;
+    font-weight: 600;
+}
+.markdown-body blockquote {
+    border-left: 4px solid #3a84ff;
+    padding: 12px 20px;
+    margin: 16px 0;
+    background: #f5f8fe;
+    border-radius: 4px;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.markdown-body pre {
+    background: #f5f7fa;
+    padding: 16px 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+/* ===== 操作关键词 ===== */
+.action-keyword {
+    background: #F2F2F2 !important;
+    color: #333333 !important;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
+    font-size: 0.9em !important;
+    border-radius: 3px !important;
+    padding: 1px 8px !important;
+    font-weight: 900 !important;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+    .top-nav {
+        padding: 0 12px;
+        flex-wrap: wrap;
+        height: auto;
+        gap: 2px;
+    }
+    .top-nav .logo {
+        margin-right: 16px;
+        font-size: 14px;
+    }
+    .sidebar {
+        width: 200px;
+        padding: 8px 4px;
+        max-height: none;
+        position: relative;
+        top: 0;
+    }
+    .content-area {
+        padding: 16px 14px 30px 14px;
+    }
+    .main-body {
+        flex-direction: column;
+    }
+    .content-wrapper {
+        flex-direction: column;
+    }
+    .toc-wrapper {
+        display: none !important;
+    }
+}
