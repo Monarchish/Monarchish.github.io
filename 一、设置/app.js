@@ -1,32 +1,46 @@
 // =========================================================
 // 文件清单（硬编码）
-// 格式：{ folder: "文件夹名", file: "文件名不含扩展名" }
+// 格式：{ folder: "相对路径（不含二、支援未来/）", file: "文件名不含扩展名" }
 // =========================================================
 const sidebarManifest = [
-    // 1、准入
-    { folder: "1、准入", file: "1.1.准入总览" },
-    { folder: "1、准入", file: "1.2.MDG总览" },
-    // 2、采购
-    { folder: "2、采购", file: "2.1.订货总览" },
-    { folder: "2、采购", file: "2.2.宝钢期货（预）订货总览" },
-    { folder: "2、采购", file: "2.3.宝钢期货订货总览" },
-    { folder: "2、采购", file: "2.4.华菱现货订货总览" },
-    { folder: "2、采购", file: "2.5.同步总览" },
-    // 3、销售
-    { folder: "3、销售", file: "3.1.让步单总览" },
-    { folder: "3、销售", file: "3.2.插行总览" },
-    { folder: "3、销售", file: "3.3.结案总览" },
-    { folder: "3、销售", file: "3.4.自由款总览" },
-    { folder: "3、销售", file: "3.5.电子提单总览" },
-    { folder: "3、销售", file: "3.6.入库总览" },
-    { folder: "3、销售", file: "3.7.转货权总览" },
-    { folder: "3、销售", file: "3.8.质量异议总览" },
-    { folder: "3、销售", file: "3.9.销售开票总览" },
-    { folder: "3、销售", file: "3.10.采购发票总览" },
-    // 4、财务
-    { folder: "4、财务", file: "4.1.财务总览" },
-    // 5、其他
-    { folder: "5、其他", file: "5.1.其他总览" },
+    // ===== 01、准入 =====
+    { folder: "01、准入/01.01.准入", file: "01.01.00.准入" },
+    { folder: "01、准入/01.02.MDG", file: "01.02.00.MDG" },
+
+    // ===== 02、采购 =====
+    { folder: "02、采购/02.01.订货", file: "02.01.00.订货" },
+    { folder: "02、采购/02.02.宝钢期货（预）订货", file: "02.02.00.宝钢期货（预）订货" },
+    { folder: "02、采购/02.03.宝钢期货订货", file: "02.03.00.宝钢期货订货" },
+    { folder: "02、采购/02.04.华菱现货订货", file: "02.04.00.华菱现货订货" },
+    { folder: "02、采购/02.05.同步", file: "02.05.00.同步" },
+
+    // ===== 03、销售 =====
+    { folder: "03、销售/03.01.让步单", file: "03.01.00.让步单" },
+    { folder: "03、销售/03.02.插行", file: "03.02.00.插行" },
+    { folder: "03、销售/03.03.结案", file: "03.03.00.结案" },
+    { folder: "03、销售/03.04.自由款", file: "03.04.00.自由款" },
+    { folder: "03、销售/03.05.电子提单", file: "03.05.00.电子提单" },
+    { folder: "03、销售/03.06.入库", file: "03.06.00.入库" },
+    { folder: "03、销售/03.07.转货权", file: "03.07.00.转货权" },
+    { folder: "03、销售/03.08.质量异议", file: "03.08.00.质量异议" },
+    { folder: "03、销售/03.09.销售开票", file: "03.09.00.销售开票" },
+    { folder: "03、销售/03.10.采购发票", file: "03.10.00.采购发票" },
+
+    // ===== 04、财务 =====
+    { folder: "04、财务/04.01.财务需要采购合同", file: "04.01.00.财务需要采购合同" },
+    { folder: "04、财务/04.02.月末资金归集", file: "04.02.00.月末资金归集" },
+    { folder: "04、财务/04.03.月末财务余款", file: "04.03.00.月末财务余款" },
+    { folder: "04、财务/04.04.年中年末对账函", file: "04.04.00.年中年末对账函" },
+    { folder: "04、财务/04.05.退款申请", file: "04.05.00.退款申请" },
+    { folder: "04、财务/04.06.待确认成本", file: "04.06.00.待确认成本" },
+
+    // ===== 05、其他 =====
+    { folder: "05、其他/05.01.OTL操作手册编写规范", file: "05.01.00.OTL操作手册编写规范" },
+    { folder: "05、其他/05.02.用印申请", file: "05.02.00.用印申请" },
+    { folder: "05、其他/05.03.未到卷查询", file: "05.03.00.未到卷查询" },
+    { folder: "05、其他/05.04.新装C9", file: "05.04.00.新装C9" },
+    { folder: "05、其他/05.05.无法连接到Internet", file: "05.05.00.无法连接到Internet" },
+    { folder: "05、其他/05.06.宏程序", file: "05.06.00.宏程序" },
 ];
 
 // =========================================================
@@ -60,7 +74,7 @@ function wrapKeywordsInHtml(html) {
 // =========================================================
 async function getTitleFromMd(folder, pageId) {
     try {
-        const filePath = `一、支援未来/${folder}/${pageId}.md`;
+        const filePath = `二、支援未来/${folder}/${pageId}.md`;
         const resp = await fetch(filePath);
         if (!resp.ok) return pageId;
         const mdText = await resp.text();
@@ -182,7 +196,7 @@ function generateTOCFromContent() {
 }
 
 // =========================================================
-// 侧边栏加载（自动生成）
+// 侧边栏加载
 // =========================================================
 async function loadSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -195,7 +209,9 @@ async function loadSidebar() {
     }
 
     for (const [folder, items] of Object.entries(groups)) {
-        const displayName = folder.replace(/^\d+、/, '');
+        // 提取分类显示名：取第一级（如 "01、准入"）
+        const firstLevel = folder.split('/')[0];
+        const displayName = firstLevel.replace(/^\d+、/, '');
         html += `<div class="menu-group">`;
         html += `<div class="group-title" onclick="toggleMenu(this)">${displayName} <span class="arrow">▶</span></div>`;
         html += `<div class="sub-items">`;
@@ -249,14 +265,24 @@ function handleMenuItemClick(e) {
     document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
     link.classList.add('active');
 
-    let tab = 'home';
-    if (pageId.startsWith('1.')) tab = '准入';
-    else if (pageId.startsWith('2.')) tab = '采购';
-    else if (pageId.startsWith('3.')) tab = '销售';
-    else if (pageId.startsWith('4.')) tab = '财务';
-    else if (pageId.startsWith('5.')) tab = '其他';
+    // 根据 pageId 前缀推断分类
+    let folder = '';
+    if (pageId.startsWith('01.')) folder = '01、准入';
+    else if (pageId.startsWith('02.')) folder = '02、采购';
+    else if (pageId.startsWith('03.')) folder = '03、销售';
+    else if (pageId.startsWith('04.')) folder = '04、财务';
+    else if (pageId.startsWith('05.')) folder = '05、其他';
 
-    loadContent(tab, pageId);
+    // 在 manifest 中查找完整路径
+    let fullFolder = '';
+    for (const item of sidebarManifest) {
+        if (item.file === pageId) {
+            fullFolder = item.folder;
+            break;
+        }
+    }
+
+    loadContent(folder, pageId, fullFolder);
 }
 
 function highlightSidebarItem(pageId) {
@@ -268,24 +294,14 @@ function highlightSidebarItem(pageId) {
 // =========================================================
 // 内容加载
 // =========================================================
-async function loadContent(tab, pageId) {
+async function loadContent(tab, pageId, fullFolder) {
     const loader = document.getElementById('contentLoader');
-
-    let folder = '';
-    if (pageId.startsWith('1.')) folder = '1、准入';
-    else if (pageId.startsWith('2.')) folder = '2、采购';
-    else if (pageId.startsWith('3.')) folder = '3、销售';
-    else if (pageId.startsWith('4.')) folder = '4、财务';
-    else if (pageId.startsWith('5.')) folder = '5、其他';
-    else {
-        pageId = 'home';
-    }
 
     let filePath;
     if (pageId === 'home') {
-        filePath = '一、支援未来/home.md';
+        filePath = '二、支援未来/home.md';
     } else {
-        filePath = `一、支援未来/${folder}/${pageId}.md`;
+        filePath = `二、支援未来/${fullFolder}/${pageId}.md`;
     }
 
     try {
@@ -296,6 +312,7 @@ async function loadContent(tab, pageId) {
         }
         let mdText = await resp.text();
 
+        // 处理 include 语法
         const includeRegex = /<!--\s*include:\s*([^\s]+\.md)\s*-->/g;
         let match;
         while ((match = includeRegex.exec(mdText)) !== null) {
@@ -322,11 +339,20 @@ async function loadContent(tab, pageId) {
         const titleMatch = mdText.match(/^#\s+(.+)$/m);
         const pageTitle = titleMatch ? titleMatch[1] : '页面';
 
+        // 面包屑
+        let breadcrumb = '';
+        if (pageId === 'home') {
+            breadcrumb = ' > 首页';
+        } else {
+            const folderDisplay = fullFolder.replace(/^\d+、/, '').replace(/\//g, ' > ');
+            breadcrumb = ` > ${folderDisplay} > ${pageTitle}`;
+        }
+
         loader.innerHTML = `
             <div class="page-block active" id="page-${pageId}">
                 <div class="breadcrumb">
                     <a href="javascript:void(0)" onclick="switchToHome()">支援未来</a>
-                    ${getBreadcrumb(folder, pageId, pageTitle)}
+                    ${breadcrumb}
                 </div>
                 <div class="page-header">
                     <h1>${pageTitle}</h1>
@@ -350,16 +376,10 @@ async function loadContent(tab, pageId) {
     }
 }
 
-function getBreadcrumb(folder, pageId, pageTitle) {
-    if (pageId === 'home') return ' > 首页';
-    const folderDisplay = folder.replace(/^\d+、/, '');
-    return ` > ${folderDisplay} > ${pageTitle}`;
-}
-
 function switchToHome() {
     currentPageId = 'home';
     document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
-    loadContent('home', 'home');
+    loadContent('home', 'home', '');
 }
 
 // =========================================================
@@ -379,8 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // =========================================================
 async function init() {
     await loadSidebar();
-    await loadContent('home', 'home');
+    await loadContent('home', 'home', '');
 }
 
-// 暴露 init 给 HTML 调用
 window.init = init;
