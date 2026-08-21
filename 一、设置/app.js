@@ -1,52 +1,50 @@
 // =========================================================
 // 文件清单
-// folder: 相对于 二、支援未来/ 的路径
-// file: 文件名（不含 .md）
-// displayName: 仅作为 fallback，实际显示从 .md 的 # 标题读取
 // =========================================================
 const sidebarManifest = [
-    // ===== 01、准入 =====
-    { folder: "01、准入/01.01.准入", file: "01.01.00.准入" },
-    { folder: "01、准入/01.02.MDG", file: "01.02.00.MDG" },
+    // ===== 01.准入 =====
+    { folder: "01.准入/01.01.准入", file: "01.01.00.准入" },
+    { folder: "01.准入/01.02.MDG", file: "01.02.00.MDG" },
 
-    // ===== 02、采购 =====
-    { folder: "02、采购/02.01.订货", file: "02.01.00.订货" },
-    { folder: "02、采购/02.02.宝钢期货订货（预）", file: "02.02.00.宝钢期货订货（预）" },
-    { folder: "02、采购/02.03.宝钢期货订货", file: "02.03.00.宝钢期货订货" },
-    { folder: "02、采购/02.04.华菱现货订货", file: "02.04.00.华菱现货订货" },
-    { folder: "02、采购/02.05.同步", file: "02.05.00.同步" },
+    // ===== 02.采购 =====
+    { folder: "02.采购/02.01.订货", file: "02.01.00.订货" },
+    { folder: "02.采购/02.02.宝钢期货订货（预）", file: "02.02.00.宝钢期货订货（预）" },
+    { folder: "02.采购/02.03.宝钢期货订货", file: "02.03.00.宝钢期货订货" },
+    { folder: "02.采购/02.04.华菱现货订货", file: "02.04.00.华菱现货订货" },
+    { folder: "02.采购/02.05.同步", file: "02.05.00.同步" },
 
-    // ===== 03、销售 =====
-    { folder: "03、销售/03.01.让步单", file: "03.01.00.让步单" },
-    { folder: "03、销售/03.02.插行", file: "03.02.00.插行" },
-    { folder: "03、销售/03.03.结案", file: "03.03.00.结案" },
-    { folder: "03、销售/03.04.自由款", file: "03.04.00.自由款" },
-    { folder: "03、销售/03.05.电子提单", file: "03.05.00.电子提单" },
-    { folder: "03、销售/03.06.入库", file: "03.06.00.入库" },
-    { folder: "03、销售/03.07.转货权", file: "03.07.00.转货权" },
-    { folder: "03、销售/03.08.质量异议", file: "03.08.00.质量异议" },
-    { folder: "03、销售/03.09.销售开票", file: "03.09.00.销售开票" },
-    { folder: "03、销售/03.10.采购发票", file: "03.10.00.采购发票" },
+    // ===== 03.销售 =====
+    { folder: "03.销售/03.01.让步单", file: "03.01.00.让步单" },
+    { folder: "03.销售/03.02.插行", file: "03.02.00.插行" },
+    { folder: "03.销售/03.03.结案", file: "03.03.00.结案" },
+    { folder: "03.销售/03.04.自由款", file: "03.04.00.自由款" },
+    { folder: "03.销售/03.05.电子提单", file: "03.05.00.电子提单" },
+    { folder: "03.销售/03.06.入库", file: "03.06.00.入库" },
+    { folder: "03.销售/03.07.转货权", file: "03.07.00.转货权" },
+    { folder: "03.销售/03.08.质量异议", file: "03.08.00.质量异议" },
+    { folder: "03.销售/03.09.销售开票", file: "03.09.00.销售开票" },
+    { folder: "03.销售/03.10.采购发票", file: "03.10.00.采购发票" },
 
-    // ===== 04、财务 =====
-    { folder: "04、财务/04.01.财务需要采购合同", file: "04.01.00.财务需要采购合同" },
-    { folder: "04、财务/04.02.月末资金归集", file: "04.02.00.月末资金归集" },
-    { folder: "04、财务/04.03.月末财务余款", file: "04.03.00.月末财务余款" },
-    { folder: "04、财务/04.04.年中年末对账函", file: "04.04.00.年中年末对账函" },
-    { folder: "04、财务/04.05.退款申请", file: "04.05.00.退款申请" },
-    { folder: "04、财务/04.06.待确认成本", file: "04.06.00.待确认成本" },
+    // ===== 04.财务 =====
+    { folder: "04.财务/04.01.财务需要采购合同", file: "04.01.00.财务需要采购合同" },
+    { folder: "04.财务/04.02.月末资金归集", file: "04.02.00.月末资金归集" },
+    { folder: "04.财务/04.03.月末财务余款", file: "04.03.00.月末财务余款" },
+    { folder: "04.财务/04.04.年中年末对账函", file: "04.04.00.年中年末对账函" },
+    { folder: "04.财务/04.05.退款申请", file: "04.05.00.退款申请" },
+    { folder: "04.财务/04.06.待确认成本", file: "04.06.00.待确认成本" },
 
-    // ===== 05、其他 =====
-    { folder: "05、其他/05.01.OTL操作手册编写规范", file: "05.01.00.OTL操作手册编写规范" },
-    { folder: "05、其他/05.02.用印申请", file: "05.02.00.用印申请" },
-    { folder: "05、其他/05.03.未到卷查询", file: "05.03.00.未到卷查询" },
-    { folder: "05、其他/05.04.新装C9", file: "05.04.00.新装C9" },
-    { folder: "05、其他/05.05.无法连接到Internet", file: "05.05.00.无法连接到Internet" },
-    { folder: "05、其他/05.06.宏程序", file: "05.06.00.宏程序" },
+    // ===== 05.其他 =====
+    { folder: "05.其他/05.01.OTL操作手册编写规范", file: "05.01.00.OTL操作手册编写规范" },
+    { folder: "05.其他/05.02.用印申请", file: "05.02.00.用印申请" },
+    { folder: "05.其他/05.03.未到卷查询", file: "05.03.00.未到卷查询" },
+    { folder: "05.其他/05.04.新装C9", file: "05.04.00.新装C9" },
+    { folder: "05.其他/05.05.无法连接到Internet", file: "05.05.00.无法连接到Internet" },
+    { folder: "05.其他/05.06.宏程序", file: "05.06.00.宏程序" },
 ];
 
 // =========================================================
-// 关键词列表
+// 以下代码不变（关键词、TOC生成、侧边栏加载、内容加载）
+// 保持和之前版本一致
 // =========================================================
 const keywords = ['Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
     'Filter', 'Ctrl + C', 'Ctrl + V', 'Ctrl + D', 'Ctrl + F',
@@ -68,12 +66,9 @@ function wrapKeywordsInHtml(html) {
     return result;
 }
 
-// =========================================================
-// 从 .md 文件提取 # 标题
-// =========================================================
 async function getTitleFromMd(folder, pageId) {
     try {
-        const filePath = `二、支援未来/${folder}/${pageId}.md`;
+        const filePath = `二.支援未来/${folder}/${pageId}.md`;
         const resp = await fetch(filePath);
         if (!resp.ok) return pageId;
         const mdText = await resp.text();
@@ -84,9 +79,6 @@ async function getTitleFromMd(folder, pageId) {
     }
 }
 
-// =========================================================
-// 从页面内容自动生成 TOC
-// =========================================================
 function generateTOCFromContent() {
     const tocList = document.getElementById('tocList');
     const tocWrapper = document.getElementById('tocWrapper');
@@ -194,14 +186,10 @@ function generateTOCFromContent() {
     });
 }
 
-// =========================================================
-// 侧边栏加载
-// =========================================================
 async function loadSidebar() {
     const sidebar = document.getElementById('sidebar');
     let html = '<div class="sidebar-title">导航</div>';
 
-    // 按一级分类分组
     const groups = {};
     for (const item of sidebarManifest) {
         const firstLevel = item.folder.split('/')[0];
@@ -209,18 +197,16 @@ async function loadSidebar() {
         groups[firstLevel].push(item);
     }
 
-    // 按数字顺序排序一级分类
     const sortedFirstLevel = Object.keys(groups).sort();
 
     for (const firstLevel of sortedFirstLevel) {
-        const displayName = firstLevel.replace(/^\d+、/, '');
+        const displayName = firstLevel.replace(/^\d+\./, '');
         html += `<div class="menu-group">`;
         html += `<div class="group-title" onclick="toggleMenu(this)">${displayName} <span class="arrow">▶</span></div>`;
         html += `<div class="sub-items">`;
 
         const items = groups[firstLevel];
         for (const item of items) {
-            // 从 .md 文件读取标题
             const title = await getTitleFromMd(item.folder, item.file);
             html += `<a data-page="${item.file}">${title}</a>`;
         }
@@ -233,9 +219,6 @@ async function loadSidebar() {
     highlightSidebarItem(currentPageId);
 }
 
-// =========================================================
-// 侧边栏事件绑定
-// =========================================================
 function bindSidebarEvents() {
     document.querySelectorAll('.sidebar .menu-group .group-title').forEach(el => {
         el.removeEventListener('click', toggleMenu);
@@ -269,7 +252,6 @@ function handleMenuItemClick(e) {
     document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
     link.classList.add('active');
 
-    // 在 manifest 中查找完整路径
     let fullFolder = '';
     for (const item of sidebarManifest) {
         if (item.file === pageId) {
@@ -287,17 +269,14 @@ function highlightSidebarItem(pageId) {
     });
 }
 
-// =========================================================
-// 内容加载
-// =========================================================
 async function loadContent(fullFolder, pageId) {
     const loader = document.getElementById('contentLoader');
 
     let filePath;
     if (pageId === 'home') {
-        filePath = '二、支援未来/home.md';
+        filePath = '二.支援未来/home.md';
     } else {
-        filePath = `二、支援未来/${fullFolder}/${pageId}.md`;
+        filePath = `二.支援未来/${fullFolder}/${pageId}.md`;
     }
 
     try {
@@ -308,7 +287,6 @@ async function loadContent(fullFolder, pageId) {
         }
         let mdText = await resp.text();
 
-        // 处理 include 语法
         const includeRegex = /<!--\s*include:\s*([^\s]+\.md)\s*-->/g;
         let match;
         while ((match = includeRegex.exec(mdText)) !== null) {
@@ -335,13 +313,12 @@ async function loadContent(fullFolder, pageId) {
         const titleMatch = mdText.match(/^#\s+(.+)$/m);
         const pageTitle = titleMatch ? titleMatch[1] : '页面';
 
-        // 面包屑
         let breadcrumb = '';
         if (pageId === 'home') {
             breadcrumb = ' > 首页';
         } else {
             const parts = fullFolder.split('/');
-            const folderDisplay = parts.map(p => p.replace(/^\d+、/, '')).join(' > ');
+            const folderDisplay = parts.map(p => p.replace(/^\d+\./, '')).join(' > ');
             breadcrumb = ` > ${folderDisplay} > ${pageTitle}`;
         }
 
@@ -379,9 +356,6 @@ function switchToHome() {
     loadContent('', 'home');
 }
 
-// =========================================================
-// 点击顶部 logo 返回首页
-// =========================================================
 document.addEventListener('DOMContentLoaded', function() {
     const logo = document.querySelector('.top-nav .logo');
     if (logo) {
@@ -391,9 +365,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// =========================================================
-// 初始化
-// =========================================================
 async function init() {
     await loadSidebar();
     await loadContent('', 'home');
