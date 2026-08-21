@@ -43,8 +43,7 @@ const sidebarManifest = [
 ];
 
 // =========================================================
-// 以下代码不变（关键词、TOC生成、侧边栏加载、内容加载）
-// 保持和之前版本一致
+// 关键词列表
 // =========================================================
 const keywords = ['Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
     'Filter', 'Ctrl + C', 'Ctrl + V', 'Ctrl + D', 'Ctrl + F',
@@ -68,7 +67,7 @@ function wrapKeywordsInHtml(html) {
 
 async function getTitleFromMd(folder, pageId) {
     try {
-        const filePath = `二.支援未来/${folder}/${pageId}.md`;
+        const filePath = `二、支援未来/${folder}/${pageId}.md`;
         const resp = await fetch(filePath);
         if (!resp.ok) return pageId;
         const mdText = await resp.text();
@@ -274,9 +273,9 @@ async function loadContent(fullFolder, pageId) {
 
     let filePath;
     if (pageId === 'home') {
-        filePath = '二.支援未来/home.md';
+        filePath = '二、支援未来/home.md';
     } else {
-        filePath = `二.支援未来/${fullFolder}/${pageId}.md`;
+        filePath = `二、支援未来/${fullFolder}/${pageId}.md`;
     }
 
     try {
