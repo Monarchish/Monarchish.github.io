@@ -270,6 +270,7 @@ async function loadSidebar() {
     let html = `
         <div class="search-wrapper">
             <input type="text" id="menuSearch" placeholder="搜索菜单..." />
+            <div class="search-shortcut"></div>
         </div>
         <div class="sidebar-title">导航</div>
     `;
@@ -429,7 +430,7 @@ async function loadContent(fullFolder, pageId) {
             breadcrumb = ' > 首页';
         } else {
             const parts = fullFolder.split('/');
-            const folderDisplay = parts.map(p => p.replace(/^\d+\./, '')).join(' > ');
+            const folderDisplay = parts.map(p => p.replace(/^\d+\./, '').replace(/^\d+\s*/, '')).join(' > ');
             breadcrumb = ` > ${folderDisplay} > ${pageTitle}`;
         }
 
