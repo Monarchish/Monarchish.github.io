@@ -135,19 +135,76 @@ a:hover {
     font-size: 13px;
     color: #4a5a6e;
     border-radius: 4px;
-    transition: all 0.1s;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
     cursor: pointer;
     border-left: 2px solid transparent;
+    position: relative;
 }
 .sidebar .menu-group .sub-items a:hover {
     background: #f0f4fe;
     color: #0969da;
+    transform: translateX(2px);
+}
+.sidebar .menu-group .sub-items a:active {
+    transform: scale(0.97);
 }
 .sidebar .menu-group .sub-items a.active {
     background: #f0f4fe;
     color: #0969da;
     font-weight: 500;
     border-left-color: #0969da;
+}
+
+/* ===== 搜索框 ===== */
+.search-wrapper {
+    padding: 0 12px 12px 12px;
+    border-bottom: 1px solid #e9edf4;
+    margin-bottom: 12px;
+}
+.search-wrapper input {
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid #e9edf4;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #ffffff;
+    color: #1e2a3a;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.search-wrapper input::placeholder {
+    color: #8a9aa8;
+}
+.search-wrapper input:focus {
+    border-color: #0969da;
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
+}
+.search-wrapper .search-shortcut {
+    font-size: 11px;
+    color: #8a9aa8;
+    text-align: right;
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+/* ===== 加载进度条 ===== */
+#loading-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: #0969da;
+    z-index: 9999;
+    transition: width 0.3s ease;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 8px rgba(9, 105, 218, 0.4);
+    opacity: 0;
+    pointer-events: none;
+}
+#loading-bar.active {
+    opacity: 1;
 }
 
 /* ===== 内容区 ===== */
@@ -210,6 +267,19 @@ a:hover {
 }
 .content-area .page-header .edit-btn:hover {
     background: #dce6fa;
+}
+
+/* 页面切换淡入淡出 */
+.page-block {
+    display: none;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.page-block.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .content-area .page-content h1 {
@@ -367,14 +437,6 @@ a:hover {
 }
 .toc-wrapper.empty {
     display: none;
-}
-
-/* ===== 页面显示 ===== */
-.page-block {
-    display: none;
-}
-.page-block.active {
-    display: block;
 }
 
 /* ===== Markdown 内容 ===== */
