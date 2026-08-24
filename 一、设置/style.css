@@ -209,11 +209,11 @@ a:hover {
     justify-content: center;
 }
 .content-area {
-    flex: 0 0 900px;
+    width: 900px;
+    flex-shrink: 0;
     padding: 32px 48px 60px 48px;
     background: #ffffff;
-    min-width: 0;
-    width: 100%;
+    min-height: 600px;
 }
 .content-area .breadcrumb {
     font-size: 13px;
@@ -494,10 +494,10 @@ a:hover {
         top: 0;
     }
     .content-area {
-        padding: 20px 16px 40px 16px;
-        flex: 1;
-        min-width: 0;
         width: 100%;
+        flex-shrink: 1;
+        padding: 20px 16px 40px 16px;
+        min-height: auto;
     }
     .content-wrapper {
         justify-content: flex-start;
