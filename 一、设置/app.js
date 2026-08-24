@@ -270,7 +270,6 @@ async function loadSidebar() {
     let html = `
         <div class="search-wrapper">
             <input type="text" id="menuSearch" placeholder="搜索菜单..." />
-            <div class="search-shortcut">Ctrl + K</div>
         </div>
         <div class="sidebar-title">导航</div>
     `;
