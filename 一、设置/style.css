@@ -180,13 +180,6 @@ a:hover {
     border-color: #0969da;
     box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
 }
-.search-wrapper .search-shortcut {
-    font-size: 11px;
-    color: #8a9aa8;
-    text-align: right;
-    margin-top: 4px;
-    opacity: 0.7;
-}
 
 /* ===== 加载进度条 ===== */
 #loading-bar {
@@ -213,7 +206,7 @@ a:hover {
     display: flex;
     min-height: 600px;
     min-width: 0;
-    justify-content: center;
+    justify-content: flex-start;
 }
 .content-area {
     flex: 0 1 900px;
