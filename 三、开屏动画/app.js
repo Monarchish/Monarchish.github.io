@@ -1,7 +1,28 @@
-import { sceneData } from "./scene-data.js";
 import { evaluateScalar, evaluateVector, quaternionZDegrees } from "./curve-runtime.js";
 import { AudioTimeline, AUDIO_PREFERENCE_KEY } from "./audio-timeline.js";
 import { INTRO_CONFIG } from "./intro-config.js";
+
+/* ------------------------------------------------------------
+   素材 CDN 加速（大陆访客 github.io 直连很慢，见 intro-config.js）
+   所有素材地址统一走 assetUrl()：配了 CDN 就优先走 CDN，
+   加载失败自动回退到与本站同源的文件，保证永远不会白屏。
+   ------------------------------------------------------------ */
+const CDN_BASE = String(INTRO_CONFIG.assetCdnBase || "").replace(/\/*$/, "/");
+
+/** 素材相对路径 → 完整地址（中文与空格自动转码） */
+function assetUrl(url) {
+  if (!CDN_BASE) return encodeURI(url);
+  return encodeURI(CDN_BASE + url.replace(/^\.\//, ""));
+}
+
+/* scene-data.js 约 350KB，优先走 CDN，失败回退同源。
+   动态 import 是为了拿到"失败后重试"的机会。 */
+let sceneData;
+try {
+  ({ sceneData } = await import(assetUrl("scene-data.js")));
+} catch {
+  ({ sceneData } = await import("./scene-data.js"));
+}
 
 const stage = document.querySelector("#stage");
 const scaler = document.querySelector("#stage-scaler");
@@ -202,7 +223,17 @@ let playing = false;
 let startedAt = 0;
 let animationFrame = 0;
 let loop = query.get("loop") === "1";
-const audio = new AudioTimeline({ onChange: updateAudioButton });
+const audio = new AudioTimeline({
+  onChange: updateAudioButton,
+  /* 音频优先走 CDN，失败自动回退本站同源 */
+  fetchAudio: async (url) => {
+    try {
+      const response = await fetch(assetUrl(url));
+      if (response.ok) return response;
+    } catch { /* 落到下面的同源回退 */ }
+    return fetch(url);
+  },
+});
 
 function updateAudioButton() {
   audioButton.textContent = !audio.enabled ? "解除静音"
@@ -365,7 +396,7 @@ function createGraphic(node, element) {
     image.className = "unity-sprite";
     image.alt = "";
     image.draggable = false;
-    image.src = encodeURI(sprite.url);
+    image.src = assetUrl(sprite.url);
     const [textureWidth, textureHeight] = sprite.textureSize;
     const [x, y, width, height] = sprite.rect;
     image.style.width = `${(textureWidth / width) * 100}%`;
@@ -383,7 +414,20 @@ function createGraphic(node, element) {
     tint.style.maskRepeat = "no-repeat";
     imagePromises.push(
       image.decode().catch(() => {
-        console.warn(`Unable to decode ${sprite.url}`);
+        if (!CDN_BASE) {
+          console.warn(`Unable to decode ${sprite.url}`);
+          return;
+        }
+        /* CDN 加载失败 → 换回本站同源地址再试一次 */
+        return new Promise((resolve) => {
+          image.onload = () => resolve();
+          image.onerror = () => {
+            console.warn(`Unable to decode ${sprite.url}`);
+            resolve();
+          };
+          image.src = encodeURI(sprite.url);
+          tint.style.maskImage = `url("${image.src}")`;
+        });
       }),
     );
     layer.append(image);
@@ -464,7 +508,7 @@ function createNode(node, parentElement) {
   }
 
   if (node.mask?.kind === "graphic" && node.graphic?.sprite) {
-    element.style.maskImage = `url("${encodeURI(node.graphic.sprite.url)}")`;
+    element.style.maskImage = `url("${assetUrl(node.graphic.sprite.url)}")`;
     element.style.maskSize = "100% 100%";
     element.style.maskRepeat = "no-repeat";
   }
