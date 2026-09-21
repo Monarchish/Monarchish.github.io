@@ -10,8 +10,39 @@
     <link rel="preload" href="一、设置/app.js" as="script" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <link rel="stylesheet" href="一、设置/style.css" />
+    <link rel="stylesheet" href="三、开屏动画/overlay.css" />
+
+    <!-- ===================== 开屏动画 =====================
+         ① 在页面首次绘制之前就决定"这次要不要播动画"，
+            避免出现"先闪一下主页、再盖黑幕"的观感。
+         ② 要播就给 <html> 加上 intro-on 类，覆盖层由 overlay.css 显示，
+            真正的播放逻辑在 三、开屏动画/overlay.js。
+         调试开关（加在网址后面）：
+            ?intro=0   本次不播（想直接看主页时用）
+            ?intro=1   强制重播（忽略"本次会话已播过"）
+            ?debug=1   在控制台打印播放流程
+         ================================================== -->
+    <script>
+        (function () {
+            var KEY = "act54-intro-played";
+            window.__INTRO_SESSION_KEY = KEY;
+
+            var query = new URLSearchParams(location.search);
+            var force = query.get("intro");
+            if (force === "0") return;          // 明确要求不播
+
+            var played = false;
+            try { played = sessionStorage.getItem(KEY) === "1"; } catch (e) { /* 忽略 */ }
+            if (force !== "1" && played) return; // 本次会话已经播过
+
+            document.documentElement.classList.add("intro-on");
+        })();
+    </script>
 </head>
 <body>
+
+    <!-- 开屏动画覆盖层：动画播完由 overlay.js 自动淡出并移除，不占用主页布局 -->
+    <div id="intro-overlay" aria-hidden="true"></div>
 
     <header class="top-nav">
         <div class="logo">支援未来</div>
@@ -44,6 +75,9 @@
             }
         });
     </script>
+
+    <!-- 开屏动画挂载脚本：决定要不要播、播完怎么收场 -->
+    <script src="三、开屏动画/overlay.js"></script>
 
 </body>
 </html>

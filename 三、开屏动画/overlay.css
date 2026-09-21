@@ -1,0 +1,42 @@
+/* ============================================================
+   开屏动画 · 覆盖层样式
+   ------------------------------------------------------------
+   由主页 index.html 引入。整块覆盖层在动画播完后会被 JS 移除，
+   不参与主页的布局，也不会影响主页的其它样式。
+   ============================================================ */
+
+#intro-overlay {
+  display: none;
+}
+
+/* 只有 <html> 上带了 intro-on 类（由 index.html 里的一小段判断脚本添加）
+   才显示覆盖层。这样即使浏览器禁用了 JS，主页也照常能用。 */
+html.intro-on #intro-overlay {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #04070a;
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+
+/* 播放期间锁住主页滚动，避免动画还没结束就能滑动底下的正文 */
+html.intro-on,
+html.intro-on body {
+  overflow: hidden !important;
+}
+
+/* 收场：由 overlay.js 打上 is-closing，淡出后整个节点被移除 */
+html.intro-on #intro-overlay.is-closing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#intro-overlay iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #04070a;
+}
