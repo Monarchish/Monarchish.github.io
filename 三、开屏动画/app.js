@@ -1,5 +1,4 @@
 import { evaluateScalar, evaluateVector, quaternionZDegrees } from "./curve-runtime.js";
-import { AudioTimeline, AUDIO_PREFERENCE_KEY } from "./audio-timeline.js";
 import { INTRO_CONFIG } from "./intro-config.js";
 
 /* ------------------------------------------------------------
@@ -27,15 +26,6 @@ try {
 const stage = document.querySelector("#stage");
 const scaler = document.querySelector("#stage-scaler");
 const loading = document.querySelector("#loading");
-const controls = document.querySelector("#controls");
-const playButton = document.querySelector("#play");
-const replayButton = document.querySelector("#replay");
-const frameBackButton = document.querySelector("#frame-back");
-const frameForwardButton = document.querySelector("#frame-forward");
-const timeline = document.querySelector("#timeline");
-const timeLabel = document.querySelector("#time-label");
-const referenceHud = document.querySelector("#reference-hud");
-const audioButton = document.querySelector("#audio-toggle");
 const query = new URLSearchParams(location.search);
 
 /* ============================================================
@@ -73,14 +63,11 @@ const frameQuery = INTRO_CONFIG.enableDebugQuery ? query.get("t") : null;
 const REDIRECT_URL = redirectQuery === "0"
   ? ""
   : (redirectQuery || INTRO_CONFIG.redirectUrl);
-/** 第几秒跳转 */
+/** 第几秒收场（定格后通知主页 / 跳转） */
 const REDIRECT_AT_SECONDS = Math.min(
   Number(atQuery ?? INTRO_CONFIG.redirectAtSeconds) || 0,
   sceneData.duration,
 );
-const SKIP_ENABLED = INTRO_CONFIG.allowSkip
-  && (!INTRO_CONFIG.enableDebugQuery || query.get("skip") !== "0");
-const SHOW_CONTROLS = INTRO_CONFIG.showControls || DEBUG;
 
 /** 收场方式：notify = 通知主页淡出；navigate = 跳转到 redirectUrl；none = 不动 */
 const END_ACTION = EMBEDDED ? "notify" : (REDIRECT_URL ? "navigate" : "none");
@@ -92,8 +79,6 @@ const fadeOverlay = document.createElement("div");
 fadeOverlay.id = "intro-fade";
 fadeOverlay.setAttribute("aria-hidden", "true");
 document.body.append(fadeOverlay);
-
-if (!SHOW_CONTROLS) document.body.classList.add("is-intro-only");
 
 function finishIntro() {
   if (isFinishing || END_ACTION === "none") return;
@@ -136,84 +121,8 @@ const FRONT_UI_PREFIXES = [
   "non_drawing_graphic",
 ];
 
-/* 跳过入口：右下角「跳过」按钮 + 空格/回车/Esc。
-   首次点击或按键时按配置自动开启声音（浏览器要求用户手势后才允许播音频）。 */
-if (END_ACTION !== "none" && SKIP_ENABLED) {
-  const skipButton = document.createElement("button");
-  skipButton.id = "intro-skip";
-  skipButton.type = "button";
-  skipButton.textContent = "跳过 ▶";
-  skipButton.addEventListener("click", (event) => {
-    event.stopPropagation();
-    finishIntro();
-  });
-  document.body.append(skipButton);
-
-  addEventListener("keydown", (event) => {
-    if (event.code === "Space" || event.key === "Enter" || event.key === "Escape") {
-      event.preventDefault();
-      finishIntro();
-    }
-  });
-}
-
-if (INTRO_CONFIG.unmuteOnFirstInteraction) {
-  const enableAudioOnce = () => {
-    if (audio.enabled && audio.audible) return;
-    audio.enable();
-    try {
-      localStorage.setItem(AUDIO_PREFERENCE_KEY, "true");
-    } catch { /* 存储不可用时忽略，仅本次生效 */ }
-    removeEventListener("pointerdown", enableAudioOnce);
-    removeEventListener("keydown", enableAudioOnce);
-  };
-  addEventListener("pointerdown", enableAudioOnce, { passive: true });
-  addEventListener("keydown", enableAudioOnce);
-}
-
 const REFERENCE_VIEWPORT = [1280, 720];
 const OUTPUT_SCALE = sceneData.viewport[0] / REFERENCE_VIEWPORT[0];
-const CONTROLS_IDLE_DELAY_MS = 3000;
-let controlsIdleTimer = 0;
-let hasControlsInteraction = false;
-const activePointers = new Set();
-
-function hideControls() {
-  clearTimeout(controlsIdleTimer);
-  controls.classList.add("is-hidden");
-  audioButton.classList.add("is-hidden");
-}
-
-function showControls() {
-  hasControlsInteraction = true;
-  clearTimeout(controlsIdleTimer);
-  controls.classList.remove("is-hidden");
-  audioButton.classList.remove("is-hidden");
-  // 拖动时间轴或长按屏幕期间不隐藏；松开后重新计时。
-  if (activePointers.size === 0) {
-    controlsIdleTimer = setTimeout(hideControls, CONTROLS_IDLE_DELAY_MS);
-  }
-}
-
-addEventListener("pointermove", showControls, { passive: true });
-addEventListener("pointerdown", (event) => {
-  activePointers.add(event.pointerId);
-  showControls();
-}, { passive: true });
-for (const type of ["pointerup", "pointercancel"]) {
-  addEventListener(type, (event) => {
-    activePointers.delete(event.pointerId);
-    showControls();
-  }, { passive: true });
-}
-addEventListener("click", showControls);
-addEventListener("focusin", showControls);
-addEventListener("blur", () => activePointers.clear());
-document.addEventListener("visibilitychange", () => {
-  activePointers.clear();
-  if (!document.hidden && hasControlsInteraction) showControls();
-  else clearTimeout(controlsIdleTimer);
-});
 
 const nodes = new Map();
 const imagePromises = [];
@@ -223,35 +132,6 @@ let playing = false;
 let startedAt = 0;
 let animationFrame = 0;
 let loop = query.get("loop") === "1";
-const audio = new AudioTimeline({
-  onChange: updateAudioButton,
-  /* 音频优先走 CDN，失败自动回退本站同源 */
-  fetchAudio: async (url) => {
-    try {
-      const response = await fetch(assetUrl(url));
-      if (response.ok) return response;
-    } catch { /* 落到下面的同源回退 */ }
-    return fetch(url);
-  },
-});
-
-function updateAudioButton() {
-  audioButton.textContent = !audio.enabled ? "解除静音"
-    : audio.error ? "重试声音"
-    : !audio.audible ? "解除静音"
-    : !audio.buffers ? "声音加载中…" : "静音";
-  audioButton.setAttribute("aria-pressed", String(audio.audible));
-  audioButton.title = audio.error ? audio.error.message : "音效 0.5s、背景音乐 1s 开始，可重叠播放";
-  updatePlayButton();
-}
-
-audioButton.addEventListener("click", () => {
-  if (audio.enabled && audio.audible && !audio.error) audio.disable();
-  else audio.enable();
-  try {
-    localStorage.setItem(AUDIO_PREFERENCE_KEY, String(audio.enabled));
-  } catch { /* 存储不可用时，本次页面仍然可以开启声音。 */ }
-});
 
 const CIRCLE_MATERIAL_PATHS = new Set([
   "panel_front_ui/group_left/btn_card/bg",
@@ -932,16 +812,7 @@ function render(time) {
 
   layoutNode(nodes.get(""), { width: REFERENCE_VIEWPORT[0], height: REFERENCE_VIEWPORT[1] });
   applyStencils();
-  const hudOpacity = referenceHud
-    ? Math.max(0, Math.min(1, (currentTime - 3.9) / 0.25))
-    : 0;
-  if (referenceHud) {
-    referenceHud.style.opacity = String(hudOpacity);
-    referenceHud.inert = hudOpacity === 0;
-  }
   const frame = Math.round(currentTime * sceneData.frameRate);
-  timeline.value = String(frame);
-  timeLabel.textContent = `${frame.toString().padStart(3, "0")} / ${sceneData.frameCount} · ${currentTime.toFixed(2)}s`;
   stage.dataset.frame = String(frame);
   stage.dataset.time = currentTime.toFixed(6);
 }
@@ -961,48 +832,31 @@ function tick(now) {
     if (loop) {
       startedAt = now;
       time = 0;
-      audio.play(0);
     } else {
       time = sceneData.duration;
       playing = false;
     }
   }
   render(time);
-  updatePlayButton();
   if (playing) animationFrame = requestAnimationFrame(tick);
-}
-
-function updatePlayButton() {
-  const active = playing || audio.playing;
-  playButton.textContent = active ? "暂停" : "播放";
-  playButton.setAttribute("aria-label", active ? "暂停动画与音频" : "播放动画与音频");
 }
 
 function play() {
   if (currentTime >= sceneData.duration) currentTime = 0;
   playing = true;
   startedAt = performance.now() - currentTime * 1000;
-  audio.play(currentTime);
   cancelAnimationFrame(animationFrame);
   animationFrame = requestAnimationFrame(tick);
-  updatePlayButton();
 }
 
 function pause() {
   playing = false;
   cancelAnimationFrame(animationFrame);
-  audio.pause();
-  updatePlayButton();
 }
 
 function seek(time) {
   pause();
   render(time);
-  audio.seek(currentTime);
-}
-
-function setFrame(frame) {
-  seek(frame / sceneData.frameRate);
 }
 
 function fitStage() {
@@ -1028,38 +882,11 @@ function fitStage() {
 }
 
 createNode(sceneData.root, stage);
-timeline.max = String(sceneData.frameCount);
-timeline.step = "1";
-timeline.addEventListener("input", () => setFrame(Number(timeline.value)));
-playButton.addEventListener("click", () => (playing || audio.playing ? pause() : play()));
-replayButton.addEventListener("click", () => {
-  currentTime = 0;
-  render(0);
-  play();
-});
-frameBackButton.addEventListener("click", () => setFrame(Math.round(currentTime * 60) - 1));
-frameForwardButton.addEventListener("click", () => setFrame(Math.round(currentTime * 60) + 1));
+
 addEventListener("resize", fitStage);
 addEventListener("orientationchange", fitStage);
 window.visualViewport?.addEventListener("resize", fitStage);
 window.visualViewport?.addEventListener("scroll", fitStage);
-addEventListener("keydown", (event) => {
-  if (isFinishing) return;
-  if (event.key.toLowerCase() === "h") {
-    controls.classList.contains("is-hidden") ? showControls() : hideControls();
-    return;
-  }
-  showControls();
-  if (event.code === "Space") {
-    event.preventDefault();
-    playing || audio.playing ? pause() : play();
-  } else if (event.key === "ArrowLeft") setFrame(Math.round(currentTime * 60) - 1);
-  else if (event.key === "ArrowRight") setFrame(Math.round(currentTime * 60) + 1);
-  else if (event.key.toLowerCase() === "r") {
-    currentTime = 0;
-    play();
-  }
-});
 
 fitStage();
 render(0);
@@ -1068,10 +895,6 @@ window.act54Animation = {
   play,
   pause,
   seek,
-  setFrame,
-  setLoop(value) {
-    loop = Boolean(value);
-  },
   getState() {
     return {
       clip: sceneData.clip,
@@ -1079,17 +902,9 @@ window.act54Animation = {
       frame: Math.round(currentTime * sceneData.frameRate),
       playing,
       loop,
-      audioEnabled: audio.enabled,
-      audioBlocked: audio.enabled && !audio.audible,
-      audioTime: audio.time,
     };
   },
 };
-
-updateAudioButton();
-try {
-  if (localStorage.getItem(AUDIO_PREFERENCE_KEY) === "true") audio.enable();
-} catch { /* 首次进入或存储不可用时，不创建音频上下文，也不请求音频。 */ }
 
 Promise.all(imagePromises).finally(() => {
   loading.classList.add("is-ready");

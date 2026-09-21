@@ -134,99 +134,6 @@ input {
   opacity: 0;
 }
 
-#controls {
-  --controls-inset: max(12px, env(safe-area-inset-bottom, 0px));
-  position: fixed;
-  z-index: 30;
-  left: var(--viewport-center-x, 50%);
-  top: var(--viewport-bottom, 100%);
-  width: min(960px, calc(var(--viewport-width, 100vw) - 24px));
-  display: grid;
-  grid-template-columns: repeat(4, auto) minmax(0, 1fr) auto;
-  gap: 8px;
-  align-items: center;
-  padding: 8px;
-  color: #d9edf7;
-  border: 1px solid rgb(190 230 245 / 18%);
-  border-radius: 10px;
-  background: rgb(4 11 16 / 78%);
-  box-shadow: 0 12px 40px rgb(0 0 0 / 35%);
-  backdrop-filter: blur(14px);
-  transform: translate(-50%, calc(-100% - var(--controls-inset)));
-  transition: opacity 180ms ease, transform 180ms ease;
-}
-
-#controls.is-hidden {
-  opacity: 0;
-  transform: translate(-50%, calc(-100% - var(--controls-inset) + 16px));
-  pointer-events: none;
-}
-
-#controls button,
-#audio-toggle {
-  display: grid;
-  place-items: center;
-  min-width: 48px;
-  min-height: 40px;
-  padding: 8px 12px;
-  font-size: 14px;
-  line-height: 1.2;
-  text-align: center;
-  color: inherit;
-  border: 1px solid rgb(180 225 245 / 18%);
-  border-radius: 6px;
-  background: rgb(126 190 216 / 9%);
-  cursor: pointer;
-  white-space: nowrap;
-  touch-action: manipulation;
-}
-
-#controls button:hover,
-#audio-toggle:hover {
-  border-color: rgb(180 225 245 / 42%);
-  background: rgb(126 190 216 / 18%);
-}
-
-#audio-toggle {
-  position: fixed;
-  z-index: 30;
-  left: calc(var(--viewport-center-x, 50vw) + var(--viewport-width, 100vw) / 2 - max(12px, env(safe-area-inset-right, 0px)));
-  top: max(12px, env(safe-area-inset-top, 0px));
-  transform: translateX(-100%);
-  min-height: 44px;
-  color: #d9edf7;
-  background: rgb(4 11 16 / 85%);
-  backdrop-filter: blur(14px);
-  opacity: 0.55;
-  transition: opacity 180ms ease, background 180ms ease, border-color 180ms ease;
-}
-
-#audio-toggle:hover,
-#audio-toggle:focus {
-  opacity: 1;
-}
-
-#audio-toggle.is-hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-#timeline {
-  width: 100%;
-  min-width: 0;
-  height: 32px;
-  margin: 0;
-  accent-color: #8bcde6;
-}
-
-#time-label {
-  min-width: 0;
-  color: rgb(217 237 247 / 74%);
-  font: 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  text-align: right;
-  white-space: nowrap;
-}
-
 #reference-hud {
   position: absolute;
   inset: 0;
@@ -313,32 +220,8 @@ input {
   font-style: normal;
 }
 
-@media (max-width: 600px) and (orientation: portrait) {
-  #controls {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px 8px;
-  }
-
-  #controls button {
-    min-width: 0;
-    min-height: 44px;
-    padding: 8px 6px;
-  }
-
-  #timeline {
-    grid-column: 1 / -1;
-    height: 24px;
-  }
-
-  #time-label {
-    grid-column: 1 / -1;
-    font-size: 11px;
-    text-align: center;
-  }
-}
-
 /* ============================================================
-   站点开场模式（intro-config.js 里的 showControls: false 时启用）
+   站点开场模式
    ============================================================ */
 
 /* 跳转前的黑场遮罩 */
@@ -355,39 +238,8 @@ input {
   opacity: 1;
 }
 
-/* 落地页模式：不显示播放控制条与静音按钮 */
-body.is-intro-only #controls,
-body.is-intro-only #audio-toggle {
-  display: none !important;
-}
-
 /* 剪辑自带的活动主界面节点，由 app.js 打上 is-suppressed 后彻底隐藏 */
 .unity-node.is-suppressed {
   display: none !important;
 }
 
-/* 右下角「跳过」按钮 */
-#intro-skip {
-  position: fixed;
-  right: max(16px, env(safe-area-inset-right));
-  bottom: max(16px, env(safe-area-inset-bottom));
-  z-index: 9998;
-  padding: 10px 18px;
-  font-size: 14px;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.82);
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 999px;
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-  transition: color 0.2s, background 0.2s, border-color 0.2s;
-}
-
-#intro-skip:hover,
-#intro-skip:focus-visible {
-  color: #fff;
-  background: rgba(0, 0, 0, 0.55);
-  border-color: rgba(255, 255, 255, 0.6);
-  outline: none;
-}
