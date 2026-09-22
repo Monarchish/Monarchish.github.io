@@ -2,12 +2,19 @@
    03、设置 · 1.站点主程序.js
    ------------------------------------------------------------
    这是什么：主页（支援未来文档站）的功能代码，和开屏动画无关。
-   它做的事：三件事 ——
-     ① 按下面 sidebarManifest 清单生成左侧导航菜单；
-     ② 抓取 01、支援未来/ 里对应的 .md 文档，用 marked 渲染成正文；
-     ③ 右侧「本页指引」目录、搜索框、手风琴菜单等交互。
+   它做的事：四件事 ——
+     ① 首页「卡片门户」：把 29 个流程按业务分组摊成卡片，
+        带搜索过滤（卡片上的「N 个步骤」= 该流程首页在 ## FAQ 之前的引入数）；
+     ② 按 sidebarManifest 清单生成左侧导航菜单，标题取自下面的并行索引，
+        不再逐篇串行请求，首屏更快；
+     ③ 抓取 01、支援未来/ 里的 .md 文档，用 marked 原样渲染成正文 ——
+        动作词（Open / Left Click / Ctrl + D …）只做蓝色高亮，不改写、不拆行；
+     ④ 右侧「本页指引」目录、菜单搜索（Ctrl + K）、手风琴菜单。
    谁在用它：站点根目录 index.html 引入后调用 init()。
-   要不要改：新增 / 删除文档，只需要改下面的 sidebarManifest 清单。
+   要不要改：────────────────────────────────────────────
+     · 新增 / 删除流程   → 只改下面的 sidebarManifest 清单
+     · 新增要高亮的动作词 → 只改下面的 keywords 清单
+     · 门户卡片的外观    → 改 03、设置/2.站点样式.css 的「卡片门户首页」段
    ============================================================ */
 
 // =========================================================
@@ -274,6 +281,203 @@ function setupSearch() {
 }
 
 // =========================================================
+// 索引：并行预取 29 篇流程首页（门户卡片与左侧导航共用）
+// ---------------------------------------------------------
+// 一次把 29 篇取回来，算好「标题 / 步骤数」，结果按会话缓存，
+// 翻页不再重复请求。取不到的文件不报错，只在卡片上标「待补充」。
+// 步骤数 = 首页里 ## FAQ 之前的 <!-- include: --> 条数。
+// =========================================================
+const DOC_ROOT = '01、支援未来';
+const INDEX_CACHE_KEY = 'support-future-index-v1';
+
+let _indexPromise = null;
+
+function buildIndex() {
+    if (!_indexPromise) _indexPromise = _buildIndexOnce();
+    return _indexPromise;
+}
+
+async function _buildIndexOnce() {
+    try {
+        const cached = sessionStorage.getItem(INDEX_CACHE_KEY);
+        if (cached) return JSON.parse(cached);
+    } catch (e) { /* 隐私模式下取不到缓存就忽略 */ }
+
+    const items = await Promise.all(sidebarManifest.map(async (item) => {
+        const text = await fetchText(`${DOC_ROOT}/${item.folder}/${item.file}.md`);
+        const incRe = /<!--\s*include:\s*([^\s]+\.md)\s*-->/g;
+        const faqAt = text ? text.indexOf('## FAQ') : -1;
+        const head = text ? (faqAt >= 0 ? text.slice(0, faqAt) : text) : '';
+        const steps = text ? (head.match(incRe) || []).length : 0;
+        const all = text ? (text.match(incRe) || []).length : 0;
+        return {
+            folder: item.folder,
+            file: item.file,
+            group: item.folder.split('/')[0],
+            title: firstHeading(text) || item.file.replace(/^\d+\.\d+\.00\./, ''),
+            steps: steps,
+            missing: !text || all === 0,
+        };
+    }));
+
+    const groups = {};
+    items.forEach((it) => {
+        if (!groups[it.group]) groups[it.group] = [];
+        groups[it.group].push(it);
+    });
+
+    const index = { items: items, groups: groups, groupNames: Object.keys(groups).sort() };
+    try { sessionStorage.setItem(INDEX_CACHE_KEY, JSON.stringify(index)); } catch (e) { }
+    return index;
+}
+
+function escapeHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+/** 取回一个文件；失败返回 null，不抛异常。网络抖动时自动重试一次 */
+async function fetchText(path, retried) {
+    try {
+        const resp = await fetch(path);
+        if (!resp.ok) return null;      // 404 之类是确定的，不重试
+        return await resp.text();
+    } catch (e) {
+        if (!retried) {
+            await new Promise((r) => setTimeout(r, 400));
+            return fetchText(path, true);
+        }
+        return null;
+    }
+}
+
+/** 取文档第一行 # 标题；没有就返回空串 */
+function firstHeading(mdText) {
+    const m = /^#\s+(.+)$/m.exec(mdText || '');
+    return m ? m[1].trim() : '';
+}
+
+// =========================================================
+// 卡片门户首页
+// ---------------------------------------------------------
+// 首页不进正文渲染，直接把索引摊成卡片。卡片上的字全部走
+// escapeHtml，文档里有什么符号都不会破坏页面结构。
+// =========================================================
+async function loadPortal() {
+    const loader = document.getElementById('contentLoader');
+    const index = await buildIndex();
+
+    const groupHtml = index.groupNames.map((g) => {
+        const items = index.groups[g];
+        const no = g.split('.')[0];
+        const name = g.replace(/^\d+\./, '');
+        const cards = items.map((it) => {
+            const meta = [];
+            if (it.steps) meta.push(`${it.steps} 个步骤`);
+            if (it.missing) meta.push('待补充');
+            const tag = it.missing ? '<span class="portal-card-tag">待补充</span>' : '';
+            return (
+                `<a class="portal-card" data-page="${escapeHtml(it.file)}" data-folder="${escapeHtml(it.folder)}" ` +
+                `data-search="${escapeHtml((name + it.title + it.file).toLowerCase())}">` +
+                `<span class="portal-card-title">${escapeHtml(it.title)}</span>` +
+                `<span class="portal-card-meta">${escapeHtml(meta.join(' · '))}</span>` +
+                tag +
+                `</a>`
+            );
+        }).join('');
+        return (
+            `<section class="portal-group" data-group="${escapeHtml(g)}">` +
+            `<div class="portal-group-head">` +
+            `<span class="portal-group-no">${escapeHtml(no)}</span>` +
+            `<h2 class="portal-group-name">${escapeHtml(name)}</h2>` +
+            `<span class="portal-group-meta">${items.length} 个流程</span>` +
+            `<span class="portal-group-line"></span>` +
+            `</div>` +
+            `<div class="portal-cards">${cards}</div>` +
+            `</section>`
+        );
+    }).join('');
+
+    const totalSteps = index.items.reduce((a, b) => a + b.steps, 0);
+
+    loader.innerHTML =
+        `<div class="portal">` +
+        `<header class="portal-hero">` +
+        `<h1 class="portal-hero-title">操作手册</h1>` +
+        `<p class="portal-hero-meta">${index.items.length} 个流程 · ${totalSteps} 个步骤</p>` +
+        `<div class="portal-search">` +
+        `<input type="text" id="portalSearch" placeholder="搜索流程名称，例如「开票」「MDG」「转货权」" autocomplete="off" />` +
+        `<span class="portal-search-count" id="portalSearchCount"></span>` +
+        `</div>` +
+        `</header>` +
+        groupHtml +
+        `<div class="portal-empty" id="portalEmpty">没有匹配的流程。换个词试试，或者清空搜索框。</div>` +
+        `</div>`;
+
+    bindPortal();
+    window.scrollTo({ top: 0 });
+}
+
+function bindPortal() {
+    const input = document.getElementById('portalSearch');
+    const empty = document.getElementById('portalEmpty');
+    const count = document.getElementById('portalSearchCount');
+    if (!input) return;
+
+    const cards = Array.from(document.querySelectorAll('.portal-card'));
+    const groups = Array.from(document.querySelectorAll('.portal-group'));
+
+    const apply = () => {
+        const q = input.value.trim().toLowerCase();
+        let shown = 0;
+        cards.forEach((c) => {
+            const hit = !q || c.dataset.search.indexOf(q) >= 0;
+            c.classList.toggle('is-hidden', !hit);
+            if (hit) shown += 1;
+        });
+        groups.forEach((g) => {
+            const any = Array.from(g.querySelectorAll('.portal-card'))
+                .some((c) => !c.classList.contains('is-hidden'));
+            g.classList.toggle('is-hidden', !any);
+        });
+        empty.classList.toggle('is-visible', shown === 0);
+        count.textContent = q ? `${shown} / ${cards.length}` : '';
+    };
+
+    input.addEventListener('input', apply);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { input.value = ''; apply(); input.blur(); }
+    });
+
+    cards.forEach((c) => {
+        c.addEventListener('click', () => {
+            openPage(c.dataset.folder, c.dataset.page);
+        });
+    });
+}
+
+/** 打开某篇文档：把左侧导航对应分组展开，再进正文（导航与门户卡片共用） */
+function openPage(folder, pageId) {
+    if (!pageId) return;
+    currentPageId = pageId;
+    highlightSidebarItem(pageId);
+
+    const side = document.querySelector(`.sidebar .sub-items a[data-page="${CSS.escape(pageId)}"]`);
+    if (side) {
+        const group = side.closest('.menu-group');
+        const subs = group && group.querySelector('.sub-items');
+        const arrow = group && group.querySelector('.group-title .arrow');
+        if (subs && !subs.classList.contains('open')) {
+            subs.classList.add('open');
+            if (arrow) arrow.classList.add('open');
+        }
+    }
+
+    loadContent(folder, pageId);
+}
+
+// =========================================================
 // 侧边栏加载（含搜索框）
 // =========================================================
 async function loadSidebar() {
@@ -294,6 +498,13 @@ async function loadSidebar() {
         groups[firstLevel].push(item);
     }
 
+    /* 标题优先用并行索引（一次请求拿全部）；索引里没有的再单独取 */
+    let titleMap = new Map();
+    try {
+        const index = await buildIndex();
+        titleMap = new Map(index.items.map((it) => [it.file, it.title]));
+    } catch (e) { /* 取不到就整条走下面 getTitleFromMd 兜底 */ }
+
     const sortedFirstLevel = Object.keys(groups).sort();
 
     for (const firstLevel of sortedFirstLevel) {
@@ -304,7 +515,7 @@ async function loadSidebar() {
 
         const items = groups[firstLevel];
         for (const item of items) {
-            const title = await getTitleFromMd(item.folder, item.file);
+            const title = titleMap.get(item.file) || await getTitleFromMd(item.folder, item.file);
             html += `<a data-page="${item.file}">${title}</a>`;
         }
 
@@ -320,7 +531,11 @@ async function loadSidebar() {
     document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
-            const searchInput = document.getElementById('menuSearch');
+            /* 门户首页没有左侧菜单，Ctrl + K 要给到门户的搜索框 */
+            const onHome = document.querySelector('.app').classList.contains('view-home');
+            const searchInput = onHome
+                ? document.getElementById('portalSearch')
+                : document.getElementById('menuSearch');
             if (searchInput) {
                 searchInput.focus();
                 searchInput.select();
@@ -382,16 +597,29 @@ function highlightSidebarItem(pageId) {
 async function loadContent(fullFolder, pageId) {
     const loader = document.getElementById('contentLoader');
     const loadingBar = document.getElementById('loading-bar');
+    const app = document.querySelector('.app');
+
+    /* 首页 = 卡片门户：左右两栏让位给卡片墙 */
+    if (pageId === 'home') {
+        currentPageId = 'home';
+        app.classList.add('view-home');
+        document.getElementById('tocList').innerHTML = '';
+        loadingBar.classList.add('active');
+        loadingBar.style.width = '40%';
+        await loadPortal();
+        loadingBar.style.width = '100%';
+        setTimeout(() => {
+            loadingBar.style.width = '0%';
+            loadingBar.classList.remove('active');
+        }, 300);
+        return;
+    }
+    app.classList.remove('view-home');
 
     loadingBar.classList.add('active');
     loadingBar.style.width = '20%';
 
-    let filePath;
-    if (pageId === 'home') {
-        filePath = '01、支援未来/首页.md';
-    } else {
-        filePath = `01、支援未来/${fullFolder}/${pageId}.md`;
-    }
+    const filePath = `01、支援未来/${fullFolder}/${pageId}.md`;
 
     try {
         const resp = await fetch(filePath);

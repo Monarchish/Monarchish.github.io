@@ -521,3 +521,206 @@ a:hover {
         display: none !important;
     }
 }
+
+/* ============================================================
+   卡片门户首页
+   ------------------------------------------------------------
+   只作用于 .app.view-home（即首页），正文阅读页完全不受影响。
+   想调卡片大小/间距/字号，只改这一段即可。
+   ============================================================ */
+
+/* 首页：让左右两栏，正文区放宽居中 */
+.app.view-home .sidebar,
+.app.view-home .toc-wrapper {
+    display: none;
+}
+.app.view-home .content-wrapper {
+    justify-content: center;
+}
+.app.view-home .content-area {
+    width: 100%;
+    max-width: 1120px;
+    padding: 0 44px 80px 44px;
+}
+
+.portal {
+    width: 100%;
+}
+
+/* ===== 页头：标题 + 统计 + 搜索 ===== */
+.portal-hero {
+    position: relative;
+    padding: 44px 0 24px 0;
+    border-bottom: 1px solid #e3eef2;
+    margin-bottom: 34px;
+}
+.portal-hero::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    width: 130px;
+    height: 2px;
+    background: #bcd94a;
+    transform: skewX(-32deg);
+}
+.portal-hero-title {
+    font-size: 30px;
+    font-weight: 600;
+    color: #16232c;
+    letter-spacing: -0.2px;
+    margin: 0 0 10px 0;
+}
+.portal-hero-meta {
+    font-size: 13.5px;
+    color: #8aa0ac;
+    margin-bottom: 22px;
+}
+
+.portal-search {
+    position: relative;
+    max-width: 600px;
+}
+.portal-search input {
+    width: 100%;
+    padding: 12px 86px 12px 16px;
+    font-size: 15px;
+    font-family: inherit;
+    border: 1px solid #e3eef2;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #16232c;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.portal-search input::placeholder {
+    color: #8aa0ac;
+}
+.portal-search input:focus {
+    border-color: #2f9cb8;
+    box-shadow: 0 0 0 3px rgba(47, 156, 184, 0.12);
+}
+.portal-search-count {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    color: #8aa0ac;
+    pointer-events: none;
+}
+
+/* ===== 业务分组 ===== */
+.portal-group {
+    margin-bottom: 34px;
+}
+.portal-group-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.portal-group-no {
+    font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    color: #0b7a94;
+    flex: none;
+}
+.portal-group-name {
+    font-size: 19px;
+    font-weight: 600;
+    color: #16232c;
+}
+.portal-group-meta {
+    font-size: 13px;
+    color: #8aa0ac;
+    flex: none;
+}
+.portal-group-line {
+    flex: 1;
+    height: 1px;
+    background: #e3eef2;
+}
+
+/* ===== 流程卡片 ===== */
+.portal-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+a.portal-card {
+    position: relative;
+    display: block;
+    padding: 15px 17px 15px 18px;
+    background: #ffffff;
+    border: 1px solid #e3eef2;
+    border-left: 2px solid #8bcde6;
+    border-radius: 3px;
+    color: #16232c;
+    text-decoration: none;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+a.portal-card:hover {
+    border-color: #2f9cb8;
+    border-left-color: #0b7a94;
+    box-shadow: 0 2px 12px rgba(11, 122, 148, 0.09);
+    transform: translateY(-1px);
+    color: #16232c;
+    text-decoration: none;
+}
+.portal-card-title {
+    display: block;
+    font-size: 16px;
+    color: #16232c;
+    margin-bottom: 6px;
+}
+.portal-card-meta {
+    display: block;
+    font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    color: #8aa0ac;
+}
+.portal-card-tag {
+    position: absolute;
+    top: 13px;
+    right: 14px;
+    font-size: 12px;
+    color: #8a5a00;
+    background: #fdf6e8;
+    border-radius: 2px;
+    padding: 1px 6px;
+}
+.portal-card.is-hidden,
+.portal-group.is-hidden {
+    display: none;
+}
+.portal-empty {
+    display: none;
+    font-size: 14px;
+    color: #8aa0ac;
+    padding: 30px 0;
+    text-align: center;
+}
+.portal-empty.is-visible {
+    display: block;
+}
+
+/* 窄屏：卡片单列，页头收窄 */
+@media (max-width: 768px) {
+    .app.view-home .content-area {
+        padding: 0 16px 60px 16px;
+    }
+    .portal-hero {
+        padding: 28px 0 18px 0;
+    }
+    .portal-hero-title {
+        font-size: 24px;
+    }
+    .portal-cards {
+        grid-template-columns: 1fr;
+    }
+    .portal-search {
+        max-width: none;
+    }
+}
