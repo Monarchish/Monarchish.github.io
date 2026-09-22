@@ -3,17 +3,16 @@
    ------------------------------------------------------------
    这是什么：主页（支援未来文档站）的功能代码，和开屏动画无关。
    它做的事：四件事 ——
-     ① 生成「卡片门户」首页：把 29 个流程按业务分组摊成卡片，
-        带搜索过滤（需要改首页内容 → 改 01、支援未来/首页.md）；
+     ① 生成索引式首页：29 个流程按业务分组的编号索引表，
+        带搜索过滤（只读取文档本身，没有额外文案要维护）；
      ② 把 SOP 正文的"动作行"（Open / Write / Left Click / Ctrl + D …）
-        解析成带编号的步骤，取值、分支、说明各自成块；
+        解析成带编号的条款，取值、分支、说明各自成块；
      ③ 右侧「本页指引」目录、左侧导航、菜单搜索（Ctrl + K）；
-     ④ 每页底部的「熟练后可用 · 键盘动作速查」区块。
+     ④ 每页底部的「附　键盘动作速查」（非标准步骤，只作加速提示）。
    谁在用它：站点根目录 index.html 引入后调用 init()。
    要不要改：────────────────────────────────────────────
      · 新增 / 删除流程   → 只改下面的 sidebarManifest 清单
      · 新增指令词        → 只改下面的 INSTRUCTION_VOCAB 表
-     · 改首页欢迎语      → 改 01、支援未来/首页.md
    动作行语法以 01、支援未来/05.其他/05.01.OTL操作手册编写规范/05.01.02.纲要.md
    为准：指令词 + "双引号对象" 用 - 连接层级；【方括号】是待填变量；
    （圆括号）是这一步的取值 / 选项 / 说明；Or 连接固定选项。
@@ -59,8 +58,8 @@ const VOCAB_SORTED = [...INSTRUCTION_VOCAB].sort((a, b) => b.verb.length - a.ver
    ------------------------------------------------------------
    每个流程只登记它的「首页」（xx.xx.00.xx.md），子步骤由
    首页里的 <!-- include: --> 自动聚合，不用在这里列。
-   卡片上的「待补充」标记 = 首页里一个 include 都没有。
-   想给卡片加更新日期，照这样写：{ ..., updated: "2026-08-24" }
+   索引表里的「待补充」标记 = 首页里一个 include 都没有。
+   想给索引表加更新日期，照这样写：{ ..., updated: "2026-08-24" }
    ============================================================ */
 const sidebarManifest = [
     // ===== 01.准入 =====
@@ -104,7 +103,6 @@ const sidebarManifest = [
 ];
 
 const DOC_ROOT = '01、支援未来';
-const HOME_FILE = '首页.md';
 const INDEX_CACHE_KEY = 'support-future-index-v1';
 
 /* ============================================================
@@ -481,7 +479,8 @@ function renderSopBlocks(parsed) {
             }
 
             case 'step': {
-                const tag = `<span class="sop-tag sop-tag--${b.kind}" title="${escapeHtml(b.verb)}">${escapeHtml(b.label)}</span>`;
+                /* 只写动作名，不做彩色标签：手册里不需要用颜色区分"单击"和"输入" */
+                const tag = `<span class="sop-act" data-kind="${b.kind}">${escapeHtml(b.label)}</span>`;
                 const path = b.objects.length
                     ? `<span class="sop-path">${b.objects.map((o) => highlightInline(escapeHtml(o))).join('<i class="sop-sep">›</i>')}</span>`
                     : '';
@@ -536,17 +535,16 @@ function renderSopBlocks(parsed) {
         }
     });
 
-    /* 底部：熟练后可用 · 键盘动作速查 */
+    /* 底部：附 · 键盘动作速查（非标准步骤） */
     if (parsed.keyStats.length) {
         const rows = parsed.keyStats
             .sort((a, b) => b.count - a.count)
-            .map((k) => `<li><kbd class="sop-kbd">${escapeHtml(k.verb)}</kbd><span>${escapeHtml(k.label)}</span><em>本页 ${k.count} 处</em></li>`)
+            .map((k) => `<li><kbd class="sop-kbd">${escapeHtml(k.verb)}</kbd><span>${escapeHtml(k.label)}</span><em>${k.count} 处</em></li>`)
             .join('');
         html.push(
             `<section class="sop-keys">` +
-            `<div class="sop-keys-head">熟练后可用 · 键盘动作速查</div>` +
-            `<p class="sop-keys-note">上面带键盘标记的步骤都能用这些键完成，它们是加速做法，不算额外步骤。` +
-            `不熟悉快捷键不要紧，按顺序照做即可；想用鼠标替代，就在目标上点右键，菜单里有同名命令。</p>` +
+            `<div class="sop-keys-head">附　键盘动作速查</div>` +
+            `<p class="sop-keys-note">下列按键可代替鼠标操作，属加速做法，不算步骤。不熟悉请忽略，照上面的顺序做即可。</p>` +
             `<ul class="sop-keys-list">${rows}</ul>` +
             `</section>`
         );
@@ -557,76 +555,80 @@ function renderSopBlocks(parsed) {
 
 function renderParam(p) {
     if (p.kind === 'input') {
-        return `<span class="sop-param sop-param--input">待填 ${highlightInline(escapeHtml(p.text))}</span>`;
+        /* 下划线空格 = 按实际情况填。不写"待填"两个字，也不上底色 */
+        const v = p.text.replace(/[【】]/g, '').trim();
+        return `<span class="sop-blank" title="按实际情况填写">${escapeHtml(v)}</span>`;
     }
     if (p.kind === 'choice') {
-        const opts = p.options.map((o) => `<span class="sop-choice-item">${escapeHtml(o)}</span>`).join('');
-        return `<span class="sop-param sop-param--choice">选一项 ${opts}</span>`;
+        const opts = p.options.map((o) => escapeHtml(o)).join('　/　');
+        return `<span class="sop-param sop-param--choice">选一项：${opts}</span>`;
     }
     const cls = p.text.length > 30 ? 'sop-param sop-param--long' : 'sop-param';
     return `<span class="${cls}">${highlightInline(escapeHtml(p.text))}</span>`;
 }
 
 /* ============================================================
-   七、卡片门户首页
+   七、索引式首页
+   ------------------------------------------------------------
+   刻意做成"内部系统索引"而不是落地页：没有大标题、没有说明段落、
+   没有卡片，只有一张按业务分组的编号索引表。
    ============================================================ */
 async function loadPortal() {
     const loader = document.getElementById('contentLoader');
     const index = await buildIndex();
 
-    const intro = await fetchText(`${DOC_ROOT}/${HOME_FILE}`);
-    const introHtml = intro
-        ? highlightVars(marked.parse(intro.replace(/^#\s+.+\n?/, '')))
-        : '';
-
     const groupHtml = index.groupNames.map((g) => {
         const items = index.groups[g];
         const no = g.split('.')[0];
         const name = g.replace(/^\d+\./, '');
-        const cards = items.map((it) => {
-            const meta = [];
-            if (it.steps) meta.push(`${it.steps} 个步骤`);
-            if (it.faqs) meta.push(`${it.faqs} 个问答`);
-            if (it.updated) meta.push(`${it.updated} 更新`);
-            if (it.missing) meta.push('待补充');
-            const tags = it.missing
-                ? '<span class="portal-card-tag portal-card-tag--todo">待补充</span>'
-                : (it.faqs ? '<span class="portal-card-tag">含问答</span>' : '');
+        const rows = items.map((it) => {
+            const code = (it.folder.split('/')[1] || '').match(/^(\d+\.\d+)/);
+            const num = code ? code[1] : '';
+            const missing = it.missing ? '<span class="ix-todo">待补充</span>' : '';
+            const faqs = it.faqs ? String(it.faqs) : '—';
             return (
-                `<a class="portal-card" data-page="${escapeHtml(it.file)}" data-folder="${escapeHtml(it.folder)}" ` +
-                `data-search="${escapeHtml((name + it.title + it.file).toLowerCase())}">` +
-                `<span class="portal-card-title">${escapeHtml(it.title)}</span>` +
-                `<span class="portal-card-meta">${escapeHtml(meta.join(' · '))}</span>` +
-                tags +
+                `<a class="ix-row" data-page="${escapeHtml(it.file)}" data-folder="${escapeHtml(it.folder)}" ` +
+                `data-search="${escapeHtml((name + it.title + it.file + num).toLowerCase())}">` +
+                `<span class="ix-no">${escapeHtml(num)}</span>` +
+                `<span class="ix-name">${escapeHtml(it.title)}${missing}</span>` +
+                `<span class="ix-num">${it.steps ? it.steps : '—'}</span>` +
+                `<span class="ix-num">${faqs}</span>` +
                 `</a>`
             );
         }).join('');
         return (
-            `<section class="portal-group" data-group="${escapeHtml(g)}">` +
-            `<div class="portal-group-head">` +
-            `<span class="portal-group-no">${escapeHtml(no)}</span>` +
-            `<h2 class="portal-group-name">${escapeHtml(name)}</h2>` +
-            `<span class="portal-group-meta">${items.length} 个流程</span>` +
-            `<span class="portal-group-line"></span>` +
+            `<section class="ix-group" data-group="${escapeHtml(g)}">` +
+            `<div class="ix-group-row">` +
+            `<span class="ix-group-no">${escapeHtml(no)}</span>` +
+            `<span class="ix-group-name">${escapeHtml(name)}</span>` +
+            `<span class="ix-group-count">${items.length} 个流程</span>` +
             `</div>` +
-            `<div class="portal-cards">${cards}</div>` +
+            rows +
             `</section>`
         );
     }).join('');
 
     loader.innerHTML =
-        `<div class="portal">` +
-        `<header class="portal-hero">` +
-        `<h1 class="portal-hero-title">操作手册</h1>` +
-        `<p class="portal-hero-meta">${index.items.length} 个流程 · ${index.totalSteps} 个步骤 · ${index.totalFaqs} 个常见问题</p>` +
-        (introHtml ? `<div class="portal-intro">${introHtml}</div>` : '') +
-        `<div class="portal-search">` +
-        `<input type="text" id="portalSearch" placeholder="搜索流程名称，例如「开票」「MDG」「转货权」" autocomplete="off" />` +
-        `<span class="portal-search-count" id="portalSearchCount"></span>` +
+        `<div class="ix">` +
+        `<div class="ix-bar">` +
+        `<div class="ix-bar-left">` +
+        `<span class="ix-bar-title">操作手册</span>` +
+        `<span class="ix-bar-meta">${index.items.length} 篇 · ${index.totalSteps} 步 · ${index.totalFaqs} 问答</span>` +
         `</div>` +
-        `</header>` +
+        `<div class="ix-search">` +
+        `<input type="text" id="portalSearch" placeholder="搜索流程 / 编号" autocomplete="off" />` +
+        `<span class="ix-search-count" id="portalSearchCount"></span>` +
+        `</div>` +
+        `</div>` +
+        `<div class="ix-head">` +
+        `<span class="ix-no">编号</span>` +
+        `<span class="ix-name">流程</span>` +
+        `<span class="ix-num">步骤</span>` +
+        `<span class="ix-num">问答</span>` +
+        `</div>` +
         groupHtml +
-        `<div class="portal-empty" id="portalEmpty">没有匹配的流程。换个词试试，或者清空搜索框。</div>` +
+        `<div class="ix-empty" id="portalEmpty">没有匹配的流程。</div>` +
+        `<div class="ix-foot">Ctrl + K 直接定位搜索框　·　共 ${index.items.length} 个流程　·　步骤只统计标准动作，键盘快捷键另见各页附注</div>` +
         `</div>`;
 
     bindPortal();
@@ -640,23 +642,23 @@ function bindPortal() {
     const count = document.getElementById('portalSearchCount');
     if (!input) return;
 
-    const cards = [...document.querySelectorAll('.portal-card')];
-    const groups = [...document.querySelectorAll('.portal-group')];
+    const rows = [...document.querySelectorAll('.ix-row')];
+    const groups = [...document.querySelectorAll('.ix-group')];
 
     const apply = () => {
         const q = input.value.trim().toLowerCase();
         let shown = 0;
-        cards.forEach((c) => {
+        rows.forEach((c) => {
             const hit = !q || c.dataset.search.includes(q);
             c.classList.toggle('is-hidden', !hit);
             if (hit) shown += 1;
         });
         groups.forEach((g) => {
-            const any = [...g.querySelectorAll('.portal-card')].some((c) => !c.classList.contains('is-hidden'));
+            const any = [...g.querySelectorAll('.ix-row')].some((c) => !c.classList.contains('is-hidden'));
             g.classList.toggle('is-hidden', !any);
         });
         empty.classList.toggle('is-visible', shown === 0);
-        count.textContent = q ? `${shown} / ${cards.length}` : '';
+        count.textContent = q ? `${shown} / ${rows.length}` : '';
     };
 
     input.addEventListener('input', apply);
@@ -664,7 +666,7 @@ function bindPortal() {
         if (e.key === 'Escape') { input.value = ''; apply(); input.blur(); }
     });
 
-    cards.forEach((c) => {
+    rows.forEach((c) => {
         c.addEventListener('click', () => {
             openPage(c.dataset.folder, c.dataset.page);
         });
@@ -683,7 +685,7 @@ async function loadSidebar() {
         `<input type="text" id="menuSearch" placeholder="搜索菜单…" autocomplete="off" />` +
         `</div>` +
         `<div class="sidebar-title">导航</div>` +
-        `<a class="sidebar-home" data-home="1">卡片门户</a>`;
+        `<a class="sidebar-home" data-home="1">全部流程</a>`;
 
     const groups = index.groups;
     const names = [...index.groupNames];
@@ -869,18 +871,37 @@ async function loadContent(fullFolder, pageId) {
         : ` > ${folderDisplay} > ${pageTitle}`;
 
     const stepCount = parsed.blocks.filter((b) => b.type === 'step').length;
+    const blankCount = parsed.blocks.filter((b) => b.type === 'step' && b.param && b.param.kind === 'input').length;
+
+    /* 常见问题条数 = FAQ 标题后面的三级标题数量 */
+    let faqCount = 0;
+    let inFaq = false;
+    parsed.blocks.forEach((b) => {
+        if (b.type !== 'heading') return;
+        if (b.level === 2) inFaq = (b.text || '').trim().toUpperCase() === 'FAQ';
+        else if (b.level === 3 && inFaq) faqCount += 1;
+    });
+
+    const headParts = (fullFolder || '').split('/');
+    const codeMatch = (headParts[headParts.length - 1] || '').match(/^(\d+\.\d+)/);
+    const docCode = codeMatch ? codeMatch[1] : '';
+    const groupName = (headParts[0] || '').replace(/^\d+\./, '');
 
     loader.innerHTML =
         `<div class="page-block active" id="page-${escapeHtml(pageId)}">` +
         `<div class="breadcrumb">` +
         `<a data-home="1">支援未来</a>${escapeHtml(breadcrumb)}` +
         `</div>` +
-        `<div class="page-header">` +
-        `<h1>${escapeHtml(pageTitle)}</h1>` +
-        `<div class="page-header-side">` +
-        (stepCount ? `<span class="page-steps">${stepCount} 个动作</span>` : '') +
-        `<a class="edit-btn" href="https://github.com/Monarchish/Monarchish.github.io/edit/main/${encodeURI(filePath)}" target="_blank" rel="noopener">编辑此页</a>` +
-        `</div>` +
+        `<div class="doc-head">` +
+        `<h1 class="doc-title">${escapeHtml(pageTitle)}</h1>` +
+        `<table class="doc-meta">` +
+        `<tr><th>流程编号</th><td>${escapeHtml(docCode)}</td>` +
+        `<th>所属业务</th><td>${escapeHtml(groupName)}</td></tr>` +
+        `<tr><th>标准动作</th><td>${stepCount} 项</td>` +
+        `<th>常见问题</th><td>${faqCount} 条</td></tr>` +
+        `</table>` +
+        (blankCount ? `<p class="doc-legend">下划线处按实际情况填写，其余照做即可。</p>` : '') +
+        `<a class="doc-edit" href="https://github.com/Monarchish/Monarchish.github.io/edit/main/${encodeURI(filePath)}" target="_blank" rel="noopener">在 GitHub 上编辑此页</a>` +
         `</div>` +
         `<div class="page-content markdown-body sop-doc">${bodyHtml}</div>` +
         `</div>`;
