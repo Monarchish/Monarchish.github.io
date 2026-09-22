@@ -13,7 +13,7 @@
 
   var CONFIG = {
     /* 动画页地址，相对于本文件所在目录的上一级（站点根目录） */
-    frameUrl: "三、开屏动画/index.html?embed=1",
+    frameUrl: "02、开屏动画/index.html?embed=1",
 
     /* 是否每次会话只播一次：true = 刷新不再重复播，重开标签页才播 */
     oncePerSession: true,
@@ -21,10 +21,10 @@
     /* 会话标记的键名。留空则跟随 index.html <head> 里定义的那个 */
     sessionKey: window.__INTRO_SESSION_KEY || "act54-intro-played",
 
-    /* 与动画页约定的消息标记，必须和 三、开屏动画/app.js 里的一致 */
+    /* 与动画页约定的消息标记，必须和 02、开屏动画/1.动画播放器.js 里的一致 */
     messageSource: "ak-act54-intro",
 
-    /* 覆盖层淡出时长（毫秒），要和 overlay.css 里的 transition 保持一致 */
+    /* 覆盖层淡出时长（毫秒），要和 7.主页覆盖层样式.css 里的 transition 保持一致 */
     fadeOutMs: 600,
 
     /* 兜底一：这么久还没收到"资源就绪"消息就强制收场（毫秒） */

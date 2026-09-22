@@ -1,3 +1,15 @@
+/* ============================================================
+   03、设置 · 1.站点主程序.js
+   ------------------------------------------------------------
+   这是什么：主页（支援未来文档站）的功能代码，和开屏动画无关。
+   它做的事：三件事 ——
+     ① 按下面 sidebarManifest 清单生成左侧导航菜单；
+     ② 抓取 01、支援未来/ 里对应的 .md 文档，用 marked 渲染成正文；
+     ③ 右侧「本页指引」目录、搜索框、手风琴菜单等交互。
+   谁在用它：站点根目录 index.html 引入后调用 init()。
+   要不要改：新增 / 删除文档，只需要改下面的 sidebarManifest 清单。
+   ============================================================ */
+
 // =========================================================
 // 文件清单
 // =========================================================
@@ -67,7 +79,7 @@ function wrapKeywordsInHtml(html) {
 
 async function getTitleFromMd(folder, pageId) {
     try {
-        const filePath = `二、支援未来/${folder}/${pageId}.md`;
+        const filePath = `01、支援未来/${folder}/${pageId}.md`;
         const resp = await fetch(filePath);
         if (!resp.ok) return pageId;
         const mdText = await resp.text();
@@ -376,9 +388,9 @@ async function loadContent(fullFolder, pageId) {
 
     let filePath;
     if (pageId === 'home') {
-        filePath = '二、支援未来/home.md';
+        filePath = '01、支援未来/首页.md';
     } else {
-        filePath = `二、支援未来/${fullFolder}/${pageId}.md`;
+        filePath = `01、支援未来/${fullFolder}/${pageId}.md`;
     }
 
     try {

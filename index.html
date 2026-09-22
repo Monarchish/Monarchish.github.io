@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<!-- ============================================================
+     站点入口（index.html 是 GitHub Pages 的首页约定名，不能改）
+
+     仓库结构：
+       01、支援未来/    文档正文（.md），改内容只动这里
+       02、开屏动画/    站点打开时的开场动画（平时不用动）
+       03、设置/        主页的功能代码与样式（导航清单在这里）
+
+     本文件本身只做三件事：搭主页骨架、引 03、设置/ 的代码与样式、
+     引 02、开屏动画/6.主页挂载.js 在首页播一次开场动画。
+     ============================================================ -->
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
@@ -6,17 +17,17 @@
     <title>支援未来</title>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preload" href="一、设置/style.css" as="style" />
-    <link rel="preload" href="一、设置/app.js" as="script" />
+    <link rel="preload" href="03、设置/2.站点样式.css" as="style" />
+    <link rel="preload" href="03、设置/1.站点主程序.js" as="script" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
-    <link rel="stylesheet" href="一、设置/style.css" />
-    <link rel="stylesheet" href="三、开屏动画/overlay.css" />
+    <link rel="stylesheet" href="03、设置/2.站点样式.css" />
+    <link rel="stylesheet" href="02、开屏动画/7.主页覆盖层样式.css" />
 
     <!-- ===================== 开屏动画 =====================
          ① 在页面首次绘制之前就决定"这次要不要播动画"，
             避免出现"先闪一下主页、再盖黑幕"的观感。
-         ② 要播就给 <html> 加上 intro-on 类，覆盖层由 overlay.css 显示，
-            真正的播放逻辑在 三、开屏动画/overlay.js。
+         ② 要播就给 <html> 加上 intro-on 类，覆盖层由 7.主页覆盖层样式.css 显示，
+            真正的播放逻辑在 02、开屏动画/6.主页挂载.js。
          调试开关（加在网址后面）：
             ?intro=0   本次不播（想直接看主页时用）
             ?intro=1   强制重播（忽略"本次会话已播过"）
@@ -41,7 +52,7 @@
 </head>
 <body>
 
-    <!-- 开屏动画覆盖层：动画播完由 overlay.js 自动淡出并移除，不占用主页布局 -->
+    <!-- 开屏动画覆盖层：动画播完由 6.主页挂载.js 自动淡出并移除，不占用主页布局 -->
     <div id="intro-overlay" aria-hidden="true"></div>
 
     <header class="top-nav">
@@ -65,19 +76,19 @@
         </div>
     </div>
 
-    <script src="一、设置/app.js"></script>
+    <script src="03、设置/1.站点主程序.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof init === 'function') {
                 init();
             } else {
-                console.error('app.js 未加载或 init 函数未定义');
+                console.error('1.站点主程序.js 未加载或 init 函数未定义');
             }
         });
     </script>
 
     <!-- 开屏动画挂载脚本：决定要不要播、播完怎么收场 -->
-    <script src="三、开屏动画/overlay.js"></script>
+    <script src="02、开屏动画/6.主页挂载.js"></script>
 
 </body>
 </html>

@@ -1,8 +1,22 @@
-import { evaluateScalar, evaluateVector, quaternionZDegrees } from "./curve-runtime.js";
-import { INTRO_CONFIG } from "./intro-config.js";
+/* ============================================================
+   02、开屏动画 · 1.动画播放器.js
+   ------------------------------------------------------------
+   这是什么：整个开屏动画的「大脑」。
+   它做的事：读 3.动画数据.js 里的图层树 + 全部动画曲线，
+             按时间逐帧求值（Hermite 插值，算法在 2.曲线求值.js），
+             把每一帧的位置 / 旋转 / 缩放 / 透明度写到 DOM 图层上，
+             播放到 4.行为配置.js 设定的收场时间点后通知主页收场。
+   谁在用它：02、开屏动画/index.html 用 <script type="module"> 加载。
+   要不要改：想调整播放行为（停在第几秒、藏不藏活动主界面）
+             改 4.行为配置.js，一般不需要动本文件。
+   依赖关系：本文件 import → 2.曲线求值.js / 3.动画数据.js / 4.行为配置.js
+   ============================================================ */
+
+import { evaluateScalar, evaluateVector, quaternionZDegrees } from "./2.曲线求值.js";
+import { INTRO_CONFIG } from "./4.行为配置.js";
 
 /* ------------------------------------------------------------
-   素材 CDN 加速（大陆访客 github.io 直连很慢，见 intro-config.js）
+   素材 CDN 加速（大陆访客 github.io 直连很慢，见 4.行为配置.js）
    所有素材地址统一走 assetUrl()：配了 CDN 就优先走 CDN，
    加载失败自动回退到与本站同源的文件，保证永远不会白屏。
    ------------------------------------------------------------ */
@@ -14,13 +28,13 @@ function assetUrl(url) {
   return encodeURI(CDN_BASE + url.replace(/^\.\//, ""));
 }
 
-/* scene-data.js 约 350KB，优先走 CDN，失败回退同源。
+/* 3.动画数据.js 约 350KB，优先走 CDN，失败回退同源。
    动态 import 是为了拿到"失败后重试"的机会。 */
 let sceneData;
 try {
-  ({ sceneData } = await import(assetUrl("scene-data.js")));
+  ({ sceneData } = await import(assetUrl("3.动画数据.js")));
 } catch {
-  ({ sceneData } = await import("./scene-data.js"));
+  ({ sceneData } = await import("./3.动画数据.js"));
 }
 
 const stage = document.querySelector("#stage");
@@ -31,15 +45,15 @@ const query = new URLSearchParams(location.search);
 /* ============================================================
    运行模式判定
    ------------------------------------------------------------
-   独立打开本页   → 播完后按 intro-config.js 的 redirectUrl 跳转
+   独立打开本页   → 播完后按 4.行为配置.js 的 redirectUrl 跳转
    被主页 iframe 嵌入 → 播完不跳转，改为给主页发消息，
-                        由 overlay.js 淡出覆盖层，露出主页正文
+                        由 6.主页挂载.js 淡出覆盖层，露出主页正文
    ------------------------------------------------------------ */
 const embedParam = query.get("embed");
 const EMBEDDED = embedParam === "1"
   ? true
   : (embedParam === "0" ? false : window.parent !== window);
-/** 与主页 overlay.js 约定的消息标记，两边必须一致 */
+/** 与主页 6.主页挂载.js 约定的消息标记，两边必须一致 */
 const EMBED_MESSAGE_SOURCE = "ak-act54-intro";
 
 /** 给主页（父窗口）发一条消息：ready = 资源就绪，done = 动画收场 */
@@ -52,7 +66,7 @@ function postToHost(type) {
 
 /* ============================================================
    站点开场动画定制逻辑
-   配置项见 intro-config.js，这里只负责执行
+   配置项见 4.行为配置.js，这里只负责执行
    ============================================================ */
 const DEBUG = INTRO_CONFIG.enableDebugQuery && query.get("debug") === "1";
 const redirectQuery = INTRO_CONFIG.enableDebugQuery ? query.get("redirect") : null;
@@ -88,7 +102,7 @@ function finishIntro() {
 
   if (DEBUG) console.log("[intro] finishIntro ->", END_ACTION);
 
-  /* 被主页嵌入：立刻告诉主页「动画结束了」，由 overlay.js 淡出覆盖层。
+  /* 被主页嵌入：立刻告诉主页「动画结束了」，由 6.主页挂载.js 淡出覆盖层。
      这里不自己铺黑场，否则会先黑一下再淡出，反而不连贯。 */
   if (END_ACTION === "notify") {
     postToHost("done");
@@ -411,7 +425,7 @@ function createNode(node, parentElement) {
   if (/outline|round_wire|\bline\b/i.test(node.name)) element.classList.add("is-outline");
   if (/^title_main_glass/.test(node.name)) {
     element.classList.add("is-title-glass");
-    element.style.maskImage = `url("${encodeURI("assets/images/title_main_mask.png")}")`;
+    element.style.maskImage = `url("${encodeURI("素材/贴图/title_main_mask.png")}")`;
     element.style.maskSize = "100% 100%";
     element.style.maskRepeat = "no-repeat";
   }

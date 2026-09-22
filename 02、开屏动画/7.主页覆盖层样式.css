@@ -27,7 +27,7 @@ html.intro-on body {
   overflow: hidden !important;
 }
 
-/* 收场：由 overlay.js 打上 is-closing，淡出后整个节点被移除 */
+/* 收场：由 6.主页挂载.js 打上 is-closing，淡出后整个节点被移除 */
 html.intro-on #intro-overlay.is-closing {
   opacity: 0;
   pointer-events: none;
