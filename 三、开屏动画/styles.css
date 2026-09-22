@@ -121,11 +121,6 @@ input {
   position: fixed;
   inset: 0;
   z-index: 20;
-  display: grid;
-  place-items: center;
-  color: rgb(208 233 245 / 82%);
-  font-size: 13px;
-  letter-spacing: 0.14em;
   background: #04070a;
   transition: opacity 400ms ease;
 }

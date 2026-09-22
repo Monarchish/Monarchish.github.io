@@ -121,6 +121,73 @@ const FRONT_UI_PREFIXES = [
   "non_drawing_graphic",
 ];
 
+/* ------------------------------------------------------------
+   精简版专用：不加载的贴图清单。
+   动画只播到 3.79s（黑圆眼睛转场），经逐帧实测（含遮罩
+   着色层），下列 54 张贴图在 0–3.79s 内从未显示（活动主
+   界面按钮、玻璃反光、闪光、部分水波帧等），跳过加载：
+   省约 0.65MB、54 个请求，且这些文件已从仓库删除。
+   ⚠️ 若把 redirectAtSeconds 改回 6.5 播完整段，
+      请清空这个清单（改成 new Set()）并还原图片文件，
+      否则结尾画面会缺图。
+   ------------------------------------------------------------ */
+const SKIP_SPRITE_FILES = new Set([
+  "bg2_back_text_1.png",
+  "bg2_back_text_2$0.png",
+  "bg2_back_text_nom.png",
+  "bg2_back_text_nom_line.png",
+  "bg2_back_text_ton.png",
+  "bg2_back_text_ton_line$0.png",
+  "bg2_desc_2.png",
+  "bg2_desc_3$0.png",
+  "bg2_mp3.png",
+  "bg2_mp3_line_1.png",
+  "bg2_mp3_line_2.png",
+  "btn_fav$0.png",
+  "btn_fortune.png",
+  "btn_fortune_bg$0.png",
+  "btn_fortune_end$0.png",
+  "btn_fortune_lock.png",
+  "btn_fortune_new1$0.png",
+  "btn_fortune_new2$0.png",
+  "btn_mission$0.png",
+  "btn_shop.png",
+  "btn_zone$0.png",
+  "btn_zone_end$0.png",
+  "btn_zone_ex$0.png",
+  "btn_zone_ex_end$0.png",
+  "btn_zone_ex_lock$0.png",
+  "desc_sprite$0.png",
+  "flassh.png",
+  "flassh_0$0.png",
+  "flassh_1.png",
+  "flassh_2$0.png",
+  "flassh_3$0.png",
+  "flassh_4$0.png",
+  "glass_1$0.png",
+  "glass_2$0.png",
+  "glass_3$0.png",
+  "glass_4$0.png",
+  "glass_5$0.png",
+  "glass_6$0.png",
+  "glass_7.png",
+  "img_daily$0.png",
+  "img_new.png",
+  "music_line_01$0.png",
+  "music_line_02.png",
+  "music_line_03.png",
+  "music_line_04$0.png",
+  "music_line_05.png",
+  "now_play.png",
+  "token$0.png",
+  "water_1$1.png",
+  "water_2$0.png",
+  "water_3$1.png",
+  "water_4.png",
+  "water_5.png",
+  "water_6.png",
+]);
+
 const REFERENCE_VIEWPORT = [1280, 720];
 const OUTPUT_SCALE = sceneData.viewport[0] / REFERENCE_VIEWPORT[0];
 
@@ -272,6 +339,9 @@ function createGraphic(node, element) {
   let tint = null;
 
   if (sprite) {
+    /* 清单里的贴图在收场前从不显示：不创建 img，不发起加载，
+       返回 null 让 updateVisual/updateFill 直接跳过该图层 */
+    if (SKIP_SPRITE_FILES.has(sprite.url.split("/").pop())) return null;
     image = document.createElement("img");
     image.className = "unity-sprite";
     image.alt = "";
