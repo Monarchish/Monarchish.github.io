@@ -208,6 +208,21 @@ a:hover {
 #loading-bar.active {
     opacity: 1;
 }
+/* 加载中给进度条加流动高光：远看也知道「在干活」，不是卡死 */
+#loading-bar.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 90px;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.65));
+    animation: loadingbar-slide 1.1s linear infinite;
+}
+@keyframes loadingbar-slide {
+    from { transform: translateX(-90px); }
+    to { transform: translateX(90px); }
+}
 
 /* ===== 内容区 ===== */
 .content-wrapper {
@@ -470,6 +485,9 @@ a:hover {
     padding: 16px 20px;
     border-radius: 6px;
     overflow-x: auto;
+    /* 动作行超长时自动折行，不再出横向拉条（文档侧已拆成一行一个动作，这里只是兜底） */
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 /* ===== 操作关键词 ===== */
@@ -482,6 +500,21 @@ a:hover {
     padding: 1px 8px !important;
     font-weight: 600 !important;
 }
+
+/* ===== 要点表分级配色 =====
+   渲染时由 1.站点主程序.js 的 paintLevelCells 按首列符号（⛔/⚠️/✅）自动加类，
+   配色与试点 v6 预览稿一致：禁止=红、注意=琥珀、检验=绿。 */
+.markdown-body tr.lv-row-ban { background: #fff5f5; }
+.markdown-body tr.lv-row-warn { background: #fffdf0; }
+.markdown-body tr.lv-row-chk { background: #f2fbf5; }
+.markdown-body td.lv-cell {
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.markdown-body td.lv-cell.lv-ban-text { color: #a32d2d; }
+.markdown-body td.lv-cell.lv-warn-text { color: #8a6100; }
+.markdown-body td.lv-cell.lv-chk-text { color: #1a7f37; }
 
 /* ===== SOP 步骤抽屉（details.sop-step） =====
    默认折叠，只露出「步骤 N｜中文标题」；点开看动作行与要点。

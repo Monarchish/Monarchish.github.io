@@ -15,8 +15,12 @@
         右侧「本页指引」只列工序名（准发下载 / 整理表格 / 台账编辑 / FAQ），
         点工序名切换视图，同一时间只显示一个 —— 见 splitIntoChunks / showChunk；
      ⑤ 右侧「本页指引」、菜单搜索（Ctrl + K）、手风琴菜单。
-   加载性能：include 全部并行拉取 + 整页会话缓存（pageCache）+
-        卡片/菜单悬停预取（prefetchPage）—— 进明细不再卡几秒。
+   加载性能：首页/侧栏先用清单秒画、索引后台精修（索引存 localStorage，
+        键 support-future-index-v2，12 小时有效）；include 全部并行拉取 +
+        整页会话缓存（pageCache）+ 卡片/菜单悬停预取（prefetchPage）——
+        进明细不再卡几秒。
+   要点配色：要点表首列 ⛔/⚠/✓ 渲染时自动转彩色 emoji 并整行上色
+        （normalizeLevelGlyphs + paintLevelCells），md 里不用写样式。
    谁在用它：站点根目录 index.html 引入后调用 init()。
    要不要改：────────────────────────────────────────────
      · 新增 / 删除流程   → 只改下面的 sidebarManifest 清单
@@ -94,17 +98,25 @@ function wrapKeywordsInHtml(html) {
     return html.replace(re, (m) => `<span class="action-keyword">${m}</span>`);
 }
 
-async function getTitleFromMd(folder, pageId) {
-    try {
-        const filePath = `01、支援未来/${folder}/${pageId}.md`;
-        const resp = await fetch(filePath);
-        if (!resp.ok) return pageId;
-        const mdText = await resp.text();
-        const match = mdText.match(/^#\s+(.+)$/m);
-        return match ? match[1] : pageId;
-    } catch (e) {
-        return pageId;
-    }
+/** 要点分级符号转彩色 emoji：⚠ → ⚠️（琥珀色表情）、✓ → ✅（绿色表情）；⛔ 本身就是彩色 emoji */
+function normalizeLevelGlyphs(html) {
+    return html.replace(/⚠(?!\uFE0F)/g, '⚠️').replace(/✓/g, '✅');
+}
+
+/** 给要点表的行/单元格上色：首列以 ⛔/⚠️/✅ 开头的行，整行加底色、级别格加字色 */
+function paintLevelCells(root) {
+    root.querySelectorAll('.markdown-body tr').forEach((tr) => {
+        const first = tr.querySelector('td');
+        if (!first || first.classList.contains('lv-cell')) return;
+        const t = (first.textContent || '').trim();
+        let rowCls = null, cellCls = null;
+        if (t.indexOf('⛔') === 0) { rowCls = 'lv-row-ban'; cellCls = 'lv-ban-text'; }
+        else if (t.indexOf('⚠') === 0) { rowCls = 'lv-row-warn'; cellCls = 'lv-warn-text'; }
+        else if (t.indexOf('✅') === 0 || t.indexOf('✓') === 0) { rowCls = 'lv-row-chk'; cellCls = 'lv-chk-text'; }
+        if (!rowCls) return;
+        tr.classList.add(rowCls);
+        first.classList.add('lv-cell', cellCls);
+    });
 }
 
 function generateTOCFromContent() {
@@ -298,20 +310,40 @@ function setupSearch() {
 // 步骤数 = 首页里 ## FAQ 之前的 <!-- include: --> 条数。
 // =========================================================
 const DOC_ROOT = '01、支援未来';
-const INDEX_CACHE_KEY = 'support-future-index-v1';
+/* v2：索引缓存改用 localStorage（新开标签页/重开浏览器都还在，sessionStorage 只有单个标签有效），
+   带 12 小时有效期——过期或版本升级后自动重抓。慢网络下这是「首开卡几秒」的主解药。 */
+const INDEX_CACHE_KEY = 'support-future-index-v2';
+const INDEX_TTL_MS = 12 * 60 * 60 * 1000;
 
 let _indexPromise = null;
 
 function buildIndex() {
-    if (!_indexPromise) _indexPromise = _buildIndexOnce();
+    if (!_indexPromise) {
+        _indexPromise = _buildIndexOnce().catch((e) => { _indexPromise = null; throw e; });
+    }
     return _indexPromise;
 }
 
-async function _buildIndexOnce() {
+/** 读索引缓存；过期/损坏返回 null */
+function readIndexCache() {
     try {
-        const cached = sessionStorage.getItem(INDEX_CACHE_KEY);
-        if (cached) return JSON.parse(cached);
-    } catch (e) { /* 隐私模式下取不到缓存就忽略 */ }
+        const raw = localStorage.getItem(INDEX_CACHE_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || !Array.isArray(obj.items) || !obj.items.length) return null;
+        if (Date.now() - (obj.savedAt || 0) > INDEX_TTL_MS) return null;
+        return obj;
+    } catch (e) { return null; }
+}
+
+/** 从文件编号里取流程名（如 03.02.00.插行 → 插行），清单秒画时用 */
+function titleFromFile(file) {
+    return file.replace(/^\d+\.\d+\.00\./, '');
+}
+
+async function _buildIndexOnce() {
+    const cached = readIndexCache();
+    if (cached) return cached;
 
     const items = await Promise.all(sidebarManifest.map(async (item) => {
         const text = await fetchText(`${DOC_ROOT}/${item.folder}/${item.file}.md`);
@@ -324,7 +356,7 @@ async function _buildIndexOnce() {
             folder: item.folder,
             file: item.file,
             group: item.folder.split('/')[0],
-            title: firstHeading(text) || item.file.replace(/^\d+\.\d+\.00\./, ''),
+            title: firstHeading(text) || titleFromFile(item.file),
             steps: steps,
             missing: !text || all === 0,
         };
@@ -336,10 +368,13 @@ async function _buildIndexOnce() {
         groups[it.group].push(it);
     });
 
-    const index = { items: items, groups: groups, groupNames: Object.keys(groups).sort() };
-    try { sessionStorage.setItem(INDEX_CACHE_KEY, JSON.stringify(index)); } catch (e) { }
+    const index = { savedAt: Date.now(), items: items, groups: groups, groupNames: Object.keys(groups).sort() };
+    try { localStorage.setItem(INDEX_CACHE_KEY, JSON.stringify(index)); } catch (e) { }
     return index;
 }
+
+/* 脚本一加载就开抓索引（跟开屏动画并行跑），init 里再调 buildIndex 等的是同一份承诺 */
+buildIndex().catch(() => { });
 
 function escapeHtml(s) {
     return String(s)
@@ -437,7 +472,7 @@ async function buildPage(fullFolder, pageId) {
 
     const page = {
         title: pageTitle,
-        chunks: chunks.map(c => ({ title: c.title, html: wrapKeywordsInHtml(marked.parse(c.md)) })),
+        chunks: chunks.map(c => ({ title: c.title, html: wrapKeywordsInHtml(normalizeLevelGlyphs(marked.parse(c.md))) })),
         hasIncludes: chunks.length > 1,
     };
     pageCache.set(key, page);
@@ -482,6 +517,8 @@ function renderPage(page, fullFolder, pageId) {
 
     document.getElementById('contentArea').scrollTop = 0;
     window.scrollTo({ top: 0 });
+
+    paintLevelCells(loader);
 
     if (page.chunks.length > 1) {
         buildChunkTOC(page.chunks);
@@ -535,9 +572,38 @@ function showChunk(i) {
 // escapeHtml，文档里有什么符号都不会破坏页面结构。
 // =========================================================
 async function loadPortal() {
-    const loader = document.getElementById('contentLoader');
+    /* 有缓存直接画准确版；没有就先用清单秒画一版（不联网，标题取自文件名、
+       步骤数留空），索引在后台到位后再原地精修——首页冷启动不再白等几秒 */
+    const cached = readIndexCache();
+    if (cached) {
+        renderPortal(cached);
+        return;
+    }
+    renderPortal(manifestIndex());
     const index = await buildIndex();
+    if (currentPageId === 'home') refinePortal(index);
+}
 
+/** 清单兜底索引：不联网，直接用 sidebarManifest 拼一版门户数据 */
+function manifestIndex() {
+    const items = sidebarManifest.map((item) => ({
+        folder: item.folder,
+        file: item.file,
+        group: item.folder.split('/')[0],
+        title: titleFromFile(item.file),
+        steps: 0,
+        missing: false,
+    }));
+    const groups = {};
+    items.forEach((it) => {
+        if (!groups[it.group]) groups[it.group] = [];
+        groups[it.group].push(it);
+    });
+    return { items: items, groups: groups, groupNames: Object.keys(groups).sort() };
+}
+
+function renderPortal(index) {
+    const loader = document.getElementById('contentLoader');
     const groupHtml = index.groupNames.map((g) => {
         const items = index.groups[g];
         const no = g.split('.')[0];
@@ -549,6 +615,7 @@ async function loadPortal() {
             const tag = it.missing ? '<span class="portal-card-tag">待补充</span>' : '';
             return (
                 `<a class="portal-card" data-page="${escapeHtml(it.file)}" data-folder="${escapeHtml(it.folder)}" ` +
+                `data-name="${escapeHtml(name)}" ` +
                 `data-search="${escapeHtml((name + it.title + it.file).toLowerCase())}">` +
                 `<span class="portal-card-title">${escapeHtml(it.title)}</span>` +
                 `<span class="portal-card-meta">${escapeHtml(meta.join(' · '))}</span>` +
@@ -569,13 +636,13 @@ async function loadPortal() {
         );
     }).join('');
 
-    const totalSteps = index.items.reduce((a, b) => a + b.steps, 0);
+    const totalSteps = index.items.reduce((a, b) => a + (b.steps || 0), 0);
 
     loader.innerHTML =
         `<div class="portal">` +
         `<header class="portal-hero">` +
         `<h1 class="portal-hero-title">操作手册</h1>` +
-        `<p class="portal-hero-meta">${index.items.length} 个流程 · ${totalSteps} 个步骤</p>` +
+        `<p class="portal-hero-meta">${index.items.length} 个流程${totalSteps ? ` · ${totalSteps} 个步骤` : ''}</p>` +
         `<div class="portal-search">` +
         `<input type="text" id="portalSearch" placeholder="搜索流程名称，例如「开票」「MDG」「转货权」" autocomplete="off" />` +
         `<span class="portal-search-count" id="portalSearchCount"></span>` +
@@ -587,6 +654,36 @@ async function loadPortal() {
 
     bindPortal();
     window.scrollTo({ top: 0 });
+}
+
+/** 索引到位后原地精修：只改卡片文字与统计，不重画、不动搜索框和滚动位置 */
+function refinePortal(index) {
+    if (!document.querySelector('.portal')) return;
+    const byFile = new Map(index.items.map((it) => [it.file, it]));
+    document.querySelectorAll('.portal-card').forEach((card) => {
+        const it = byFile.get(card.dataset.page);
+        if (!it) return;
+        const titleEl = card.querySelector('.portal-card-title');
+        const metaEl = card.querySelector('.portal-card-meta');
+        const meta = [];
+        if (it.steps) meta.push(`${it.steps} 个步骤`);
+        if (it.missing) meta.push('待补充');
+        if (titleEl) titleEl.textContent = it.title;
+        if (metaEl) metaEl.textContent = meta.join(' · ');
+        const name = card.dataset.name || '';
+        card.dataset.search = (name + it.title + it.file).toLowerCase();
+        if (it.missing && !card.querySelector('.portal-card-tag')) {
+            const tag = document.createElement('span');
+            tag.className = 'portal-card-tag';
+            tag.textContent = '待补充';
+            card.appendChild(tag);
+        }
+    });
+    const metaAll = document.querySelector('.portal-hero-meta');
+    if (metaAll) {
+        const totalSteps = index.items.reduce((a, b) => a + (b.steps || 0), 0);
+        metaAll.textContent = `${index.items.length} 个流程${totalSteps ? ` · ${totalSteps} 个步骤` : ''}`;
+    }
 }
 
 function bindPortal() {
@@ -672,13 +769,8 @@ async function loadSidebar() {
         groups[firstLevel].push(item);
     }
 
-    /* 标题优先用并行索引（一次请求拿全部）；索引里没有的再单独取 */
-    let titleMap = new Map();
-    try {
-        const index = await buildIndex();
-        titleMap = new Map(index.items.map((it) => [it.file, it.title]));
-    } catch (e) { /* 取不到就整条走下面 getTitleFromMd 兜底 */ }
-
+    /* 先用清单里的文件名当标题，把侧栏立即画出来（不等网络）；
+       索引（并行 + localStorage 缓存）到位后再把标题精修成文档真实 # 标题 */
     const sortedFirstLevel = Object.keys(groups).sort();
 
     for (const firstLevel of sortedFirstLevel) {
@@ -689,8 +781,7 @@ async function loadSidebar() {
 
         const items = groups[firstLevel];
         for (const item of items) {
-            const title = titleMap.get(item.file) || await getTitleFromMd(item.folder, item.file);
-            html += `<a data-page="${item.file}">${title}</a>`;
+            html += `<a data-page="${item.file}">${escapeHtml(titleFromFile(item.file))}</a>`;
         }
 
         html += `</div></div>`;
@@ -701,6 +792,14 @@ async function loadSidebar() {
     highlightSidebarItem(currentPageId);
 
     setupSearch();
+
+    buildIndex().then((index) => {
+        const tm = new Map(index.items.map((it) => [it.file, it.title]));
+        sidebar.querySelectorAll('.sub-items a[data-page]').forEach((a) => {
+            const t = tm.get(a.dataset.page);
+            if (t) a.textContent = t;
+        });
+    }).catch(() => { });
 
     document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
