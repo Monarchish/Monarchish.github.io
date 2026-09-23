@@ -2,7 +2,7 @@
    03、设置 · 1.站点主程序.js
    ------------------------------------------------------------
    这是什么：主页（支援未来文档站）的功能代码，和开屏动画无关。
-   它做的事：四件事 ——
+   它做的事：五件事 ——
      ① 首页「卡片门户」：把 29 个流程按业务分组摊成卡片，
         带搜索过滤（卡片上的「N 个步骤」= 该流程首页在 ## FAQ 之前的引入数）；
      ② 按 sidebarManifest 清单生成左侧导航菜单，标题取自下面的并行索引，
@@ -11,13 +11,19 @@
         动作词（Open / Left Click / Ctrl + D …）只做蓝色高亮，不改写、不拆行；
         正文里的 <details class="sop-step"> 会变成可折叠的「步骤抽屉」，
         同一时间只展开一个（见下面的 bindSopSteps）；
-     ④ 右侧「本页指引」目录、菜单搜索（Ctrl + K）、手风琴菜单。
+     ④ 聚合页「单工序视图」：带 include 的页按 ## 标题切块，
+        右侧「本页指引」只列工序名（准发下载 / 整理表格 / 台账编辑 / FAQ），
+        点工序名切换视图，同一时间只显示一个 —— 见 splitIntoChunks / showChunk；
+     ⑤ 右侧「本页指引」、菜单搜索（Ctrl + K）、手风琴菜单。
+   加载性能：include 全部并行拉取 + 整页会话缓存（pageCache）+
+        卡片/菜单悬停预取（prefetchPage）—— 进明细不再卡几秒。
    谁在用它：站点根目录 index.html 引入后调用 init()。
    要不要改：────────────────────────────────────────────
      · 新增 / 删除流程   → 只改下面的 sidebarManifest 清单
      · 新增要高亮的动作词 → 只改下面的 keywords 清单
      · 门户卡片的外观    → 改 03、设置/2.站点样式.css 的「卡片门户首页」段
      · 步骤抽屉的外观    → 改 03、设置/2.站点样式.css 的「SOP 步骤抽屉」段
+     · 工序视图的外观    → 改 03、设置/2.站点样式.css 的「单工序视图」段
    ============================================================ */
 
 // =========================================================
@@ -80,15 +86,12 @@ const keywords = ['Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
 
 let currentPageId = 'home';
 
+/** 关键词高亮：单遍正则（长词优先），替代旧的逐词 25 遍扫描 */
 function wrapKeywordsInHtml(html) {
-    let result = html;
-    const sorted = [...keywords].sort((a, b) => b.length - a.length);
-    for (const kw of sorted) {
-        const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp('(?![^<]*>)' + escaped + '(?![^<]*>)', 'g');
-        result = result.replace(regex, `<span class="action-keyword">${kw}</span>`);
-    }
-    return result;
+    const alts = [...keywords].sort((a, b) => b.length - a.length)
+        .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const re = new RegExp('(?![^<]*>)(' + alts.join('|') + ')(?![^<]*>)', 'g');
+    return html.replace(re, (m) => `<span class="action-keyword">${m}</span>`);
 }
 
 async function getTitleFromMd(folder, pageId) {
@@ -366,6 +369,166 @@ function firstHeading(mdText) {
 }
 
 // =========================================================
+// 单工序视图（doc-chunk）
+// ---------------------------------------------------------
+// 聚合页（如 03.02.00.插行）的骨架是「## 工序名 + <!-- include: ... -->」。
+// 在 include 展开【之前】按 ## 标题切块（这样子文档自己的 ## 不会被误切），
+// 每块 = 一个工序视图。右侧「本页指引」只列工序名，点击切换视图，
+// 同一时间只显示一个 —— 看完准发下载不会再滚出整理表格。
+// 没有 include 的普通页走老逻辑：整页显示 + h2/h3 目录。
+// =========================================================
+
+const pageCache = new Map();        // key: folder/pageId -> { title, chunks:[{title, html}] }
+const prefetchInFlight = new Set();
+
+/** 按 ## 标题把聚合页 md 切成块；每块 title = ## 后的文字，body = 标题行之后的内容 */
+function splitIntoChunks(mdBody) {
+    const parts = mdBody.split(/^##\s+/m);
+    const chunks = [];
+    const pre = (parts[0] || '').trim();
+    if (pre) chunks.push({ title: '概述', md: pre });
+    for (let i = 1; i < parts.length; i++) {
+        const nl = parts[i].indexOf('\n');
+        const t = (nl >= 0 ? parts[i].slice(0, nl) : parts[i]).trim();
+        const body = nl >= 0 ? parts[i].slice(nl + 1) : '';
+        chunks.push({ title: t, md: body });
+    }
+    return chunks;
+}
+
+/**
+ * 构建一篇页面（含 include 并行拉取 + marked 渲染），结果整页缓存。
+ * 有 include 的页 → 多块（单工序视图）；没有 → 单块走老目录。
+ */
+async function buildPage(fullFolder, pageId) {
+    const key = fullFolder + '/' + pageId;
+    if (pageCache.has(key)) return pageCache.get(key);
+
+    const filePath = `${DOC_ROOT}/${fullFolder}/${pageId}.md`;
+    const mdText = await fetchText(filePath);
+    if (!mdText) return null;
+
+    const pageTitle = firstHeading(mdText) || pageId;
+    const mdBody = mdText.replace(/^#\s+.+\n/, '');
+    const basePath = filePath.substring(0, filePath.lastIndexOf('/') + 1);
+
+    let chunks;
+    const incProbe = /<!--\s*include:\s*([^\s]+\.md)\s*-->/;
+    if (incProbe.test(mdBody)) {
+        chunks = splitIntoChunks(mdBody);
+        // 收集全部 include，一次性并行拉取（旧的串行逐个 await 是进明细卡顿的主因）
+        const incRe = /<!--\s*include:\s*([^\s]+\.md)\s*-->/g;
+        const jobs = [];
+        chunks.forEach((c, ci) => {
+            incRe.lastIndex = 0;
+            let m;
+            while ((m = incRe.exec(c.md)) !== null) {
+                jobs.push({ ci, token: m[0], file: m[1] });
+            }
+        });
+        const texts = await Promise.all(jobs.map(j => fetchText(basePath + j.file)));
+        jobs.forEach((j, k) => {
+            const t = texts[k];
+            chunks[j.ci].md = chunks[j.ci].md.replace(j.token, t != null ? t : `*（无法加载：${j.file}）*`);
+        });
+    } else {
+        chunks = [{ title: pageTitle, md: mdBody }];
+    }
+
+    const page = {
+        title: pageTitle,
+        chunks: chunks.map(c => ({ title: c.title, html: wrapKeywordsInHtml(marked.parse(c.md)) })),
+        hasIncludes: chunks.length > 1,
+    };
+    pageCache.set(key, page);
+    return page;
+}
+
+/** 鼠标悬停预取：卡片/菜单 hover 时就在后台拉页面，点击时基本秒开 */
+function prefetchPage(folder, pageId) {
+    if (!pageId || pageId === 'home') return;
+    const key = folder + '/' + pageId;
+    if (pageCache.has(key) || prefetchInFlight.has(key)) return;
+    prefetchInFlight.add(key);
+    buildPage(folder, pageId).catch(() => {}).finally(() => prefetchInFlight.delete(key));
+}
+
+/** 把构建好的页面写进内容区 */
+function renderPage(page, fullFolder, pageId) {
+    const loader = document.getElementById('contentLoader');
+    const filePath = `${DOC_ROOT}/${fullFolder}/${pageId}.md`;
+    const folderDisplay = fullFolder.split('/')
+        .map(p => p.replace(/^\d+\./, '').replace(/^\d+\s*/, '')).join(' > ');
+    const chunkHtml = page.chunks.map((c, i) =>
+        `<section class="doc-chunk${i === 0 ? ' active' : ''}" data-chunk="${i}">${c.html}</section>`
+    ).join('');
+
+    loader.innerHTML = `
+        <div class="page-block active" id="page-${pageId}">
+            <div class="breadcrumb">
+                <a href="javascript:void(0)" onclick="switchToHome()">支援未来</a>
+                > ${folderDisplay} > ${page.title}
+            </div>
+            <div class="page-header">
+                <h1>${page.title}</h1>
+                <a class="edit-btn" href="https://github.com/Monarchish/Monarchish.github.io/edit/main/${filePath}" target="_blank">编辑此页</a>
+            </div>
+            <div class="page-content markdown-body">
+                ${chunkHtml}
+            </div>
+            <div class="footer-meta">最近更新：2026-09-23</div>
+        </div>
+    `;
+
+    document.getElementById('contentArea').scrollTop = 0;
+    window.scrollTo({ top: 0 });
+
+    if (page.chunks.length > 1) {
+        buildChunkTOC(page.chunks);
+    } else {
+        generateTOCFromContent();
+    }
+    bindSopSteps();
+}
+
+/** 单工序视图的「本页指引」：只列工序名 */
+function buildChunkTOC(chunks) {
+    const tocList = document.getElementById('tocList');
+    const tocWrapper = document.getElementById('tocWrapper');
+    if (!tocList) return;
+    tocList.innerHTML = '';
+    if (!chunks.length) { tocWrapper.classList.add('empty'); return; }
+    tocWrapper.classList.remove('empty');
+
+    chunks.forEach((c, i) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = 'javascript:void(0)';
+        a.textContent = c.title;
+        a.dataset.chunk = i;
+        if (i === 0) a.classList.add('active-toc');
+        a.addEventListener('click', function (e) {
+            e.preventDefault();
+            showChunk(i);
+        });
+        li.appendChild(a);
+        tocList.appendChild(li);
+    });
+}
+
+/** 切换到第 i 个工序视图：只显示它，目录高亮它，回到页首 */
+function showChunk(i) {
+    document.querySelectorAll('.page-content .doc-chunk').forEach((el, k) => {
+        el.classList.toggle('active', k === i);
+    });
+    document.querySelectorAll('#tocList a[data-chunk]').forEach(a => {
+        a.classList.toggle('active-toc', Number(a.dataset.chunk) === i);
+    });
+    document.getElementById('contentArea').scrollTop = 0;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =========================================================
 // 卡片门户首页
 // ---------------------------------------------------------
 // 首页不进正文渲染，直接把索引摊成卡片。卡片上的字全部走
@@ -460,6 +623,10 @@ function bindPortal() {
     cards.forEach((c) => {
         c.addEventListener('click', () => {
             openPage(c.dataset.folder, c.dataset.page);
+        });
+        /* 悬停即预取：手指移过去到点下去的时间差，足够把页面拉好 */
+        c.addEventListener('mouseenter', () => {
+            prefetchPage(c.dataset.folder, c.dataset.page);
         });
     });
 }
@@ -568,6 +735,11 @@ function bindSidebarEvents() {
     document.querySelectorAll('.sidebar .sub-items a').forEach(link => {
         link.removeEventListener('click', handleMenuItemClick);
         link.addEventListener('click', handleMenuItemClick);
+        /* 左侧菜单悬停也预取 */
+        link.addEventListener('mouseenter', () => {
+            const item = sidebarManifest.find(m => m.file === link.dataset.page);
+            if (item) prefetchPage(item.folder, item.file);
+        });
     });
 }
 
@@ -624,102 +796,37 @@ async function loadContent(fullFolder, pageId) {
     app.classList.remove('view-home');
 
     loadingBar.classList.add('active');
-    loadingBar.style.width = '20%';
+    loadingBar.style.width = '40%';
 
-    const filePath = `01、支援未来/${fullFolder}/${pageId}.md`;
+    loader.classList.add('is-loading');   // 旧内容变淡，明确「在换了」
 
+    let page = null;
     try {
-        const resp = await fetch(filePath);
-        if (!resp.ok) {
-            loader.innerHTML = `<p>页面加载失败，请刷新重试。</p>`;
-            loadingBar.style.width = '100%';
-            setTimeout(() => {
-                loadingBar.style.width = '0%';
-                loadingBar.classList.remove('active');
-            }, 300);
-            return;
-        }
-
-        loadingBar.style.width = '50%';
-
-        let mdText = await resp.text();
-
-        const includeRegex = /<!--\s*include:\s*([^\s]+\.md)\s*-->/g;
-        let match;
-        while ((match = includeRegex.exec(mdText)) !== null) {
-            const includeFile = match[1];
-            const basePath = filePath.substring(0, filePath.lastIndexOf('/') + 1);
-            const includePath = basePath + includeFile;
-            try {
-                const includeResp = await fetch(includePath);
-                if (includeResp.ok) {
-                    const includeContent = await includeResp.text();
-                    mdText = mdText.replace(match[0], includeContent);
-                } else {
-                    mdText = mdText.replace(match[0], `*（无法加载：${includeFile}）*`);
-                }
-            } catch (e) {
-                mdText = mdText.replace(match[0], `*（加载失败：${includeFile}）*`);
-            }
-        }
-
-        loadingBar.style.width = '75%';
-
-        const mdTextWithoutTitle = mdText.replace(/^#\s+.+\n/, '');
-        let htmlContent = marked.parse(mdTextWithoutTitle);
-        htmlContent = wrapKeywordsInHtml(htmlContent);
-
-        const titleMatch = mdText.match(/^#\s+(.+)$/m);
-        const pageTitle = titleMatch ? titleMatch[1] : '页面';
-
-        let breadcrumb = '';
-        if (pageId === 'home') {
-            breadcrumb = ' > 首页';
-        } else {
-            const parts = fullFolder.split('/');
-            const folderDisplay = parts.map(p => p.replace(/^\d+\./, '').replace(/^\d+\s*/, '')).join(' > ');
-            breadcrumb = ` > ${folderDisplay} > ${pageTitle}`;
-        }
-
-        loader.innerHTML = `
-            <div class="page-block active" id="page-${pageId}">
-                <div class="breadcrumb">
-                    <a href="javascript:void(0)" onclick="switchToHome()">支援未来</a>
-                    ${breadcrumb}
-                </div>
-                <div class="page-header">
-                    <h1>${pageTitle}</h1>
-                    <a class="edit-btn" href="https://github.com/Monarchish/Monarchish.github.io/edit/main/${filePath}" target="_blank">编辑此页</a>
-                </div>
-                <div class="page-content markdown-body">
-                    ${htmlContent}
-                </div>
-                <div class="footer-meta">最近更新：2026-08-24</div>
-            </div>
-        `;
-
-        document.getElementById('contentArea').scrollTop = 0;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        bindSopSteps();
-
-        loadingBar.style.width = '100%';
-        setTimeout(() => {
-            loadingBar.style.width = '0%';
-            loadingBar.classList.remove('active');
-        }, 300);
-
-        setTimeout(generateTOCFromContent, 100);
-
+        page = await buildPage(fullFolder, pageId);
     } catch (e) {
         console.error('内容加载失败:', e);
-        loader.innerHTML = `<p>内容加载失败，请刷新重试。</p>`;
+    } finally {
+        loader.classList.remove('is-loading');
+    }
+
+    if (!page) {
+        loader.innerHTML = `<p>页面加载失败，请刷新重试。</p>`;
         loadingBar.style.width = '100%';
         setTimeout(() => {
             loadingBar.style.width = '0%';
             loadingBar.classList.remove('active');
         }, 300);
+        return;
     }
+
+    loadingBar.style.width = '80%';
+    renderPage(page, fullFolder, pageId);
+
+    loadingBar.style.width = '100%';
+    setTimeout(() => {
+        loadingBar.style.width = '0%';
+        loadingBar.classList.remove('active');
+    }, 300);
 }
 
 function switchToHome() {

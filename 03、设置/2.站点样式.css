@@ -543,6 +543,23 @@ a:hover {
     font-weight: 600;
 }
 
+/* ===== 单工序视图（doc-chunk） =====
+   聚合页（如 03.02.00.插行）按 include 拆成多个「工序视图」，
+   右侧本页指引只列工序名；点工序名切换视图，同一时间只显示一个。
+   交互在 1.站点主程序.js 的 showChunk / buildChunkTOC。 */
+.markdown-body .doc-chunk {
+    display: none;
+}
+.markdown-body .doc-chunk.active {
+    display: block;
+}
+/* 切页期间旧内容变淡，避免「点了没反应」的错觉 */
+#contentLoader.is-loading {
+    opacity: 0.45;
+    pointer-events: none;
+    transition: opacity 0.15s;
+}
+
 /* ===== 响应式 ===== */
 @media (max-width: 768px) {
     .top-nav {
