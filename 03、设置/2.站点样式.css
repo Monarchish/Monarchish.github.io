@@ -483,6 +483,66 @@ a:hover {
     font-weight: 600 !important;
 }
 
+/* ===== SOP 步骤抽屉（details.sop-step） =====
+   默认折叠，只露出「步骤 N｜中文标题」；点开看动作行与要点。
+   同一时间只允许展开一个（交互在 1.站点主程序.js 的 bindSopSteps）。
+   想加步骤：文档里写 <details class="sop-step"><summary>…</summary> … </details>。 */
+.markdown-body details.sop-step {
+    border: 1px solid #dfe4eb;
+    border-radius: 6px;
+    margin: 10px 0;
+    background: #fff;
+    overflow: hidden;
+}
+.markdown-body details.sop-step > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 11px 16px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1e2a3a;
+    background: #f8fafc;
+    user-select: none;
+    transition: background 0.15s;
+}
+.markdown-body details.sop-step > summary::-webkit-details-marker {
+    display: none;
+}
+.markdown-body details.sop-step > summary::before {
+    content: '▶';
+    display: inline-block;
+    font-size: 10px;
+    color: #8a9aa8;
+    margin-right: 10px;
+    transition: transform 0.15s;
+}
+.markdown-body details.sop-step[open] > summary::before {
+    transform: rotate(90deg);
+}
+.markdown-body details.sop-step > summary:hover {
+    background: #f1f4f9;
+}
+.markdown-body details.sop-step[open] > summary {
+    background: #f6f8fa;
+    border-bottom: 1px solid #dfe4eb;
+}
+/* details 内的正文缩进一点，和标题拉开层次 */
+.markdown-body details.sop-step > *:not(summary) {
+    margin-left: 16px;
+    margin-right: 16px;
+}
+.markdown-body details.sop-step > *:last-child {
+    margin-bottom: 14px;
+}
+
+/* 要点表：按「级别」列的文字自动上色（禁止红 / 注意黄 / 检验绿） */
+.markdown-body details.sop-step td:first-child:not(:only-child) {
+    width: 76px;
+    white-space: nowrap;
+    text-align: center;
+    font-weight: 600;
+}
+
 /* ===== 响应式 ===== */
 @media (max-width: 768px) {
     .top-nav {

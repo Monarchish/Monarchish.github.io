@@ -9,17 +9,22 @@
         不再逐篇串行请求，首屏更快；
      ③ 抓取 01、支援未来/ 里的 .md 文档，用 marked 原样渲染成正文 ——
         动作词（Open / Left Click / Ctrl + D …）只做蓝色高亮，不改写、不拆行；
+        正文里的 <details class="sop-step"> 会变成可折叠的「步骤抽屉」，
+        同一时间只展开一个（见下面的 bindSopSteps）；
      ④ 右侧「本页指引」目录、菜单搜索（Ctrl + K）、手风琴菜单。
    谁在用它：站点根目录 index.html 引入后调用 init()。
    要不要改：────────────────────────────────────────────
      · 新增 / 删除流程   → 只改下面的 sidebarManifest 清单
      · 新增要高亮的动作词 → 只改下面的 keywords 清单
      · 门户卡片的外观    → 改 03、设置/2.站点样式.css 的「卡片门户首页」段
+     · 步骤抽屉的外观    → 改 03、设置/2.站点样式.css 的「SOP 步骤抽屉」段
    ============================================================ */
 
 // =========================================================
 // 文件清单
 // =========================================================
+// 注意：门户卡片的「N 个步骤」= 首页里 ## FAQ 之前的 <!-- include: --> 条数，
+// 所以长流程页把子流程拆成 include 时，卡片数字会同步变化。
 const sidebarManifest = [
     // ===== 01.准入 =====
     { folder: "01.准入/01.01.准入", file: "01.01.00.准入" },
@@ -67,7 +72,9 @@ const sidebarManifest = [
 const keywords = ['Open', 'Write', 'Left Click', 'Right Click', 'Double Click',
     'Filter', 'Ctrl + C', 'Ctrl + V', 'Ctrl + D', 'Ctrl + F',
     'Ctrl + S', 'Ctrl + Alt + A', 'Ctrl + Alt + P', 'Ctrl + N',
-    'Ctrl + ;', 'Enter', 'Esc', 'Alt + 2', 'Alt + 5',
+    'Ctrl + ;', 'Enter', 'Esc', 'Alt + 2', 'Alt + 5', 'Close',
+    'Shift + Left Click', 'Ctrl + Left Click', 'Ctrl + X', 'Ctrl + Z',
+    'Ctrl + Shift + ↓',
     'Or', 'And'
 ];
 
@@ -694,6 +701,8 @@ async function loadContent(fullFolder, pageId) {
         document.getElementById('contentArea').scrollTop = 0;
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
+        bindSopSteps();
+
         loadingBar.style.width = '100%';
         setTimeout(() => {
             loadingBar.style.width = '0%';
@@ -717,6 +726,27 @@ function switchToHome() {
     currentPageId = 'home';
     document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
     loadContent('', 'home');
+}
+
+// =========================================================
+// SOP 步骤抽屉：同一时间只展开一个
+// ---------------------------------------------------------
+// 文档里用 <details class="sop-step"> 包住每个步骤。默认全部折叠，
+// 只看到「步骤 N｜标题」；点开某一个时，其余自动收起，避免长文档
+// 越堆越长。样式在 03、设置/2.站点样式.css 的 SOP 步骤抽屉段。
+// =========================================================
+function bindSopSteps() {
+    const steps = document.querySelectorAll('.page-content details.sop-step');
+    if (!steps.length) return;
+
+    steps.forEach((el) => {
+        el.addEventListener('toggle', () => {
+            if (!el.open) return;
+            steps.forEach((other) => {
+                if (other !== el && other.open) other.open = false;
+            });
+        });
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
