@@ -3,8 +3,8 @@
    ------------------------------------------------------------
    这是什么：首页「支援未来」门面的设计系统 + 样式。
    结构照 inversa.com 的 hero 复刻（400vh 长滚动 + sticky 视口 +
-   像素菱形 mask 窗口随滚动缩小再放大 + 中段压黑 + 右/左/右纯文本注解 +
-   右侧进度线 + 桌面端自定义光标），但 mask 图形是程序自生成的、
+   像素锯齿 mask 窗口随滚动缩小再放大 + 中段压黑 + 右/左/右纯文本注解 +
+   右侧进度线 + 桌面端自定义光标），但 mask 图形是程序自生成的像素锯齿矩形、
    配色变量/字体/代码/文案全部是我们自己的。
    平滑滚动（Lenis）已按用户要求移除：滚轮是原生 1:1 手感。
    它管什么：
@@ -42,6 +42,9 @@
     --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
     --f-display: "Space Grotesk", "Inter", "Noto Sans SC", system-ui, sans-serif;
     --f-body: "Inter", "Noto Sans SC", system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+
+    /* 像素锯齿矩形 mask（开屏画幅 + 门面地图窗口共用） */
+    --hero-mask: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1088' height='1360' viewBox='0 0 1088 1360' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M68 0h68v68h-68ZM340 0h136v68h-136ZM680 0h68v68h-68ZM816 0h68v68h-68ZM68 68h68v68h-68ZM272 68h204v68h-204ZM612 68h136v68h-136ZM816 68h272v68h-272ZM0 136h1088v68h-1088ZM68 204h952v68h-952ZM136 272h952v68h-952ZM0 340h1088v68h-1088ZM0 408h1020v68h-1020ZM0 476h1088v68h-1088ZM68 544h1020v68h-1020ZM68 612h952v68h-952ZM68 680h952v68h-952ZM0 748h1088v68h-1088ZM0 816h1020v68h-1020ZM68 884h1020v68h-1020ZM0 952h1088v68h-1088ZM0 1020h1088v68h-1088ZM68 1088h1020v68h-1020ZM0 1156h1088v68h-1088ZM68 1224h476v68h-476ZM748 1224h272v68h-272ZM68 1292h68v68h-68ZM204 1292h136v68h-136ZM476 1292h68v68h-68ZM884 1292h136v68h-136Z'/%3E%3C/svg%3E");
 
     /* 兼容旧变量名 */
     --hero-ink: var(--c-ink);
@@ -194,8 +197,8 @@ html:not(.hero-on) #heroStage {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: min(88vw, 1240px);
-    height: min(88vh, 760px);
+    width: 88vw;
+    height: 91vh;
     transform: translate(-50%, -50%);
     -webkit-mask-image: var(--hero-mask);
     mask-image: var(--hero-mask);
@@ -207,38 +210,21 @@ html:not(.hero-on) #heroStage {
     mask-position: center;
 }
 
-/* 地图双层：A 层「现状」（珊瑚红/琥珀热点）→ B 层「改善」（薄荷/荧光黄）
+/* 地图双层：A 层「现状」→ B 层「改善」，各是一张航拍主图
+   （03、设置/6.门面主图A.jpg / 7.门面主图B.jpg，竖版 1952x2477 同比例，
+   换图直接覆盖同名文件即可；这两张目前是程序占位图，等用户定稿图）。
    中段滚动时 A 淡出 B 淡入，对应参考站"退化 → 修复"的双图交叉 */
 .hero-map-layer {
     position: absolute;
     inset: 0;
     background-color: #181813;
-    background-image:
-        linear-gradient(to right, rgba(244, 243, 232, 0.08) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(244, 243, 232, 0.08) 1px, transparent 1px),
-        radial-gradient(circle at 27% 33%, rgba(241, 102, 77, 0.75) 0 3px, transparent 5px),
-        radial-gradient(circle at 61% 21%, rgba(241, 102, 77, 0.6) 0 3px, transparent 5px),
-        radial-gradient(circle at 72% 62%, rgba(241, 102, 77, 0.85) 0 4px, transparent 6px),
-        radial-gradient(circle at 43% 74%, rgba(241, 102, 77, 0.65) 0 3px, transparent 5px),
-        radial-gradient(circle at 16% 58%, rgba(235, 252, 114, 0.55) 0 2px, transparent 4px),
-        radial-gradient(circle at 84% 40%, rgba(235, 252, 114, 0.45) 0 2px, transparent 4px),
-        radial-gradient(ellipse 55% 42% at 50% 48%, rgba(241, 102, 77, 0.13), transparent 70%);
-    background-size: calc(var(--font-s) * 2.4) calc(var(--font-s) * 2.4),
-                     calc(var(--font-s) * 2.4) calc(var(--font-s) * 2.4),
-                     100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+    background-image: url("6.门面主图A.jpg");
+    background-size: cover;
+    background-position: center;
 }
 
 .hero-map-layer.is-b {
-    background-image:
-        linear-gradient(to right, rgba(244, 243, 232, 0.08) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(244, 243, 232, 0.08) 1px, transparent 1px),
-        radial-gradient(circle at 27% 33%, rgba(0, 211, 153, 0.8) 0 3px, transparent 5px),
-        radial-gradient(circle at 61% 21%, rgba(0, 211, 153, 0.6) 0 3px, transparent 5px),
-        radial-gradient(circle at 72% 62%, rgba(235, 252, 114, 0.7) 0 3px, transparent 5px),
-        radial-gradient(circle at 43% 74%, rgba(0, 211, 153, 0.7) 0 3px, transparent 5px),
-        radial-gradient(circle at 16% 58%, rgba(235, 252, 114, 0.6) 0 2px, transparent 4px),
-        radial-gradient(circle at 84% 40%, rgba(0, 211, 153, 0.5) 0 2px, transparent 4px),
-        radial-gradient(ellipse 55% 42% at 50% 48%, rgba(0, 211, 153, 0.12), transparent 70%);
+    background-image: url("7.门面主图B.jpg");
     opacity: 0;               /* B 层初始透明，滚动中段淡入 */
 }
 
@@ -522,22 +508,20 @@ html:not(.hero-on) #heroStage {
     clip-path: polygon(1.5rem 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 1.5rem);
 }
 
-/* 第 2-4 屏：注解文字（无卡片，纯文字块，右/左/右交替） */
+/* 第 2-4 屏：注解文字（无卡片，纯文字块）——右下 / 左下 / 右下（视频同款贴底） */
 .hero-slide:nth-child(2) .hero-slide-content,
 .hero-slide:nth-child(4) .hero-slide-content {
     position: absolute;
-    right: calc(var(--font-s) * 8.2);
-    top: 50%;
-    transform: translateY(-50%);
+    right: calc(var(--font-s) * 6);
+    bottom: calc(var(--font-s) * 4);
     width: calc(var(--font-s) * 39);
     max-width: calc(100% - calc(var(--font-s) * 4.8));
 }
 
 .hero-slide:nth-child(3) .hero-slide-content {
     position: absolute;
-    left: calc(var(--font-s) * 8.2);
-    top: 50%;
-    transform: translateY(-50%);
+    left: calc(var(--font-s) * 6);
+    bottom: calc(var(--font-s) * 4);
     width: calc(var(--font-s) * 38);
     max-width: calc(100% - calc(var(--font-s) * 4.8));
 }
@@ -654,71 +638,52 @@ html.hero-booting body { overflow: hidden; }
 .hero-boot-grid {
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(244, 243, 232, 0.15) 1.2px, transparent 1.7px);
-    background-size: 58px 58px;
+    background-image: radial-gradient(circle, rgba(244, 243, 232, 0.16) 1.4px, transparent 2px);
+    background-size: 9vmin 9vmin;
     background-position: center center;
 }
 
-/* 中间画幅：和门面地图同一个像素菱形 mask，从下往上长出来。
-   JS 用 GSAP 直接补间 height（起始 0 或 45%），底部对齐所以是"生长"而非"展开"。 */
+/* 中间画幅：就是门面主图本身（竖版 1952x2477 同比例的窗口），
+   像素锯齿 mask 裁边，从底部横线上由下往上长（JS 补间 height）。
+   涨满后 JS 会把它放大到盖满全页——和 hero 第一屏的全屏照片无缝衔接。 */
 .hero-boot-frame {
     position: absolute;
     left: 50%;
-    /* 底部落在横线稍微往上一点的位置，让横线像画幅的地平线 */
-    bottom: calc(50% + (var(--font-s) * 1.6));
-    width: min(38vw, 560px);
+    /* 底边压在横线上（横线 top:83%，画幅从它往上生长） */
+    bottom: 17%;
+    width: min(31vw, 460px);
     height: 0;
     transform: translateX(-50%);
     background-color: #181813;
-    background-image:
-        linear-gradient(to right, rgba(244, 243, 232, 0.09) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(244, 243, 232, 0.09) 1px, transparent 1px),
-        radial-gradient(circle at 30% 30%, rgba(241, 102, 77, 0.7) 0 3px, transparent 5px),
-        radial-gradient(circle at 68% 55%, rgba(0, 211, 153, 0.65) 0 3px, transparent 5px),
-        radial-gradient(circle at 48% 78%, rgba(235, 252, 114, 0.6) 0 2px, transparent 4px),
-        radial-gradient(ellipse 60% 45% at 50% 50%, rgba(241, 102, 77, 0.16), transparent 72%);
-    background-size: calc(var(--font-s) * 2.4) calc(var(--font-s) * 2.4),
-                     calc(var(--font-s) * 2.4) calc(var(--font-s) * 2.4),
-                     100% 100%, 100% 100%, 100% 100%, 100% 100%;
+    background-image: url("6.门面主图A.jpg");
+    background-size: cover;
+    background-position: center;
     -webkit-mask-image: var(--hero-mask);
     mask-image: var(--hero-mask);
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
 }
 
-/* 画幅底缘的高光线：让"地平线"更明确 */
-.hero-boot-frame::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: rgba(244, 243, 232, 0.55);
-}
-
-/* 屏幕中部横线：尺度轴。宽度随加载进度从 0 长到满（左起） */
+/* 底部横线（top:83%）：尺度轴 + 画幅的地平线。宽度随进度从 0 长到满（左起） */
 .hero-boot-line {
     position: absolute;
     left: calc(var(--font-s) * 2.4);
     right: calc(var(--font-s) * 2.4);
-    top: 50%;
-    transform: translateY(-50%) scaleX(0);
+    top: 83%;
+    transform: scaleX(0);
     transform-origin: left center;
     height: 1px;
     background: color-mix(in srgb, var(--c-paper) 42%, transparent);
 }
 
-/* 横线左端：LOADING... 打字框（屏幕中部靠左） */
+/* 横线左端：LOADING... 打字框（框底边贴在横线上） */
 .hero-boot-word {
     position: absolute;
     left: calc(var(--font-s) * 2.4);
-    top: 50%;
-    transform: translateY(-50%);
+    top: 83%;
+    transform: translateY(-100%);
     display: inline-block;
     margin-left: calc(var(--font-s) * 1.2);
     padding: 5px 12px;
@@ -733,18 +698,16 @@ html.hero-booting body { overflow: hidden; }
     background: var(--c-ink);
 }
 
-/* 横线右端：PHASE / FREQ 读数（屏幕中部靠右） */
+/* 画幅右侧：PHASE / FREQ 两行读数（底边贴横线，贴着画幅右缘外一点） */
 .hero-boot-readout {
     position: absolute;
-    right: calc(var(--font-s) * 2.4);
-    top: 50%;
-    transform: translateY(-50%);
-    margin-right: calc(var(--font-s) * 1.2);
+    left: calc(50% + (min(31vw, 460px) / 2) + 2.5vw);
+    top: 83%;
+    transform: translateY(-100%);
     display: flex;
-    align-items: baseline;
-    gap: calc(var(--font-s) * 2.4);
-    padding: 0 calc(var(--font-s) * 0.8);
-    background: var(--c-ink);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--font-s) * 0.6);
     font-family: var(--f-mono);
     font-size: calc(var(--font-s) * 1.25);
     font-weight: 400;
@@ -755,7 +718,7 @@ html.hero-booting body { overflow: hidden; }
 .hero-boot-row {
     display: flex;
     align-items: baseline;
-    gap: calc(var(--font-s) * 0.8);
+    gap: calc(var(--font-s) * 3.2);
     white-space: nowrap;
 }
 
@@ -792,7 +755,7 @@ html.hero-booting body { overflow: hidden; }
         left: 6vw !important;
         right: 6vw !important;
         top: auto;
-        bottom: 10vh;
+        bottom: 9vh;
         transform: none;
         width: auto;
         max-width: none;

@@ -285,18 +285,20 @@
     }
 
     /* ============================================================
-       LOADING 开屏
+       LOADING 开屏（严格照参考视频 QQ20260924-122358.mp4）
        ------------------------------------------------------------
-       进站先盖一层黑：LOADING... 逐字打出、中部横线从 0 长到满、
-       中间画幅从下往上生长，右端 PHASE 实时显示画幅的生长指数
-       （FREQ 恒定 16HZ）——这段时间正好让后台抓文档索引。
+       进站先盖一层黑：稀疏点阵 + 底部横线（83% 高）；
+       横线左端 LOADING... 逐字打出；中间画幅 = 门面主图本身
+       （竖版 1952x2477 同比例的窗口），从横线上由下往上生长；
+       画幅右缘外两行读数 PHASE / FREQ，PHASE 就是画幅的生长指数
+       （与 height 同一个补间驱动），FREQ 恒定 16HZ。
 
-       节奏（用户点名）：开始快、收尾缓慢 → 全程 power2.out（ease-out）。
-       画幅涨满后再"扩充到全页"（scale 放大到盖住整个视口 + 淡出），
-       然后解锁滚动，门面第 1 屏左下「支援未来」由下而上登场。
+       节奏：开始快、收尾缓慢（power2.out）。
+       涨满后画幅放大到「盖满整个视口」（照片铺满全屏），
+       同时横线/读数/点阵淡出，最后整层淡出——因为门面第 1 屏
+       的背景就是同一张照片（cover 全屏），衔接是无缝的。
 
-       回访：短版快闪（文字直接打完，时间压缩到 ~0.85s）；
-       系统少动效 / 没有 GSAP：直接摘掉开屏层，画面立即可用。
+       回访：短版快闪（~0.85s）；系统少动效 / 没有 GSAP：直接摘掉开屏层。
        ============================================================ */
     function bootSequence(done) {
         var boot = stage.querySelector(".hero-boot");
@@ -321,20 +323,19 @@
             wordEl.textContent = "";             /* 首次：从空开始逐字打 */
         }
 
-        /* 画幅的生长路程：从 0 长到"横线以上的那一段"。用像素值补间，
-           比百分比稳（画幅高度本身没写死，靠视口算）。 */
-        var stageH = boot.clientHeight || window.innerHeight || 800;
-        var growTo = Math.round(stageH * 0.5 - parseFloat(getComputedStyle(document.documentElement).fontSize || "9") * 1.6);
-        if (!isFinite(growTo) || growTo <= 0) growTo = Math.round(stageH * 0.42);
+        /* 画幅的生长路程：从 0 长到「宽 × 原图高宽比」（1952x2477 竖版，
+           高 = 宽 × 1.2683），和用户后续替换的主图比例严格一致。 */
+        var frameW = frameEl.offsetWidth || Math.min(window.innerWidth * 0.31, 460);
+        var growTo = Math.round(frameW * 1.2683);
+        if (!isFinite(growTo) || growTo <= 0) growTo = Math.round((boot.clientHeight || 800) * 0.5);
+        /* 涨满后要放大到盖满全页（cover）：横向或纵向谁需要的倍数大用谁 */
+        var vw = window.innerWidth || 1200, vh = window.innerHeight || 800;
+        var coverScale = Math.max(vw / frameW, vh / growTo) * 1.06;
 
         var tl = g.timeline({
             onComplete: function () {
                 document.documentElement.classList.remove("hero-booting");
-                /* 收尾：画幅+整层一起淡出，露出第 1 屏 */
-                g.to(boot, {
-                    opacity: 0, duration: 0.5, ease: "power1.inOut",
-                    onComplete: function () { boot.remove(); }
-                });
+                boot.remove();
                 done();
             }
         });
@@ -359,19 +360,23 @@
         }, 0);
         /* 收尾小顿挫：读数停在 100% 站稳一拍，再宣布"涨满" */
         tl.to({}, { duration: isReturn ? 0.12 : 0.35 });
-        /* 涨满 → 扩充到全页：画幅放大盖住整个视口 */
         if (!isReturn) {
             tl.call(function () { phaseEl.textContent = "100%"; });
         }
-        tl.to(boot.querySelector(".hero-boot-grid"), { opacity: 0.25, duration: 0.5, ease: "power1.inOut" }, ">-0.1");
+        /* 涨满 → 扩充到全页：画幅放大到 cover 整个视口（scale 动态算），
+           点阵先压暗、横线/文字/读数淡出，照片铺满的瞬间整层退场。
+           门面第 1 屏的背景是同一张照片（cover 全屏），所以淡出是无缝的。 */
+        tl.to(boot.querySelector(".hero-boot-grid"), { opacity: 0.3, duration: 0.45, ease: "power1.inOut" }, ">-0.05");
         tl.to([wordEl, lineEl, boot.querySelector(".hero-boot-readout")], {
             opacity: 0, duration: 0.4, ease: "power1.inOut"
         }, "<");
         tl.to(frameEl, {
-            scale: 6.5, opacity: 0, duration: 0.85, ease: "power2.in",
+            scale: coverScale, duration: 0.9, ease: "power2.inOut",
             transformOrigin: "50% 100%"
-        }, "<0.1");
-        tl.to({}, { duration: 0.15 });
+        }, "<0.05");
+        /* 照片已盖满：整层淡出（照片和下面 hero 的同一张图重叠，看不出切换） */
+        tl.to(boot, { opacity: 0, duration: 0.45, ease: "power1.inOut" }, ">-0.1");
+        tl.to({}, { duration: 0.05 });
     }
 
     /* ============================================================
@@ -490,6 +495,19 @@
         } catch (e) { /* 忽略：主程序自己会处理 */ }
     }
 
+    /* 滚动剧情只挂一次：ScrollTrigger 偶尔比 3 秒上限晚到（CDN 慢），
+       到货时由 start() 的保险轮询补挂——没人补挂的话 scrub 永远失效
+       （本地无头 Chrome 冷缓存实测踩过：ST 4.5 秒才下完，剧情整个没挂上） */
+    var storyMounted = false;
+    function mountStory() {
+        if (storyMounted) return true;
+        if (reduce) { storyMounted = true; return true; }
+        if (!window.gsap || !window.ScrollTrigger) return false;
+        storyMounted = true;
+        setupScroll();
+        return true;
+    }
+
     window.HeroFacade = {
         start: function () {
             if (started) return;
@@ -501,8 +519,15 @@
                 prepare();                   /* 第 1 屏摆好初始态，藏在 LOADING 层下面 */
                 bootSequence(function () {   /* 开屏涨满淡出后—— */
                     reveal();                /* 第 1 屏逐字入场 */
-                    setupScroll();           /* 滚动剧情上线 */
+                    mountStory();            /* 滚动剧情上线（只挂一次） */
                 });
+                /* ST 迟到保险：库里 ScrollTrigger 还没下完时，一到货立刻补挂 */
+                var swaited = 0;
+                var stimer = setInterval(function () {
+                    if (mountStory()) { clearInterval(stimer); return; }
+                    swaited += 120;
+                    if (swaited >= 9000) clearInterval(stimer);
+                }, 120);
             };
 
             /* 本文件在 DOMContentLoaded 就会被触发，而 GSAP 是异步注脚，
