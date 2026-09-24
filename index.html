@@ -21,58 +21,57 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2363b4de'/%3E%3Cstop offset='1' stop-color='%231c508c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230a1a2e'/%3E%3Cpath d='M32 9Q35.5 28.5 55 32Q35.5 35.5 32 55Q28.5 35.5 9 32Q28.5 28.5 32 9Z' fill='url(%23g)'/%3E%3C/svg%3E" />
 
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="preload" href="03、设置/2.站点样式.css" as="style" />
     <link rel="preload" href="03、设置/1.站点主程序.js" as="script" />
+    <!-- 门面用的两个免费开源字体（和参考站同款的 JetBrains Mono + 气质接近的 Space Grotesk）。
+         走 jsDelivr 的 fontsource，和站点其它 CDN 依赖一样，挂了会回退系统字体，不影响使用。 -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/files/space-grotesk-latin-500-normal.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5/files/jetbrains-mono-latin-400-normal.woff2" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <link rel="stylesheet" href="03、设置/2.站点样式.css" />
     <link rel="stylesheet" href="03、设置/3.Hero门面样式.css" />
-    <link rel="stylesheet" href="02、开屏动画/7.主页覆盖层样式.css" />
 
-    <!-- ===================== 门面 Hero 落地页 =====================
-         决定"这次访问要不要显示 Hero 门面"（和开屏动画同一套思路：
-         必须在首次绘制之前定下来，避免先闪一下主页再盖 Hero）。
+    <!-- ===================== 开场：门面长前言 =====================
+         2026-09-24 起，开屏动画退役，改由门面长前言兼任"开场 + 加载器"：
+         用户滚第 2-4 屏的这段时间，目录和文档索引在后台备好，
+         等待被"看内容"自然消化掉；回访（localStorage 有标记）
+         入场只走短文版，不强制等待。
          要显示就给 <html> 加上 hero-on 类，样式见 03、设置/3.Hero门面样式.css，
          动画与滚动剧情在 03、设置/4.Hero门面.js。
          调试开关（加在网址后面）：
             ?hero=0    直达操作手册（老用法、老速度）
-            ?hero=1    强制显示门面（用了 ?jump=1 之类的直达参数时也能看）
+            ?hero=1    强制显示门面
+            ?seen=0    清掉"回访"标记，重新看一遍完整入场
          其它直达参数（都是"这次访问要不要跳过门面"的开关）：
             ?jump=1    进站直接跳到目录
             ?page=xxx  直接打开某篇文档
-            ?intro=0   不播开屏动画
-            ?t=秒      动画页定格到第几秒
+            ?t=秒      动画页定格到第几秒（动画页已退役，参数保留兼容）
          ================================================== -->
     <script>
         (function () {
-            var KEY = "act54-intro-played";
-            window.__INTRO_SESSION_KEY = KEY;
-
             var query = new URLSearchParams(location.search);
             var heroParam = query.get("hero");
             var introForce = query.get("intro");
 
-            var played = false;
-            try { played = sessionStorage.getItem(KEY) === "1"; } catch (e) { /* 忽略 */ }
+            /* ?seen=0：把"看过门面"的标记清掉，下次（或这次刷新后）重新看完整入场 */
+            if (query.get("seen") === "0") {
+                try { localStorage.removeItem("support-future-hero-seen-v1"); } catch (e) { /* 忽略 */ }
+            }
 
-            /* 开屏动画：和以前一样，只在首次访问播一次 */
-            var playIntro = introForce === "1" || (introForce !== "0" && !played);
-
-            /* 门面 Hero：默认显示；只要这次访问带任何"直达"参数就跳过，
+            /* 门面默认显示；只要这次访问带任何"直达"参数就跳过，
                老链接、老习惯、同事收藏的 URL 全都照旧 */
             var direct = query.get("jump") === "1" || !!query.get("page") || introForce === "0";
             var useHero = heroParam === "1" || (heroParam !== "0" && !direct);
 
             window.__heroMode = useHero;
             if (useHero) document.documentElement.classList.add("hero-on");
-            if (playIntro) document.documentElement.classList.add("intro-on");
         })();
     </script>
 </head>
 <body>
-
-    <!-- 开屏动画覆盖层：动画播完由 6.主页挂载.js 自动淡出并移除，不占用主页布局 -->
-    <div id="intro-overlay" aria-hidden="true"></div>
 
     <!-- ===================== 门面 Hero（星河旅程，共 4 屏） =====================
          只在首页显示，而且是 .site-shell 的兄弟节点：整页滚动时它向上滑出、
@@ -119,13 +118,14 @@
             var files = [
                 ["gsap", "gsap/3.12.5/gsap.min.js"],
                 ["gsap", "gsap/3.12.5/ScrollTrigger.min.js"],
-                ["lenis", "lenis/1.1.14/lenis.min.js"]
+                /* lenis 在 cdnjs 已 404，改走 jsDelivr（和字体同一个源） */
+                ["lenis", null, "https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"]
             ];
             var pending = files.length;
             function done() { pending -= 1; if (pending === 0 && window.HeroFacade) window.HeroFacade.start(); }
             files.forEach(function (f) {
                 var s = document.createElement("script");
-                s.src = base + f[1];
+                s.src = f[2] || (base + f[1]);
                 s.onload = done;
                 s.onerror = done;      // 库挂了也照常起步（HeroFacade 会检测）
                 document.head.appendChild(s);
@@ -147,8 +147,12 @@
         });
     </script>
 
-    <!-- 开屏动画挂载脚本：决定要不要播、播完怎么收场 -->
-    <script src="02、开屏动画/6.主页挂载.js"></script>
+    <!-- 开屏动画（02、开屏动画）已退役：
+         2026-09-24 起由门面长前言兼任开场与加载器，这里不再引它的挂载脚本。
+         它的目录和文件都还在，想恢复就把下面这行注释取消、并把
+         <div id="intro-overlay"> 和头部的 intro-on 判断加回去
+         （完整步骤见 02、开屏动画/使用说明.md）。 -->
+    <!-- <script src="02、开屏动画/6.主页挂载.js"></script> -->
 
     <!-- 门面 Hero 的引导：负责"目录在下面、先别让同事滚错地方"这类小动作 -->
     <script>

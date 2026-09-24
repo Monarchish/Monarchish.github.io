@@ -402,8 +402,15 @@ async function _buildIndexOnce() {
     return index;
 }
 
-/* 脚本一加载就开抓索引（跟开屏动画并行跑），init 里再调 buildIndex 等的是同一份承诺 */
+/* 脚本一加载就开抓索引（跟门面/开屏并行跑），init 里再调 buildIndex 等的是同一份承诺 */
 buildIndex().catch(() => { });
+
+/* 给门面（4.Hero门面.js）催加载用：用户滚前言的这段时间，索引和首页文档
+   就在后台备好，滚到目录时是热的。抓失败也无所谓——init 会再等同一份承诺。 */
+window.prefetchIndex = function () {
+    buildIndex().catch(() => { });
+    buildPage('', 'home').catch(() => { });
+};
 
 function escapeHtml(s) {
     return String(s)
