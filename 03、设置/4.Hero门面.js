@@ -439,8 +439,9 @@
         var isMobile = window.matchMedia && window.matchMedia("(max-width: 720px)").matches;
 
         /* mask-size 三档（照参考站桌面/移动两套值，css.mask-size 直接补间。
-           坑：之前误写成自定义属性 "--mask-size"，CSS 里根本没有这个变量，
-           等于把补间打进了空气——mask 永远停在默认尺寸不动。 */
+           坑：之前误写成自定义属性（两个短横开头的变量名，CSS 里根本没有），
+           等于把补间打进了空气——mask 永远停在默认尺寸不动。
+           验尸线索：computed 的 mask-size 全程不变 + 截图里窗口收放完全缺席。 */
         var k = isMobile
             ? { initial: "350%", mid: "150%", final: "300%" }
             : { initial: "135%", mid: "64%", final: "135%" };
