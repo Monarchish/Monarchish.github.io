@@ -1,28 +1,40 @@
 /* ============================================================
    03、设置 · 3.Hero门面样式.css
    ------------------------------------------------------------
-   这是什么：首页「支援未来」门面的设计系统 + 样式。
-   结构照 inversa.com 的 hero 复刻（400vh 长滚动 + sticky 视口 +
-   像素锯齿 mask 窗口随滚动缩小再放大 + 中段压黑 + 右/左/右纯文本注解 +
-   右侧进度线 + 桌面端自定义光标），但 mask 图形是程序自生成的像素锯齿矩形、
-   配色变量/字体/代码/文案全部是我们自己的。
-   平滑滚动（Lenis）已按用户要求移除：滚轮是原生 1:1 手感。
-   它管什么：
-     · :root           设计变量（颜色 / 字体 / 缓动 / 流体字号基准）
-     · #heroStage      400svh 长滚动区（inversa 同款刻度：scrub 0→10）
-     · .hero-stick     sticky 视口（高 100svh：照片窗口 / 锯齿窗框 / 进度线 / 顶栏）
-     · .hero-slide     4 块文字（height:100svh 文档流块，随页面自然滚过）
-     · .hero-cursor    桌面端自定义光标（圆环 + 「滚动」标签）
-     · html.hero-on / html.hero-passed  状态类
+   这是什么：首页「支援未来」门面的样式。
+   结构逐步照教学视频（TTTISE《coding a website (-ish) animation》）
+   复刻，不再照 inversa 源码：
+     section.hero   一屏高（100svh）+ overflow hidden，由 ScrollTrigger
+                    pin 住并撑出 4 屏行程（end = += 4 × 视口高）
+     .hero-img      200svh 竖长照片带，bottom:0，随进度在开窗里缓移；
+                    ::after 压暗层走 --overlay-opacity 变量
+     .hero-mask     position:fixed 满视口「观察窗」：mask = 满幅白渐变
+                    减去 SVG 锯齿形（mask-composite: subtract），
+                    窗外是 --dark 深色底；随滚动 scale 收放
+     .hero-grid-overlay   网格纹理，居中，只在 0.475-0.775 进度段显现
+     .marker × 2    脉冲标记点（Anchor Field 红 / Drift Field 黄），
+                    按进度分段淡入淡出
+     .hero-content  400svh 文字层，随进度上移；4 个 100dvh 内容块
+                    左下 / 右中 / 左中 / 右中 交替
+     .hero-scroll-progress-bar  右侧进度线，scaleY(var(--progress))
+   配色 / 字体（DM Sans + DM Mono）/ 文案全部照教学版；
+   LOADING 开屏与顶栏是本站自有的固定配置，保留不动。
    ============================================================ */
 
 /* ============================================================
-   一、设计变量（色板 / 流体字号 / 缓动 / 字体）
+   一、设计变量
    ============================================================ */
 :root {
     --size: 1600;
     --font-s: calc((100vw / var(--size)) * 10);
 
+    /* 教学版色板（照 globals.css :root 原样） */
+    --light: #fff;
+    --dark: #141414;
+    --accent-1: #dc5935;
+    --accent-2: #d3df76;
+
+    /* 站点自有变量（顶栏 / 开屏还在用） */
     --c-ink: #13140e;
     --c-ink-2: #181813;
     --c-paper: #f4f3e8;
@@ -43,22 +55,51 @@
     --f-display: "Space Grotesk", "Inter", "Noto Sans SC", system-ui, sans-serif;
     --f-body: "Inter", "Noto Sans SC", system-ui, -apple-system, "Microsoft YaHei", sans-serif;
 
-    /* 像素锯齿矩形 mask（开屏画幅 + 门面照片窗口共用） */
+    /* 锯齿矩形 SVG（教学版 /mask.svg 的等形资产：像素阶梯边缘，
+       viewBox 1030×701）。观察窗用「满幅渐变 − 此形」相减开出；
+       开屏画幅用它裁边。 */
     --hero-mask: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1030' height='701' viewBox='0 0 1030 701' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M347 0v21h60V0h43v21h44v21h121V21h31V0h117v21h59V0h107v21h59v62h21v42h21v36h-21v38h-21v96h21v14h21v46h-21v21h21v38h-21v50h21v79h-21v74h21v24h-21v20H886v-20h-41v20h-40v-20h-21v20h-42v20h-41v20H559v-20h-23v-20h-50v-20h-41v20H330v-20h-21v20h-52v20h-24v20h-47v-20h-21v20h-21v-20h-21v-20H40v-41H20v-62h20v-46H20v-58h20v-20H20v-20H0V240h20v-53H0v-62h20V63h20V42h41v21h83V42h21V21h85V0z'/%3E%3C/svg%3E");
-
-    /* 剧情刻度尺：照 inversa 真身 —— 400svh 一屏长滚动 */
-    --hero-h: 400svh;
-
-    /* 兼容旧变量名（注意：这里不能再定义 --hero-h，
-       否则会覆盖上面 400svh 的舞台高度——之前踩过，
-       舞台高度变 100vh 后 ScrollTrigger 行程为 0，整段剧情彻底不动） */
-    --hero-ink: var(--c-ink);
-    --hero-paper: var(--c-paper);
 }
 
 /* ============================================================
-   二、字体（免费开源，jsDelivr / fontsource，挂了回退系统字体）
+   二、字体（教学版用 DM Sans + DM Mono；走 jsDelivr fontsource，
+   挂了回退系统字体。顶栏 / 开屏继续用站点的 JBM + Space Grotesk）
    ============================================================ */
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("https://cdn.jsdelivr.net/npm/@fontsource/dm-sans@5/files/dm-sans-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("https://cdn.jsdelivr.net/npm/@fontsource/dm-sans@5/files/dm-sans-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("https://cdn.jsdelivr.net/npm/@fontsource/dm-sans@5/files/dm-sans-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+    font-family: "DM Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("https://cdn.jsdelivr.net/npm/@fontsource/dm-mono@5/files/dm-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+    font-family: "DM Mono";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("https://cdn.jsdelivr.net/npm/@fontsource/dm-mono@5/files/dm-mono-latin-500-normal.woff2") format("woff2");
+}
 @font-face {
     font-family: "JetBrains Mono";
     font-style: normal;
@@ -110,20 +151,11 @@
 }
 
 /* ============================================================
-   三、站点外壳：门面模式下先被压住，滚完 400vh 再"盖上来"
+   三、站点外壳：门面阶段的过渡（滚完门面后内容淡入）
+   ------------------------------------------------------------
+   ScrollTrigger pin + pinSpacing 自己会把文档撑长，
+   这里不再需要旧版 max-height 压制的写法。
    ============================================================ */
-html.hero-on .site-shell {
-    max-height: var(--hero-h);
-    overflow: hidden;
-    background: var(--c-ink);
-    border-top: 0;
-}
-
-html.hero-on.hero-passed .site-shell {
-    max-height: none;
-    overflow: visible;
-}
-
 html.hero-on:not(.hero-passed) .site-shell .app {
     opacity: 0;
 }
@@ -142,24 +174,31 @@ html.hero-on .site-shell .app {
     transition: opacity 0.5s var(--ease-out-cubic);
 }
 
+/* 门面阶段藏滚动条（教学版 ::-webkit-scrollbar 全局隐藏，
+   这里只限门面阶段，目录阶段照常） */
+html.hero-on:not(.hero-passed) {
+    scrollbar-width: none;
+}
+html.hero-on:not(.hero-passed)::-webkit-scrollbar {
+    display: none;
+}
+
 /* ============================================================
-   四、旅程本体：照 inversa 真身 400svh + sticky wrapper
+   四、门面本体：section.hero 一屏高，行程交给 ScrollTrigger pin
    ------------------------------------------------------------
-   结构严格对齐参考站源码（data-v-0ae0c188）：
-     .home-hero   400svh，contain:paint —— 撑出滚动行程
-     ├ .slides    absolute inset:0 z1 —— 若干 height:100svh 的字幕屏，
-     │            在文档流里随页面滚过去（"字幕向上、背景不动"）
-     └ .wrapper   position:sticky top:0 height:100svh —— 背景钉住
-   时间轴只补间 wrapper 内部的层（照片对穿 / mask 开窗 / 压黑 / 去饱和）。
+   教学版：section { position:relative; width:100%; height:100svh;
+   background-color:var(--dark); overflow:hidden }
+   pin: true + pinSpacing: true 会自动生成撑杆（pin-spacer），
+   所以舞台本身只有一屏高。
    ============================================================ */
 #heroStage {
     position: relative;
-    height: var(--hero-h);
-    contain: paint;
-    /* 过渡期白场（照片位空着）：整段门面是白的，等用户的图到位后再回深色 */
-    background: #fff;
-    color: var(--c-paper);
-    font-family: var(--f-body);
+    width: 100%;
+    height: 100svh;
+    background-color: var(--dark);
+    color: var(--light);
+    overflow: hidden;
+    font-family: "DM Sans", "Noto Sans SC", sans-serif;
     pointer-events: none;
 }
 
@@ -172,246 +211,273 @@ html:not(.hero-on) #heroStage {
     display: none;
 }
 
-/* 桌面端：门面里用自定义光标，原生光标藏起来 */
-@media (pointer: fine) {
-    html.hero-on:not(.hero-passed) #heroStage {
-        cursor: none;
-    }
-    html.hero-on:not(.hero-passed) #heroStage a,
-    html.hero-on:not(.hero-passed) #heroStage button {
-        cursor: none;
-    }
-}
-
-/* ============================================================
-   五、sticky 视口 .wrapper：照片窗口 / 网格 / 热点 / 进度线
-   ------------------------------------------------------------
-   钉在视口上不动，字幕屏从它上面滚过去——
-   这就是"背景不动、内容换景"。照 inversa 用 sticky（不用 fixed，
-   不和站点里其它 sticky 元素打架），且**不需要负 margin**：
-   .slides 是 absolute 的兄弟层，本来就不占高度。
-   ============================================================ */
-.hero-stick {
-    position: sticky;
-    top: 0;
-    /* 照 inversa 真身：sticky 视口高度 = 一屏（100svh）。
-       之前误写成 400svh（整段行程），sticky 元素和父级一样高就没有
-       钉住行程了——画面会跟着滚走、反向视差也永远不触发。 */
-    height: 100svh;
-    overflow: hidden;
-    z-index: 0;
-    pointer-events: none;
-    /* 过渡期白场：mask 窗外的区域（点阵区）也走白 */
-    background-color: #fff;
-    /* 参考站 wrapper 那层 14rem 方格点阵底纹（opacity .2） */
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 140 140'%3E%3Cpath fill='%23f4f3e8' d='M0 0h3.5v3.5H0z' opacity='.2'/%3E%3C/svg%3E");
-    background-position: 50%;
-    background-repeat: repeat;
-    background-size: 14rem;
-}
-
-/* ---- 锯齿窗口 .hero-mask：照 inversa 真身 ----
-   真身是"满视口的开窗"：inset:0 + height:100svh（不是固定尺寸盒子！），
-   mask 图形 = 21px 格像素锯齿矩形（viewBox 1030×701）。
-   mask-size 默认 103rem×70.1rem（桌面）/ 57.6rem×39.2rem（窄屏），
-   GSAP 只补间 mask-size：135% → 64% → 135%（百分比相对视口宽）。
-   **照片本身不缩不放**——是这扇窗在收放，才有"四缘向内挤压"的观感；
-   窗外露出 .hero-stick 的点阵底纹（mask 图没盖住的地方 = 全透明）。 */
-.hero-mask {
-    position: absolute;
-    inset: 0;
-    height: 100svh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    -webkit-mask-image: var(--hero-mask);
-    mask-image: var(--hero-mask);
-    -webkit-mask-size: 103rem 70.1rem;
-    mask-size: 103rem 70.1rem;
-    -webkit-mask-position: center;
-    mask-position: center;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-}
-
-/* 窗内的四个层，层级照参考站：map(-1) < filter(1) < overlay(2) < raster(3) */
-.hero-mask > * { position: absolute; }
-
-/* 网格线（raster）：107.6rem × 74.5rem */
-.hero-raster {
-    left: 50%;
-    top: 50%;
-    width: 107.6rem;
-    height: 74.5rem;
-    margin-left: -53.8rem;
-    margin-top: -37.25rem;
-    z-index: 3;
-    background-image: linear-gradient(to right, color-mix(in srgb, var(--c-paper) 5%, transparent) 1px, transparent 1px),
-                      linear-gradient(to bottom, color-mix(in srgb, var(--c-paper) 5%, transparent) 1px, transparent 1px);
-    background-size: 2.07rem 2.07rem;
-    opacity: 0;
-}
-
-/* 压黑层 overlay */
-.hero-dim {
-    inset: 0;
-    z-index: 2;
-    background: var(--c-ink);
-    opacity: 0;
-}
-
-/* 去饱和滤镜 filter */
-.hero-desat {
-    inset: 0;
-    z-index: 1;
-    background: #b0b3b4;
-    mix-blend-mode: color;
-    opacity: 0;
-}
-
-/* ---- 照片对穿层 .hero-map：照 inversa 真身 ----
-   真身：inset:0 + height:200svh + z-index:-1，不是 left:50% 负 margin 那套。
-   里面两张图**完全重叠**（不是上下拼接！）：都 bottom:100svh、height:100%
-   （= 200svh 高，从 map 顶上方一屏铺到 map 内一屏），首图 z-index:1 压在上层。
-   整层 y 位移（0 → +50vh → +100vh）让照片内容在窗口里缓缓"对穿"，
-   7-10 刻度 A 图淡出，底下同位置的 B 图露出来——这就是"图片对穿"。 */
-.hero-map {
-    position: absolute;
-    inset: 0;
-    height: 200svh;
-    z-index: -1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* 过渡期纯白底：照片位空着的时候画面就是白的（用户要求）。
-       图片到位后两张 img 会盖在这层白底上，这行留着也无害。 */
-    background: #fff;
-}
-
-/* 单张图：跟 map 一样高（200svh），bottom:100svh —— 两张完全重叠。
-   object-fit:cover + **镜像翻转**（照参考站 scale(-1)）；
-   首图（现状 A）z-index:1 垫在上层，淡出后露出改善图 B。 */
-.hero-img {
-    position: absolute;
-    left: 0;
-    bottom: 100svh;
+/* 门面图层的全局图形规则（教学版 img / h1 / h2 / p，
+   作用域限在门面与收场白，不污染站点其它页面） */
+#heroStage img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
-    transform: scale(-1);
-    background-color: #181813;
 }
 
-.hero-img:first-child { z-index: 1; }    /* A（现状）：上层，7-10 淡出 */
+#heroStage h1 {
+    font-size: clamp(3rem, 4vw, 5rem);
+}
+
+#heroStage h2 {
+    font-size: clamp(1.5rem, 2.25vw, 3rem);
+}
+
+#heroStage p {
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
 
 /* ============================================================
-   五点五、（已删）收场白带
+   五、照片带 .hero-img（教学版原样）
    ------------------------------------------------------------
-   照 inversa 真身复刻后不再需要：参考站滚完就是目录接手，
-   没有"白色下节升起"这一段，所以 .hero-outro 整组样式已移除。
+   200svh 竖长带、bottom:0：上半截悬在舞台顶上方（被裁掉），
+   可见的是带的下半段；滚动时整条带往下缓移（视差）。
+   --overlay-opacity 是压暗层的透明度变量，由 JS 按进度写。
    ============================================================ */
-
-/* ---- 热点脉冲（两个工位标签，中段浮现）---- */
-.hero-hotspot,
-.hero-specialist {
+.hero-img {
     position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.hero-hotspot { color: var(--c-coral); left: 33%; top: 60%; }
-.hero-specialist { color: var(--c-acid); left: 63%; top: 33%; }
-
-.hero-hotspot-mark {
-    position: relative;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: currentcolor;
-}
-
-.hero-hotspot-label,
-.hero-specialist-label {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    padding: 3px 9px;
-    border-radius: 1px;
-    background: rgba(19, 20, 14, 0.78);
-    color: currentcolor;
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.1);
-    font-weight: 400;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-.hero-pulse {
-    position: absolute;
-    left: 50%;
-    top: 50%;
+    bottom: 0;
     width: 100%;
-    height: 100%;
-    margin-left: -50%;
-    margin-top: -50%;
-    border: 1px solid currentcolor;
-    border-radius: 50%;
-    animation: hero-pulse 2.8s var(--ease-out-quart) infinite;
+    height: 200svh;
+    --overlay-opacity: 0.15;
+    will-change: transform;
 }
 
-.hero-pulse:nth-child(2) { animation-delay: 1.4s; }
-
-@keyframes hero-pulse {
-    0% { transform: scale(0.3); opacity: 0.9; }
-    100% { transform: scale(1.6); opacity: 0; }
-}
-
-.hero-hotspot .hero-pulse,
-.hero-specialist .hero-pulse {
-    width: 8rem;
-    height: 8rem;
-}
-
-/* ---- 右侧进度线：整段旅程的填充刻度 ---- */
-.hero-indicator {
-    position: absolute;
-    right: calc(var(--font-s) * 6);
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1px;
-    height: calc(var(--font-s) * 18.2);
-    background: color-mix(in srgb, var(--c-paper) 45%, transparent);
-    z-index: 3;
-}
-
-.hero-indicator::before,
-.hero-indicator::after {
+.hero-img::after {
     content: "";
     position: absolute;
-    left: -2px;
-    width: 5px;
-    height: 5px;
-    background: color-mix(in srgb, var(--c-paper) 45%, transparent);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--dark);
+    opacity: var(--overlay-opacity);
+    will-change: opacity;
 }
 
-.hero-indicator::before { top: -2px; }
-.hero-indicator::after { bottom: -2px; }
+.hero-img img {
+    will-change: filter;
+}
 
-.hero-indicator i {
+/* ============================================================
+   六、观察窗 .hero-mask（教学版原样）
+   ------------------------------------------------------------
+   position:fixed 满视口，深色底；
+   mask = 满幅白渐变 − 锯齿 SVG（center/60%）→ 只有窗内透出下层。
+   随滚动由 JS 补 scale（2.5 → 1 → 2.5）。
+   注意：pin 释放后门面正常滚走，fixed 的窗会留在原地——
+   所以 hero-passed 之后把它藏掉（滚回去会自动恢复）。
+   ============================================================ */
+.hero-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100svh;
+    background-color: var(--dark);
+    mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/60% no-repeat;
+    -webkit-mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/60% no-repeat;
+    mask-composite: subtract;
+    -webkit-mask-composite: subtract;
+    will-change: transform;
+    pointer-events: none;
+    z-index: 10;
+}
+
+html.hero-passed .hero-mask {
+    opacity: 0;
+}
+
+/* ============================================================
+   七、网格层 .hero-grid-overlay（教学版原样）
+   ------------------------------------------------------------
+   居中一张网格 SVG（内联 data URI，等形复刻教学版 grid-overlay.svg：
+   方格阵 + 边缘凸出格），img 自身 0.25 透明度，整层由 JS 控制显隐。
+   ============================================================ */
+.hero-grid-overlay {
     position: absolute;
-    inset: 0;
-    background: var(--c-acid);
-    transform: scaleY(0);
-    transform-origin: top;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    z-index: 5;
 }
 
-/* ---- 门面顶栏：logo + 直达目录（sticky 视口内，随门面一起退场）---- */
+.hero-grid-overlay img {
+    opacity: 0.25;
+}
+
+/* ============================================================
+   八、标记点 .marker（教学版原样）
+   ============================================================ */
+.marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    will-change: opacity;
+    opacity: 0;
+    z-index: 6;
+}
+
+.marker-1 { top: 55svh; left: 38vw; }
+.marker-2 { top: 35svh; left: 60vw; }
+
+.marker .marker-icon {
+    position: relative;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 1rem;
+}
+
+/* 脉冲波纹：10rem 大圆从 0.25 缩放扩散、80% 后透明 */
+.marker .marker-icon::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10rem;
+    height: 10rem;
+    border-radius: 100%;
+    animation: marker-pulse 1.5s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+}
+
+.marker .marker-label {
+    text-transform: uppercase;
+    font-family: "DM Mono", monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+/* 标记一：橙红（Anchor Field） */
+.marker.marker-1 .marker-icon,
+.marker.marker-1 .marker-icon::after,
+.marker.marker-1 .marker-label {
+    background-color: var(--accent-1);
+    color: var(--light);
+}
+
+/* 标记二：黄绿（Drift Field） */
+.marker.marker-2 .marker-icon,
+.marker.marker-2 .marker-icon::after,
+.marker.marker-2 .marker-label {
+    background-color: var(--accent-2);
+    color: var(--dark);
+}
+
+@keyframes marker-pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.25);
+    }
+    80%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ============================================================
+   九、文字层 .hero-content（教学版原样）
+   ------------------------------------------------------------
+   400svh 高、随进度整体上移；里面 4 个 100dvh 内容块，
+   flex 对齐交替：1 左下 / 2 右中 / 3 左中 / 4 右中。
+   ============================================================ */
+.hero-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 400svh;
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+    z-index: 4;
+}
+
+.hero-content .hero-content-block {
+    width: 100%;
+    height: 100dvh;
+    padding: 4rem;
+    display: flex;
+}
+
+.hero-content .hero-content-copy {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+/* 布局节奏：不同 flex 对齐让内容块左右交替（教学版原样） */
+.hero-content .hero-content-block:nth-child(1) {
+    align-items: flex-end;
+}
+
+.hero-content .hero-content-block:nth-child(2),
+.hero-content .hero-content-block:nth-child(4) {
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.hero-content .hero-content-block:nth-child(3) {
+    align-items: center;
+}
+
+/* ============================================================
+   十、右侧进度线 .hero-scroll-progress-bar（教学版原样）
+   ============================================================ */
+.hero-scroll-progress-bar {
+    position: absolute;
+    top: 10%;
+    right: 1rem;
+    width: 0.1rem;
+    height: 10rem;
+    background-color: var(--light);
+    transform-origin: top;
+    transform: scaleY(var(--progress));
+    --progress: 0;
+    will-change: transform;
+    z-index: 7;
+}
+
+/* ============================================================
+   十一、收场白 .hero-outro-tut（教学版 section.outro 原样）
+   ============================================================ */
+.hero-outro-tut {
+    position: relative;
+    width: 100%;
+    height: 100svh;
+    background-color: var(--dark);
+    color: var(--light);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "DM Sans", "Noto Sans SC", sans-serif;
+}
+
+html:not(.hero-on) .hero-outro-tut {
+    display: none;
+}
+
+.hero-outro-tut p {
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* ============================================================
+   十二、门面顶栏（站点自有配置：logo + 直达目录，保留）
+   ============================================================ */
 .hero-bar {
     position: absolute;
     inset: 0 0 auto 0;
@@ -419,7 +485,7 @@ html:not(.hero-on) #heroStage {
     align-items: center;
     justify-content: space-between;
     padding: calc(var(--font-s) * 1.6) calc(var(--font-s) * 2.4);
-    z-index: 10;
+    z-index: 20;
     pointer-events: none;
 }
 
@@ -457,254 +523,14 @@ html:not(.hero-on) #heroStage {
 }
 
 /* ============================================================
-   六、文字层：4 块文字（钉在 sticky 视口里，由时间轴推着走）
-   ------------------------------------------------------------
-   注意：文字块【不走文档流】。参考站的观感是"字幕从底下升上来、
-   停住很久、再升出去"，如果让它们跟着页面滚动走，就变成一屏一屏
-   换界面（用户反馈的"每次滚动都是不同的界面"就是这个毛病）。
-   照 inversa 真身：.slides 是 absolute 的字幕层，里面每屏 .slide 是
-   **height:100svh 的文档流块**——页面滚多少，字幕就升多少，节奏天然对得上
-   滚轮；不需要自己再补间位移。背景（.hero-stick）钉住不动。
-   ============================================================ */
-.hero-slides {
-    position: absolute;
-    inset: 0;
-    z-index: 5;
-    pointer-events: none;
-}
-
-.hero-slide {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100svh;
-    pointer-events: none;
-}
-
-/* 第 1 屏：大标题 + 按钮 钉在左下（参考站同款位置）。
-   第 1 屏跟着门面一起滚出去（它属于"开场正脸"，不是旅途字幕） */
-.hero-slide:first-child .hero-slide-content {
-    position: absolute;
-    left: calc(var(--font-s) * 2.4);
-    bottom: calc(var(--font-s) * 3.2);
-    width: calc(var(--font-s) * 71);
-    max-width: calc(100% - calc(var(--font-s) * 4.8));
-    pointer-events: auto;   /* 里面有 Menu 按钮，别让 sticky 视口的 none 吃掉点击 */
-}
-
-.hero-kicker {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0 0 calc(var(--font-s) * 1.4);
-    color: var(--c-acid);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.2);
-    font-weight: 400;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-}
-
-.hero-kicker::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    background: var(--c-acid);
-    flex: none;
-}
-
-.hero-display {
-    margin: 0;
-    font-family: var(--f-display);
-    font-weight: 500;
-    font-size: calc(var(--font-s) * 8);
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 0.9;
-    color: var(--c-paper);
-}
-
-.hero-display .hero-ch {
-    display: inline-block;
-    overflow: hidden;
-    padding: 0.04em 0.02em 0.06em;
-}
-
-.hero-display .hero-ch i {
-    display: inline-block;
-    font-style: normal;
-    will-change: transform;
-}
-
-.hero-meta {
-    margin: calc(var(--font-s) * 1.6) 0 0;
-    color: color-mix(in srgb, var(--c-paper) 55%, transparent);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.2);
-    font-weight: 300;
-    letter-spacing: 0.16em;
-}
-
-/* 切角按钮（右下切角，hover 换左上） */
-.hero-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    height: calc(var(--font-s) * 4.5);
-    padding: 0 calc(var(--font-s) * 2);
-    margin: calc(var(--font-s) * 2.4) 0 0;
-    background: var(--c-acid);
-    color: var(--c-ink);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.4);
-    font-weight: 400;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.5rem), calc(100% - 1.5rem) 100%, 0 100%, 0 0);
-    transition: clip-path 0.25s ease-out, background 0.25s ease-out;
-}
-
-.hero-btn:hover {
-    background: var(--c-acid-2);
-    clip-path: polygon(1.5rem 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 1.5rem);
-}
-
-/* 第 2-4 块：注解字幕（无卡片，纯文字块）——右下 / 左下 / 右下。
-   初始一律摆在视口下沿外面（bottom 负值），等时间轴把它们推上来。
-   注意：这里的位移只用来做"字幕升降"，实际进场距离由 GSAP 的 y 补间叠加。 */
-.hero-slide:nth-child(2) .hero-slide-content,
-.hero-slide:nth-child(4) .hero-slide-content {
-    position: absolute;
-    right: calc(var(--font-s) * 6);
-    bottom: calc(var(--font-s) * 4);
-    width: calc(var(--font-s) * 39);
-    max-width: calc(100% - calc(var(--font-s) * 4.8));
-}
-
-.hero-slide:nth-child(3) .hero-slide-content {
-    position: absolute;
-    left: calc(var(--font-s) * 6);
-    bottom: calc(var(--font-s) * 4);
-    width: calc(var(--font-s) * 38);
-    max-width: calc(100% - calc(var(--font-s) * 4.8));
-}
-
-/* 注解块初始态：藏在视口下沿外 + 透明（JS 一就位就补上 gsap.set，
-   这里是给"没 GSAP / 少动效"的兜底：直接可见，不要留一屏空白） */
-.hero-slides.is-armed .hero-slide:not(.hero-face) .hero-slide-content {
-    opacity: 0;
-}
-
-/* （已删）字幕前的闪烁小圆点：旧 30 拍版专用，inversa 复刻版不再使用 */
-
-.hero-note-kicker {
-    margin: 0 0 calc(var(--font-s) * 1.4);
-    color: var(--c-acid);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.1);
-    font-weight: 400;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-}
-
-.hero-note-title {
-    margin: 0 0 calc(var(--font-s) * 1.4);
-    font-family: var(--f-display);
-    color: var(--c-acid);
-    font-size: calc(var(--font-s) * 3.3);
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-}
-
-.hero-note-body {
-    margin: 0;
-    max-width: calc(var(--font-s) * 30);
-    color: color-mix(in srgb, var(--c-paper) 82%, transparent);
-    font-size: calc(var(--font-s) * 1.6);
-    font-weight: 300;
-    line-height: 1.75;
-    letter-spacing: 0.02em;
-}
-
-/* ============================================================
-   七、自定义光标（仅桌面精指针）：圆环 + 进度 + 「滚动」标签
-   ============================================================ */
-.hero-cursor {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: calc(var(--font-s) * 9);
-    height: calc(var(--font-s) * 9);
-    margin-left: calc(var(--font-s) * -4.5);
-    margin-top: calc(var(--font-s) * -4.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--c-paper);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 60;
-    transition: opacity 0.25s linear;
-    will-change: transform;
-}
-
-.hero-cursor.is-visible { opacity: 1; }
-
-.hero-cursor-ring {
-    position: absolute;
-    inset: 0;
-    border: 1px solid color-mix(in srgb, currentcolor 22%, transparent);
-    border-radius: 50%;
-}
-
-.hero-cursor svg {
-    position: absolute;
-    inset: 0;
-    transform: rotate(-90deg);
-}
-
-.hero-cursor svg circle {
-    fill: none;
-    stroke: var(--c-acid);
-    stroke-width: 2.4;
-    stroke-linecap: round;
-    stroke-dasharray: 100 100;
-    stroke-dashoffset: 100;
-}
-
-.hero-cursor-label {
-    position: relative;
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.3);
-    font-weight: 300;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--c-paper);
-}
-
-/* ============================================================
-   七点五、LOADING 开屏（照参考站的开屏节奏自制）
-   ------------------------------------------------------------
-   进站先盖一层黑：全屏细点阵 + 屏幕中部一条横线（尺度轴）；
-   横线左端「LOADING...」打字框，右端 PHASE / FREQ 读数。
-   中间画幅从下往上生长，涨满后向全页扩充，再整层淡出，
-   露出门面第 1 屏（左下「支援未来」由下而上）。
-   这段时间正好让后台把文档索引备好。
-   加载期间锁滚动（html.hero-booting body），防止还没开演就滚走。
-
-   PHASE = 画幅的生长指数：不单是装饰数字，它和画幅高度同源驱动；
-   FREQ  = 固定读数 16HZ（参考站就是恒定值，不随进度变）。
+   十三、LOADING 开屏（站点自有配置，保留不动）
    ============================================================ */
 html.hero-booting body { overflow: hidden; }
 
 .hero-boot {
     position: absolute;
     inset: 0;
-    z-index: 20;
+    z-index: 40;
     background: var(--c-ink);
 }
 
@@ -717,21 +543,15 @@ html.hero-booting body { overflow: hidden; }
     background-position: center center;
 }
 
-/* 中间画幅：就是门面主图本身（竖版 1952x2477 同比例的窗口），
-   像素锯齿 mask 裁边，从底部横线上由下往上长（JS 补间 height）。
-   涨满后 JS 会把它放大到盖满全页——和 hero 第一屏的全屏照片无缝衔接。 */
+/* 中间画幅：白底锯齿窗（照片位等用户给图） */
 .hero-boot-frame {
     position: absolute;
     left: 50%;
-    /* 底边压在横线上（横线 top:83%，画幅从它往上生长） */
     bottom: 17%;
     width: min(31vw, 460px);
     height: 0;
     transform: translateX(-50%);
     background-color: #fff;
-    /* 过渡期照片位留白：开屏画幅也是白的。旧主图等用户给图后恢复——
-       恢复时在下面放回三行：background-image 指向主图 A（jpg）、
-       background-size: cover、background-position: center。 */
     -webkit-mask-image: var(--hero-mask);
     mask-image: var(--hero-mask);
     -webkit-mask-size: 100% 100%;
@@ -740,7 +560,7 @@ html.hero-booting body { overflow: hidden; }
     mask-repeat: no-repeat;
 }
 
-/* 底部横线（top:83%）：尺度轴 + 画幅的地平线。宽度随进度从 0 长到满（左起） */
+/* 底部横线（top:83%） */
 .hero-boot-line {
     position: absolute;
     left: calc(var(--font-s) * 2.4);
@@ -752,7 +572,7 @@ html.hero-booting body { overflow: hidden; }
     background: color-mix(in srgb, var(--c-paper) 42%, transparent);
 }
 
-/* 横线左端：LOADING... 打字框（框底边贴在横线上） */
+/* LOADING... 打字框 */
 .hero-boot-word {
     position: absolute;
     left: calc(var(--font-s) * 2.4);
@@ -772,7 +592,7 @@ html.hero-booting body { overflow: hidden; }
     background: var(--c-ink);
 }
 
-/* 画幅右侧：PHASE / FREQ 两行读数（底边贴横线，贴着画幅右缘外一点） */
+/* PHASE / FREQ 读数 */
 .hero-boot-readout {
     position: absolute;
     left: calc(50% + (min(31vw, 460px) / 2) + 2.5vw);
@@ -808,49 +628,43 @@ html.hero-booting body { overflow: hidden; }
 }
 
 /* ============================================================
-   八、窄屏
+   十四、窄屏（教学版 @media max-width:600px 原样）
    ============================================================ */
-@media (max-width: 720px) {
-    #heroStage { height: 400svh; }
-    .hero-stick { height: 100svh; }
-    /* 窄屏只换 mask-size（照 inversa 真身 57.6rem×39.2rem），mask 盒子仍是满视口 */
-    .hero-mask { -webkit-mask-size: 57.6rem 39.2rem; mask-size: 57.6rem 39.2rem; }
-    .hero-raster { width: 60.4rem; height: 41.8rem; margin-left: -30.2rem; margin-top: -20.9rem; background-size: 1.1625rem 1.1625rem; }
-    .hero-slide { height: 100svh; }
+@media (max-width: 600px) {
+    .hero-mask {
+        mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/35% no-repeat;
+        -webkit-mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/35% no-repeat;
+        mask-composite: subtract;
+        -webkit-mask-composite: subtract;
+    }
 
-    .hero-display { font-size: calc(var(--font-s) * 3.3); line-height: 1.05; }
-    .hero-slide:first-child .hero-slide-content {
-        left: 4.8vw;
-        right: 4.8vw;
-        bottom: 9vh;
-        width: auto;
-        max-width: none;
+    .hero-grid-overlay {
+        width: 100%;
     }
-    .hero-slide:nth-child(2) .hero-slide-content,
-    .hero-slide:nth-child(3) .hero-slide-content,
-    .hero-slide:nth-child(4) .hero-slide-content {
-        left: 6vw !important;
-        right: 6vw !important;
-        top: auto;
-        bottom: 9vh;
-        transform: none;
-        width: auto;
-        max-width: none;
+
+    .marker-1 {
+        top: 52.5svh;
+        left: 58vw;
     }
-    .hero-note-title { font-size: calc(var(--font-s) * 2.4); }
-    .hero-note-body { font-size: 13px; }
-    .hero-hotspot { left: 30%; top: 62%; }
-    .hero-specialist { left: 60%; top: 36%; }
-    .hero-indicator { right: 4.5vw; height: calc(var(--font-s) * 12); }
-    .hero-bar { padding: 12px 16px; }
+
+    .hero-content .hero-content-block {
+        padding: 2rem;
+    }
+
+    .hero-content .hero-content-copy {
+        width: 100%;
+    }
+
+    .hero-bar {
+        padding: 12px 16px;
+    }
 }
 
-/* 系统开了"减少动态效果"：循环动画停掉，画面照常 */
+/* ============================================================
+   十五、系统「减少动态效果」：循环脉冲停掉，画面照常
+   ============================================================ */
 @media (prefers-reduced-motion: reduce) {
-    .hero-pulse,
-    .hero-display .hero-ch i {
+    .marker .marker-icon::after {
         animation: none !important;
     }
-    /* 少动效时不放门面长剧：直接摊开，别让用户滚 30 拍看静态图 */
-    #heroStage { height: 100vh; }
 }

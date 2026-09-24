@@ -82,6 +82,11 @@
          ============================================================ -->
     <div id="heroStage" aria-hidden="true"></div>
 
+    <!-- 收场白（照教学版 section.outro：门面滚完后的一屏深色居中文字） -->
+    <section class="hero-outro-tut">
+        <p>The system has reached its final spatial state.</p>
+    </section>
+
     <!-- 站点外壳：原来 index.html 里的全部内容都在这里面，样式一点没改 -->
     <div class="site-shell" id="siteShell">
 
@@ -109,15 +114,18 @@
     <!-- 站点外壳结束（.site-shell 从这里闭合） -->
     </div>
 
-    <!-- GSAP / ScrollTrigger：门面 Hero 的滚动剧情用（滚轮是原生 1:1 手感，
-         不再引入平滑滚动库）。下载超时或 ?hero=0 时这里不会阻塞主页，站点照常可用 -->
+    <!-- GSAP / ScrollTrigger / Lenis：门面 Hero 的滚动剧情用。
+         Lenis 是教学版 <ReactLenis root /> 的平滑滚动（只作用于门面阶段，
+         滚进目录后由 4.Hero门面.js 的 stopSmooth 销毁、还原生滚轮）。
+         下载超时或 ?hero=0 时这里不会阻塞主页，站点照常可用 -->
     <script>
         (function () {
             if (!window.__heroMode) return;
             var base = "https://cdnjs.cloudflare.com/ajax/libs/";
             var files = [
-                ["gsap", "gsap/3.12.5/gsap.min.js"],
-                ["gsap", "gsap/3.12.5/ScrollTrigger.min.js"]
+                ["gsap", "gsap/3.12.5/gsap.min.js", ""],
+                ["gsap", "gsap/3.12.5/ScrollTrigger.min.js", ""],
+                ["lenis", "", "https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"]
             ];
             var pending = files.length;
             function done() { pending -= 1; if (pending === 0 && window.HeroFacade) window.HeroFacade.start(); }
@@ -184,6 +192,11 @@
                 var bottom = stage.getBoundingClientRect().bottom;
                 if (bottom <= window.innerHeight * 0.55) {
                     document.documentElement.classList.add("hero-passed");
+                    /* 滚进目录：门面阶段（Lenis 平滑滚轮）到此为止，
+                        正文回到原生 1:1 手感（4.Hero门面.js 提供销毁入口） */
+                    if (window.HeroFacade && window.HeroFacade.stopSmooth) {
+                        window.HeroFacade.stopSmooth();
+                    }
                 } else {
                     document.documentElement.classList.remove("hero-passed");
                 }
