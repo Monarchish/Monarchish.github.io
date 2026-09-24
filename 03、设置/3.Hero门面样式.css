@@ -1,20 +1,23 @@
 /* ============================================================
    03、设置 · 3.Hero门面样式.css
    ------------------------------------------------------------
-   这是什么：首页第一屏「支援未来」门面 Hero 的样式，和
-        02、开屏动画 是两回事——那个是每次访问播一遍的短片，
-        这个是短片放完之后停留的地方，往下滚才到操作手册目录。
+   这是什么：首页「支援未来」星河门面的样式——一段 4 屏的长流程，
+        和 02、开屏动画 是两回事——那个是每次访问播一遍的短片，
+        这个是短片放完之后停留的地方，一路滚完才到操作手册目录。
    它管什么：
-     · #heroStage     第一屏的画面（星空 / 大字 / 四角星 / 跑马灯 / 滚动提示）
-     · .site-shell    下面那层"剩下的站点"，只在首页门面模式下被压住
+     · #heroStage      整段旅程（4 屏）
+     · .hero-backdrop  星空背景：sticky 钉住，4 屏滚动期间星空不动、内容换景
+     · .hero-face      第 1 屏：大字 / 四角星 / 跑马灯 / 滚动提示
+     · .hero-journey   第 2-4 屏：角落注解（初衷 / SOP 小技巧）+ 幽灵大字
+     · .site-shell     下面那层"剩下的站点"，只在首页门面模式下被压住
      · html.hero-on / html.hero-passed  两个状态类，由 index.html 里的
-                     一小段脚本决定（详见 4.Hero门面.js 文件头说明）
+                       一小段脚本决定（详见 4.Hero门面.js 文件头说明）
    怎么关掉它：网址后面加 ?hero=0，或者把 index.html 里
       引这个文件的那一行、以及 #heroStage 那一段一起删掉。
    要不要改：────────────────────────────────────────────
-     · 大字下面的副标题 / 元信息 → 改 4.Hero门面.js 里的 CONTENT
-     · 颜色（夜空、星、金色）     → 改下面这段 :root 里的变量
-     · 滚一屏要多远               → 改下面的 --hero-h
+     · 注解 / 大字 / 副标题的文案  → 改 4.Hero门面.js 里的 CONTENT
+     · 颜色（夜空、星、金色）      → 改下面这段 :root 里的变量
+     · 单屏高度                    → 改下面的 --hero-h
    ============================================================ */
 
 :root {
@@ -24,7 +27,7 @@
     --hero-paper: #f2efe6;
     --hero-gold: #e8c766;
     --hero-muted: rgba(242, 239, 230, 0.62);
-    --hero-h: 100vh;          /* 第一屏高度；想让它矮一点就改这里 */
+    --hero-h: 100vh;          /* 单屏高度；想让它矮一点就改这里 */
 }
 
 /* ===== 站点外壳：门面模式下先被压住，滚动时再"盖上来" ===== */
@@ -54,7 +57,7 @@ html.hero-on:not(.hero-passed) .site-shell .toc-wrapper {
     display: none;
 }
 
-/* 门面模式下把顶栏藏起来：第一屏要干净（滚下去的过程中它会跟着上来） */
+/* 门面模式下把顶栏藏起来：门面几屏要干净（滚过去之后它会跟着上来） */
 html.hero-on:not(.hero-passed) .site-shell .top-nav {
     opacity: 0;
     pointer-events: none;
@@ -65,15 +68,15 @@ html.hero-on .site-shell .app {
     transition: opacity 0.5s ease;
 }
 
-/* ===== 第一屏本体 ===== */
+/* ===== 旅程本体 ===== */
 #heroStage {
     position: relative;
-    height: var(--hero-h);
     overflow: hidden;
+    /* overflow:clip 不产生滚动容器，下面的 sticky 星空才能钉得住；
+       老浏览器不认 clip 会退回 hidden——星空跟着滚、画面照常，不影响使用 */
+    overflow: clip;
     background: var(--hero-ink);
     color: var(--hero-paper);
-    display: flex;
-    align-items: center;
     /* 还没轮到它显示时（比如 ?jump=1、?page=xxx）整块不占位、不可点 */
     pointer-events: none;
 }
@@ -87,7 +90,29 @@ html:not(.hero-on) #heroStage {
     display: none;
 }
 
-/* 背景：用原生 scroll() 时间轴做一点轻微视差。
+/* ===== 星空背景：sticky 钉在视口上，4 屏滚动期间一直停在原处 =====
+   margin-bottom 负一屏 = 后面的屏幕叠在它头上滚过去（"星星不动、内容换景"）。
+   不用 position:fixed，所以不会和站点里别的 sticky 元素打架。 */
+.hero-backdrop {
+    position: sticky;
+    top: 0;
+    height: var(--hero-h);
+    margin-bottom: calc(var(--hero-h) * -1);
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ===== 一屏一景 ===== */
+.hero-screen {
+    position: relative;
+    z-index: 2;
+    min-height: var(--hero-h);
+    display: flex;
+    align-items: center;
+}
+
+/* 第 1 屏（门面正脸）：背景：用原生 scroll() 时间轴做一点轻微视差。
    浏览器不支持 scroll 时间轴时（老版本）这一段整体失效，
    门面照常显示、照常能滚，只是少一层微微的位移，不影响使用。 */
 @supports (animation-timeline: scroll()) {
@@ -128,7 +153,7 @@ html:not(.hero-on) #heroStage {
     to { opacity: 0.85; }
 }
 
-/* ===== 右侧四角星（描边，滚动时缓慢旋转放大） ===== */
+/* ===== 四角星（描边，滚动时缓慢旋转放大；跟着星空一起钉在背景里） ===== */
 .hero-star-mark {
     position: absolute;
     right: 7vw;
@@ -146,7 +171,30 @@ html:not(.hero-on) #heroStage {
     stroke-width: 1.1;
 }
 
-/* ===== 文字区 ===== */
+/* ===== 左下角页码（01 — 04，随滚动换数字） ===== */
+.hero-pager {
+    position: absolute;
+    left: 8vw;
+    bottom: 5.5vh;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--hero-muted);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    font-variant-numeric: tabular-nums;
+}
+
+.hero-pager-now { color: var(--hero-paper); }
+
+.hero-pager-sep {
+    width: 34px;
+    height: 1px;
+    background: rgba(242, 239, 230, 0.35);
+}
+
+/* ===== 文字区（第 1 屏） ===== */
 .hero-inner {
     position: relative;
     z-index: 5;
@@ -211,8 +259,74 @@ html:not(.hero-on) #heroStage {
     border-left: 1px solid rgba(242, 239, 230, 0.25);
 }
 
-/* ===== 底部跑马灯 ===== */
-.hero-marquee {
+/* ===== 旅程屏（第 2-4 屏）：幽灵大字 + 角落注解 ===== */
+
+/* 幽灵大字：屏幕中央的半透明描边字，滚动时轻轻漂移 */
+.hero-ghost {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    font-size: clamp(120px, 24vw, 340px);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(242, 239, 230, 0.13);
+    user-select: none;
+    pointer-events: none;
+}
+
+/* 角落注解块：对应参考站"左右两边的小字"——
+   角标（金色小字）+ 小标题 + 两三行说明，滚动到跟前浮现，滚过去退场 */
+.hero-note {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    max-width: 320px;
+    padding: 22px 26px;
+    background: rgba(10, 16, 32, 0.42);
+    border: 1px solid rgba(242, 239, 230, 0.12);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.hero-note.is-right { right: 7vw; }
+.hero-note.is-left { left: 7vw; }
+
+.hero-note-kicker {
+    margin: 0 0 14px;
+    color: var(--hero-gold);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.hero-note-kicker::before {
+    content: "· ";
+}
+
+.hero-note-title {
+    margin: 0 0 12px;
+    color: var(--hero-paper);
+    font-size: clamp(18px, 1.8vw, 24px);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+.hero-note-body {
+    margin: 0;
+    color: var(--hero-muted);
+    font-size: 13px;
+    line-height: 1.9;
+    letter-spacing: 0.04em;
+}
+
+/* ===== 底部跑马灯（第 1 屏专属） ===== */
+.hero-face .hero-marquee {
     position: absolute;
     left: 0;
     right: 0;
@@ -241,8 +355,8 @@ html:not(.hero-on) #heroStage {
     to { transform: translateX(-50%); }
 }
 
-/* ===== 向下滚动提示 ===== */
-.hero-cue {
+/* ===== 向下滚动提示（第 1 屏专属） ===== */
+.hero-face .hero-cue {
     position: absolute;
     bottom: 62px;
     left: 50%;
@@ -284,6 +398,19 @@ html:not(.hero-on) #heroStage {
     .hero-star-mark { right: -14vw; opacity: 0.45; }
     .hero-meta { flex-wrap: wrap; gap: 16px; }
     .hero-inner { padding: 0 7vw; }
+
+    /* 旅程屏：注解块改为左右留边的整块，幽灵大字缩小退后 */
+    .hero-note {
+        left: 6vw !important;
+        right: 6vw !important;
+        max-width: none;
+        top: auto;
+        bottom: 12vh;
+        transform: none;
+        padding: 18px 20px;
+    }
+    .hero-ghost { font-size: 34vw; opacity: 0.8; }
+    .hero-pager { left: 6vw; }
 }
 
 /* 系统里开了"减少动态效果"：所有循环动画停掉，画面照常 */

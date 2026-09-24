@@ -119,6 +119,34 @@ function paintLevelCells(root) {
     });
 }
 
+/** 「站点内容」的顶端在哪：门面 Hero 模式下第一屏是门面，内容从 .site-shell 开始；
+    没有门面（?hero=0 / ?jump=1 / 文档页直达）时就是 0。
+    所有"回到页首 / 打开新页"的滚动都必须用它，不能用 0——
+    否则会把同事扔回开屏门面，翻阅起来要重新滚一整屏。 */
+/* 点「支援未来」logo 回目录时才需要主动滚一滚；
+   首次进站不能滚——否则访问者会被直接传送过整个星河门面 */
+let portalScrollArmed = false;
+
+function siteTop() {
+    if (window.__heroMode) {
+        const shell = document.querySelector('.site-shell');
+        if (shell) return shell.offsetTop;
+    }
+    return 0;
+}
+
+/** 滚动到页面绝对位置。门面模式下 Lenis 平滑滚动在跑自己的动画循环，
+    直接 window.scrollTo 会被它下一帧拉回原位（表现为"点了没反应/跳回开头"），
+    所以优先交给 Lenis 实例；Lenis 不存在（未开门面/库没加载）就原生滚。 */
+function heroAwareScrollTo(top, smooth) {
+    const lenis = window.HeroFacade && window.HeroFacade.lenis;
+    if (lenis && typeof lenis.scrollTo === 'function') {
+        lenis.scrollTo(top, { immediate: !smooth, duration: smooth ? 1.1 : 0 });
+        return;
+    }
+    window.scrollTo({ top: top, behavior: smooth ? 'smooth' : 'auto' });
+}
+
 function generateTOCFromContent() {
     const tocList = document.getElementById('tocList');
     const tocWrapper = document.getElementById('tocWrapper');
@@ -195,20 +223,12 @@ function generateTOCFromContent() {
                 const targetId = this.dataset.tocId;
                 const targetEl = document.getElementById(targetId);
                 if (!targetEl) return;
-
-                /* 门面 Hero 落地页模式下，正文在同页的 .site-shell 里，
-                   用锚点会滚回 Hero，所以这里改为手动滚动到 shell 内部的对应位置 */
-                const shell = document.querySelector('.site-shell');
-                if (shell && window.__heroMode) {
-                    const shellTop = window.pageYOffset + shell.getBoundingClientRect().top;
-                    window.scrollTo({ top: shellTop + targetEl.offsetTop - 76, behavior: 'smooth' });
-                    return;
-                }
-
                 const navHeight = 60;
                 const rect = targetEl.getBoundingClientRect();
-                const scrollTop = window.pageYOffset + rect.top - navHeight;
-                window.scrollTo({ top: scrollTop, behavior: 'smooth' });
+                /* 用 getBoundingClientRect 算绝对位置（不要用 offsetTop——
+                   它只相对最近的定位父级，门面模式下会算错、滚回开头），
+                   滚动走 heroAwareScrollTo，让 Lenis 平滑接管 */
+                heroAwareScrollTo(window.pageYOffset + rect.top - navHeight, true);
             });
             li.appendChild(a);
             tocList.appendChild(li);
@@ -225,8 +245,7 @@ function generateTOCFromContent() {
                 if (!targetEl) return;
                 const navHeight = 60;
                 const rect = targetEl.getBoundingClientRect();
-                const scrollTop = window.pageYOffset + rect.top - navHeight;
-                window.scrollTo({ top: scrollTop, behavior: 'smooth' });
+                heroAwareScrollTo(window.pageYOffset + rect.top - navHeight, true);
             });
             const childLi = document.createElement('li');
             childLi.appendChild(a);
@@ -526,7 +545,7 @@ function renderPage(page, fullFolder, pageId) {
     `;
 
     document.getElementById('contentArea').scrollTop = 0;
-    window.scrollTo({ top: 0 });
+    heroAwareScrollTo(siteTop());
 
     paintLevelCells(loader);
 
@@ -572,7 +591,7 @@ function showChunk(i) {
         a.classList.toggle('active-toc', Number(a.dataset.chunk) === i);
     });
     document.getElementById('contentArea').scrollTop = 0;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    heroAwareScrollTo(siteTop(), true);
 }
 
 // =========================================================
@@ -663,7 +682,10 @@ function renderPortal(index) {
         `</div>`;
 
     bindPortal();
-    window.scrollTo({ top: 0 });
+    if (portalScrollArmed) {
+        portalScrollArmed = false;
+        heroAwareScrollTo(siteTop());
+    }
 }
 
 /** 索引到位后原地精修：只改卡片文字与统计，不重画、不动搜索框和滚动位置 */
@@ -940,6 +962,7 @@ async function loadContent(fullFolder, pageId) {
 }
 
 function switchToHome() {
+    portalScrollArmed = true;
     currentPageId = 'home';
     document.querySelectorAll('.sidebar .sub-items a').forEach(a => a.classList.remove('active'));
     loadContent('', 'home');
