@@ -143,7 +143,6 @@
         '<div class="hero-map-layer is-b"></div>' +
         "</div>" +
         "</div>" +
-        '<div class="hero-raster"></div>' +
         '<div class="hero-dim"></div>' +
         '<div class="hero-desat"></div>' +
         '<div class="hero-hotspot"><div class="hero-pulse"></div><div class="hero-pulse"></div>' +

@@ -251,22 +251,7 @@ html:not(.hero-on) #heroStage {
     opacity: 0;               /* B 层初始透明，中段全暗时交叉淡入 */
 }
 
-/* ---- 扫描线纹路（中段浮现又退场）---- */
-.hero-raster {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: min(88vw, 1240px);
-    height: min(88vh, 760px);
-    transform: translate(-50%, -50%);
-    background-image: linear-gradient(to right, rgba(244, 243, 232, 0.05) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(244, 243, 232, 0.05) 1px, transparent 1px);
-    background-size: calc(var(--font-s) * 2.07) calc(var(--font-s) * 2.07);
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* ---- 压黑层：中段蒙一层 75% 黑，保证文字可读 ---- */
+/* ---- 压黑层：中段蒙一层 94% 黑，配合边框挤压制造"完全变暗"---- */
 .hero-dim {
     position: absolute;
     inset: 0;
@@ -888,7 +873,6 @@ html.hero-booting body { overflow: hidden; }
     }
     .hero-note-title { font-size: calc(var(--font-s) * 2.4); }
     .hero-note-body { font-size: 13px; }
-    .hero-raster { width: 130vw; height: 60vh; }
     .hero-hotspot { left: 30%; top: 62%; }
     .hero-specialist { left: 60%; top: 36%; }
     .hero-indicator { right: 4.5vw; height: calc(var(--font-s) * 12); }
