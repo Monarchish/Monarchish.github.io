@@ -592,7 +592,7 @@ html:not(.hero-on) #heroStage {
     opacity: 0;
 }
 
-/* （已删）闪烁标注点 hero-note-dot：旧 30 拍版专用，inversa 复刻版不再使用 */
+/* （已删）字幕前的闪烁小圆点：旧 30 拍版专用，inversa 复刻版不再使用 */
 
 .hero-note-kicker {
     margin: 0 0 calc(var(--font-s) * 1.4);
