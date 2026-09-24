@@ -2,81 +2,55 @@
    03、设置 · 3.Hero门面样式.css
    ------------------------------------------------------------
    这是什么：首页「支援未来」门面的设计系统 + 样式。
-        是一段 4 屏的长流程，一路滚完才到操作手册目录。
-   设计来源：参考 inversa.com 的设计语言（配色 / 流体字号 / 切角按钮 /
-        平滑滚动 / 逐行滑入 / 乱码解码标题），但配色变量、字体、
-        所有代码与文案全部是我们自己的，没有照搬它的任何代码或素材。
-        字体用它同款的免费开源组合：Space Grotesk（标题）+ JetBrains Mono（标签）。
+   结构照 inversa.com 的 hero 复刻（400vh 长滚动 + sticky 视口 +
+   像素菱形 mask 窗口随滚动缩小再放大 + 中段压黑 + 右/左/右纯文本注解 +
+   右侧进度线 + 桌面端自定义光标），但 mask 图形是程序自生成的、
+   配色变量/字体/代码/文案全部是我们自己的。
+   平滑滚动（Lenis）已按用户要求移除：滚轮是原生 1:1 手感。
    它管什么：
      · :root           设计变量（颜色 / 字体 / 缓动 / 流体字号基准）
-     · #heroStage      整段旅程（4 屏）
-     · .hero-backdrop  底纹背景：sticky 钉住，4 屏滚动期间不动、内容换景
-     · .hero-face      第 1 屏：大字 / 网格 / 大图裁切 / 跑马灯
-     · .hero-journey   第 2-4 屏：角落注解（初衷 / SOP 小技巧）+ 幽灵大字
-     · .site-shell     下面那层"剩下的站点"，只在门面模式下被压住
-     · html.hero-on / html.hero-passed / html.hero-seen  三个状态类
-   怎么关掉它：网址后面加 ?hero=0，或者把 index.html 里
-      引这个文件的那一行、以及 #heroStage 那一段一起删掉。
-   要不要改：────────────────────────────────────────────
-     · 注解 / 大字 / 副标题的文案  → 改 4.Hero门面.js 里的 CONTENT
-     · 颜色                        → 改下面 :root 里的 --c-* 变量
-     · 单屏高度                    → 改下面的 --hero-h
-     · 字号整体大小                → 改下面的 --size（越大字越小）
+     · #heroStage      400vh 长滚动区
+     · .hero-stick     sticky 视口（地图窗口 / 网格 / 热点 / 进度线 / 顶栏都在这里）
+     · .hero-slide     4 屏文字（正常文档流，从 sticky 视口上面滚过去）
+     · .hero-cursor    桌面端自定义光标（圆环 + 「滚动」标签）
+     · html.hero-on / html.hero-passed  状态类
    ============================================================ */
 
 /* ============================================================
-   一、设计变量（inversa 同款色板 + 流体字号系统）
-   ------------------------------------------------------------
-   流体字号是这套设计的灵魂：--font-s 是"1rem 等于多少 px"，
-   由屏幕宽度算出来（1600px 宽时 1rem = 10px），
-   所以 8rem 的标题在 1440 屏上是 72px、1920 屏上是 96px，
-   永远和大屏成比例——这就是那种"大厂官网"的缩放感。
+   一、设计变量（色板 / 流体字号 / 缓动 / 字体）
    ============================================================ */
 :root {
-    /* ---- 流体字号基准：屏幕越宽，1rem 越大 ---- */
     --size: 1600;
     --font-s: calc((100vw / var(--size)) * 10);
 
-    /* ---- 色板 ---- */
-    --c-ink: #13140e;          /* 主底色（墨黑，带一点橄榄温度） */
-    --c-ink-2: #181813;        /* 次级底（卡片 / 面板） */
-    --c-ink-3: #171717;
-    --c-paper: #f4f3e8;        /* 主前景（米白，比纯白柔和） */
+    --c-ink: #13140e;
+    --c-ink-2: #181813;
+    --c-paper: #f4f3e8;
     --c-white: #fff;
-    --c-grey: #595a51;         /* 次要文字 / 描边 */
+    --c-grey: #595a51;
     --c-grey-2: #404040;
-    --c-acid: #ebfc72;         /* 荧光黄：主强调色（按钮 / 高亮） */
-    --c-acid-2: #bacd31;       /* 暗一档的黄：hover / 次级 */
-    --c-coral: #f1664d;        /* 珊瑚红：警示 / 热点 */
-    --c-mint: #00d399;         /* 薄荷绿：通过 / 完成 */
-    --c-violet: #c084fc;       /* 紫：点缀 */
+    --c-acid: #ebfc72;
+    --c-acid-2: #bacd31;
+    --c-coral: #f1664d;
+    --c-mint: #00d399;
 
-    /* ---- 缓动（inversa 同款五条） ---- */
     --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
     --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
     --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
     --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
 
-    /* ---- 字体：免费开源组合 ---- */
     --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
     --f-display: "Space Grotesk", "Inter", "Noto Sans SC", system-ui, sans-serif;
     --f-body: "Inter", "Noto Sans SC", system-ui, -apple-system, "Microsoft YaHei", sans-serif;
 
-    /* ---- 兼容旧变量名（4.Hero门面.js 里可能还在用） ---- */
+    /* 兼容旧变量名 */
     --hero-ink: var(--c-ink);
     --hero-paper: var(--c-paper);
-    --hero-gold: var(--c-acid);
-    --hero-muted: rgba(244, 243, 232, 0.62);
     --hero-h: 100vh;
 }
 
 /* ============================================================
-   二、字体：免费开源组合，走 jsDelivr（fontsource）
-   ------------------------------------------------------------
-   Space Grotesk ≤ 复刻 NB International Pro 的几何无衬线气质
-   JetBrains Mono = 与参考站完全一致的技术等宽字体（它也是免费开源）
-   中文用系统里的思源黑体 / 微软雅黑兜底（不做网络加载，省流量）。
-   字体挂了不影响使用：后面的字体栈会兜住，只是气质弱一点。
+   二、字体（免费开源，jsDelivr / fontsource，挂了回退系统字体）
    ============================================================ */
 @font-face {
     font-family: "JetBrains Mono";
@@ -129,7 +103,7 @@
 }
 
 /* ============================================================
-   三、站点外壳：门面模式下先被压住，滚动时再"盖上来"
+   三、站点外壳：门面模式下先被压住，滚完 400vh 再"盖上来"
    ============================================================ */
 html.hero-on .site-shell {
     max-height: var(--hero-h);
@@ -162,14 +136,13 @@ html.hero-on .site-shell .app {
 }
 
 /* ============================================================
-   四、旅程本体
+   四、旅程本体：400vh 长滚动区
    ============================================================ */
 #heroStage {
     position: relative;
+    height: 400vh;            /* 4 屏：1 屏大字 + 3 屏注解 */
     overflow: hidden;
-    /* overflow:clip 不产生滚动容器，里面的 sticky 底纹才能钉得住；
-       老浏览器不认 clip 会退回 hidden——底纹跟着滚、画面照常，不影响使用 */
-    overflow: clip;
+    overflow: clip;           /* clip 不产生滚动容器，里面的 sticky 才钉得住 */
     background: var(--c-ink);
     color: var(--c-paper);
     font-family: var(--f-body);
@@ -185,341 +158,145 @@ html:not(.hero-on) #heroStage {
     display: none;
 }
 
+/* 桌面端：门面里用自定义光标，原生光标藏起来 */
+@media (pointer: fine) {
+    html.hero-on:not(.hero-passed) #heroStage {
+        cursor: none;
+    }
+    html.hero-on:not(.hero-passed) #heroStage a,
+    html.hero-on:not(.hero-passed) #heroStage button {
+        cursor: none;
+    }
+}
+
 /* ============================================================
-   五、底纹背景：sticky 钉在视口上，4 屏滚动期间一直停在原处
+   五、sticky 视口：地图窗口 / 网格 / 热点 / 进度线 / 顶栏
    ------------------------------------------------------------
-   margin-bottom 负一屏 = 后面的屏幕叠在它头上滚过去
-   （"底纹不动、内容换景"）。不用 position:fixed，
-   所以不会和站点里别的 sticky 元素打架。
+   钉在视口上不动，4 屏文字从它上面滚过去——
+   这就是"背景不动、内容换景"。不用 position:fixed，
+   不和站点里其它 sticky 元素打架。
    ============================================================ */
-.hero-backdrop {
+.hero-stick {
     position: sticky;
     top: 0;
-    height: var(--hero-h);
-    margin-bottom: calc(var(--hero-h) * -1);
+    height: 100vh;
+    margin-bottom: -100vh;    /* 后面的文字层叠在它头上滚过去 */
     overflow: hidden;
     z-index: 0;
     pointer-events: none;
 }
 
-/* 点阵底纹：inversa 同款 3.5px 点阵（铺满整屏，极淡） */
-.hero-raster {
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 140 140'%3E%3Cpath fill='%23f4f3e8' d='M0 0h3.5v3.5H0z' opacity='.2'/%3E%3C/svg%3E");
-    background-position: 50%;
-    background-repeat: repeat;
-    background-size: calc(var(--font-s) * 14);
-    opacity: 0.55;
-    pointer-events: none;
-}
-
-/* 菱形网格线（描边网格，仅在第 1 屏显形） */
-.hero-grid {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: min(150vh, 1180px);
-    height: min(150vh, 1180px);
-    margin-left: calc(min(150vh, 1180px) / -2);
-    margin-top: calc(min(150vh, 1180px) / -2);
-    color: var(--c-paper);
-    opacity: 0.16;
-    pointer-events: none;
-}
-
-/* 光晕：让底纹中间稍微亮一点，有纵深 */
-.hero-glow {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse 62% 48% at 50% 46%, rgba(235, 252, 114, 0.07), transparent 68%);
-    pointer-events: none;
-}
-
-/* 星点（保留星河的底子，用荧光黄 / 米白） */
-.hero-stars {
-    position: absolute;
-    inset: -6% 0 0 0;
-    pointer-events: none;
-}
-
-.hero-star {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    border-radius: 50%;
-    background: var(--c-paper);
-    animation: hero-twinkle 3.4s ease-in-out infinite alternate;
-}
-
-.hero-stars.is-far .hero-star {
-    width: 2px;
-    height: 2px;
-    background: var(--c-acid);
-}
-
-@keyframes hero-twinkle {
-    from { opacity: 0.1; }
-    to { opacity: 0.8; }
-}
-
-/* 四角星：门面右侧的装饰标记 */
-.hero-star-mark {
-    position: absolute;
-    right: 7vw;
-    top: 50%;
-    width: min(44vh, 420px);
-    height: min(44vh, 420px);
-    margin-top: calc(min(44vh, 420px) / -2);
-    pointer-events: none;
-    z-index: 2;
-}
-
-.hero-star-mark path {
-    fill: none;
-    stroke: rgba(235, 252, 114, 0.8);
-    stroke-width: 1.1;
-}
-
-/* ============================================================
-   六、页码（左下角 01 — 04，等宽字体，随滚动换数字）
-   ============================================================ */
-.hero-pager {
-    position: absolute;
-    left: 6vw;
-    bottom: 5.5vh;
-    z-index: 3;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: rgba(244, 243, 232, 0.5);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.2);
-    font-weight: 300;
-    letter-spacing: 0.22em;
-    font-variant-numeric: tabular-nums;
-}
-
-.hero-pager-now { color: var(--c-acid); }
-
-.hero-pager-sep {
-    width: 40px;
-    height: 1px;
-    background: rgba(244, 243, 232, 0.35);
-}
-
-/* 滚动进度条（页码右边那根，随整段旅程填充） */
-.hero-progress {
-    position: absolute;
-    right: 6vw;
-    top: 50%;
-    width: 1px;
-    height: 18vh;
-    margin-top: -9vh;
-    background: rgba(244, 243, 232, 0.18);
-    z-index: 3;
-}
-
-.hero-progress i {
-    position: absolute;
-    inset: 0;
-    background: var(--c-acid);
-    transform: scaleY(0);
-    transform-origin: top;
-}
-
-/* ============================================================
-   七、一屏一景
-   ============================================================ */
-.hero-screen {
-    position: relative;
-    z-index: 2;
-    min-height: var(--hero-h);
-    display: flex;
-    align-items: center;
-}
-
-/* ============================================================
-   八、第 1 屏：门面正脸
-   ============================================================ */
-.hero-inner {
-    position: relative;
-    z-index: 5;
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 8vw;
-}
-
-/* 顶部标签行：mono 小字 + 左侧小方块（inversa 的 label 风格） */
-.hero-eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0 0 3vh;
-    color: var(--c-acid);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.2);
-    font-weight: 400;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-}
-
-.hero-eyebrow::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    background: var(--c-acid);
-    flex: none;
-}
-
-/* 主标题：超大流体字 + 每字一个裁剪窗口（字从下往上顶出来） */
-.hero-display {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0;
-    font-family: var(--f-display);
-    font-weight: 700;
-    font-size: clamp(72px, 15vw, calc(var(--font-s) * 14.4));
-    line-height: 0.98;
-    letter-spacing: 0.02em;
-    color: var(--c-paper);
-}
-
-.hero-display .hero-ch {
-    display: inline-block;
-    overflow: hidden;
-    padding: 0.04em 0.03em 0.08em;
-}
-
-.hero-display .hero-ch i {
-    display: inline-block;
-    font-style: normal;
-    will-change: transform;
-}
-
-/* 副标题 */
-.hero-sub {
-    margin: 3.2vh 0 0;
-    max-width: 40em;
-    color: rgba(244, 243, 232, 0.78);
-    font-size: clamp(15px, 1.5vw, calc(var(--font-s) * 2));
-    font-weight: 300;
-    line-height: 1.7;
-    letter-spacing: 0.03em;
-}
-
-/* 三个数据点：mono 小字 + 竖线分隔 */
-.hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 26px;
-    margin: 3vh 0 0;
-    padding: 0;
-    list-style: none;
-    color: rgba(244, 243, 232, 0.55);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.3);
-    font-weight: 300;
-    letter-spacing: 0.14em;
-}
-
-.hero-meta li {
-    padding-left: 14px;
-    border-left: 1px solid rgba(244, 243, 232, 0.24);
-}
-
-/* 切角按钮（inversa 同款造型：右下切一角，hover 时切角换到左上）
-   想加"进目录"按钮就用这个类，a 标签即可 */
-.hero-btn {
-    display: inline-flex;
-    align-items: center;
-    height: calc(var(--font-s) * 4.5);
-    padding: 0 calc(var(--font-s) * 2);
-    margin-top: 3vh;
-    background: var(--c-acid);
-    color: var(--c-ink);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.4);
-    font-weight: 400;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.5rem), calc(100% - 1.5rem) 100%, 0 100%, 0 0);
-    transition: clip-path 0.25s ease-out;
-}
-
-.hero-btn:hover {
-    clip-path: polygon(1.5rem 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 1.5rem);
-}
-
-/* ============================================================
-   九、大图裁切区（参考站 hero 的主角）
-   ------------------------------------------------------------
-   现在放的是 CSS 生成的"网格地图"（.hero-map-fallback），
-   真正的图片一旦放进来（.hero-map img），就自动盖在上面。
-   要换成真图：把图片塞进 03、设置/ 下，然后在 4.Hero门面.js 的
-   CONTENT.mapImage 里写路径即可，样式不用动。
-   ============================================================ */
+/* ---- 地图窗口：mask 裁切 + 随滚动缩放（135% → 64% → 135%）----
+   mask 图形是程序自生成的像素菱形（非参考站素材）。
+   --hero-ms 由 GSAP 按滚动进度驱动。 */
 .hero-map {
+    --hero-ms: 135%;
     position: absolute;
     left: 50%;
     top: 50%;
-    width: min(78vw, 1200px);
-    height: min(78vh, 700px);
+    width: min(88vw, 1240px);
+    height: min(88vh, 760px);
     transform: translate(-50%, -50%);
-    z-index: 3;
-    overflow: hidden;
-    pointer-events: none;
-    /* 用 CSS mask 做裁切（参考站也是这个思路：mask-size 缩放做转场） */
-    -webkit-mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 1030 701'%3E%3Cpath fill='%23fff' d='M347 0v21h60V0h43v21h44v21h121V21h31V0h117v21h59V0h107v21h59v62h21v42h21v36h-21v38h-21v96h21v14h21v46h-21v21h21v38h-21v50h21v79h-21v72h-42v21h-96v21h-38v21h-46v-21h-14v21h-96v-21h-38v-21h-42v-21h-72v-21h-79v21h-50v21h-38v-21h-21v21h-46v-21h-14v21h-96v-21h-38v-21h-42v-21h-62v-21h-21V666h-21v-38h-21v-46h21v-14h-21v-96h21v-38h21v-42h21V250h21v-79h21V93h42V72h96V51h38V30h46v21h14V30h96v21h38v21h42v21h72v21h79V93h50V72h38v21h21V72h46v21h14V72h96v21h38v21h42v21h62v21h21v-38h21v-38h21v-42h-21v-14h21V118h-21V80h-21V42h-21V21h-42V0Z'/%3E%3C/svg%3E");
-    mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 1030 701'%3E%3Cpath fill='%23fff' d='M347 0v21h60V0h43v21h44v21h121V21h31V0h117v21h59V0h107v21h59v62h21v42h21v36h-21v38h-21v96h21v14h21v46h-21v21h21v38h-21v50h21v79h-21v72h-42v21h-96v21h-38v21h-46v-21h-14v21h-96v-21h-38v-21h-42v-21h-72v-21h-79v21h-50v21h-38v-21h-21v21h-46v-21h-14v21h-96v-21h-38v-21h-42v-21h-62v-21h-21V666h-21v-38h-21v-46h21v-14h-21v-96h21v-38h21v-42h21V250h21v-79h21V93h42V72h96V51h38V30h46v21h14V30h96v21h38v21h42v21h72v21h79V93h50V72h38v21h21V72h46v21h14V72h96v21h38v21h42v21h62v21h21v-38h21v-38h21v-42h-21v-14h21V118h-21V80h-21V42h-21V21h-42V0Z'/%3E%3C/svg%3E");
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
+    -webkit-mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1088 768'%3E%3Cpath fill='%23fff' d='M128 352h32v32h-32ZM160 320h32v32h-32ZM160 352h32v32h-32ZM160 384h32v32h-32ZM160 416h32v32h-32ZM192 288h32v32h-32ZM192 320h32v32h-32ZM192 352h32v32h-32ZM192 384h32v32h-32ZM192 416h32v32h-32ZM224 288h32v32h-32ZM224 320h32v32h-32ZM224 352h32v32h-32ZM224 384h32v32h-32ZM224 416h32v32h-32ZM224 448h32v32h-32ZM224 480h32v32h-32ZM256 224h32v32h-32ZM256 256h32v32h-32ZM256 288h32v32h-32ZM256 320h32v32h-32ZM256 352h32v32h-32ZM256 384h32v32h-32ZM256 416h32v32h-32ZM256 448h32v32h-32ZM256 480h32v32h-32ZM288 192h32v32h-32ZM288 224h32v32h-32ZM288 256h32v32h-32ZM288 288h32v32h-32ZM288 320h32v32h-32ZM288 352h32v32h-32ZM288 384h32v32h-32ZM288 416h32v32h-32ZM288 448h32v32h-32ZM288 480h32v32h-32ZM288 512h32v32h-32ZM288 544h32v32h-32ZM320 160h32v32h-32ZM320 192h32v32h-32ZM320 224h32v32h-32ZM320 256h32v32h-32ZM320 288h32v32h-32ZM320 320h32v32h-32ZM320 352h32v32h-32ZM320 384h32v32h-32ZM320 416h32v32h-32ZM320 448h32v32h-32ZM320 480h32v32h-32ZM320 512h32v32h-32ZM320 544h32v32h-32ZM352 96h32v32h-32ZM352 160h32v32h-32ZM352 192h32v32h-32ZM352 224h32v32h-32ZM352 256h32v32h-32ZM352 288h32v32h-32ZM352 320h32v32h-32ZM352 352h32v32h-32ZM352 384h32v32h-32ZM352 416h32v32h-32ZM352 448h32v32h-32ZM352 480h32v32h-32ZM352 512h32v32h-32ZM352 544h32v32h-32ZM352 576h32v32h-32ZM352 608h32v32h-32ZM352 640h32v32h-32ZM384 96h32v32h-32ZM384 128h32v32h-32ZM384 160h32v32h-32ZM384 192h32v32h-32ZM384 224h32v32h-32ZM384 256h32v32h-32ZM384 288h32v32h-32ZM384 320h32v32h-32ZM384 352h32v32h-32ZM384 384h32v32h-32ZM384 416h32v32h-32ZM384 448h32v32h-32ZM384 480h32v32h-32ZM384 512h32v32h-32ZM384 544h32v32h-32ZM384 576h32v32h-32ZM384 608h32v32h-32ZM416 64h32v32h-32ZM416 96h32v32h-32ZM416 128h32v32h-32ZM416 160h32v32h-32ZM416 192h32v32h-32ZM416 224h32v32h-32ZM416 256h32v32h-32ZM416 288h32v32h-32ZM416 320h32v32h-32ZM416 352h32v32h-32ZM416 384h32v32h-32ZM416 416h32v32h-32ZM416 448h32v32h-32ZM416 480h32v32h-32ZM416 512h32v32h-32ZM416 544h32v32h-32ZM416 576h32v32h-32ZM416 608h32v32h-32ZM416 640h32v32h-32ZM416 672h32v32h-32ZM448 32h32v32h-32ZM448 64h32v32h-32ZM448 96h32v32h-32ZM448 128h32v32h-32ZM448 160h32v32h-32ZM448 192h32v32h-32ZM448 224h32v32h-32ZM448 256h32v32h-32ZM448 288h32v32h-32ZM448 320h32v32h-32ZM448 352h32v32h-32ZM448 384h32v32h-32ZM448 416h32v32h-32ZM448 448h32v32h-32ZM448 480h32v32h-32ZM448 512h32v32h-32ZM448 544h32v32h-32ZM448 576h32v32h-32ZM448 608h32v32h-32ZM448 640h32v32h-32ZM448 672h32v32h-32ZM480 32h32v32h-32ZM480 64h32v32h-32ZM480 96h32v32h-32ZM480 128h32v32h-32ZM480 160h32v32h-32ZM480 192h32v32h-32ZM480 224h32v32h-32ZM480 256h32v32h-32ZM480 288h32v32h-32ZM480 320h32v32h-32ZM480 352h32v32h-32ZM480 384h32v32h-32ZM480 416h32v32h-32ZM480 448h32v32h-32ZM480 480h32v32h-32ZM480 512h32v32h-32ZM480 544h32v32h-32ZM480 576h32v32h-32ZM480 608h32v32h-32ZM480 640h32v32h-32ZM480 672h32v32h-32ZM480 704h32v32h-32ZM480 736h32v32h-32ZM512 0h32v32h-32ZM512 32h32v32h-32ZM512 64h32v32h-32ZM512 96h32v32h-32ZM512 128h32v32h-32ZM512 160h32v32h-32ZM512 192h32v32h-32ZM512 224h32v32h-32ZM512 256h32v32h-32ZM512 288h32v32h-32ZM512 320h32v32h-32ZM512 352h32v32h-32ZM512 384h32v32h-32ZM512 416h32v32h-32ZM512 448h32v32h-32ZM512 480h32v32h-32ZM512 512h32v32h-32ZM512 544h32v32h-32ZM512 576h32v32h-32ZM512 608h32v32h-32ZM512 640h32v32h-32ZM512 672h32v32h-32ZM512 704h32v32h-32ZM512 736h32v32h-32ZM544 0h32v32h-32ZM544 32h32v32h-32ZM544 64h32v32h-32ZM544 96h32v32h-32ZM544 128h32v32h-32ZM544 160h32v32h-32ZM544 192h32v32h-32ZM544 224h32v32h-32ZM544 256h32v32h-32ZM544 288h32v32h-32ZM544 320h32v32h-32ZM544 352h32v32h-32ZM544 384h32v32h-32ZM544 416h32v32h-32ZM544 448h32v32h-32ZM544 480h32v32h-32ZM544 512h32v32h-32ZM544 544h32v32h-32ZM544 576h32v32h-32ZM544 608h32v32h-32ZM544 640h32v32h-32ZM544 672h32v32h-32ZM544 704h32v32h-32ZM544 736h32v32h-32ZM576 0h32v32h-32ZM576 32h32v32h-32ZM576 64h32v32h-32ZM576 96h32v32h-32ZM576 128h32v32h-32ZM576 160h32v32h-32ZM576 192h32v32h-32ZM576 224h32v32h-32ZM576 256h32v32h-32ZM576 288h32v32h-32ZM576 320h32v32h-32ZM576 352h32v32h-32ZM576 384h32v32h-32ZM576 416h32v32h-32ZM576 448h32v32h-32ZM576 480h32v32h-32ZM576 512h32v32h-32ZM576 544h32v32h-32ZM576 576h32v32h-32ZM576 608h32v32h-32ZM576 640h32v32h-32ZM576 672h32v32h-32ZM576 704h32v32h-32ZM608 32h32v32h-32ZM608 64h32v32h-32ZM608 96h32v32h-32ZM608 128h32v32h-32ZM608 160h32v32h-32ZM608 192h32v32h-32ZM608 224h32v32h-32ZM608 256h32v32h-32ZM608 288h32v32h-32ZM608 320h32v32h-32ZM608 352h32v32h-32ZM608 384h32v32h-32ZM608 416h32v32h-32ZM608 448h32v32h-32ZM608 480h32v32h-32ZM608 512h32v32h-32ZM608 544h32v32h-32ZM608 576h32v32h-32ZM608 608h32v32h-32ZM608 640h32v32h-32ZM608 672h32v32h-32ZM608 704h32v32h-32ZM640 64h32v32h-32ZM640 96h32v32h-32ZM640 128h32v32h-32ZM640 160h32v32h-32ZM640 192h32v32h-32ZM640 224h32v32h-32ZM640 256h32v32h-32ZM640 288h32v32h-32ZM640 320h32v32h-32ZM640 352h32v32h-32ZM640 384h32v32h-32ZM640 416h32v32h-32ZM640 448h32v32h-32ZM640 480h32v32h-32ZM640 512h32v32h-32ZM640 544h32v32h-32ZM640 576h32v32h-32ZM640 608h32v32h-32ZM640 640h32v32h-32ZM640 672h32v32h-32ZM672 96h32v32h-32ZM672 128h32v32h-32ZM672 160h32v32h-32ZM672 192h32v32h-32ZM672 224h32v32h-32ZM672 256h32v32h-32ZM672 288h32v32h-32ZM672 320h32v32h-32ZM672 352h32v32h-32ZM672 384h32v32h-32ZM672 416h32v32h-32ZM672 448h32v32h-32ZM672 480h32v32h-32ZM672 512h32v32h-32ZM672 544h32v32h-32ZM672 576h32v32h-32ZM672 608h32v32h-32ZM672 640h32v32h-32ZM704 96h32v32h-32ZM704 128h32v32h-32ZM704 160h32v32h-32ZM704 192h32v32h-32ZM704 224h32v32h-32ZM704 256h32v32h-32ZM704 288h32v32h-32ZM704 320h32v32h-32ZM704 352h32v32h-32ZM704 384h32v32h-32ZM704 416h32v32h-32ZM704 448h32v32h-32ZM704 480h32v32h-32ZM704 512h32v32h-32ZM704 544h32v32h-32ZM704 576h32v32h-32ZM704 640h32v32h-32ZM736 160h32v32h-32ZM736 192h32v32h-32ZM736 224h32v32h-32ZM736 256h32v32h-32ZM736 288h32v32h-32ZM736 320h32v32h-32ZM736 352h32v32h-32ZM736 384h32v32h-32ZM736 416h32v32h-32ZM736 448h32v32h-32ZM736 480h32v32h-32ZM736 512h32v32h-32ZM736 544h32v32h-32ZM736 576h32v32h-32ZM768 192h32v32h-32ZM768 224h32v32h-32ZM768 256h32v32h-32ZM768 288h32v32h-32ZM768 320h32v32h-32ZM768 352h32v32h-32ZM768 384h32v32h-32ZM768 416h32v32h-32ZM768 448h32v32h-32ZM768 480h32v32h-32ZM768 512h32v32h-32ZM768 544h32v32h-32ZM800 224h32v32h-32ZM800 256h32v32h-32ZM800 288h32v32h-32ZM800 320h32v32h-32ZM800 352h32v32h-32ZM800 384h32v32h-32ZM800 416h32v32h-32ZM800 448h32v32h-32ZM800 480h32v32h-32ZM800 512h32v32h-32ZM832 256h32v32h-32ZM832 288h32v32h-32ZM832 320h32v32h-32ZM832 352h32v32h-32ZM832 384h32v32h-32ZM832 416h32v32h-32ZM832 448h32v32h-32ZM864 288h32v32h-32ZM864 320h32v32h-32ZM864 352h32v32h-32ZM864 384h32v32h-32ZM864 416h32v32h-32ZM864 448h32v32h-32ZM896 320h32v32h-32ZM896 352h32v32h-32ZM896 384h32v32h-32ZM896 416h32v32h-32ZM928 352h32v32h-32ZM928 384h32v32h-32Z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1088 768'%3E%3Cpath fill='%23fff' d='M128 352h32v32h-32ZM160 320h32v32h-32ZM160 352h32v32h-32ZM160 384h32v32h-32ZM160 416h32v32h-32ZM192 288h32v32h-32ZM192 320h32v32h-32ZM192 352h32v32h-32ZM192 384h32v32h-32ZM192 416h32v32h-32ZM224 288h32v32h-32ZM224 320h32v32h-32ZM224 352h32v32h-32ZM224 384h32v32h-32ZM224 416h32v32h-32ZM224 448h32v32h-32ZM224 480h32v32h-32ZM256 224h32v32h-32ZM256 256h32v32h-32ZM256 288h32v32h-32ZM256 320h32v32h-32ZM256 352h32v32h-32ZM256 384h32v32h-32ZM256 416h32v32h-32ZM256 448h32v32h-32ZM256 480h32v32h-32ZM288 192h32v32h-32ZM288 224h32v32h-32ZM288 256h32v32h-32ZM288 288h32v32h-32ZM288 320h32v32h-32ZM288 352h32v32h-32ZM288 384h32v32h-32ZM288 416h32v32h-32ZM288 448h32v32h-32ZM288 480h32v32h-32ZM288 512h32v32h-32ZM288 544h32v32h-32ZM320 160h32v32h-32ZM320 192h32v32h-32ZM320 224h32v32h-32ZM320 256h32v32h-32ZM320 288h32v32h-32ZM320 320h32v32h-32ZM320 352h32v32h-32ZM320 384h32v32h-32ZM320 416h32v32h-32ZM320 448h32v32h-32ZM320 480h32v32h-32ZM320 512h32v32h-32ZM320 544h32v32h-32ZM352 96h32v32h-32ZM352 160h32v32h-32ZM352 192h32v32h-32ZM352 224h32v32h-32ZM352 256h32v32h-32ZM352 288h32v32h-32ZM352 320h32v32h-32ZM352 352h32v32h-32ZM352 384h32v32h-32ZM352 416h32v32h-32ZM352 448h32v32h-32ZM352 480h32v32h-32ZM352 512h32v32h-32ZM352 544h32v32h-32ZM352 576h32v32h-32ZM352 608h32v32h-32ZM352 640h32v32h-32ZM384 96h32v32h-32ZM384 128h32v32h-32ZM384 160h32v32h-32ZM384 192h32v32h-32ZM384 224h32v32h-32ZM384 256h32v32h-32ZM384 288h32v32h-32ZM384 320h32v32h-32ZM384 352h32v32h-32ZM384 384h32v32h-32ZM384 416h32v32h-32ZM384 448h32v32h-32ZM384 480h32v32h-32ZM384 512h32v32h-32ZM384 544h32v32h-32ZM384 576h32v32h-32ZM384 608h32v32h-32ZM416 64h32v32h-32ZM416 96h32v32h-32ZM416 128h32v32h-32ZM416 160h32v32h-32ZM416 192h32v32h-32ZM416 224h32v32h-32ZM416 256h32v32h-32ZM416 288h32v32h-32ZM416 320h32v32h-32ZM416 352h32v32h-32ZM416 384h32v32h-32ZM416 416h32v32h-32ZM416 448h32v32h-32ZM416 480h32v32h-32ZM416 512h32v32h-32ZM416 544h32v32h-32ZM416 576h32v32h-32ZM416 608h32v32h-32ZM416 640h32v32h-32ZM416 672h32v32h-32ZM448 32h32v32h-32ZM448 64h32v32h-32ZM448 96h32v32h-32ZM448 128h32v32h-32ZM448 160h32v32h-32ZM448 192h32v32h-32ZM448 224h32v32h-32ZM448 256h32v32h-32ZM448 288h32v32h-32ZM448 320h32v32h-32ZM448 352h32v32h-32ZM448 384h32v32h-32ZM448 416h32v32h-32ZM448 448h32v32h-32ZM448 480h32v32h-32ZM448 512h32v32h-32ZM448 544h32v32h-32ZM448 576h32v32h-32ZM448 608h32v32h-32ZM448 640h32v32h-32ZM448 672h32v32h-32ZM480 32h32v32h-32ZM480 64h32v32h-32ZM480 96h32v32h-32ZM480 128h32v32h-32ZM480 160h32v32h-32ZM480 192h32v32h-32ZM480 224h32v32h-32ZM480 256h32v32h-32ZM480 288h32v32h-32ZM480 320h32v32h-32ZM480 352h32v32h-32ZM480 384h32v32h-32ZM480 416h32v32h-32ZM480 448h32v32h-32ZM480 480h32v32h-32ZM480 512h32v32h-32ZM480 544h32v32h-32ZM480 576h32v32h-32ZM480 608h32v32h-32ZM480 640h32v32h-32ZM480 672h32v32h-32ZM480 704h32v32h-32ZM480 736h32v32h-32ZM512 0h32v32h-32ZM512 32h32v32h-32ZM512 64h32v32h-32ZM512 96h32v32h-32ZM512 128h32v32h-32ZM512 160h32v32h-32ZM512 192h32v32h-32ZM512 224h32v32h-32ZM512 256h32v32h-32ZM512 288h32v32h-32ZM512 320h32v32h-32ZM512 352h32v32h-32ZM512 384h32v32h-32ZM512 416h32v32h-32ZM512 448h32v32h-32ZM512 480h32v32h-32ZM512 512h32v32h-32ZM512 544h32v32h-32ZM512 576h32v32h-32ZM512 608h32v32h-32ZM512 640h32v32h-32ZM512 672h32v32h-32ZM512 704h32v32h-32ZM512 736h32v32h-32ZM544 0h32v32h-32ZM544 32h32v32h-32ZM544 64h32v32h-32ZM544 96h32v32h-32ZM544 128h32v32h-32ZM544 160h32v32h-32ZM544 192h32v32h-32ZM544 224h32v32h-32ZM544 256h32v32h-32ZM544 288h32v32h-32ZM544 320h32v32h-32ZM544 352h32v32h-32ZM544 384h32v32h-32ZM544 416h32v32h-32ZM544 448h32v32h-32ZM544 480h32v32h-32ZM544 512h32v32h-32ZM544 544h32v32h-32ZM544 576h32v32h-32ZM544 608h32v32h-32ZM544 640h32v32h-32ZM544 672h32v32h-32ZM544 704h32v32h-32ZM544 736h32v32h-32ZM576 0h32v32h-32ZM576 32h32v32h-32ZM576 64h32v32h-32ZM576 96h32v32h-32ZM576 128h32v32h-32ZM576 160h32v32h-32ZM576 192h32v32h-32ZM576 224h32v32h-32ZM576 256h32v32h-32ZM576 288h32v32h-32ZM576 320h32v32h-32ZM576 352h32v32h-32ZM576 384h32v32h-32ZM576 416h32v32h-32ZM576 448h32v32h-32ZM576 480h32v32h-32ZM576 512h32v32h-32ZM576 544h32v32h-32ZM576 576h32v32h-32ZM576 608h32v32h-32ZM576 640h32v32h-32ZM576 672h32v32h-32ZM576 704h32v32h-32ZM608 32h32v32h-32ZM608 64h32v32h-32ZM608 96h32v32h-32ZM608 128h32v32h-32ZM608 160h32v32h-32ZM608 192h32v32h-32ZM608 224h32v32h-32ZM608 256h32v32h-32ZM608 288h32v32h-32ZM608 320h32v32h-32ZM608 352h32v32h-32ZM608 384h32v32h-32ZM608 416h32v32h-32ZM608 448h32v32h-32ZM608 480h32v32h-32ZM608 512h32v32h-32ZM608 544h32v32h-32ZM608 576h32v32h-32ZM608 608h32v32h-32ZM608 640h32v32h-32ZM608 672h32v32h-32ZM608 704h32v32h-32ZM640 64h32v32h-32ZM640 96h32v32h-32ZM640 128h32v32h-32ZM640 160h32v32h-32ZM640 192h32v32h-32ZM640 224h32v32h-32ZM640 256h32v32h-32ZM640 288h32v32h-32ZM640 320h32v32h-32ZM640 352h32v32h-32ZM640 384h32v32h-32ZM640 416h32v32h-32ZM640 448h32v32h-32ZM640 480h32v32h-32ZM640 512h32v32h-32ZM640 544h32v32h-32ZM640 576h32v32h-32ZM640 608h32v32h-32ZM640 640h32v32h-32ZM640 672h32v32h-32ZM672 96h32v32h-32ZM672 128h32v32h-32ZM672 160h32v32h-32ZM672 192h32v32h-32ZM672 224h32v32h-32ZM672 256h32v32h-32ZM672 288h32v32h-32ZM672 320h32v32h-32ZM672 352h32v32h-32ZM672 384h32v32h-32ZM672 416h32v32h-32ZM672 448h32v32h-32ZM672 480h32v32h-32ZM672 512h32v32h-32ZM672 544h32v32h-32ZM672 576h32v32h-32ZM672 608h32v32h-32ZM672 640h32v32h-32ZM704 96h32v32h-32ZM704 128h32v32h-32ZM704 160h32v32h-32ZM704 192h32v32h-32ZM704 224h32v32h-32ZM704 256h32v32h-32ZM704 288h32v32h-32ZM704 320h32v32h-32ZM704 352h32v32h-32ZM704 384h32v32h-32ZM704 416h32v32h-32ZM704 448h32v32h-32ZM704 480h32v32h-32ZM704 512h32v32h-32ZM704 544h32v32h-32ZM704 576h32v32h-32ZM704 640h32v32h-32ZM736 160h32v32h-32ZM736 192h32v32h-32ZM736 224h32v32h-32ZM736 256h32v32h-32ZM736 288h32v32h-32ZM736 320h32v32h-32ZM736 352h32v32h-32ZM736 384h32v32h-32ZM736 416h32v32h-32ZM736 448h32v32h-32ZM736 480h32v32h-32ZM736 512h32v32h-32ZM736 544h32v32h-32ZM736 576h32v32h-32ZM768 192h32v32h-32ZM768 224h32v32h-32ZM768 256h32v32h-32ZM768 288h32v32h-32ZM768 320h32v32h-32ZM768 352h32v32h-32ZM768 384h32v32h-32ZM768 416h32v32h-32ZM768 448h32v32h-32ZM768 480h32v32h-32ZM768 512h32v32h-32ZM768 544h32v32h-32ZM800 224h32v32h-32ZM800 256h32v32h-32ZM800 288h32v32h-32ZM800 320h32v32h-32ZM800 352h32v32h-32ZM800 384h32v32h-32ZM800 416h32v32h-32ZM800 448h32v32h-32ZM800 480h32v32h-32ZM800 512h32v32h-32ZM832 256h32v32h-32ZM832 288h32v32h-32ZM832 320h32v32h-32ZM832 352h32v32h-32ZM832 384h32v32h-32ZM832 416h32v32h-32ZM832 448h32v32h-32ZM864 288h32v32h-32ZM864 320h32v32h-32ZM864 352h32v32h-32ZM864 384h32v32h-32ZM864 416h32v32h-32ZM864 448h32v32h-32ZM896 320h32v32h-32ZM896 352h32v32h-32ZM896 384h32v32h-32ZM896 416h32v32h-32ZM928 352h32v32h-32ZM928 384h32v32h-32Z'/%3E%3C/svg%3E");
+    -webkit-mask-size: var(--hero-ms) var(--hero-ms);
+    mask-size: var(--hero-ms) var(--hero-ms);
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
 }
 
-.hero-map img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: saturate(0.85) contrast(1.05);
-}
-
-/* 没有图片时的替身：CSS 画的"网格地形"——
-   横竖网格线 + 荧光黄的热点，远看像一块数据地图 */
-.hero-map-fallback {
+/* 地图双层：A 层「现状」（珊瑚红/琥珀热点）→ B 层「改善」（薄荷/荧光黄）
+   中段滚动时 A 淡出 B 淡入，对应参考站"退化 → 修复"的双图交叉 */
+.hero-map-layer {
     position: absolute;
     inset: 0;
-    background-color: rgba(24, 24, 19, 0.9);
+    background-color: #181813;
     background-image:
-        linear-gradient(to right, rgba(244, 243, 232, 0.09) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(244, 243, 232, 0.09) 1px, transparent 1px),
-        radial-gradient(circle at 28% 34%, rgba(235, 252, 114, 0.5) 0 2px, transparent 3px),
-        radial-gradient(circle at 63% 22%, rgba(235, 252, 114, 0.42) 0 2px, transparent 3px),
-        radial-gradient(circle at 71% 61%, rgba(241, 102, 77, 0.55) 0 3px, transparent 4px),
-        radial-gradient(circle at 44% 74%, rgba(241, 102, 77, 0.45) 0 3px, transparent 4px),
-        radial-gradient(circle at 18% 62%, rgba(235, 252, 114, 0.35) 0 2px, transparent 3px);
-    background-size: calc(var(--font-s) * 2.07) calc(var(--font-s) * 2.07),
-                     calc(var(--font-s) * 2.07) calc(var(--font-s) * 2.07),
-                     100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+        linear-gradient(to right, rgba(244, 243, 232, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(244, 243, 232, 0.08) 1px, transparent 1px),
+        radial-gradient(circle at 27% 33%, rgba(241, 102, 77, 0.75) 0 3px, transparent 5px),
+        radial-gradient(circle at 61% 21%, rgba(241, 102, 77, 0.6) 0 3px, transparent 5px),
+        radial-gradient(circle at 72% 62%, rgba(241, 102, 77, 0.85) 0 4px, transparent 6px),
+        radial-gradient(circle at 43% 74%, rgba(241, 102, 77, 0.65) 0 3px, transparent 5px),
+        radial-gradient(circle at 16% 58%, rgba(235, 252, 114, 0.55) 0 2px, transparent 4px),
+        radial-gradient(circle at 84% 40%, rgba(235, 252, 114, 0.45) 0 2px, transparent 4px),
+        radial-gradient(ellipse 55% 42% at 50% 48%, rgba(241, 102, 77, 0.13), transparent 70%);
+    background-size: calc(var(--font-s) * 2.4) calc(var(--font-s) * 2.4),
+                     calc(var(--font-s) * 2.4) calc(var(--font-s) * 2.4),
+                     100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
 }
 
-/* 热点脉冲标签（参考站左下右下的 Hotspot / Field Specialist —— 我们换成中文）
-   这两个点随大图一起在你滚动时出现，像"正在作业的工位" */
+.hero-map-layer.is-b {
+    background-image:
+        linear-gradient(to right, rgba(244, 243, 232, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(244, 243, 232, 0.08) 1px, transparent 1px),
+        radial-gradient(circle at 27% 33%, rgba(0, 211, 153, 0.8) 0 3px, transparent 5px),
+        radial-gradient(circle at 61% 21%, rgba(0, 211, 153, 0.6) 0 3px, transparent 5px),
+        radial-gradient(circle at 72% 62%, rgba(235, 252, 114, 0.7) 0 3px, transparent 5px),
+        radial-gradient(circle at 43% 74%, rgba(0, 211, 153, 0.7) 0 3px, transparent 5px),
+        radial-gradient(circle at 16% 58%, rgba(235, 252, 114, 0.6) 0 2px, transparent 4px),
+        radial-gradient(circle at 84% 40%, rgba(0, 211, 153, 0.5) 0 2px, transparent 4px),
+        radial-gradient(ellipse 55% 42% at 50% 48%, rgba(0, 211, 153, 0.12), transparent 70%);
+    opacity: 0;               /* B 层初始透明，滚动中段淡入 */
+}
+
+/* ---- 扫描线纹路（中段浮现又退场）---- */
+.hero-raster {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(88vw, 1240px);
+    height: min(88vh, 760px);
+    transform: translate(-50%, -50%);
+    background-image: linear-gradient(to right, rgba(244, 243, 232, 0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(244, 243, 232, 0.05) 1px, transparent 1px);
+    background-size: calc(var(--font-s) * 2.07) calc(var(--font-s) * 2.07);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ---- 压黑层：中段蒙一层 75% 黑，保证文字可读 ---- */
+.hero-dim {
+    position: absolute;
+    inset: 0;
+    background: var(--c-ink);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ---- 中段灰度滤镜（参考站的去色手法）---- */
+.hero-desat {
+    position: absolute;
+    inset: 0;
+    background: #b0b3b4;
+    mix-blend-mode: color;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ---- 热点脉冲（两个工位标签，中段浮现）---- */
 .hero-hotspot,
 .hero-specialist {
     position: absolute;
-    z-index: 4;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
+    pointer-events: none;
 }
 
-.hero-hotspot { color: var(--c-coral); left: 30%; top: 58%; }
-.hero-specialist { color: var(--c-acid); right: 24%; top: 30%; }
+.hero-hotspot { color: var(--c-coral); left: 33%; top: 60%; }
+.hero-specialist { color: var(--c-acid); left: 63%; top: 33%; }
+
+.hero-hotspot-mark {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentcolor;
+}
 
 .hero-hotspot-label,
 .hero-specialist-label {
@@ -529,17 +306,16 @@ html:not(.hero-on) #heroStage {
     transform: translate(-50%, -50%);
     padding: 3px 9px;
     border-radius: 1px;
-    background: rgba(19, 20, 14, 0.75);
+    background: rgba(19, 20, 14, 0.78);
     color: currentcolor;
     font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 0.9);
+    font-size: calc(var(--font-s) * 1.1);
     font-weight: 400;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
-/* 脉冲：一圈一圈扩散（纯 CSS，不耗性能） */
 .hero-pulse {
     position: absolute;
     left: 50%;
@@ -556,58 +332,215 @@ html:not(.hero-on) #heroStage {
 .hero-pulse:nth-child(2) { animation-delay: 1.4s; }
 
 @keyframes hero-pulse {
-    0% { transform: scale(0.28); opacity: 0.9; }
-    100% { transform: scale(1.5); opacity: 0; }
+    0% { transform: scale(0.3); opacity: 0.9; }
+    100% { transform: scale(1.6); opacity: 0; }
 }
 
-.hero-hotspot-mark {
-    position: relative;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: currentcolor;
+.hero-hotspot .hero-pulse,
+.hero-specialist .hero-pulse {
+    width: 8rem;
+    height: 8rem;
 }
 
-/* ============================================================
-   十、旅程屏（第 2-4 屏）：幽灵大字 + 角落注解
-   ============================================================ */
-
-/* 幽灵大字：屏幕中央的极淡描边字，滚动时轻轻漂移 */
-.hero-ghost {
+/* ---- 右侧进度线：整段旅程的填充刻度 ---- */
+.hero-indicator {
     position: absolute;
-    left: 50%;
+    right: calc(var(--font-s) * 6);
     top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    font-family: var(--f-display);
-    font-size: clamp(110px, 22vw, calc(var(--font-s) * 26));
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(244, 243, 232, 0.11);
-    user-select: none;
+    transform: translateY(-50%);
+    width: 1px;
+    height: calc(var(--font-s) * 18.2);
+    background: color-mix(in srgb, var(--c-paper) 45%, transparent);
+    z-index: 3;
+}
+
+.hero-indicator::before,
+.hero-indicator::after {
+    content: "";
+    position: absolute;
+    left: -2px;
+    width: 5px;
+    height: 5px;
+    background: color-mix(in srgb, var(--c-paper) 45%, transparent);
+}
+
+.hero-indicator::before { top: -2px; }
+.hero-indicator::after { bottom: -2px; }
+
+.hero-indicator i {
+    position: absolute;
+    inset: 0;
+    background: var(--c-acid);
+    transform: scaleY(0);
+    transform-origin: top;
+}
+
+/* ---- 门面顶栏：logo + 直达目录（sticky 视口内，随门面一起退场）---- */
+.hero-bar {
+    position: absolute;
+    inset: 0 0 auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(var(--font-s) * 1.6) calc(var(--font-s) * 2.4);
+    z-index: 10;
     pointer-events: none;
 }
 
-/* 角落注解块：角标（荧光黄 mono）+ 小标题 + 两三行说明
-   滚动到跟前浮现，滚过去退场 —— 这就是参考站"左右两边小字"的位置 */
-.hero-note {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 4;
-    max-width: calc(var(--font-s) * 34);
-    padding: calc(var(--font-s) * 2.2) calc(var(--font-s) * 2.4);
-    background: rgba(24, 24, 19, 0.55);
-    border: 1px solid rgba(244, 243, 232, 0.12);
-    border-left: 2px solid var(--c-acid);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+.hero-bar-logo {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: calc(var(--font-s) * 2);
+    letter-spacing: 0.06em;
+    color: var(--c-paper);
+    text-decoration: none;
 }
 
-.hero-note.is-right { right: 7vw; }
-.hero-note.is-left { left: 7vw; }
+.hero-bar-link {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: calc(var(--font-s) * 3.6);
+    padding: 0 calc(var(--font-s) * 1.8);
+    border: 1px solid color-mix(in srgb, var(--c-paper) 28%, transparent);
+    border-radius: 2px;
+    color: var(--c-paper);
+    font-family: var(--f-mono);
+    font-size: calc(var(--font-s) * 1.2);
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: border-color 0.25s var(--ease-out-cubic), color 0.25s var(--ease-out-cubic);
+}
+
+.hero-bar-link:hover {
+    border-color: var(--c-acid);
+    color: var(--c-acid);
+}
+
+/* ============================================================
+   六、文字层：4 屏（正常文档流，从 sticky 视口上面滚过去）
+   ============================================================ */
+.hero-slides {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.hero-slide {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+}
+
+/* 第 1 屏：大标题 + 按钮 钉在左下（参考站同款位置） */
+.hero-slide:first-child .hero-slide-content {
+    position: absolute;
+    left: calc(var(--font-s) * 2.4);
+    bottom: calc(var(--font-s) * 3.2);
+    width: calc(var(--font-s) * 71);
+    max-width: calc(100% - calc(var(--font-s) * 4.8));
+}
+
+.hero-kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 calc(var(--font-s) * 1.4);
+    color: var(--c-acid);
+    font-family: var(--f-mono);
+    font-size: calc(var(--font-s) * 1.2);
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.hero-kicker::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    background: var(--c-acid);
+    flex: none;
+}
+
+.hero-display {
+    margin: 0;
+    font-family: var(--f-display);
+    font-weight: 500;
+    font-size: calc(var(--font-s) * 8);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    color: var(--c-paper);
+}
+
+.hero-display .hero-ch {
+    display: inline-block;
+    overflow: hidden;
+    padding: 0.04em 0.02em 0.06em;
+}
+
+.hero-display .hero-ch i {
+    display: inline-block;
+    font-style: normal;
+    will-change: transform;
+}
+
+.hero-meta {
+    margin: calc(var(--font-s) * 1.6) 0 0;
+    color: color-mix(in srgb, var(--c-paper) 55%, transparent);
+    font-family: var(--f-mono);
+    font-size: calc(var(--font-s) * 1.2);
+    font-weight: 300;
+    letter-spacing: 0.16em;
+}
+
+/* 切角按钮（右下切角，hover 换左上） */
+.hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: calc(var(--font-s) * 4.5);
+    padding: 0 calc(var(--font-s) * 2);
+    margin: calc(var(--font-s) * 2.4) 0 0;
+    background: var(--c-acid);
+    color: var(--c-ink);
+    font-family: var(--f-mono);
+    font-size: calc(var(--font-s) * 1.4);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.5rem), calc(100% - 1.5rem) 100%, 0 100%, 0 0);
+    transition: clip-path 0.25s ease-out, background 0.25s ease-out;
+}
+
+.hero-btn:hover {
+    background: var(--c-acid-2);
+    clip-path: polygon(1.5rem 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 1.5rem);
+}
+
+/* 第 2-4 屏：注解文字（无卡片，纯文字块，右/左/右交替） */
+.hero-slide:nth-child(2) .hero-slide-content,
+.hero-slide:nth-child(4) .hero-slide-content {
+    position: absolute;
+    right: calc(var(--font-s) * 8.2);
+    top: 50%;
+    transform: translateY(-50%);
+    width: calc(var(--font-s) * 39);
+    max-width: calc(100% - calc(var(--font-s) * 4.8));
+}
+
+.hero-slide:nth-child(3) .hero-slide-content {
+    position: absolute;
+    left: calc(var(--font-s) * 8.2);
+    top: 50%;
+    transform: translateY(-50%);
+    width: calc(var(--font-s) * 38);
+    max-width: calc(100% - calc(var(--font-s) * 4.8));
+}
 
 .hero-note-kicker {
     margin: 0 0 calc(var(--font-s) * 1.4);
@@ -619,137 +552,210 @@ html:not(.hero-on) #heroStage {
     text-transform: uppercase;
 }
 
-.hero-note-kicker::before {
-    content: "· ";
-}
-
 .hero-note-title {
-    margin: 0 0 calc(var(--font-s) * 1.2);
+    margin: 0 0 calc(var(--font-s) * 1.4);
     font-family: var(--f-display);
-    color: var(--c-paper);
-    font-size: clamp(19px, 1.7vw, calc(var(--font-s) * 2.4));
+    color: var(--c-acid);
+    font-size: calc(var(--font-s) * 3.3);
     font-weight: 500;
-    line-height: 1.3;
-    letter-spacing: 0.02em;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
 }
 
 .hero-note-body {
     margin: 0;
-    color: rgba(244, 243, 232, 0.7);
-    font-size: clamp(13px, 1.05vw, calc(var(--font-s) * 1.5));
+    max-width: calc(var(--font-s) * 30);
+    color: color-mix(in srgb, var(--c-paper) 82%, transparent);
+    font-size: calc(var(--font-s) * 1.6);
     font-weight: 300;
-    line-height: 1.95;
+    line-height: 1.75;
     letter-spacing: 0.02em;
 }
 
 /* ============================================================
-   十一、底部跑马灯（第 1 屏专属）
+   七、自定义光标（仅桌面精指针）：圆环 + 进度 + 「滚动」标签
    ============================================================ */
-.hero-face .hero-marquee {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 6;
-    padding: 13px 0;
-    overflow: hidden;
-    border-top: 1px solid rgba(244, 243, 232, 0.14);
-}
-
-.hero-marquee-track {
-    display: flex;
-    width: max-content;
-    animation: hero-marquee 34s linear infinite;
-}
-
-.hero-marquee-half {
-    padding-right: 2.5em;
-    white-space: nowrap;
-    color: rgba(244, 243, 232, 0.45);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.2);
-    font-weight: 300;
-    letter-spacing: 0.28em;
-}
-
-@keyframes hero-marquee {
-    to { transform: translateX(-50%); }
-}
-
-/* ============================================================
-   十二、向下滚动提示（第 1 屏专属）
-   ============================================================ */
-.hero-face .hero-cue {
-    position: absolute;
-    bottom: 68px;
-    left: 50%;
-    z-index: 6;
-    transform: translateX(-50%);
-    text-align: center;
-    color: rgba(244, 243, 232, 0.55);
-    font-family: var(--f-mono);
-    font-size: calc(var(--font-s) * 1.1);
-    font-weight: 300;
-    letter-spacing: 0.3em;
-}
-
-.hero-cue-rail {
-    position: relative;
-    display: block;
-    width: 1px;
-    height: 44px;
-    margin: 10px auto 0;
-    overflow: hidden;
-}
-
-.hero-cue-rail i {
-    position: absolute;
+.hero-cursor {
+    position: fixed;
     left: 0;
     top: 0;
-    width: 1px;
-    height: 100%;
-    background: var(--c-acid);
-    animation: hero-cue 1.7s var(--ease-in-out-cubic) infinite;
+    width: calc(var(--font-s) * 9);
+    height: calc(var(--font-s) * 9);
+    margin-left: calc(var(--font-s) * -4.5);
+    margin-top: calc(var(--font-s) * -4.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-paper);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 60;
+    transition: opacity 0.25s linear;
+    will-change: transform;
 }
 
-@keyframes hero-cue {
-    0% { transform: translateY(-100%); }
-    60%, 100% { transform: translateY(100%); }
+.hero-cursor.is-visible { opacity: 1; }
+
+.hero-cursor-ring {
+    position: absolute;
+    inset: 0;
+    border: 1px solid color-mix(in srgb, currentcolor 22%, transparent);
+    border-radius: 50%;
+}
+
+.hero-cursor svg {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+}
+
+.hero-cursor svg circle {
+    fill: none;
+    stroke: var(--c-acid);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-dasharray: 100 100;
+    stroke-dashoffset: 100;
+}
+
+.hero-cursor-label {
+    position: relative;
+    font-family: var(--f-mono);
+    font-size: calc(var(--font-s) * 1.3);
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--c-paper);
 }
 
 /* ============================================================
-   十三、窄屏
+   七点五、LOADING 开屏（照参考站的开屏节奏自制）
+   ------------------------------------------------------------
+   进站先盖一层黑：全屏细点阵 + 左下 LOADING... 打字框 + 底部横线 +
+   右下 PHASE/FREQ 读数。这段时间正好让后台把文档索引备好，
+   PHASE 涨到 100% 后整层淡出、露出门面第 1 屏。
+   加载期间锁滚动（html.hero-booting body），防止还没开演就滚走。
    ============================================================ */
-@media (max-width: 720px) {
-    .hero-display { font-size: clamp(60px, 19vw, 120px); }
-    .hero-star-mark { right: -14vw; opacity: 0.4; }
-    .hero-inner { padding: 0 7vw; }
-    .hero-map { width: 92vw; height: 42vh; top: 42%; }
-    .hero-progress { height: 12vh; margin-top: -6vh; }
-    .hero-hotspot-label,
-    .hero-specialist-label { font-size: 9px; }
+html.hero-booting body { overflow: hidden; }
 
-    /* 旅程屏：注解块改为左右留边的整块，幽灵大字缩小退后 */
-    .hero-note {
-        left: 6vw !important;
-        right: 6vw !important;
-        max-width: none;
-        top: auto;
-        bottom: 12vh;
-        transform: none;
-        padding: 18px 20px;
-    }
-    .hero-ghost { font-size: 32vw; }
-    .hero-pager { left: 6vw; }
+.hero-boot {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: var(--c-ink);
 }
 
-/* 系统里开了"减少动态效果"：所有循环动画停掉，画面照常 */
+/* 全屏细点阵 */
+.hero-boot-grid {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(244, 243, 232, 0.15) 1.2px, transparent 1.7px);
+    background-size: 58px 58px;
+    background-position: center center;
+}
+
+/* 左下 LOADING... 打字框 */
+.hero-boot-word {
+    position: absolute;
+    left: calc(var(--font-s) * 2.4);
+    bottom: calc(var(--font-s) * 6.4);
+    display: inline-block;
+    padding: 5px 12px;
+    border: 1px solid color-mix(in srgb, var(--c-paper) 38%, transparent);
+    color: var(--c-paper);
+    font-family: var(--f-mono);
+    font-size: calc(var(--font-s) * 1.35);
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    white-space: nowrap;
+    min-width: 9ch;
+}
+
+/* 底部横线：宽度随加载进度从 0 长到满 */
+.hero-boot-line {
+    position: absolute;
+    left: calc(var(--font-s) * 2.4);
+    right: calc(var(--font-s) * 2.4);
+    bottom: calc(var(--font-s) * 5.6);
+    height: 1px;
+    background: color-mix(in srgb, var(--c-paper) 38%, transparent);
+    transform: scaleX(0);
+    transform-origin: left center;
+}
+
+/* 右下读数：PHASE 跟着真实加载节奏走，FREQ 是装饰读数 */
+.hero-boot-readout {
+    position: absolute;
+    right: calc(var(--font-s) * 2.4);
+    bottom: calc(var(--font-s) * 2.2);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--font-s) * 0.5);
+    font-family: var(--f-mono);
+    font-size: calc(var(--font-s) * 1.25);
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    color: var(--c-paper);
+}
+
+.hero-boot-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: calc(var(--font-s) * 2.4);
+}
+
+.hero-boot-row b {
+    font-weight: 400;
+    opacity: 0.62;
+}
+
+.hero-boot-row i {
+    font-style: normal;
+    min-width: 4ch;
+    text-align: right;
+}
+
+/* ============================================================
+   八、窄屏
+   ============================================================ */
+@media (max-width: 720px) {
+    #heroStage { height: 400svh; }
+    .hero-stick { height: 100svh; margin-bottom: -100svh; }
+    .hero-slide { height: 100svh; }
+
+    .hero-display { font-size: calc(var(--font-s) * 3.3); line-height: 1.05; }
+    .hero-slide:first-child .hero-slide-content {
+        left: 4.8vw;
+        right: 4.8vw;
+        bottom: 9vh;
+        width: auto;
+        max-width: none;
+    }
+    .hero-slide:nth-child(2) .hero-slide-content,
+    .hero-slide:nth-child(3) .hero-slide-content,
+    .hero-slide:nth-child(4) .hero-slide-content {
+        left: 6vw !important;
+        right: 6vw !important;
+        top: auto;
+        bottom: 10vh;
+        transform: none;
+        width: auto;
+        max-width: none;
+    }
+    .hero-note-title { font-size: calc(var(--font-s) * 2.4); }
+    .hero-note-body { font-size: 13px; }
+    .hero-map,
+    .hero-raster { width: 130vw; height: 60vh; }
+    .hero-hotspot { left: 30%; top: 62%; }
+    .hero-specialist { left: 60%; top: 36%; }
+    .hero-indicator { right: 4.5vw; height: calc(var(--font-s) * 12); }
+    .hero-bar { padding: 12px 16px; }
+}
+
+/* 系统开了"减少动态效果"：循环动画停掉，画面照常 */
 @media (prefers-reduced-motion: reduce) {
-    .hero-marquee-track,
-    .hero-cue-rail i,
-    .hero-star,
     .hero-pulse,
-    #heroStage .hero-inner {
+    .hero-display .hero-ch i {
         animation: none !important;
     }
 }

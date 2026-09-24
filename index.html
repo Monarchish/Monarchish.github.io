@@ -109,17 +109,15 @@
     <!-- 站点外壳结束（.site-shell 从这里闭合） -->
     </div>
 
-    <!-- GSAP / ScrollTrigger / Lenis：门面 Hero 的动画与滚动剧情用；
-         下载超时或 ?hero=0 时这里不会阻塞主页，站点照常可用 -->
+    <!-- GSAP / ScrollTrigger：门面 Hero 的滚动剧情用（滚轮是原生 1:1 手感，
+         不再引入平滑滚动库）。下载超时或 ?hero=0 时这里不会阻塞主页，站点照常可用 -->
     <script>
         (function () {
             if (!window.__heroMode) return;
             var base = "https://cdnjs.cloudflare.com/ajax/libs/";
             var files = [
                 ["gsap", "gsap/3.12.5/gsap.min.js"],
-                ["gsap", "gsap/3.12.5/ScrollTrigger.min.js"],
-                /* lenis 在 cdnjs 已 404，改走 jsDelivr（和字体同一个源） */
-                ["lenis", null, "https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"]
+                ["gsap", "gsap/3.12.5/ScrollTrigger.min.js"]
             ];
             var pending = files.length;
             function done() { pending -= 1; if (pending === 0 && window.HeroFacade) window.HeroFacade.start(); }
