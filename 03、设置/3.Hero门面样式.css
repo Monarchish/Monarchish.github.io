@@ -1,0 +1,297 @@
+/* ============================================================
+   03、设置 · 3.Hero门面样式.css
+   ------------------------------------------------------------
+   这是什么：首页第一屏「支援未来」门面 Hero 的样式，和
+        02、开屏动画 是两回事——那个是每次访问播一遍的短片，
+        这个是短片放完之后停留的地方，往下滚才到操作手册目录。
+   它管什么：
+     · #heroStage     第一屏的画面（星空 / 大字 / 四角星 / 跑马灯 / 滚动提示）
+     · .site-shell    下面那层"剩下的站点"，只在首页门面模式下被压住
+     · html.hero-on / html.hero-passed  两个状态类，由 index.html 里的
+                     一小段脚本决定（详见 4.Hero门面.js 文件头说明）
+   怎么关掉它：网址后面加 ?hero=0，或者把 index.html 里
+      引这个文件的那一行、以及 #heroStage 那一段一起删掉。
+   要不要改：────────────────────────────────────────────
+     · 大字下面的副标题 / 元信息 → 改 4.Hero门面.js 里的 CONTENT
+     · 颜色（夜空、星、金色）     → 改下面这段 :root 里的变量
+     · 滚一屏要多远               → 改下面的 --hero-h
+   ============================================================ */
+
+:root {
+    /* 夜空底色：站点原来的 body 是 #f6f8fa，这里把外壳也压成同一片夜空，
+       滚动时就不会出现"下面是白色一条"的断层 */
+    --hero-ink: #05070f;
+    --hero-paper: #f2efe6;
+    --hero-gold: #e8c766;
+    --hero-muted: rgba(242, 239, 230, 0.62);
+    --hero-h: 100vh;          /* 第一屏高度；想让它矮一点就改这里 */
+}
+
+/* ===== 站点外壳：门面模式下先被压住，滚动时再"盖上来" ===== */
+html.hero-on .site-shell {
+    max-height: var(--hero-h);
+    overflow: hidden;
+    background: var(--hero-ink);
+    border-top: 0;
+}
+
+/* 门面已经滚过去了：外壳恢复正常高度，站点照常使用 */
+html.hero-on.hero-passed .site-shell {
+    max-height: none;
+    overflow: visible;
+}
+
+/* 门面模式下，正文区在"还没滚下去"时先别闪个加载中出来 */
+html.hero-on:not(.hero-passed) .site-shell .app {
+    opacity: 0;
+}
+
+/* 门面模式下，右侧「本页指引」先收起来：
+   首页本来就没内容可指（.empty 会隐藏它），而 .empty 是在 loadContent
+   里才加上的，冷启动那一小会儿它还是空的却显形——这里先按住它，
+   等门面滚过去（hero-passed）再交回给原来的规则管 */
+html.hero-on:not(.hero-passed) .site-shell .toc-wrapper {
+    display: none;
+}
+
+/* 门面模式下把顶栏藏起来：第一屏要干净（滚下去的过程中它会跟着上来） */
+html.hero-on:not(.hero-passed) .site-shell .top-nav {
+    opacity: 0;
+    pointer-events: none;
+}
+
+html.hero-on .site-shell .top-nav,
+html.hero-on .site-shell .app {
+    transition: opacity 0.5s ease;
+}
+
+/* ===== 第一屏本体 ===== */
+#heroStage {
+    position: relative;
+    height: var(--hero-h);
+    overflow: hidden;
+    background: var(--hero-ink);
+    color: var(--hero-paper);
+    display: flex;
+    align-items: center;
+    /* 还没轮到它显示时（比如 ?jump=1、?page=xxx）整块不占位、不可点 */
+    pointer-events: none;
+}
+
+html.hero-on #heroStage {
+    pointer-events: auto;
+}
+
+html:not(.hero-on) #heroStage {
+    height: 0;
+    display: none;
+}
+
+/* 背景：用原生 scroll() 时间轴做一点轻微视差。
+   浏览器不支持 scroll 时间轴时（老版本）这一段整体失效，
+   门面照常显示、照常能滚，只是少一层微微的位移，不影响使用。 */
+@supports (animation-timeline: scroll()) {
+    #heroStage .hero-inner {
+        animation: hero-drift linear both;
+        animation-timeline: scroll();
+        animation-range: 0 55vh;
+    }
+    @keyframes hero-drift {
+        from { transform: translateY(0); }
+        to { transform: translateY(-42px); }
+    }
+}
+
+/* ===== 星空（两层，深浅不同，营造纵深） ===== */
+.hero-stars {
+    position: absolute;
+    inset: -6% 0 0 0;
+    pointer-events: none;
+}
+
+.hero-star {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    background: var(--hero-paper);
+    animation: hero-twinkle 3.4s ease-in-out infinite alternate;
+}
+
+.hero-stars.is-far .hero-star {
+    width: 2px;
+    height: 2px;
+}
+
+@keyframes hero-twinkle {
+    from { opacity: 0.12; }
+    to { opacity: 0.85; }
+}
+
+/* ===== 右侧四角星（描边，滚动时缓慢旋转放大） ===== */
+.hero-star-mark {
+    position: absolute;
+    right: 7vw;
+    top: 50%;
+    width: min(44vh, 420px);
+    height: min(44vh, 420px);
+    margin-top: calc(min(44vh, 420px) / -2);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.hero-star-mark path {
+    fill: none;
+    stroke: rgba(232, 199, 102, 0.85);
+    stroke-width: 1.1;
+}
+
+/* ===== 文字区 ===== */
+.hero-inner {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 8vw;
+}
+
+.hero-eyebrow {
+    margin: 0 0 2.4vh;
+    color: var(--hero-gold);
+    font-size: clamp(11px, 1.2vw, 14px);
+    font-weight: 600;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+}
+
+.hero-display {
+    display: flex;
+    margin: 0;
+    font-weight: 900;
+    font-size: clamp(76px, 15.5vw, 220px);
+    line-height: 1.04;
+    letter-spacing: 0.04em;
+    color: var(--hero-paper);
+}
+
+/* 每个字一个裁剪窗口，动画时字从下往上顶出来 */
+.hero-display .hero-ch {
+    display: inline-block;
+    overflow: hidden;
+    padding-right: 0.03em;
+}
+
+.hero-display .hero-ch i {
+    display: inline-block;
+    font-style: normal;
+    will-change: transform;
+}
+
+.hero-sub {
+    margin: 3vh 0 0;
+    color: rgba(242, 239, 230, 0.78);
+    font-size: clamp(15px, 1.6vw, 20px);
+    letter-spacing: 0.05em;
+}
+
+.hero-meta {
+    display: flex;
+    gap: 26px;
+    margin: 2.6vh 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--hero-muted);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+}
+
+.hero-meta li {
+    padding-left: 12px;
+    border-left: 1px solid rgba(242, 239, 230, 0.25);
+}
+
+/* ===== 底部跑马灯 ===== */
+.hero-marquee {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
+    padding: 13px 0;
+    overflow: hidden;
+    border-top: 1px solid rgba(242, 239, 230, 0.14);
+}
+
+.hero-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: hero-marquee 30s linear infinite;
+}
+
+.hero-marquee-half {
+    padding-right: 2.5em;
+    white-space: nowrap;
+    color: rgba(242, 239, 230, 0.5);
+    font-size: 12px;
+    letter-spacing: 0.3em;
+}
+
+@keyframes hero-marquee {
+    to { transform: translateX(-50%); }
+}
+
+/* ===== 向下滚动提示 ===== */
+.hero-cue {
+    position: absolute;
+    bottom: 62px;
+    left: 50%;
+    z-index: 6;
+    transform: translateX(-50%);
+    text-align: center;
+    color: var(--hero-muted);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+}
+
+.hero-cue-rail {
+    position: relative;
+    display: block;
+    width: 1px;
+    height: 44px;
+    margin: 10px auto 0;
+    overflow: hidden;
+}
+
+.hero-cue-rail i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: var(--hero-paper);
+    animation: hero-cue 1.7s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes hero-cue {
+    0% { transform: translateY(-100%); }
+    60%, 100% { transform: translateY(100%); }
+}
+
+/* ===== 窄屏 ===== */
+@media (max-width: 720px) {
+    .hero-display { font-size: clamp(64px, 20vw, 120px); }
+    .hero-star-mark { right: -14vw; opacity: 0.45; }
+    .hero-meta { flex-wrap: wrap; gap: 16px; }
+    .hero-inner { padding: 0 7vw; }
+}
+
+/* 系统里开了"减少动态效果"：所有循环动画停掉，画面照常 */
+@media (prefers-reduced-motion: reduce) {
+    .hero-marquee-track,
+    .hero-cue-rail i,
+    .hero-star,
+    #heroStage .hero-inner {
+        animation: none !important;
+    }
+}

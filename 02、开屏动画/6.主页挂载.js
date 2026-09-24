@@ -12,8 +12,11 @@
   "use strict";
 
   var CONFIG = {
-    /* 动画页地址，相对于本文件所在目录的上一级（站点根目录） */
-    frameUrl: "02、开屏动画/index.html?embed=1",
+    /* 动画页地址。embed=1：被主页嵌入播放；
+       at=3.75：定格在"眼睛"清晰可见的那一帧再收场（3.79 是最黑帧，
+       门面 Hero 也是黑的，黑对黑看不出交接；3.75 眼睛亮着收，
+       盖在门面上淡出，衔接最有"翻页"感） */
+    frameUrl: "02、开屏动画/index.html?embed=1&at=3.75",
 
     /* 是否每次会话只播一次：true = 刷新不再重复播，重开标签页才播 */
     oncePerSession: true,
@@ -80,6 +83,10 @@
     removeEventListener("message", onMessage);
     log("收场：", reason);
 
+    /* 先广而告之"开始收场了"：门面 Hero（4.Hero门面.js）靠这条消息
+       卡准淡出的这一拍，让大字从覆盖层正后方顶上来 */
+    try { dispatchEvent(new CustomEvent("intro:closing")); } catch (e) { /* 忽略 */ }
+
     // 动画页已经没用了，切到空白页，省得它在后台继续跑 60Hz 的渲染循环
     try { frame.src = "about:blank"; } catch (e) { /* 忽略 */ }
 
@@ -87,6 +94,8 @@
     setTimeout(function () {
       overlay.remove();
       root.classList.remove("intro-on");
+      /* 覆盖层真正没了：门面从这里开始动，晚一点都比"黑一下"强 */
+      try { dispatchEvent(new CustomEvent("intro:gone")); } catch (e) { /* 忽略 */ }
       log("覆盖层已移除，主页可交互");
     }, CONFIG.fadeOutMs + 60);
   }

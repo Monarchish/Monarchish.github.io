@@ -26,17 +26,22 @@
     <link rel="preload" href="03、设置/1.站点主程序.js" as="script" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <link rel="stylesheet" href="03、设置/2.站点样式.css" />
+    <link rel="stylesheet" href="03、设置/3.Hero门面样式.css" />
     <link rel="stylesheet" href="02、开屏动画/7.主页覆盖层样式.css" />
 
-    <!-- ===================== 开屏动画 =====================
-         ① 在页面首次绘制之前就决定"这次要不要播动画"，
-            避免出现"先闪一下主页、再盖黑幕"的观感。
-         ② 要播就给 <html> 加上 intro-on 类，覆盖层由 7.主页覆盖层样式.css 显示，
-            真正的播放逻辑在 02、开屏动画/6.主页挂载.js。
+    <!-- ===================== 门面 Hero 落地页 =====================
+         决定"这次访问要不要显示 Hero 门面"（和开屏动画同一套思路：
+         必须在首次绘制之前定下来，避免先闪一下主页再盖 Hero）。
+         要显示就给 <html> 加上 hero-on 类，样式见 03、设置/3.Hero门面样式.css，
+         动画与滚动剧情在 03、设置/4.Hero门面.js。
          调试开关（加在网址后面）：
-            ?intro=0   本次不播（想直接看主页时用）
-            ?intro=1   强制重播（忽略"本次会话已播过"）
-            ?debug=1   在控制台打印播放流程
+            ?hero=0    直达操作手册（老用法、老速度）
+            ?hero=1    强制显示门面（用了 ?jump=1 之类的直达参数时也能看）
+         其它直达参数（都是"这次访问要不要跳过门面"的开关）：
+            ?jump=1    进站直接跳到目录
+            ?page=xxx  直接打开某篇文档
+            ?intro=0   不播开屏动画
+            ?t=秒      动画页定格到第几秒
          ================================================== -->
     <script>
         (function () {
@@ -44,14 +49,23 @@
             window.__INTRO_SESSION_KEY = KEY;
 
             var query = new URLSearchParams(location.search);
-            var force = query.get("intro");
-            if (force === "0") return;          // 明确要求不播
+            var heroParam = query.get("hero");
+            var introForce = query.get("intro");
 
             var played = false;
             try { played = sessionStorage.getItem(KEY) === "1"; } catch (e) { /* 忽略 */ }
-            if (force !== "1" && played) return; // 本次会话已经播过
 
-            document.documentElement.classList.add("intro-on");
+            /* 开屏动画：和以前一样，只在首次访问播一次 */
+            var playIntro = introForce === "1" || (introForce !== "0" && !played);
+
+            /* 门面 Hero：默认显示；只要这次访问带任何"直达"参数就跳过，
+               老链接、老习惯、同事收藏的 URL 全都照旧 */
+            var direct = query.get("jump") === "1" || !!query.get("page") || introForce === "0";
+            var useHero = heroParam === "1" || (heroParam !== "0" && !direct);
+
+            window.__heroMode = useHero;
+            if (useHero) document.documentElement.classList.add("hero-on");
+            if (playIntro) document.documentElement.classList.add("intro-on");
         })();
     </script>
 </head>
@@ -59,6 +73,17 @@
 
     <!-- 开屏动画覆盖层：动画播完由 6.主页挂载.js 自动淡出并移除，不占用主页布局 -->
     <div id="intro-overlay" aria-hidden="true"></div>
+
+    <!-- ===================== 门面 Hero（第一屏） =====================
+         只在首页显示，而且是 .site-shell 的兄弟节点：整页滚动时它向上滑出、
+         下面的 shell 自然盖上，滚过一屏就是原来的「操作手册」目录。
+         不用 position:fixed 钉住，所以不会和底下任何 sticky 元素打架。
+         结构、样式、时间轴全部集中在这两段里，删掉这两段就退回旧版首页。
+         ============================================================ -->
+    <div id="heroStage" aria-hidden="true"></div>
+
+    <!-- 站点外壳：原来 index.html 里的全部内容都在这里面，样式一点没改 -->
+    <div class="site-shell" id="siteShell">
 
     <header class="top-nav">
         <div class="logo">支援未来</div>
@@ -81,6 +106,35 @@
         </div>
     </div>
 
+    <!-- 站点外壳结束（.site-shell 从这里闭合） -->
+    </div>
+
+    <!-- GSAP / ScrollTrigger / Lenis：门面 Hero 的动画与滚动剧情用；
+         下载超时或 ?hero=0 时这里不会阻塞主页，站点照常可用 -->
+    <script>
+        (function () {
+            if (!window.__heroMode) return;
+            var base = "https://cdnjs.cloudflare.com/ajax/libs/";
+            var files = [
+                ["gsap", "gsap/3.12.5/gsap.min.js"],
+                ["gsap", "gsap/3.12.5/ScrollTrigger.min.js"],
+                ["lenis", "lenis/1.1.14/lenis.min.js"]
+            ];
+            var pending = files.length;
+            function done() { pending -= 1; if (pending === 0 && window.HeroFacade) window.HeroFacade.start(); }
+            files.forEach(function (f) {
+                var s = document.createElement("script");
+                s.src = base + f[1];
+                s.onload = done;
+                s.onerror = done;      // 库挂了也照常起步（HeroFacade 会检测）
+                document.head.appendChild(s);
+            });
+            /* 兜底：网慢也别让门面一直白等 */
+            setTimeout(function () { if (window.HeroFacade) window.HeroFacade.start(); }, 2500);
+        })();
+    </script>
+    <script src="03、设置/4.Hero门面.js"></script>
+
     <script src="03、设置/1.站点主程序.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -94,6 +148,39 @@
 
     <!-- 开屏动画挂载脚本：决定要不要播、播完怎么收场 -->
     <script src="02、开屏动画/6.主页挂载.js"></script>
+
+    <!-- 门面 Hero 的引导：负责"目录在下面、先别让同事滚错地方"这类小动作 -->
+    <script>
+        (function () {
+            if (!window.__heroMode) return;
+
+            /* 直接戳 ?jump=1 进来的：跳过门面，直接停在目录 */
+            if (new URLSearchParams(location.search).get("jump") === "1") {
+                document.documentElement.classList.remove("hero-on");
+                var shell = document.getElementById("siteShell");
+                if (shell) {
+                    requestAnimationFrame(function () {
+                        window.scrollTo({ top: shell.offsetTop });
+                    });
+                }
+            }
+
+            /* 门面还在时，万一有人按了 End / 拖动滚动条冲到目录，
+               把门面标记成已经看过，避免上面那屏又"回来" */
+            var stage = document.getElementById("heroStage");
+            if (stage && "IntersectionObserver" in window) {
+                new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.intersectionRatio < 0.35) {
+                            document.documentElement.classList.add("hero-passed");
+                        } else {
+                            document.documentElement.classList.remove("hero-passed");
+                        }
+                    });
+                }, { threshold: [0, 0.35, 1] }).observe(stage);
+            }
+        })();
+    </script>
 
 </body>
 </html>

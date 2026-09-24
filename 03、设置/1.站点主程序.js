@@ -187,36 +187,46 @@ function generateTOCFromContent() {
 
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.href = '#' + id;
+            a.href = 'javascript:void(0)';
+            a.dataset.tocId = id;
             a.textContent = text;
             a.addEventListener('click', function(e) {
                 e.preventDefault();
-                const targetId = this.getAttribute('href').substring(1);
+                const targetId = this.dataset.tocId;
                 const targetEl = document.getElementById(targetId);
-                if (targetEl) {
-                    const navHeight = 60;
-                    const rect = targetEl.getBoundingClientRect();
-                    const scrollTop = window.pageYOffset + rect.top - navHeight;
-                    window.scrollTo({ top: scrollTop, behavior: 'smooth' });
+                if (!targetEl) return;
+
+                /* 门面 Hero 落地页模式下，正文在同页的 .site-shell 里，
+                   用锚点会滚回 Hero，所以这里改为手动滚动到 shell 内部的对应位置 */
+                const shell = document.querySelector('.site-shell');
+                if (shell && window.__heroMode) {
+                    const shellTop = window.pageYOffset + shell.getBoundingClientRect().top;
+                    window.scrollTo({ top: shellTop + targetEl.offsetTop - 76, behavior: 'smooth' });
+                    return;
                 }
+
+                const navHeight = 60;
+                const rect = targetEl.getBoundingClientRect();
+                const scrollTop = window.pageYOffset + rect.top - navHeight;
+                window.scrollTo({ top: scrollTop, behavior: 'smooth' });
             });
             li.appendChild(a);
             tocList.appendChild(li);
             faqContainer = null;
         } else if (tag === 'h3' && faqContainer) {
             const a = document.createElement('a');
-            a.href = '#' + id;
+            a.href = 'javascript:void(0)';
+            a.dataset.tocId = id;
             a.textContent = text;
             a.addEventListener('click', function(e) {
                 e.preventDefault();
-                const targetId = this.getAttribute('href').substring(1);
+                const targetId = this.dataset.tocId;
                 const targetEl = document.getElementById(targetId);
-                if (targetEl) {
-                    const navHeight = 60;
-                    const rect = targetEl.getBoundingClientRect();
-                    const scrollTop = window.pageYOffset + rect.top - navHeight;
-                    window.scrollTo({ top: scrollTop, behavior: 'smooth' });
-                }
+                if (!targetEl) return;
+                const navHeight = 60;
+                const rect = targetEl.getBoundingClientRect();
+                const scrollTop = window.pageYOffset + rect.top - navHeight;
+                window.scrollTo({ top: scrollTop, behavior: 'smooth' });
             });
             const childLi = document.createElement('li');
             childLi.appendChild(a);
@@ -641,7 +651,7 @@ function renderPortal(index) {
     loader.innerHTML =
         `<div class="portal">` +
         `<header class="portal-hero">` +
-        `<h1 class="portal-hero-title">操作手册</h1>` +
+        `<h1 class="portal-hero-title">操作手册目录</h1>` +
         `<p class="portal-hero-meta">${index.items.length} 个流程${totalSteps ? ` · ${totalSteps} 个步骤` : ''}</p>` +
         `<div class="portal-search">` +
         `<input type="text" id="portalSearch" placeholder="搜索流程名称，例如「开票」「MDG」「转货权」" autocomplete="off" />` +
@@ -882,6 +892,7 @@ async function loadContent(fullFolder, pageId) {
         currentPageId = 'home';
         app.classList.add('view-home');
         document.getElementById('tocList').innerHTML = '';
+        document.getElementById('tocWrapper').classList.add('empty');
         loadingBar.classList.add('active');
         loadingBar.style.width = '40%';
         await loadPortal();
