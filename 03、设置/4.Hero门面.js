@@ -32,12 +32,14 @@
         kicker: "Support The Future · 标准作业手册",
         title: "支援未来",
         meta: "29 个流程 · 5 大环节 · 持续更新",
-        btn: "翻开手册",
+        btn: "Menu",
         cursorLabel: "滚动",
-        /* LOADING 开屏：进站先盖一层黑，PHASE 涨满后进场（这段时间后台在抓索引） */
+        /* LOADING 开屏：进站先盖一层黑，中间画幅从下往上生长，
+           涨满后向全页扩充再淡出，露出第 1 屏（这段时间后台在抓索引）。
+           PHASE 的数值由 JS 按画幅生长进度实时写；FREQ 是恒定读数 16HZ。 */
         boot: {
             word: "LOADING...",
-            rows: [["PHASE", ""], ["FREQ", "1GHZ"]]   /* PHASE 的数值由 JS 按进度写 */
+            freq: "16HZ"
         },
         /* 地图窗口上的两个脉冲标签 */
         mapPoints: {
@@ -148,11 +150,12 @@
         "</div>" +
         '<div class="hero-boot">' +
         '<div class="hero-boot-grid"></div>' +
-        '<span class="hero-boot-word"></span>' +
+        '<div class="hero-boot-frame"></div>' +
         '<i class="hero-boot-line"></i>' +
+        '<span class="hero-boot-word"></span>' +
         '<div class="hero-boot-readout">' +
         '<span class="hero-boot-row"><b>PHASE</b><i class="hero-boot-phase">0%</i></span>' +
-        '<span class="hero-boot-row"><b>FREQ</b><i>1GHZ</i></span>' +
+        '<span class="hero-boot-row"><b>FREQ</b><i>' + escapeHtml(CONTENT.boot.freq) + "</i></span>" +
         "</div>" +
         "</div>" +
         "</div>" +
@@ -214,7 +217,7 @@
         }, 3000);
     }
 
-    /* ---------- 按钮直达目录（顶栏「直达目录」+ 第 1 屏「翻开手册」） ---------- */
+    /* ---------- 按钮直达目录（顶栏「直达目录」+ 第 1 屏「Menu」） ---------- */
     function goManual(e) {
         if (e) e.preventDefault();
         var shell = document.getElementById("siteShell");
@@ -245,18 +248,21 @@
         var bar = stage.querySelector(".hero-bar");
         var ind = stage.querySelector(".hero-indicator");
         var tl = g.timeline();
+        /* 注意：一律用 fromTo 并写明终点值。
+           prepare() 已经把元素摆成隐藏态，.from() 会把"当前值"记成终点，
+           0 → 0 永远显形不了（线上踩过：第 1 屏文字集体隐身）。 */
         if (isReturn) {
-            tl.from(kicker, { opacity: 0, duration: 0.35, ease: "power2.out" })
-                .from(chars, { yPercent: 100, duration: 0.6, ease: "power3.out", stagger: 0.04 }, "-=0.2")
-                .from([meta, btn], { opacity: 0, y: 12, duration: 0.4, ease: "power2.out", stagger: 0.07 }, "-=0.3");
+            tl.fromTo(kicker, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" })
+                .fromTo(chars, { yPercent: 100 }, { yPercent: 0, duration: 0.6, ease: "power3.out", stagger: 0.04 }, "-=0.2")
+                .fromTo([meta, btn], { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out", stagger: 0.07 }, "-=0.3");
         } else {
-            tl.from(kicker, { opacity: 0, letterSpacing: "0.55em", duration: 0.8, ease: "power3.out" })
+            tl.fromTo(kicker, { opacity: 0, letterSpacing: "0.55em" }, { opacity: 1, letterSpacing: "0.28em", duration: 0.8, ease: "power3.out" })
                 /* 大字逐字从裁剪窗口里顶上（参考站 SplitText lines 的按字版） */
-                .from(chars, { yPercent: 120, duration: 1.05, ease: "power4.out", stagger: 0.09 }, "-=0.5")
-                .from(meta, { y: 20, opacity: 0, duration: 0.65, ease: "power3.out" }, "-=0.6")
-                .from(btn, { y: 14, opacity: 0, duration: 0.5, ease: "power3.out" }, "-=0.45")
-                .from(bar, { y: -12, opacity: 0, duration: 0.55, ease: "power3.out" }, "-=0.5")
-                .from(ind, { opacity: 0, duration: 0.5, ease: "power2.out" }, "-=0.4");
+                .fromTo(chars, { yPercent: 120 }, { yPercent: 0, duration: 1.05, ease: "power4.out", stagger: 0.09 }, "-=0.5")
+                .fromTo(meta, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, ease: "power3.out" }, "-=0.6")
+                .fromTo(btn, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, "-=0.45")
+                .fromTo(bar, { y: -12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, "-=0.5")
+                .fromTo(ind, { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, "-=0.4");
         }
     }
 
@@ -281,10 +287,15 @@
     /* ============================================================
        LOADING 开屏
        ------------------------------------------------------------
-       进站先盖一层黑：LOADING... 逐字打出、底部横线从 0 长到满、
-       右下 PHASE 从 0% 涨到 100%——这段时间正好让后台抓文档索引。
-       涨满后整层淡出、解锁滚动，门面第 1 屏开始逐字入场。
-       回访：0.8 秒快闪一遍（文字直接打完，只走进度）；
+       进站先盖一层黑：LOADING... 逐字打出、中部横线从 0 长到满、
+       中间画幅从下往上生长，右端 PHASE 实时显示画幅的生长指数
+       （FREQ 恒定 16HZ）——这段时间正好让后台抓文档索引。
+
+       节奏（用户点名）：开始快、收尾缓慢 → 全程 power2.out（ease-out）。
+       画幅涨满后再"扩充到全页"（scale 放大到盖住整个视口 + 淡出），
+       然后解锁滚动，门面第 1 屏左下「支援未来」由下而上登场。
+
+       回访：短版快闪（文字直接打完，时间压缩到 ~0.85s）；
        系统少动效 / 没有 GSAP：直接摘掉开屏层，画面立即可用。
        ============================================================ */
     function bootSequence(done) {
@@ -297,20 +308,29 @@
         }
         var wordEl = boot.querySelector(".hero-boot-word");
         var lineEl = boot.querySelector(".hero-boot-line");
+        var frameEl = boot.querySelector(".hero-boot-frame");
         var phaseEl = boot.querySelector(".hero-boot-phase");
         var g = window.gsap;
         var WORD = CONTENT.boot.word;
-        var total = isReturn ? 0.8 : 2.1;
+        var total = isReturn ? 0.85 : 2.2;
 
         document.documentElement.classList.add("hero-booting");
         if (isReturn) {
             wordEl.textContent = WORD;           /* 回访：不打字，直接上全文 */
+        } else {
+            wordEl.textContent = "";             /* 首次：从空开始逐字打 */
         }
 
-        var po = { v: 0 };
+        /* 画幅的生长路程：从 0 长到"横线以上的那一段"。用像素值补间，
+           比百分比稳（画幅高度本身没写死，靠视口算）。 */
+        var stageH = boot.clientHeight || window.innerHeight || 800;
+        var growTo = Math.round(stageH * 0.5 - parseFloat(getComputedStyle(document.documentElement).fontSize || "9") * 1.6);
+        if (!isFinite(growTo) || growTo <= 0) growTo = Math.round(stageH * 0.42);
+
         var tl = g.timeline({
             onComplete: function () {
                 document.documentElement.classList.remove("hero-booting");
+                /* 收尾：画幅+整层一起淡出，露出第 1 屏 */
                 g.to(boot, {
                     opacity: 0, duration: 0.5, ease: "power1.inOut",
                     onComplete: function () { boot.remove(); }
@@ -320,17 +340,37 @@
         });
 
         if (!isReturn) {
-            /* 逐字打出 LOADING... */
+            /* 逐字打出 LOADING...（开始几拍就打完，不拖节奏） */
             WORD.split("").forEach(function (ch, idx) {
-                tl.call(function (c) { wordEl.textContent += c; }, [ch], 0.15 + idx * 0.075);
+                tl.call(function (c) { wordEl.textContent += c; }, [ch], 0.12 + idx * 0.055);
             });
         }
-        tl.to(lineEl, { scaleX: 1, duration: total, ease: "power1.inOut" }, 0);
-        tl.to(po, {
-            v: 100, duration: total, ease: "power1.inOut",
-            onUpdate: function () { phaseEl.textContent = Math.round(po.v) + "%"; }
+        /* 中部横线：左起铺满 */
+        tl.to(lineEl, { scaleX: 1, duration: total, ease: "power2.out" }, 0);
+        /* 画幅从下往上生长（高度 0 → growTo，底部对齐所以是"长"不是"铺"） */
+        var fm = { h: parseFloat(frameEl.style.height || "0") || 0 };
+        tl.to(fm, {
+            h: growTo, duration: total, ease: "power2.out",
+            onUpdate: function () {
+                frameEl.style.height = fm.h + "px";
+                /* PHASE = 画幅的生长指数（与画幅同一个补间，天然同步） */
+                phaseEl.textContent = Math.round((fm.h / growTo) * 100) + "%";
+            }
         }, 0);
-        /* 结尾小顿挫：横线和读数停稳一下再进场 */
+        /* 收尾小顿挫：读数停在 100% 站稳一拍，再宣布"涨满" */
+        tl.to({}, { duration: isReturn ? 0.12 : 0.35 });
+        /* 涨满 → 扩充到全页：画幅放大盖住整个视口 */
+        if (!isReturn) {
+            tl.call(function () { phaseEl.textContent = "100%"; });
+        }
+        tl.to(boot.querySelector(".hero-boot-grid"), { opacity: 0.25, duration: 0.5, ease: "power1.inOut" }, ">-0.1");
+        tl.to([wordEl, lineEl, boot.querySelector(".hero-boot-readout")], {
+            opacity: 0, duration: 0.4, ease: "power1.inOut"
+        }, "<");
+        tl.to(frameEl, {
+            scale: 6.5, opacity: 0, duration: 0.85, ease: "power2.in",
+            transformOrigin: "50% 100%"
+        }, "<0.1");
         tl.to({}, { duration: 0.15 });
     }
 
