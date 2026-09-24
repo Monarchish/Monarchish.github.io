@@ -729,11 +729,9 @@ html.hero-booting body { overflow: hidden; }
     height: 0;
     transform: translateX(-50%);
     background-color: #fff;
-    /* 过渡期照片位留白：开屏画幅也是白的（旧主图等用户给图后恢复——
-       恢复时把这行注释放开即可）：
-       background-image: url("6.门面主图A.jpg");
-       background-size: cover;
-       background-position: center; */
+    /* 过渡期照片位留白：开屏画幅也是白的。旧主图等用户给图后恢复——
+       恢复时在下面放回三行：background-image 指向主图 A（jpg）、
+       background-size: cover、background-position: center。 */
     -webkit-mask-image: var(--hero-mask);
     mask-image: var(--hero-mask);
     -webkit-mask-size: 100% 100%;
