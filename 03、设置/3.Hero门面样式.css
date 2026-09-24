@@ -592,27 +592,7 @@ html:not(.hero-on) #heroStage {
     opacity: 0;
 }
 
-/* ---- 闪烁标注点：注解出现前先在画面上闪的那个小点（截图第 4 拍）---- */
-.hero-note-dot {
-    position: absolute;
-    right: calc(var(--font-s) * 2.2);
-    bottom: calc(var(--font-s) * 3.4);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--c-acid);
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-acid) 55%, transparent);
-    opacity: 0;
-    animation: hero-note-dot 1.15s var(--ease-out-quart) infinite;
-}
-
-@keyframes hero-note-dot {
-    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-acid) 55%, transparent); }
-    70% { box-shadow: 0 0 0 14px transparent; }
-    100% { box-shadow: 0 0 0 0 transparent; }
-}
-
-.hero-slide:nth-child(3) .hero-note-dot { left: calc(var(--font-s) * 2.2); right: auto; }
+/* （已删）闪烁标注点 hero-note-dot：旧 30 拍版专用，inversa 复刻版不再使用 */
 
 .hero-note-kicker {
     margin: 0 0 calc(var(--font-s) * 1.4);
