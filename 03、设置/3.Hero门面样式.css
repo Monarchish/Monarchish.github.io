@@ -842,7 +842,6 @@ html.hero-booting body { overflow: hidden; }
 /* 系统开了"减少动态效果"：循环动画停掉，画面照常 */
 @media (prefers-reduced-motion: reduce) {
     .hero-pulse,
-    .hero-note-dot,
     .hero-display .hero-ch i {
         animation: none !important;
     }
