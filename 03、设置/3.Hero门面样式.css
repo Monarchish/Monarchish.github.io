@@ -9,9 +9,9 @@
    平滑滚动（Lenis）已按用户要求移除：滚轮是原生 1:1 手感。
    它管什么：
      · :root           设计变量（颜色 / 字体 / 缓动 / 流体字号基准）
-     · #heroStage      400vh 长滚动区
-     · .hero-stick     sticky 视口（地图窗口 / 网格 / 热点 / 进度线 / 顶栏都在这里）
-     · .hero-slide     4 屏文字（正常文档流，从 sticky 视口上面滚过去）
+     · #heroStage      2400vh 长滚动区（30 拍剧情，一拍 ≈ 80vh）
+     · .hero-stick     sticky 视口（照片满屏 / 锯齿窗口 / 文字 / 进度线 / 顶栏）
+     · .hero-slide     4 块文字（固定在视口内，由时间轴推着进场/上移/退场）
      · .hero-cursor    桌面端自定义光标（圆环 + 「滚动」标签）
      · html.hero-on / html.hero-passed  状态类
    ============================================================ */
@@ -43,8 +43,12 @@
     --f-display: "Space Grotesk", "Inter", "Noto Sans SC", system-ui, sans-serif;
     --f-body: "Inter", "Noto Sans SC", system-ui, -apple-system, "Microsoft YaHei", sans-serif;
 
-    /* 像素锯齿矩形 mask（开屏画幅 + 门面地图窗口共用） */
+    /* 像素锯齿矩形 mask（开屏画幅 + 门面照片窗口共用） */
     --hero-mask: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1088' height='1360' viewBox='0 0 1088 1360' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M68 0h68v68h-68ZM340 0h136v68h-136ZM680 0h68v68h-68ZM816 0h68v68h-68ZM68 68h68v68h-68ZM272 68h204v68h-204ZM612 68h136v68h-136ZM816 68h272v68h-272ZM0 136h1088v68h-1088ZM68 204h952v68h-952ZM136 272h952v68h-952ZM0 340h1088v68h-1088ZM0 408h1020v68h-1020ZM0 476h1088v68h-1088ZM68 544h1020v68h-1020ZM68 612h952v68h-952ZM68 680h952v68h-952ZM0 748h1088v68h-1088ZM0 816h1020v68h-1020ZM68 884h1020v68h-1020ZM0 952h1088v68h-1088ZM0 1020h1088v68h-1088ZM68 1088h1020v68h-1020ZM0 1156h1088v68h-1088ZM68 1224h476v68h-476ZM748 1224h272v68h-272ZM68 1292h68v68h-68ZM204 1292h136v68h-136ZM476 1292h68v68h-68ZM884 1292h136v68h-136Z'/%3E%3C/svg%3E");
+
+    /* 剧情刻度尺：一拍 = 80vh，全剧 30 拍（JS 里 beat(n) 用同一把尺） */
+    --hero-beats: 30;
+    --hero-beat: 80vh;
 
     /* 兼容旧变量名 */
     --hero-ink: var(--c-ink);
@@ -139,11 +143,14 @@ html.hero-on .site-shell .app {
 }
 
 /* ============================================================
-   四、旅程本体：400vh 长滚动区
+   四、旅程本体：2400vh 长滚动区（30 拍剧情）
+   ------------------------------------------------------------
+   一拍 = 2400vh / 30 = 80vh 滚动量，对应一次滚轮/一下滑动。
+   sticky 视口钉在里面不动，所有画面变化都由时间轴按刻度补间。
    ============================================================ */
 #heroStage {
     position: relative;
-    height: 400vh;            /* 4 屏：1 屏大字 + 3 屏注解 */
+    height: calc(var(--hero-beats) * var(--hero-beat));
     overflow: hidden;
     overflow: clip;           /* clip 不产生滚动容器，里面的 sticky 才钉得住 */
     background: var(--c-ink);
@@ -189,43 +196,59 @@ html:not(.hero-on) #heroStage {
     pointer-events: none;
 }
 
-/* ---- 地图窗口：mask 裁切 + 随滚动缩放（135% → 64% → 135%）----
-   mask 图形是程序自生成的像素菱形（非参考站素材）。
-   --hero-ms 由 GSAP 按滚动进度驱动。 */
+/* ---- 照片区：外层容器钉满视口、静止不动 ----
+   摇镜不用 transform（会和 GSAP 打架），改用 background-position-y：
+   竖版主图 cover 到横屏视口后上下有大量裁切余量，摇 position-y
+   等于平移取景窗，四缘永远不会露黑边（这就是参考站竖图横用的底细）。
+   中段的锯齿边框也不是靠缩放照片做的，而是 .hero-map-clip 窗框
+   向内挤压遮住四周——照片内容大小全程恒定（用户点名要的效果）。 */
 .hero-map {
-    --hero-ms: 135%;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+/* ---- 锯齿窗框：贴层内层。只负责"遮"，不负责"缩"----
+   尺寸由 JS 按视口算好写进去（满幅 = 1.35 倍视口，锯齿边全部落在屏幕外；
+   收拢 = 52% 宽 × 46% 高，四缘整体向内挤压 → 出现边框）。
+   mask 100% 100% 拉伸，锯齿格子大小恒定；CSS transform 负责居中，
+   GSAP 只补间宽高、永不碰它的 transform。 */
+.hero-map-clip {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 88vw;
-    height: 91vh;
     transform: translate(-50%, -50%);
     -webkit-mask-image: var(--hero-mask);
     mask-image: var(--hero-mask);
-    -webkit-mask-size: var(--hero-ms) var(--hero-ms);
-    mask-size: var(--hero-ms) var(--hero-ms);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
+    overflow: hidden;
 }
 
-/* 地图双层：A 层「现状」→ B 层「改善」，各是一张航拍主图
+/* 照片双层：A 层「现状」→ B 层「改善」，各是一张航拍主图
    （03、设置/6.门面主图A.jpg / 7.门面主图B.jpg，竖版 1952x2477 同比例，
    换图直接覆盖同名文件即可；这两张目前是程序占位图，等用户定稿图）。
-   中段滚动时 A 淡出 B 淡入，对应参考站"退化 → 修复"的双图交叉 */
+   尺寸永远=视口（100vw×100vh），居中钉在窗框里；窗框收放时照片不动。
+   中段全暗时 A 悄悄交叉到 B，"恢复色彩"时露出的已是改善后的世界。 */
 .hero-map-layer {
     position: absolute;
-    inset: 0;
+    left: 50%;
+    top: 50%;
+    width: 100vw;
+    height: 100vh;
+    transform: translate(-50%, -50%);
     background-color: #181813;
     background-image: url("6.门面主图A.jpg");
     background-size: cover;
-    background-position: center;
+    background-position: center 50%;
+    will-change: transform;
 }
 
 .hero-map-layer.is-b {
     background-image: url("7.门面主图B.jpg");
-    opacity: 0;               /* B 层初始透明，滚动中段淡入 */
+    opacity: 0;               /* B 层初始透明，中段全暗时交叉淡入 */
 }
 
 /* ---- 扫描线纹路（中段浮现又退场）---- */
@@ -260,6 +283,69 @@ html:not(.hero-on) #heroStage {
     mix-blend-mode: color;
     opacity: 0;
     pointer-events: none;
+}
+
+/* ============================================================
+   五点五、收场：白色下节 + 「支援未来」大字（第 28-30 拍）
+   ------------------------------------------------------------
+   白带从视口下沿升上来，一路涨到盖满全屏，
+   「支援未来」从白带里浮出——涨满的那一刻正好接上站点目录（米白底），
+   颜色是同一个 --c-paper，所以合页处看不出接缝。
+   ============================================================ */
+.hero-outro {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    background: var(--c-paper);
+    opacity: 0;               /* 初始藏起来；出场位移全交给 GSAP 补间
+                                 （CSS transform 会被 GSAP 烤成像素再叠加，
+                                  探针抓到过 101% + 100% = 双倍位移的坑） */
+    z-index: 12;
+    pointer-events: none;
+}
+
+.hero-outro-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--font-s) * 1.6);
+    text-align: center;
+}
+
+.hero-outro-word {
+    display: flex;
+    gap: 0.04em;
+    font-family: var(--f-display);
+    font-weight: 500;
+    font-size: calc(var(--font-s) * 11);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--c-ink);
+}
+
+.hero-outro-word .hero-ch {
+    display: inline-block;
+    overflow: hidden;
+    padding: 0.04em 0.02em 0.08em;
+}
+
+.hero-outro-word .hero-ch i {
+    display: inline-block;
+    font-style: normal;
+}
+
+.hero-outro-meta {
+    font-family: var(--f-mono);
+    font-size: calc(var(--font-s) * 1.2);
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--c-ink) 55%, transparent);
 }
 
 /* ---- 热点脉冲（两个工位标签，中段浮现）---- */
@@ -407,27 +493,38 @@ html:not(.hero-on) #heroStage {
 }
 
 /* ============================================================
-   六、文字层：4 屏（正常文档流，从 sticky 视口上面滚过去）
+   六、文字层：4 块文字（钉在 sticky 视口里，由时间轴推着走）
+   ------------------------------------------------------------
+   注意：文字块【不走文档流】。参考站的观感是"字幕从底下升上来、
+   停住很久、再升出去"，如果让它们跟着页面滚动走，就变成一屏一屏
+   换界面（用户反馈的"每次滚动都是不同的界面"就是这个毛病）。
+   所以 4 块文字全部绝对定位叠在视口里，进场/上移/停留/退场
+   全由 setupScroll() 那条 scrub 时间轴按刻度补间。
    ============================================================ */
 .hero-slides {
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 5;
+    pointer-events: none;
 }
 
 .hero-slide {
-    position: relative;
-    height: 100vh;
+    position: absolute;
+    inset: 0;
     width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
 
-/* 第 1 屏：大标题 + 按钮 钉在左下（参考站同款位置） */
+/* 第 1 屏：大标题 + 按钮 钉在左下（参考站同款位置）。
+   第 1 屏跟着门面一起滚出去（它属于"开场正脸"，不是旅途字幕） */
 .hero-slide:first-child .hero-slide-content {
     position: absolute;
     left: calc(var(--font-s) * 2.4);
     bottom: calc(var(--font-s) * 3.2);
     width: calc(var(--font-s) * 71);
     max-width: calc(100% - calc(var(--font-s) * 4.8));
+    pointer-events: auto;   /* 里面有 Menu 按钮，别让 sticky 视口的 none 吃掉点击 */
 }
 
 .hero-kicker {
@@ -508,7 +605,9 @@ html:not(.hero-on) #heroStage {
     clip-path: polygon(1.5rem 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 1.5rem);
 }
 
-/* 第 2-4 屏：注解文字（无卡片，纯文字块）——右下 / 左下 / 右下（视频同款贴底） */
+/* 第 2-4 块：注解字幕（无卡片，纯文字块）——右下 / 左下 / 右下。
+   初始一律摆在视口下沿外面（bottom 负值），等时间轴把它们推上来。
+   注意：这里的位移只用来做"字幕升降"，实际进场距离由 GSAP 的 y 补间叠加。 */
 .hero-slide:nth-child(2) .hero-slide-content,
 .hero-slide:nth-child(4) .hero-slide-content {
     position: absolute;
@@ -525,6 +624,34 @@ html:not(.hero-on) #heroStage {
     width: calc(var(--font-s) * 38);
     max-width: calc(100% - calc(var(--font-s) * 4.8));
 }
+
+/* 注解块初始态：藏在视口下沿外 + 透明（JS 一就位就补上 gsap.set，
+   这里是给"没 GSAP / 少动效"的兜底：直接可见，不要留一屏空白） */
+.hero-slides.is-armed .hero-slide:not(.hero-face) .hero-slide-content {
+    opacity: 0;
+}
+
+/* ---- 闪烁标注点：注解出现前先在画面上闪的那个小点（截图第 4 拍）---- */
+.hero-note-dot {
+    position: absolute;
+    right: calc(var(--font-s) * 2.2);
+    bottom: calc(var(--font-s) * 3.4);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--c-acid);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-acid) 55%, transparent);
+    opacity: 0;
+    animation: hero-note-dot 1.15s var(--ease-out-quart) infinite;
+}
+
+@keyframes hero-note-dot {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-acid) 55%, transparent); }
+    70% { box-shadow: 0 0 0 14px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.hero-slide:nth-child(3) .hero-note-dot { left: calc(var(--font-s) * 2.2); right: auto; }
 
 .hero-note-kicker {
     margin: 0 0 calc(var(--font-s) * 1.4);
@@ -737,9 +864,8 @@ html.hero-booting body { overflow: hidden; }
    八、窄屏
    ============================================================ */
 @media (max-width: 720px) {
-    #heroStage { height: 400svh; }
+    #heroStage { height: calc(var(--hero-beats) * 70svh); }
     .hero-stick { height: 100svh; margin-bottom: -100svh; }
-    .hero-slide { height: 100svh; }
 
     .hero-display { font-size: calc(var(--font-s) * 3.3); line-height: 1.05; }
     .hero-slide:first-child .hero-slide-content {
@@ -762,18 +888,21 @@ html.hero-booting body { overflow: hidden; }
     }
     .hero-note-title { font-size: calc(var(--font-s) * 2.4); }
     .hero-note-body { font-size: 13px; }
-    .hero-map,
     .hero-raster { width: 130vw; height: 60vh; }
     .hero-hotspot { left: 30%; top: 62%; }
     .hero-specialist { left: 60%; top: 36%; }
     .hero-indicator { right: 4.5vw; height: calc(var(--font-s) * 12); }
     .hero-bar { padding: 12px 16px; }
+    .hero-outro-word { font-size: calc(var(--font-s) * 6.4); }
 }
 
 /* 系统开了"减少动态效果"：循环动画停掉，画面照常 */
 @media (prefers-reduced-motion: reduce) {
     .hero-pulse,
+    .hero-note-dot,
     .hero-display .hero-ch i {
         animation: none !important;
     }
+    /* 少动效时不放门面长剧：直接摊开，别让用户滚 30 拍看静态图 */
+    #heroStage { height: 100vh; }
 }

@@ -2,20 +2,20 @@
    03、设置 · 4.Hero门面.js
    ------------------------------------------------------------
    这是什么：首页「支援未来」门面——一段可以往下滚的长流程。
-   结构照 inversa.com 的 hero 复刻：400vh 长滚动 + sticky 视口 +
-   像素菱形 mask 窗口随滚动 135%→64%→135% 缩放 + 中段压黑去饱和 +
-   热点脉冲浮现退场 + 双层地形交叉（现状→改善）+ 右侧进度线 +
-   桌面端自定义光标（圆环 + 进度圈 + 「滚动」标签）。
+   结构照 inversa.com 的 hero 复刻：2400vh 长滚动（30 拍）+ sticky 视口 +
+   满屏照片反向视差 + 中段锯齿边框向内挤压（照片本身大小不变）+
+   字幕从底下升上来停住再升出去 + 中段全暗 + 两个脉冲标注点 +
+   照片放大微微下移 + 色彩回归 + 白色下节升起收尾「支援未来」→ 接手目录。
    mask 图形是程序自生成的，配色变量/字体/代码/文案全部是我们自己的。
    滚轮是浏览器原生的 1:1 手感（平滑滚动库已按用户要求移除）。
 
    它管什么：
-     ① 搭画面：LOADING 开屏层 + sticky 视口（地图/热点/进度线/顶栏）
-        + 4 屏文字 + 自定义光标
+     ① 搭画面：LOADING 开屏层 + sticky 视口（照片/锯齿窗框/标注点/进度线/顶栏）
+        + 首屏大字 + 3 块注解字幕 + 收场白带 + 自定义光标
      ② LOADING 开屏：进站先盖黑屏（LOADING... 打字 + PHASE 百分比 + 横线），
         这段时间后台抓文档索引；PHASE 涨满淡出，门面第 1 屏才开始入场
-     ③ 滚动剧情：一条 GSAP scrub 时间轴，滚动进度 0→1 映射剧情 0→10——
-        前景文字随文档流向上滚出，背景地图反着向下移动（反向视差）
+     ③ 滚动剧情：一条 GSAP scrub 时间轴，一拍 = 1 个刻度，全剧 30 拍
+        （刻度尺和 CSS 的 --hero-beats/--hero-beat 是同一把）
      ④ 入场动效：大字逐字顶上（首次完整版 / 回访短版），注解标题乱码解码
      ⑤ 库没加载成功、或系统开了"减少动态效果"，就直接把画面摆好
    它不做的事：不碰侧栏、不碰目录、不碰正文——那些还是 1.站点主程序.js 的活。
@@ -112,6 +112,11 @@
         return '<span class="hero-ch"><i>' + escapeHtml(c) + "</i></span>";
     }).join("");
 
+    /* 收场大字「支援未来」：和门面正脸同一套逐字结构，方便逐字顶上 */
+    var outroChs = CONTENT.title.split("").map(function (c) {
+        return '<span class="hero-ch"><i>' + escapeHtml(c) + "</i></span>";
+    }).join("");
+
     var slidesHtml = '<section class="hero-slide hero-face">' +
         '<div class="hero-slide-content">' +
         '<p class="hero-kicker">' + escapeHtml(CONTENT.kicker) + "</p>" +
@@ -125,14 +130,18 @@
                 '<p class="hero-note-kicker">' + escapeHtml(n.kicker) + "</p>" +
                 '<h2 class="hero-note-title" data-scramble>' + escapeHtml(n.title) + "</h2>" +
                 '<p class="hero-note-body">' + escapeHtml(n.body) + "</p>" +
-                "</div></section>";
+                "</div>" +
+                '<span class="hero-note-dot" aria-hidden="true"></span>' +
+                "</section>";
         }).join("");
 
     stage.innerHTML =
         '<div class="hero-stick">' +
         '<div class="hero-map">' +
+        '<div class="hero-map-clip">' +
         '<div class="hero-map-layer is-a"></div>' +
         '<div class="hero-map-layer is-b"></div>' +
+        "</div>" +
         "</div>" +
         '<div class="hero-raster"></div>' +
         '<div class="hero-dim"></div>' +
@@ -144,6 +153,12 @@
         '<span class="hero-hotspot-mark"></span>' +
         '<span class="hero-specialist-label">' + escapeHtml(CONTENT.mapPoints.specialist) + "</span></div>" +
         '<div class="hero-indicator" aria-hidden="true"><i></i></div>' +
+        '<div class="hero-slides">' + slidesHtml + "</div>" +
+        '<div class="hero-outro">' +
+        '<div class="hero-outro-inner">' +
+        '<h2 class="hero-outro-word">' + outroChs + "</h2>" +
+        '<p class="hero-outro-meta">' + escapeHtml(CONTENT.kicker) + "</p>" +
+        "</div></div>" +
         '<div class="hero-bar">' +
         '<span class="hero-bar-logo">' + escapeHtml(CONTENT.logo) + "</span>" +
         '<a class="hero-bar-link" href="#siteShell" data-jump-manual>' + escapeHtml(CONTENT.barLink) + "</a>" +
@@ -159,7 +174,6 @@
         "</div>" +
         "</div>" +
         "</div>" +
-        '<div class="hero-slides">' + slidesHtml + "</div>" +
         '<div class="hero-cursor" aria-hidden="true">' +
         '<div class="hero-cursor-ring"></div>' +
         '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48.5" pathLength="100" /></svg>' +
@@ -380,38 +394,100 @@
     }
 
     /* ============================================================
-       滚动剧情：一条 scrub 时间轴，进度 0→1 对应剧情刻度 0→10
+       滚动剧情：一条 scrub 时间轴，一拍 = 1 个刻度，全剧 30 拍
        ------------------------------------------------------------
-       照参考站的关键帧编排：
-         0-5    地图缓慢上移（power1.inOut）
-         3-6    mask 窗口收缩 135% → 64%（power2.inOut）
-         3.5-6  去饱和灰滤镜淡入；4-6 压黑蒙层升到 0.75
-         5-6.2  扫描线 + 两个热点脉冲浮现
-         6.8-7.2 热点与扫描线退场；7-9 压黑/灰滤镜归零
-         7-10   mask 放大回 135% + 地图向上滑出（power3.inOut）
-                同时 A 层（现状·珊瑚红）交叉到 B 层（改善·薄荷/荧光黄）
-         0-10   右侧进度线从 0 填到 1；自定义光标的进度圈同步
+       刻度尺和 CSS 是同一把：--hero-beats:30 / --hero-beat:80vh，
+       #heroStage 高 2400vh，所以「滚 80vh」正好等于「剧情走 1 拍」。
+
+       逐拍对照用户给的 31 张截图：
+         0    开场（LOADING 刚散场，满屏照片 + 左下大字）
+         1-6  照片反向视差（前景字幕向上 → 照片向下走），
+              第 4 拍右下的闪烁点 + 第一块字幕从底下升上来，第 6 拍停稳
+         7-12 字幕继续上移、照片继续下行，整体色调一点点变淡
+         13   全暗 + 锯齿边框从四周向内挤压（照片大小不变）
+         13-14 左下第二块字幕升起，边框继续挤
+         16-17 两个脉冲标注点依次亮起（照片/边框都不动）
+         18-20 只有字母上移，照片不动，第 20 拍标注点消失
+         21-23 第三块字幕升起；照片开始放大 + 微微下移，色彩回来
+         24-27 边框完全放开、色彩恢复，字幕继续上移
+         28-30 白色下节升起，「支援未来」浮出 → 涨满接手目录
+
+       时间轴总长 = 30（刻度和拍数 1:1，方便对着截图调参）。
        ============================================================ */
+    /* 视口 / 窗框尺寸：锯齿窗框用固定像素尺寸（mask 100% 拉伸），
+       这样锯齿格子大小不随缩放变化；照片内层永远按视口尺寸摆，不缩放。 */
+    var CLIP_FULL_W = 0, CLIP_FULL_H = 0, CLIP_SMALL_W = 0, CLIP_SMALL_H = 0, TRAVEL = 0;
+
+    function measureViewport() {
+        var vw = window.innerWidth || 1280;
+        var vh = window.innerHeight || 800;
+        TRAVEL = Math.max(vh, vw * 0.6);
+        /* 满幅窗框：1.35 倍视口——mask 四缘最深裁进 12.5%，
+           1.35 倍的余量（约 26%）保证锯齿边全部落在屏幕外（观感=满屏照片） */
+        CLIP_FULL_W = Math.round(vw * 1.35);
+        CLIP_FULL_H = Math.round(vh * 1.35);
+        /* 收拢窗框：52% 视口宽 × 46% 视口高（截图第 13 拍那个边框） */
+        CLIP_SMALL_W = Math.round(vw * 0.52);
+        CLIP_SMALL_H = Math.round(vh * 0.46);
+        var clip = stage.querySelector(".hero-map-clip");
+        if (clip) {
+            clip.style.width = CLIP_FULL_W + "px";
+            clip.style.height = CLIP_FULL_H + "px";
+        }
+    }
+
     function setupScroll() {
         if (!window.gsap || !window.ScrollTrigger || reduce) return;
         var g = window.gsap;
         g.registerPlugin(window.ScrollTrigger);
-        var ST = window.ScrollTrigger;
 
         var map = stage.querySelector(".hero-map");
+        var clip = stage.querySelector(".hero-map-clip");
         var layerA = stage.querySelector(".hero-map-layer.is-a");
         var layerB = stage.querySelector(".hero-map-layer.is-b");
-        var raster = stage.querySelector(".hero-raster");
         var dim = stage.querySelector(".hero-dim");
         var desat = stage.querySelector(".hero-desat");
         var spots = stage.querySelectorAll(".hero-hotspot, .hero-specialist");
         var indFill = stage.querySelector(".hero-indicator i");
         var cursorDot = stage.querySelector(".hero-cursor circle");
+        var bar = stage.querySelector(".hero-bar");
+        var face = stage.querySelector(".hero-slide.hero-face .hero-slide-content");
+        var notes = g.utils.toArray(".hero-slide:not(.hero-face)");
+        var outro = stage.querySelector(".hero-outro");
+        var outroWord = stage.querySelectorAll(".hero-outro-word .hero-ch i");
 
-        /* 关键：把 CSS 的 translate(-50%,-50%) 居中交给 GSAP 接管。
-           不接管的话，GSAP 补间 yPercent 会和 CSS transform 打架，
-           中间态位移失控（探针抓到过 -23% 这种不对劲的值）。 */
-        if (map) g.set(map, { xPercent: -50, yPercent: -50 });
+        measureViewport();
+
+        /* 照片层的居中交给 GSAP（和 CSS translate 同值接管，避免打架）。
+           注意：照片的"摇镜"不走 transform，走 background-position-y 代理对象，
+           竖图 cover 横屏上下余量大，四缘永远不露黑边。 */
+        if (layerA) g.set(layerA, { xPercent: -50, yPercent: -50 });
+        if (layerB) g.set(layerB, { xPercent: -50, yPercent: -50 });
+
+        /* -------- 文字块（第 2-4 块字幕）初始态：藏在视口下沿外 --------
+           它们不走文档流，全部钉在 sticky 视口里，何时上来由刻度说了算。 */
+        stage.querySelector(".hero-slides").classList.add("is-armed");
+        var noteDots = [];
+        notes.forEach(function (sec) {
+            var content = sec.querySelector(".hero-slide-content");
+            var dot = sec.querySelector(".hero-note-dot");
+            noteDots.push(dot);
+            if (content) g.set(content, { opacity: 0, y: TRAVEL * 0.75 });
+            if (dot) g.set(dot, { opacity: 0 });
+        });
+
+        /* 收场大字逐字先藏好（等白带升起后一个个顶上） */
+        if (outroWord.length) g.set(outroWord, { yPercent: 115 });
+
+        /* 摇镜代理：p = background-position-y 的百分数。
+           p 变小 → 取景窗上移 → 画面内容向下走（用户说的"背景向下"）。 */
+        var pan = { p: 50 };
+        function applyPan() {
+            var v = pan.p.toFixed(3) + "%";
+            if (layerA) layerA.style.backgroundPositionY = v;
+            if (layerB) layerB.style.backgroundPositionY = v;
+        }
+        applyPan();
 
         var tl = g.timeline({
             scrollTrigger: {
@@ -423,44 +499,109 @@
             }
         });
 
-        /* 前景文字随文档流向上滚出，背景地图反着走——向下移（参考站的反向视差）：
-           0-5 刻度地图向下沉 12% 视口高，7-10 轻微回正 */
-        if (map) tl.to(map, { yPercent: -38, duration: 5, ease: "power1.inOut" }, 0);
-        if (map) tl.to(map, { "--hero-ms": "64%", duration: 3, ease: "power2.inOut" }, 3);
-        if (desat) tl.to(desat, { opacity: 0.55, duration: 2.5, ease: "power1.inOut" }, 3.5);
-        if (dim) tl.to(dim, { opacity: 0.75, duration: 2, ease: "power1.inOut" }, 4);
-        if (raster) tl.to(raster, { opacity: 1, duration: 0.2, ease: "none" }, 5);
-        if (spots.length) tl.to(spots, { opacity: 1, duration: 0.2, ease: "none", stagger: 0.1 }, 5.1);
-        if (spots.length) tl.to(spots, { opacity: 0, duration: 0.2, ease: "none" }, 6.8);
-        if (raster) tl.to(raster, { opacity: 0, duration: 0.2, ease: "none" }, 7);
-        if (dim) tl.to(dim, { opacity: 0, duration: 2, ease: "power1.inOut" }, 7);
-        if (desat) tl.to(desat, { opacity: 0, duration: 1.6, ease: "power1.inOut" }, 7.2);
-        if (map) tl.to(map, { "--hero-ms": "135%", duration: 3, ease: "power2.inOut" }, 7);
-        if (map) tl.to(map, { yPercent: -46, duration: 3, ease: "power3.inOut" }, 7);
-        if (layerA) tl.to(layerA, { opacity: 0, duration: 3, ease: "none" }, 7);
-        if (layerB) tl.to(layerB, { opacity: 1, duration: 3, ease: "none" }, 7);
-        if (indFill) tl.fromTo(indFill, { scaleY: 0 }, { scaleY: 1, duration: 10, ease: "none" }, 0);
+        /* ---------- 第 1-6 拍：开场正脸升走 + 背景开始向下 ---------- */
+        if (face) {
+            tl.to(face, { y: -TRAVEL * 0.9, duration: 4, ease: "power1.inOut" }, 1);
+            tl.to(face, { opacity: 0, duration: 1.6, ease: "power1.in" }, 3.4);
+        }
+        tl.to(pan, { p: 43.5, duration: 12, ease: "none", onUpdate: applyPan }, 0);
 
-        /* ---------- 注解屏（2-4 屏）：文字块浮现/退场 + 标题解码一次 ---------- */
-        g.utils.toArray(".hero-slide:not(.hero-face)").forEach(function (sec) {
-            var content = sec.querySelector(".hero-slide-content");
-            if (content) {
-                g.fromTo(content,
-                    { opacity: 0, y: 42 },
-                    {
-                        opacity: 1, y: 0, duration: 0.7, ease: "power3.out",
-                        scrollTrigger: { trigger: sec, start: "top 62%", toggleActions: "play none none reverse" }
-                    });
-            }
-            /* 滚到跟前时，标题"解码"一次，制造"被发现"的感觉（每个标题只解一次） */
-            ST.create({
-                trigger: sec, start: "top 55%",
-                onEnter: function () {
-                    var t = sec.querySelector(".hero-note-title[data-scramble]");
-                    if (t && !t.dataset.done) { t.dataset.done = "1"; scrambleIn(t, { step: 42 }); }
-                }
-            });
+        /* 第一块字幕：第 4 拍冒头、第 5 拍半露、第 6 拍停稳；
+           出现之前右下那个点先闪起来（截图第 4 拍）。 */
+        if (notes[0]) {
+            tl.set(noteDots[0], { opacity: 1 }, 3.0);
+            tl.fromTo(notes[0].querySelector(".hero-slide-content"),
+                { y: TRAVEL * 0.75, opacity: 0 },
+                { y: 0, opacity: 1, duration: 1.8, ease: "power2.out" }, 3.4);
+        }
+
+        /* ---------- 第 7-12 拍：字幕继续上移、背景继续下行，色调开始变淡 ---------- */
+        if (notes[0]) tl.to(notes[0].querySelector(".hero-slide-content"), { y: -TRAVEL * 0.16, duration: 6, ease: "none" }, 6);
+        if (desat) tl.to(desat, { opacity: 0.34, duration: 4, ease: "power1.inOut" }, 8);
+
+        /* ---------- 第 13 拍：全暗 + 锯齿边框向内挤压（照片大小不变）---------- */
+        if (dim) tl.to(dim, { opacity: 0.94, duration: 1.8, ease: "power2.inOut" }, 11.2);
+        if (desat) tl.to(desat, { opacity: 0.55, duration: 1.8 }, 11.2);
+        if (clip) tl.to(clip, { width: CLIP_SMALL_W, height: CLIP_SMALL_H, duration: 3.4, ease: "power2.inOut" }, 12.0);
+
+        /* ---------- 第 13-15 拍：第二块字幕从左下升起，边框继续挤 ---------- */
+        if (notes[1]) {
+            tl.set(noteDots[1], { opacity: 1 }, 13.0);
+            tl.fromTo(notes[1].querySelector(".hero-slide-content"),
+                { y: TRAVEL * 0.6, opacity: 0 },
+                { y: 0, opacity: 1, duration: 2.4, ease: "power2.out" }, 13.2);
+        }
+
+        /* ---------- 第 16-20 拍：两个标注点亮起 → 只有字母上移 → 标点消失 ---------- */
+        if (spots.length) {
+            tl.to(spots, { opacity: 1, duration: 0.7, ease: "none", stagger: 0.9 }, 15.6);
+            tl.to(spots, { opacity: 0, duration: 1.0, ease: "none" }, 19.0);
+        }
+        if (notes[1]) tl.to(notes[1].querySelector(".hero-slide-content"), { y: -TRAVEL * 0.14, duration: 3.4, ease: "none" }, 17.0);
+        if (notes[0]) {
+            tl.to(notes[0].querySelector(".hero-slide-content"), { y: -TRAVEL * 0.34, opacity: 0, duration: 3, ease: "power1.in" }, 17.2);
+            tl.to(noteDots[0], { opacity: 0, duration: 0.8, ease: "none" }, 17.4);
+        }
+
+        /* 全暗的窗口里，现状 A 悄悄交叉到改善 B（用户看不见换图，只看见"色彩回来了"） */
+        if (layerA) tl.to(layerA, { opacity: 0, duration: 2, ease: "none" }, 18.6);
+        if (layerB) tl.to(layerB, { opacity: 1, duration: 2, ease: "none" }, 18.6);
+
+        /* ---------- 第 21-23 拍：第三块字幕升起 + 照片放大微微下移 + 色彩回来 ---------- */
+        if (notes[2]) {
+            tl.set(noteDots[2], { opacity: 1 }, 20.2);
+            tl.fromTo(notes[2].querySelector(".hero-slide-content"),
+                { y: TRAVEL * 0.62, opacity: 0 },
+                { y: 0, opacity: 1, duration: 2.6, ease: "power2.out" }, 20.4);
+        }
+        if (layerA) tl.to(layerA, { scale: 1.14, duration: 6, ease: "power2.inOut" }, 20.6);
+        if (layerB) tl.to(layerB, { scale: 1.14, duration: 6, ease: "power2.inOut" }, 20.6);
+        tl.to(pan, { p: 41.5, duration: 9.4, ease: "power1.inOut", onUpdate: applyPan }, 20.6);
+        if (desat) tl.to(desat, { opacity: 0, duration: 4, ease: "power1.inOut" }, 21.4);
+        if (dim) tl.to(dim, { opacity: 0, duration: 4, ease: "power1.inOut" }, 21.6);
+
+        /* ---------- 第 24-27 拍：边框完全放开、色彩恢复、字幕继续上移 ---------- */
+        if (clip) tl.to(clip, { width: CLIP_FULL_W, height: CLIP_FULL_H, duration: 4, ease: "power2.inOut" }, 23.4);
+        if (notes[2]) tl.to(notes[2].querySelector(".hero-slide-content"), { y: -TRAVEL * 0.18, duration: 4, ease: "none" }, 24);
+        if (notes[1]) {
+            tl.to(notes[1].querySelector(".hero-slide-content"), { y: -TRAVEL * 0.34, opacity: 0, duration: 3.4, ease: "power1.in" }, 24);
+            tl.to(noteDots[1], { opacity: 0, duration: 0.8, ease: "none" }, 24.2);
+        }
+
+        /* ---------- 第 28-30 拍：白色下节升起 + 「支援未来」浮出 ---------- */
+        if (notes[2]) {
+            tl.to(notes[2].querySelector(".hero-slide-content"), { y: -TRAVEL * 0.42, opacity: 0, duration: 2.6, ease: "power1.in" }, 26.2);
+            tl.to(noteDots[2], { opacity: 0, duration: 0.8, ease: "none" }, 26.4);
+        }
+        if (bar) tl.to(bar, { opacity: 0, duration: 1.4, ease: "power1.inOut" }, 26.8);
+        if (outro) tl.fromTo(outro,
+            { yPercent: 101, opacity: 1 },
+            { yPercent: 0, duration: 3.0, ease: "power2.inOut" }, 27.0);
+        if (outroWord.length) {
+            tl.to(outroWord, { yPercent: 0, duration: 1.0, ease: "power4.out", stagger: 0.12 }, 28.2);
+        }
+        if (map) tl.to(map, { scale: 1.03, duration: 3, ease: "power1.inOut" }, 27);
+
+        /* 右侧进度线：整段旅程从 0 填到 1 */
+        if (indFill) tl.fromTo(indFill, { scaleY: 0 }, { scaleY: 1, duration: 30, ease: "none" }, 0);
+
+        /* ---------- 注解标题「解码」一次（字幕出场时才发生，只发生一次）---------- */
+        [
+            { at: 4.2, idx: 0 },
+            { at: 13.6, idx: 1 },
+            { at: 20.8, idx: 2 }
+        ].forEach(function (m) {
+            var sec = notes[m.idx];
+            if (!sec) return;
+            var t = sec.querySelector(".hero-note-title[data-scramble]");
+            if (!t) return;
+            tl.call(function () {
+                if (!t.dataset.done) { t.dataset.done = "1"; scrambleIn(t, { step: 42 }); }
+            }, null, m.at);
         });
+
+        /* 视口变化：重算窗框尺寸（窗框补间挂在时间轴上，重算后按当前进度落位） */
+        window.addEventListener("resize", measureViewport);
 
         /* ---------- 桌面端自定义光标：位置跟随 + 进度圈已挂到 scrub 上 ---------- */
         var cursor = stage.querySelector(".hero-cursor");
