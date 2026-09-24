@@ -112,10 +112,23 @@
         return '<span class="hero-ch"><i>' + escapeHtml(c) + "</i></span>";
     }).join("");
 
-    /* 两张主图（照参考站：一张"现状"、一张"改善"，竖版 1952x2477 同比例）。
-       换图直接覆盖同名文件即可，剧情代码不用动。 */
+    /* ---------- 门面主图（暂时留空，等用户给图）----------
+       原本这里是两张 <img>（一张"现状"、一张"改善"，竖版 1952×2477）。
+       用户反馈背景太丑、要先把照片位换成纯白，图片后面再给——
+       所以现在 .hero-map 直接给纯白底，两张 <img> 暂时不插入。
+
+       ⚠️ 恢复图片时只需做两步（CSS 一个字都不用改）：
+         1. 把下面 IMAGES_ON 改成 true；
+         2. 确保 6.门面主图A.jpg / 7.门面主图B.jpg 在位（同名替换即可）。
+       对穿位移、A→B 交叉淡出、窗口收放这些剧情代码全都还在，不受影响。 */
+    var IMAGES_ON = false;
     var A_SRC = "03、设置/6.门面主图A.jpg";
     var B_SRC = "03、设置/7.门面主图B.jpg";
+
+    var mapInnerHtml = IMAGES_ON
+        ? '<img class="hero-img is-a" src="' + A_SRC + '" alt="现状" />' +
+          '<img class="hero-img is-b" src="' + B_SRC + '" alt="改善" />'
+        : "";
 
     var slidesHtml = '<section class="hero-slide hero-face">' +
         '<div class="hero-slide-content">' +
@@ -140,10 +153,7 @@
         '<div class="hero-raster"></div>' +
         '<div class="hero-dim"></div>' +
         '<div class="hero-desat"></div>' +
-        '<div class="hero-map">' +
-        '<img class="hero-img is-a" src="' + A_SRC + '" alt="现状" />' +
-        '<img class="hero-img is-b" src="' + B_SRC + '" alt="改善" />' +
-        "</div>" +
+        '<div class="hero-map">' + mapInnerHtml + "</div>" +
         "</div>" +
         '<div class="hero-hotspot"><div class="hero-pulse"></div><div class="hero-pulse"></div>' +
         '<span class="hero-hotspot-mark"></span>' +

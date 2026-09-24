@@ -156,7 +156,8 @@ html.hero-on .site-shell .app {
     position: relative;
     height: var(--hero-h);
     contain: paint;
-    background: var(--c-ink);
+    /* 过渡期白场（照片位空着）：整段门面是白的，等用户的图到位后再回深色 */
+    background: #fff;
     color: var(--c-paper);
     font-family: var(--f-body);
     pointer-events: none;
@@ -200,6 +201,8 @@ html:not(.hero-on) #heroStage {
     overflow: hidden;
     z-index: 0;
     pointer-events: none;
+    /* 过渡期白场：mask 窗外的区域（点阵区）也走白 */
+    background-color: #fff;
     /* 参考站 wrapper 那层 14rem 方格点阵底纹（opacity .2） */
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 140 140'%3E%3Cpath fill='%23f4f3e8' d='M0 0h3.5v3.5H0z' opacity='.2'/%3E%3C/svg%3E");
     background-position: 50%;
@@ -280,6 +283,9 @@ html:not(.hero-on) #heroStage {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* 过渡期纯白底：照片位空着的时候画面就是白的（用户要求）。
+       图片到位后两张 img 会盖在这层白底上，这行留着也无害。 */
+    background: #fff;
 }
 
 /* 单张图：跟 map 一样高（200svh），bottom:100svh —— 两张完全重叠。
@@ -722,10 +728,12 @@ html.hero-booting body { overflow: hidden; }
     width: min(31vw, 460px);
     height: 0;
     transform: translateX(-50%);
-    background-color: #181813;
-    background-image: url("6.门面主图A.jpg");
-    background-size: cover;
-    background-position: center;
+    background-color: #fff;
+    /* 过渡期照片位留白：开屏画幅也是白的（旧主图等用户给图后恢复——
+       恢复时把这行注释放开即可）：
+       background-image: url("6.门面主图A.jpg");
+       background-size: cover;
+       background-position: center; */
     -webkit-mask-image: var(--hero-mask);
     mask-image: var(--hero-mask);
     -webkit-mask-size: 100% 100%;
