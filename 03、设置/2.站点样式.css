@@ -834,3 +834,153 @@ a.portal-card:hover {
         max-width: none;
     }
 }
+
+/* ============================================================
+   内容门锁（配合 5.内容门锁.js）：
+   点进具体内容时弹出的授权遮罩——目录公开，正文脱敏。
+   视觉沿用门面设计语言：墨黑遮罩 + 纸白卡片 + 荧光黄按钮 + 等宽小标签。
+   ============================================================ */
+.site-gate-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(19, 20, 14, 0.62);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.28s ease-out, visibility 0.28s ease-out;
+}
+
+.site-gate-mask.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.site-gate-card {
+    width: min(400px, calc(100vw - 40px));
+    padding: 30px 30px 24px 30px;
+    background: #f4f3e8;
+    color: #13140e;
+    border-radius: 4px;
+    box-shadow: 0 24px 60px rgba(19, 20, 14, 0.35);
+    transform: translateY(14px);
+    transition: transform 0.28s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.site-gate-mask.is-open .site-gate-card {
+    transform: translateY(0);
+}
+
+/* 输错密码：整卡抖一下 */
+.site-gate-mask.is-shaking .site-gate-card {
+    animation: site-gate-shake 0.34s ease-out;
+}
+
+@keyframes site-gate-shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-7px); }
+    50% { transform: translateX(6px); }
+    75% { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+.site-gate-icon {
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 0 0 12px 0;
+    color: #13140e;
+}
+
+.site-gate-kicker {
+    margin: 0 0 6px 0;
+    font-family: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #595a51;
+}
+
+.site-gate-title {
+    margin: 0 0 8px 0;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #13140e;
+}
+
+.site-gate-desc {
+    margin: 0 0 18px 0;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #595a51;
+}
+
+.site-gate-row {
+    display: flex;
+    gap: 8px;
+}
+
+.site-gate-input {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid rgba(19, 20, 14, 0.25);
+    border-radius: 2px;
+    background: #fff;
+    color: #13140e;
+    font-family: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    font-size: 16px;
+    letter-spacing: 0.3em;
+    outline: none;
+    transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.site-gate-input:focus {
+    border-color: #13140e;
+    box-shadow: 0 0 0 2px rgba(235, 252, 114, 0.9);
+}
+
+.site-gate-btn {
+    flex: none;
+    height: 44px;
+    padding: 0 20px;
+    border: 0;
+    background: #ebfc72;
+    color: #13140e;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 2px;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 0);
+    transition: background 0.2s ease-out;
+}
+
+.site-gate-btn:hover {
+    background: #bacd31;
+}
+
+.site-gate-err {
+    margin: 12px 0 0 0;
+    min-height: 18px;
+    font-size: 12.5px;
+    color: #a32d2d;
+}
+
+/* 锁弹出时：背后页面别再滚动 */
+html.gate-locked body {
+    overflow: hidden;
+}
+
+/* 窄屏：卡片贴边 */
+@media (max-width: 768px) {
+    .site-gate-card {
+        padding: 24px 20px 18px 20px;
+    }
+}

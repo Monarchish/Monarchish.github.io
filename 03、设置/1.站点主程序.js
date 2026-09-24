@@ -912,6 +912,12 @@ function highlightSidebarItem(pageId) {
 // 内容加载（含进度条）
 // =========================================================
 async function loadContent(fullFolder, pageId) {
+    /* 内容门锁：目录（home）公开，具体内容需要授权（闸门在 5.内容门锁.js）。
+       卡片、侧栏、?page= 直达最终都走这里，一处拦住全部入口。 */
+    if (pageId !== 'home' && window.SiteGate && !SiteGate.isUnlocked()) {
+        SiteGate.request(function () { loadContent(fullFolder, pageId); });
+        return;
+    }
     const loader = document.getElementById('contentLoader');
     const loadingBar = document.getElementById('loading-bar');
     const app = document.querySelector('.app');
