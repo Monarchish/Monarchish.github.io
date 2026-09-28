@@ -1,302 +1,312 @@
 <!DOCTYPE html>
-<!-- ============================================================
-     站点入口（index.html 是 GitHub Pages 的首页约定名，不能改）
-
-     仓库结构：
-       01、支援未来/    文档正文（.md），改内容只动这里
-       02、开屏动画/    旧版开场（封存中，没在用）
-       03、设置/        主页的功能代码与样式（开场、门面、目录都在这里）
-
-     本文件本身只做四件事：搭主页骨架、决定这次进站要不要开屏/门面、
-     引 03、设置/ 的代码与样式、把 CDN 库异步注入进来。
-     ============================================================ -->
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>支援未来</title>
-
-    <!-- 站点图标：墨蓝底 + 四角星（星河 / 星辰大海，取开屏动画配色）。
-         直接内嵌 data URI，不发额外请求。想换形状/颜色只改下面这个 SVG。 -->
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2363b4de'/%3E%3Cstop offset='1' stop-color='%231c508c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230a1a2e'/%3E%3Cpath d='M32 9Q35.5 28.5 55 32Q35.5 35.5 32 55Q28.5 35.5 9 32Q28.5 28.5 32 9Z' fill='url(%23g)'/%3E%3C/svg%3E" />
-
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="preload" href="03、设置/2.站点样式.css" as="style" />
-    <link rel="preload" href="03、设置/1.站点主程序.js" as="script" />
-    <!-- 门面用的两个免费开源字体（和参考站同款的 JetBrains Mono + 气质接近的 Space Grotesk）。
-         走 jsDelivr 的 fontsource，和站点其它 CDN 依赖一样，挂了会回退系统字体，不影响使用。 -->
-    <link rel="preload" as="font" type="font/woff2" crossorigin
-          href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/files/space-grotesk-latin-500-normal.woff2" />
-    <link rel="preload" as="font" type="font/woff2" crossorigin
-          href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5/files/jetbrains-mono-latin-400-normal.woff2" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
-    <link rel="stylesheet" href="03、设置/2.站点样式.css" />
-    <link rel="stylesheet" href="03、设置/3.Hero门面样式.css" />
-    <!-- 开屏动画（landing reveal）的外观：只有 <html> 带 reveal-on 时才用得上 -->
-    <link rel="stylesheet" href="03、设置/10.开屏动画样式.css" />
-
-    <!-- ===================== 开场：开屏动画 + 门面长前言 =====================
-         进站顺序（2026-09-28 起，两层开场）：
-           ① 开屏动画（landing reveal）——白底信息版 → 黑底加载屏（圆环描边）
-              → 出现「进入」→ 点一下左滑揭幕 → 「支援未来」大标题 → 淡出。
-              结构与动画在 03、设置/10.开屏动画样式.css + 11.开屏动画.js。
-              回访（localStorage 有标记）走同一套流程的快版，照样要点一下。
-           ② 门面长前言——滚第 2-4 屏的这段时间，目录和文档索引在后台备好，
-              等待被"看内容"自然消化掉。
-         两个开关类都加在 <html> 上：
-           hero-on    要不要门面（样式 03、设置/3.Hero门面样式.css，
-                      动画与滚动剧情 03、设置/4.Hero门面.js）
-           reveal-on  要不要开屏动画（只有显示门面时才加；开屏把画面交出来后
-                      这里撤掉，站点内容才露。开屏脚本没下来或 ?reveal=0 时
-                      会立刻撤掉，退回门面自带的 LOADING 开屏兜底）
-         调试开关（加在网址后面）：
-            ?hero=0    直达操作手册（老用法、老速度）
-            ?hero=1    强制显示门面
-            ?reveal=0  不要开屏动画，直接用门面自带的开场兜底
-            ?seen=0    清掉"回访"标记，重新看一遍完整入场
-         其它直达参数（都是"这次访问要不要跳过门面"的开关）：
-            ?jump=1    进站直接跳到目录
-            ?page=xxx  直接打开某篇文档
-            ?t=秒      动画页定格到第几秒（动画页已退役，参数保留兼容）
-         ================================================== -->
-    <script>
-        (function () {
-            var query = new URLSearchParams(location.search);
-            var heroParam = query.get("hero");
-            var introForce = query.get("intro");
-
-            /* ?seen=0：把"看过门面"的标记清掉，下次（或这次刷新后）重新看完整入场 */
-            if (query.get("seen") === "0") {
-                try { localStorage.removeItem("support-future-hero-seen-v1"); } catch (e) { /* 忽略 */ }
-            }
-
-            /* 门面默认显示；只要这次访问带任何"直达"参数就跳过，
-               老链接、老习惯、同事收藏的 URL 全都照旧 */
-            var direct = query.get("jump") === "1" || !!query.get("page") || introForce === "0";
-            var useHero = heroParam === "1" || (heroParam !== "0" && !direct);
-            /* ?reveal=0：这次不要开屏动画（调试用，直接用门面自带的开场兜底） */
-            var useReveal = useHero && query.get("reveal") !== "0";
-
-            window.__heroMode = useHero;
-            window.__revealMode = useReveal;
-            if (useHero) document.documentElement.classList.add("hero-on");
-            if (useReveal) {
-                document.documentElement.classList.add("reveal-on");
-                /* 开屏是从头看起的：别让浏览器恢复上次的滚动位置 */
-                try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch (e) { /* 忽略 */ }
-                window.scrollTo(0, 0);
-            }
-        })();
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>支援未来 · 操作手册</title>
+  <meta name="description" content="个人操作手册：目录翻阅 + 检索，比 Excel / WPS 更好用。GitHub Pages 静态部署。" />
+  <link rel="stylesheet" href="./css/reveal.css" />
+  <link rel="stylesheet" href="./css/inversa-hero.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <!-- Document-relative mask URLs (same composite as source) -->
+  <style>
+    .hero-mask {
+      -webkit-mask-image: linear-gradient(#fff, #fff), url("./mask.svg");
+      -webkit-mask-position: center, center;
+      -webkit-mask-size: auto, 50%;
+      -webkit-mask-repeat: no-repeat, no-repeat;
+      -webkit-mask-composite: xor;
+      mask-image: linear-gradient(#fff, #fff), url("./mask.svg");
+      mask-position: center, center;
+      mask-size: auto, 50%;
+      mask-repeat: no-repeat, no-repeat;
+      mask-composite: exclude;
+    }
+    @media (max-width: 800px) {
+      .hero-mask {
+        -webkit-mask-size: auto, 75%;
+        mask-size: auto, 75%;
+      }
+    }
+    body.is-revealing {
+      overflow: hidden;
+    }
+    #site-main {
+      visibility: hidden;
+    }
+    body.is-ready #site-main {
+      visibility: visible;
+    }
+  </style>
 </head>
-<body>
-
-    <!-- ===================== 门面 Hero（星河旅程，共 4 屏） =====================
-         只在首页显示，而且是 .site-shell 的兄弟节点：整页滚动时它向上滑出、
-         下面的 shell 自然盖上，滚完全部 4 屏就是原来的「操作手册」目录。
-         第 1 屏是大字门面正脸，第 2-4 屏是星河旅程（初衷 / SOP 小技巧注解）。
-         不用 position:fixed 钉住，所以不会和底下任何 sticky 元素打架。
-         结构、样式、时间轴全部集中在这两段里，删掉这两段就退回旧版首页。
-         ============================================================ -->
-    <div id="heroStage" aria-hidden="true"></div>
-
-    <!-- 收场白（照教学版 section.outro：门面滚完后的一屏深色居中文字） -->
-    <section class="hero-outro-tut">
-        <p>The system has reached its final spatial state.</p>
-    </section>
-
-    <!-- 站点外壳：原来 index.html 里的全部内容都在这里面，样式一点没改 -->
-    <div class="site-shell" id="siteShell">
-
-    <header class="top-nav">
-        <div class="logo">支援未来</div>
-    </header>
-
-    <div id="loading-bar"></div>
-
-    <div class="app">
-        <div class="main-body">
-            <aside class="sidebar" id="sidebar"></aside>
-            <div class="content-wrapper">
-                <main class="content-area" id="contentArea">
-                    <div id="contentLoader">加载中...</div>
-                </main>
-                <aside class="toc-wrapper" id="tocWrapper">
-                    <div class="toc-title">本页指引</div>
-                    <ul class="toc-list" id="tocList"></ul>
-                </aside>
-            </div>
+<body class="is-revealing">
+  <!-- Landing reveal · ti-landing-page-reveal-004 -->
+  <div class="reveal-root" id="reveal-root" aria-label="开场动画">
+    <div class="preloader-backdrop">
+      <div class="pb-row">
+        <div class="pb-col">
+          <p>SF//支援未来</p>
+          <p>SF//支援未来</p>
+          <p>SF//支援未来</p>
+          <p>SF//支援未来</p>
+          <p>SF//支援未来</p>
         </div>
+        <div class="pb-col">
+          <p>手册 / 攻略本</p>
+        </div>
+        <div class="pb-col">
+          <p>准入 · 采购 · 销售</p>
+        </div>
+        <div class="pb-col">
+          <p>目录导航 / TOC</p>
+        </div>
+        <div class="pb-col">
+          <p>检索 / Search Ready</p>
+        </div>
+        <div class="pb-col">
+          <img id="pb-logo" src="./logo-dark.png" alt="" />
+          <p>GitHub Pages</p>
+        </div>
+      </div>
+
+      <div class="pb-row">
+        <div class="pb-col">
+          <p>从 Excel 迁出</p>
+        </div>
+        <div class="pb-col">
+          <p>// / / ///// / / / ///</p>
+        </div>
+        <div class="pb-col">
+          <p>WPS 目录对齐</p>
+        </div>
+        <div class="pb-col">
+          <p>工序装载中</p>
+          <p>115+ 条流程</p>
+        </div>
+        <div class="pb-col">
+          <p>多端可查</p>
+          <p>手机 · 电脑</p>
+        </div>
+        <div class="pb-col">
+          <p>SF-01</p>
+        </div>
+      </div>
     </div>
 
-    <!-- 站点外壳结束（.site-shell 从这里闭合） -->
+    <div class="preloader">
+      <div class="p-row">
+        <p>初始化手册</p>
+      </div>
+      <div class="p-row">
+        <div class="p-col">
+          <div class="p-sub-col">
+            <p>阶段 01</p>
+            <p>序列启动</p>
+          </div>
+          <div class="p-sub-col">
+            <p>工序扫描</p>
+            <p>5 大板块</p>
+          </div>
+        </div>
+        <div class="p-col">
+          <p>SF-01</p>
+        </div>
+      </div>
+
+      <div class="preloader-btn-container" role="button" tabindex="0" aria-label="进入手册">
+        <img id="pbc-logo" src="./logo-light.png" alt="" />
+        <p id="pbc-label">进入</p>
+        <p id="pbc-outro-label">已就绪</p>
+
+        <div class="pbc-svg-strokes">
+          <svg viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle
+              class="stroke-track"
+              cx="160"
+              cy="160"
+              r="155"
+              stroke="#2b2b2b"
+              stroke-width="2"
+              stroke-dasharray="974"
+              stroke-dashoffset="974"
+            />
+            <circle
+              class="stroke-progress"
+              cx="160"
+              cy="160"
+              r="155"
+              stroke="#fff"
+              stroke-width="2"
+              stroke-dasharray="974"
+              stroke-dashoffset="974"
+            />
+          </svg>
+        </div>
+      </div>
     </div>
 
-    <!-- GSAP / ScrollTrigger / CustomEase / Lenis：开场与门面 Hero 用。
-         CustomEase 是开屏那两条自定义缓动（hop / glide）用的，没下来也能跑。
-         Lenis 是教学版 <ReactLenis root /> 的平滑滚动（只作用于门面阶段，
-         滚进目录后由 4.Hero门面.js 的 stopSmooth 销毁、还原生滚轮）。
-         下载超时或 ?hero=0 时这里不会阻塞主页，站点照常可用 -->
-    <script>
-        (function () {
-            if (!window.__heroMode) return;
-            var base = "https://cdnjs.cloudflare.com/ajax/libs/";
-            var files = [
-                ["gsap", "gsap/3.12.5/gsap.min.js", ""],
-                ["gsap", "gsap/3.12.5/ScrollTrigger.min.js", ""],
-                ["ease", "gsap/3.12.5/CustomEase.min.js", ""],
-                ["lenis", "", "https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"]
-            ];
-            var pending = files.length;
-            /* ============ 开演：门面 + 开屏 ============
-               两个功能的脚本（4.Hero门面.js / 11.开屏动画.js）是普通 <script>，
-               上面这几个 CDN 库是异步注入的，谁先到都有可能——统一在这里收口：
-                 · 库到齐、或 2.5 秒兜底到点 → bootAll()
-                 · bootAll 再等门面脚本露面（最多 2 秒）→ startAll()
-               startAll 只跑一次，负责"这次开场归谁演"的分叉。 */
-            var started = false;
+    <section class="reveal-stage">
+      <div class="preloader-revealer"></div>
+      <div>
+        <h1>支援未来</h1>
+        <p class="reveal-sub">个人操作手册 · 翻得动 · 搜得到</p>
+      </div>
+    </section>
+  </div>
 
-            function startAll() {
-                if (started) return;
-                started = true;
+  <div id="site-main">
+  <section class="hero" aria-label="滚动介绍">
+    <div class="hero-img">
+      <img src="./hero-img.jpg" alt="" fetchpriority="high" />
+    </div>
+    <div class="hero-mask"></div>
+    <div class="hero-grid-overlay">
+      <img src="./grid-overlay.svg" alt="" />
+    </div>
 
-                var canReveal = window.__revealMode === true &&
-                    !!window.SupportFutureReveal && !!window.gsap;
-                if (!canReveal) {
-                    /* 开屏不可用（脚本没下来 / ?reveal=0）：先撤掉遮盖，
-                       让门面走自带的 LOADING 开屏兜底 */
-                    document.documentElement.classList.remove("reveal-on");
-                }
-                if (window.HeroFacade) window.HeroFacade.start();
+    <div class="marker marker-1">
+      <span class="marker-icon"></span>
+      <p class="marker-label">目录导航</p>
+    </div>
+    <div class="marker marker-2">
+      <span class="marker-icon"></span>
+      <p class="marker-label">智能检索</p>
+    </div>
 
-                if (canReveal) {
-                    window.SupportFutureReveal.boot(window.gsap, window.CustomEase)
-                        .then(function () {
-                            /* 开屏把画面交出来了：回到页首（免得门面剧情被中途接走）、
-                               撤掉遮盖、补装平滑滚轮、刷新一遍钉住计算 */
-                            try {
-                                document.documentElement.style.scrollBehavior = "auto";
-                                window.scrollTo(0, 0);
-                                document.documentElement.style.scrollBehavior = "";
-                            } catch (e) { /* 忽略 */ }
-                            document.documentElement.classList.remove("reveal-on");
-                            if (window.HeroFacade && window.HeroFacade.startSmooth) window.HeroFacade.startSmooth();
-                            if (window.ScrollTrigger) window.ScrollTrigger.refresh();
-                        })
-                        .catch(function () {
-                            /* 开屏中途出错：别把站点关在门外 */
-                            try {
-                                document.documentElement.style.scrollBehavior = "auto";
-                                window.scrollTo(0, 0);
-                                document.documentElement.style.scrollBehavior = "";
-                            } catch (e) { /* 忽略 */ }
-                            if (window.SupportFutureReveal.dismiss) window.SupportFutureReveal.dismiss();
-                            if (window.HeroFacade && window.HeroFacade.startSmooth) window.HeroFacade.startSmooth();
-                            if (window.ScrollTrigger) window.ScrollTrigger.refresh();
-                        });
-                }
-            }
+    <div class="hero-content">
+      <div class="hero-content-block">
+        <div class="hero-content-copy">
+          <h1>支援未来</h1>
+        </div>
+      </div>
+      <div class="hero-content-block">
+        <div class="hero-content-copy">
+          <h2>不是 SOP，是攻略本</h2>
+          <p>上班遇到不会的，翻一下，至少知道之前是怎么做的。内容你一直在写，我们只是让它更好翻。</p>
+        </div>
+      </div>
+      <div class="hero-content-block">
+        <div class="hero-content-copy">
+          <h2>比 Excel / WPS 更顺</h2>
+          <p>左侧目录对上 WPS 的目录功能；顶部搜索补上 Excel 不够聪明的检索。手机电脑同一个链接。</p>
+        </div>
+      </div>
+      <div class="hero-content-block">
+        <div class="hero-content-copy">
+          <h2>滚动与内容已绑定</h2>
+          <p>往下滚，文案跟着走。下面就是完整手册——准入、采购、销售、财务……</p>
+        </div>
+      </div>
+    </div>
 
-            var bootTries = 0;
-            function bootAll() {
-                if (started) return;
-                /* 门面脚本和开屏脚本都可能比 CDN 库晚一步就位，两个都等（最多 2 秒） */
-                var needHero = !window.HeroFacade;
-                var needReveal = window.__revealMode === true && !window.SupportFutureReveal;
-                if ((needHero || needReveal) && bootTries < 25) {
-                    bootTries += 1;
-                    setTimeout(bootAll, 80);
-                    return;
-                }
-                startAll();
-            }
+    <div class="hero-scroll-progress-bar"></div>
+    <button type="button" class="skip-hero">跳过动画 · 进入手册</button>
+  </section>
 
-            function done() { pending -= 1; if (pending === 0) bootAll(); }
-            files.forEach(function (f) {
-                var s = document.createElement("script");
-                s.src = f[2] || (base + f[1]);
-                s.onload = done;
-                s.onerror = done;      // 库挂了也照常起步（下面 startAll 会检测）
-                document.head.appendChild(s);
-            });
-            /* 兜底：网慢也别让门面一直白等 */
-            setTimeout(bootAll, 2500);
-        })();
-    </script>
-    <script src="03、设置/4.Hero门面.js"></script>
-    <!-- 开屏动画：进站那套 landing reveal（只在显示门面时才有画面） -->
-    <script src="03、设置/11.开屏动画.js"></script>
+  <main class="manual" id="manual">
+    <div class="manual-top">
+      <div class="brand">支援未来 <span>操作手册</span></div>
+      <div class="search-wrap">
+        <input id="search" type="search" placeholder="搜工序 / 关键词，比如：邮件审批、MDG、订货卡…" autocomplete="off" />
+      </div>
+      <button type="button" class="toc-toggle" id="toc-toggle">目录</button>
+    </div>
 
-    <!-- 内容门锁：先于主程序加载，loadContent 会调它的闸门（正文脱敏，目录公开） -->
-    <script src="03、设置/5.内容门锁.js"></script>
-    <script src="03、设置/1.站点主程序.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof init === 'function') {
-                init();
-            } else {
-                console.error('1.站点主程序.js 未加载或 init 函数未定义');
-            }
-        });
-    </script>
+    <div class="manual-body">
+      <aside class="toc" id="toc" aria-label="目录"></aside>
+      <div class="content">
+        <div class="intro-card">
+          <h1>我的操作手册</h1>
+          <p>
+            从 Excel 翻不动、检索不聪明，转到网站：目录一眼定位，搜索秒找步骤。
+            内容来自你现有的《支援未来》文档；这轮先做「能查、能翻、能上线」。
+          </p>
+          <div class="chips">
+            <span class="chip"><strong>多端</strong> · 手机 / 电脑</span>
+            <span class="chip"><strong>部署</strong> · GitHub Pages 免费</span>
+            <span class="chip"><strong>形态</strong> · 纯静态 HTML</span>
+            <span class="chip"><strong>体验</strong> · 滚动动效 + Loading</span>
+          </div>
+        </div>
 
-    <!-- 旧版开屏动画（02、开屏动画 那一套）仍是封存状态（2026-09-24 起退役）：
-         它的目录和文件原样留着没动，但进站的开场已经改由 03、设置 的
-         10.开屏动画样式.css + 11.开屏动画.js 负责；
-         门面自带的 LOADING 开屏只当兜底——只有 ?reveal=0、或者开屏脚本/库
-         没下下来时才会看到它。想恢复旧版开屏的完整步骤见
-         02、开屏动画/使用说明.md。 -->
+        <div id="manual-content"></div>
+        <div class="empty" id="empty">没有匹配的工序，换个关键词试试。</div>
 
-    <!-- 门面 Hero 的引导：负责"目录在下面、先别让同事滚错地方"这类小动作 -->
-    <script>
-        (function () {
-            if (!window.__heroMode) return;
+        <section class="faq" id="faq">
+          <h2>FAQ · 这轮怎么理解</h2>
+          <p>功能细节以后还能补；下面先把上线和用法说清楚。</p>
 
-            /* 直接戳 ?jump=1 进来的：跳过门面，直接停在目录 */
-            if (new URLSearchParams(location.search).get("jump") === "1") {
-                document.documentElement.classList.remove("hero-on");
-                var shell = document.getElementById("siteShell");
-                if (shell) {
-                    requestAnimationFrame(function () {
-                        window.scrollTo({ top: shell.offsetTop });
-                    });
-                }
-            }
+          <details open>
+            <summary>这网站到底解决什么？</summary>
+            <p>把上班工序做成「个人攻略本」：不会了就翻、就搜。不是公司级 SOP 系统，也不做多人协同。</p>
+          </details>
+          <details>
+            <summary>为什么用 GitHub Pages，不用服务器？</summary>
+            <p>纯静态页面，GitHub Pages 免费、稳定，绑定你的 <code>username.github.io</code> 就能多端打开。今天下午会议会直接帮你部署上去。</p>
+          </details>
+          <details>
+            <summary>和现在的 WPS 在线文档比呢？</summary>
+            <ul>
+              <li>保留你习惯的「目录」——左侧 TOC</li>
+              <li>补强检索——顶部关键词搜索</li>
+              <li>加上滚动介绍动效，查阅更像产品而不像表格</li>
+            </ul>
+          </details>
+          <details>
+            <summary>滚动感觉奇怪怎么办？</summary>
+            <p>旧版常见问题是「内容和 scroll 没绑在一起」。这一版按内容块数量计算滚动距离，文案位移和进度条同步。可点「跳过动画」直接进手册。</p>
+          </details>
+          <details>
+            <summary>以后要会议投屏 / 多人一起改呢？</summary>
+            <p>那是工作流（账号、权限、协作），投入会上去。这轮先不做；开会时打开链接投屏就够用。真要上协作再说。</p>
+          </details>
+          <details>
+            <summary>内容怎么更新？</summary>
+            <p>你继续维护文档 → 导出/给我一份 → 更新 <code>data/manual.json</code> → 推到 GitHub，Pages 自动刷新。远程也可以手把手教。</p>
+          </details>
+        </section>
 
-            /* 门面还在时，万一有人按了 End / 拖动滚动条冲到目录，
-               把门面标记成已经看过，避免上面那屏又"回来"。
-               判据 = 门面底部有没有滚过视口 55%。
-               注意不能用 IntersectionObserver 的可见比例：门面现在是
-               4 屏的长流程，一屏视口最多只能看到它的 1/4，比例永远
-               低于旧阈值，状态会一直判错。 */
-            var stage = document.getElementById("heroStage");
-            var passedTick = false;
-            function updateHeroPassed() {
-                passedTick = false;
-                if (!stage) return;
-                var bottom = stage.getBoundingClientRect().bottom;
-                if (bottom <= window.innerHeight * 0.55) {
-                    document.documentElement.classList.add("hero-passed");
-                    /* 滚进目录：门面阶段（Lenis 平滑滚轮）到此为止，
-                        正文回到原生 1:1 手感（4.Hero门面.js 提供销毁入口） */
-                    if (window.HeroFacade && window.HeroFacade.stopSmooth) {
-                        window.HeroFacade.stopSmooth();
-                    }
-                } else {
-                    document.documentElement.classList.remove("hero-passed");
-                }
-            }
-            if (stage) {
-                addEventListener("scroll", function () {
-                    if (passedTick) return;
-                    passedTick = true;
-                    requestAnimationFrame(updateHeroPassed);
-                }, { passive: true });
-                updateHeroPassed();
-            }
-        })();
-    </script>
+        <p class="footer-note">支援未来 · 静态手册 · GitHub Pages · 非公司正式制度文件</p>
+      </div>
+    </div>
+  </main>
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/CustomEase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.17/dist/lenis.min.js"></script>
+  <script src="./js/reveal.js"></script>
+  <script src="./js/scroll.js"></script>
+  <script src="./js/handbook.js"></script>
+  <script>
+    (async function () {
+      const heroImg = document.querySelector(".hero-img img");
+      const waitImg = heroImg.decode
+        ? heroImg.decode().catch(() => {})
+        : Promise.resolve();
+
+      // Prefetch handbook while reveal plays
+      const handbookReady = SupportFutureHandbook.boot();
+
+      await SupportFutureReveal.boot(gsap, CustomEase);
+      await Promise.all([
+        waitImg,
+        handbookReady,
+        document.fonts ? document.fonts.ready : Promise.resolve(),
+      ]);
+
+      document.body.classList.remove("is-revealing");
+      document.body.classList.add("is-ready");
+
+      const lenis = new Lenis({ lerp: 0.08 });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+
+      SupportFutureScroll.init();
+      ScrollTrigger.refresh();
+    })();
+  </script>
 </body>
 </html>

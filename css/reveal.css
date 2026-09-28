@@ -1,0 +1,208 @@
+/* Ported from ti-landing-page-reveal-004 — scoped to avoid handbook clash */
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Geist+Mono:wght@500&display=swap");
+
+.reveal-root {
+  --base-100: #fff;
+  --base-200: #7a7a7a;
+  --base-300: #000;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+}
+
+.reveal-root.is-done {
+  pointer-events: none;
+}
+
+.reveal-root h1 {
+  text-transform: none;
+  font-family: "Barlow Condensed", "Noto Sans SC", sans-serif;
+  font-size: clamp(3.5rem, 12vw, 10rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+}
+
+.reveal-root p {
+  text-transform: uppercase;
+  font-family: "Geist Mono", "DM Mono", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.reveal-root .line-mask,
+.reveal-root .word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.reveal-root h1 .word,
+.reveal-root p .line {
+  position: relative;
+  display: block;
+  transform: translateY(100%);
+  will-change: transform;
+}
+
+.reveal-root .preloader-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100svh;
+  background-color: var(--base-100);
+  color: var(--base-200);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 0;
+}
+
+.reveal-root .pb-row {
+  width: 100%;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.reveal-root .pb-row:nth-child(2) {
+  align-items: flex-end;
+}
+
+.reveal-root .pb-row #pb-logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.25rem;
+  border: 1px dashed var(--base-200);
+  object-fit: contain;
+}
+
+.reveal-root .preloader {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100svh;
+  background-color: var(--base-300);
+  color: var(--base-100);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  will-change: transform, clip-path;
+  z-index: 2;
+}
+
+.reveal-root .p-row {
+  width: 100%;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.reveal-root .p-row .p-col {
+  display: flex;
+  gap: 6rem;
+  align-items: flex-end;
+}
+
+.reveal-root .preloader-btn-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20rem;
+  height: 20rem;
+  cursor: pointer;
+}
+
+.reveal-root .pbc-svg-strokes,
+.reveal-root #pbc-logo,
+.reveal-root #pbc-label,
+.reveal-root #pbc-outro-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.reveal-root #pbc-logo {
+  width: 4rem;
+  height: 4rem;
+  object-fit: contain;
+}
+
+.reveal-root #pbc-label,
+.reveal-root #pbc-outro-label {
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.reveal-root .pbc-svg-strokes,
+.reveal-root .pbc-svg-strokes svg {
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.reveal-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100svh;
+  padding: 1.5rem;
+  background-color: var(--base-300);
+  color: var(--base-100);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transform: scale(0.75);
+  will-change: transform;
+  z-index: 1;
+}
+
+.reveal-stage .preloader-revealer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--base-100);
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  will-change: clip-path;
+}
+
+.reveal-stage h1 {
+  width: 90%;
+  position: relative;
+  z-index: 1;
+}
+
+.reveal-stage .reveal-sub {
+  position: relative;
+  z-index: 1;
+  margin-top: 1.25rem;
+  color: var(--base-200);
+  text-transform: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 1000px) {
+  .reveal-root .pb-row .pb-col:nth-child(1),
+  .reveal-root .pb-row .pb-col:nth-child(2),
+  .reveal-root .pb-row .pb-col:nth-child(5) {
+    display: none;
+  }
+
+  .reveal-root .p-row .p-col {
+    gap: 2rem;
+  }
+
+  .reveal-root .preloader-btn-container {
+    width: 16rem;
+    height: 16rem;
+  }
+}
