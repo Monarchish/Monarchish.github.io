@@ -264,17 +264,18 @@
                 /* 进度线（教学版：写 CSS 变量 --progress，CSS 里 scaleY） */
                 g.set(progressBar, { "--progress": self.progress });
 
-                /* 文字层上移 */
-                g.set(heroContent, { y: -ease(self.progress) * heroContentMoveDistance });
+                /* 文字层上移（用户要求匀速：去掉源码 smoothstep，滚多少动多少） */
+                g.set(heroContent, { y: -self.progress * heroContentMoveDistance });
 
-                /* 照片带缓移：0→0.45 爬到 5%，平持到 0.75，再爬到 40% */
+                /* 照片带缓移：0→0.45 线性爬到 65%，平持到 0.75，再线性爬到 100%
+                   （剧情分段保留，段内匀速） */
                 var heroImgProgress;
                 if (self.progress < 0.45) {
-                    heroImgProgress = ease(self.progress / 0.45) * 0.65;
+                    heroImgProgress = (self.progress / 0.45) * 0.65;
                 } else if (self.progress < 0.75) {
                     heroImgProgress = 0.65;
                 } else {
-                    heroImgProgress = 0.65 + ease((self.progress - 0.75) / 0.25) * 0.35;
+                    heroImgProgress = 0.65 + ((self.progress - 0.75) / 0.25) * 0.35;
                 }
                 g.set(heroImg, { y: heroImgProgress * heroImgMoveDistance });
 
