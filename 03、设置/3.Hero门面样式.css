@@ -32,7 +32,7 @@
     --light: #fff;
     --dark: #141414;
     --accent-1: #dc5935;
-    --accent-2: #d3df76;
+    --accent-2: #d3ef76;
 
     /* 站点自有变量（顶栏 / 开屏还在用） */
     --c-ink: #13140e;
@@ -58,7 +58,7 @@
     /* 锯齿矩形 SVG（教学版 /mask.svg 的等形资产：像素阶梯边缘，
        viewBox 1030×701）。观察窗用「满幅渐变 − 此形」相减开出；
        开屏画幅用它裁边。 */
-    --hero-mask: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1030' height='701' viewBox='0 0 1030 701' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M347 0v21h60V0h43v21h44v21h121V21h31V0h117v21h59V0h107v21h59v62h21v42h21v36h-21v38h-21v96h21v14h21v46h-21v21h21v38h-21v50h21v79h-21v74h21v24h-21v20H886v-20h-41v20h-40v-20h-21v20h-42v20h-41v20H559v-20h-23v-20h-50v-20h-41v20H330v-20h-21v20h-52v20h-24v20h-47v-20h-21v20h-21v-20h-21v-20H40v-41H20v-62h20v-46H20v-58h20v-20H20v-20H0V240h20v-53H0v-62h20V63h20V42h41v21h83V42h21V21h85V0z'/%3E%3C/svg%3E");
+    --hero-mask: url("8.门面蒙版窗.svg");
 }
 
 /* ============================================================
@@ -245,7 +245,7 @@ html:not(.hero-on) #heroStage {
     bottom: 0;
     width: 100%;
     height: 200svh;
-    --overlay-opacity: 0.15;
+    --overlay-opacity: 0.35;
     will-change: transform;
 }
 
@@ -281,8 +281,8 @@ html:not(.hero-on) #heroStage {
     width: 100%;
     height: 100svh;
     background-color: var(--dark);
-    mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/60% no-repeat;
-    -webkit-mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/60% no-repeat;
+    mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/50% no-repeat;
+    -webkit-mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/50% no-repeat;
     mask-composite: subtract;
     -webkit-mask-composite: subtract;
     will-change: transform;
@@ -305,6 +305,7 @@ html.hero-passed .hero-mask {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    width: 55%;
     opacity: 0;
     z-index: 5;
 }
@@ -327,14 +328,14 @@ html.hero-passed .hero-mask {
     z-index: 6;
 }
 
-.marker-1 { top: 55svh; left: 38vw; }
+.marker-1 { top: 50svh; left: 50vw; }
 .marker-2 { top: 35svh; left: 60vw; }
 
 .marker .marker-icon {
     position: relative;
     width: 0.5rem;
     height: 0.5rem;
-    border-radius: 1rem;
+    border-radius: 2rem;
 }
 
 /* 脉冲波纹：10rem 大圆从 0.25 缩放扩散、80% 后透明 */
@@ -437,16 +438,26 @@ html.hero-passed .hero-mask {
    ============================================================ */
 .hero-scroll-progress-bar {
     position: absolute;
-    top: 10%;
-    right: 1rem;
+    top: 50%;
+    right: 2rem;
+    transform: translateY(-50%);
     width: 0.1rem;
     height: 10rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    --progress: 0;
+    z-index: 7;
+}
+
+/* 进度线本体：覆盖在半透明轨道上，scaleY 随进度生长（源码 ::after 结构） */
+.hero-scroll-progress-bar::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
     background-color: var(--light);
     transform-origin: top;
     transform: scaleY(var(--progress));
-    --progress: 0;
     will-change: transform;
-    z-index: 7;
 }
 
 /* ============================================================
@@ -630,10 +641,10 @@ html.hero-booting body { overflow: hidden; }
 /* ============================================================
    十四、窄屏（教学版 @media max-width:600px 原样）
    ============================================================ */
-@media (max-width: 600px) {
+@media (max-width: 800px) {
     .hero-mask {
-        mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/35% no-repeat;
-        -webkit-mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/35% no-repeat;
+        mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/75% no-repeat;
+        -webkit-mask: linear-gradient(var(--light), var(--light)), var(--hero-mask) center/75% no-repeat;
         mask-composite: subtract;
         -webkit-mask-composite: subtract;
     }
@@ -644,15 +655,24 @@ html.hero-booting body { overflow: hidden; }
 
     .marker-1 {
         top: 52.5svh;
-        left: 58vw;
+        left: 50vw;
+    }
+
+    .marker-2 {
+        top: 45svh;
+        left: 70vw;
     }
 
     .hero-content .hero-content-block {
-        padding: 2rem;
+        padding: 1.5rem;
     }
 
     .hero-content .hero-content-copy {
-        width: 100%;
+        width: 75%;
+    }
+
+    .hero-scroll-progress-bar {
+        right: 1rem;
     }
 
     .hero-bar {

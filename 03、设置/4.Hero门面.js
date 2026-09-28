@@ -73,9 +73,8 @@
         }
     };
 
-    /* 网格纹理（教学版 /grid-overlay.svg 的等形资产，程序自生成：
-       方格阵 + 四缘凸出格），内联免请求 */
-    var GRID_URI = "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1120'%20height='640'%20viewBox='0%200%201120%20640'%3E%3Cg%20fill='none'%20stroke='%23ffffff'%20stroke-width='2'%3E%3Cpath%20d='M0%200h80v80h-80zM80%200h80v80h-80zM160%200h80v80h-80zM240%200h80v80h-80zM320%200h80v80h-80zM400%200h80v80h-80zM480%200h80v80h-80zM560%200h80v80h-80zM640%200h80v80h-80zM720%200h80v80h-80zM800%200h80v80h-80zM880%200h80v80h-80zM960%200h80v80h-80zM1040%200h80v80h-80zM0%2080h80v80h-80zM80%2080h80v80h-80zM160%2080h80v80h-80zM240%2080h80v80h-80zM320%2080h80v80h-80zM400%2080h80v80h-80zM480%2080h80v80h-80zM560%2080h80v80h-80zM640%2080h80v80h-80zM720%2080h80v80h-80zM800%2080h80v80h-80zM880%2080h80v80h-80zM960%2080h80v80h-80zM1040%2080h80v80h-80zM0%20160h80v80h-80zM80%20160h80v80h-80zM160%20160h80v80h-80zM240%20160h80v80h-80zM320%20160h80v80h-80zM400%20160h80v80h-80zM480%20160h80v80h-80zM560%20160h80v80h-80zM640%20160h80v80h-80zM720%20160h80v80h-80zM800%20160h80v80h-80zM880%20160h80v80h-80zM960%20160h80v80h-80zM1040%20160h80v80h-80zM0%20240h80v80h-80zM80%20240h80v80h-80zM160%20240h80v80h-80zM240%20240h80v80h-80zM320%20240h80v80h-80zM400%20240h80v80h-80zM480%20240h80v80h-80zM560%20240h80v80h-80zM640%20240h80v80h-80zM720%20240h80v80h-80zM800%20240h80v80h-80zM880%20240h80v80h-80zM960%20240h80v80h-80zM1040%20240h80v80h-80zM0%20320h80v80h-80zM80%20320h80v80h-80zM160%20320h80v80h-80zM240%20320h80v80h-80zM320%20320h80v80h-80zM400%20320h80v80h-80zM480%20320h80v80h-80zM560%20320h80v80h-80zM640%20320h80v80h-80zM720%20320h80v80h-80zM800%20320h80v80h-80zM880%20320h80v80h-80zM960%20320h80v80h-80zM1040%20320h80v80h-80zM0%20400h80v80h-80zM80%20400h80v80h-80zM160%20400h80v80h-80zM240%20400h80v80h-80zM320%20400h80v80h-80zM400%20400h80v80h-80zM480%20400h80v80h-80zM560%20400h80v80h-80zM640%20400h80v80h-80zM720%20400h80v80h-80zM800%20400h80v80h-80zM880%20400h80v80h-80zM960%20400h80v80h-80zM1040%20400h80v80h-80zM0%20480h80v80h-80zM80%20480h80v80h-80zM160%20480h80v80h-80zM240%20480h80v80h-80zM320%20480h80v80h-80zM400%20480h80v80h-80zM480%20480h80v80h-80zM560%20480h80v80h-80zM640%20480h80v80h-80zM720%20480h80v80h-80zM800%20480h80v80h-80zM880%20480h80v80h-80zM960%20480h80v80h-80zM1040%20480h80v80h-80zM0%20560h80v80h-80zM80%20560h80v80h-80zM160%20560h80v80h-80zM240%20560h80v80h-80zM320%20560h80v80h-80zM400%20560h80v80h-80zM480%20560h80v80h-80zM560%20560h80v80h-80zM640%20560h80v80h-80zM720%20560h80v80h-80zM800%20560h80v80h-80zM880%20560h80v80h-80zM960%20560h80v80h-80zM1040%20560h80v80h-80zM160%20-80h80v80h-80zM480%20-80h80v80h-80zM720%20-80h80v80h-80zM960%20-80h80v80h-80zM0%20640h80v80h-80zM320%20640h80v80h-80zM560%20640h80v80h-80zM880%20640h80v80h-80zM1040%20640h80v80h-80zM-80%2080h80v80h-80zM-80%20320h80v80h-80zM-80%20480h80v80h-80zM1120%20160h80v80h-80zM1120%20400h80v80h-80zM1120%20560h80v80h-80z'/%3E%3C/g%3E%3C/svg%3E";
+    /* 网格纹理：教学版 /grid-overlay.svg 的真身文件（源码包 public 同款） */
+    var GRID_URI = "03、设置/9.门面方格网.svg";
 
     var stage = document.getElementById("heroStage");
     if (!stage) return;
@@ -133,7 +132,7 @@
         /* fixed 观察窗（窗外深色、窗内透出照片） */
         '<div class="hero-mask"></div>' +
         /* 网格纹理 */
-        '<div class="hero-grid-overlay"><img src="' + GRID_URI + '" alt="" /></div>' +
+        '<div class="hero-grid-overlay"><img src="' + encodeURI(GRID_URI) + '" alt="" /></div>' +
         /* 两个脉冲标记点 */
         markersHtml +
         /* 400svh 文字层 */
@@ -266,16 +265,16 @@
                 g.set(progressBar, { "--progress": self.progress });
 
                 /* 文字层上移 */
-                g.set(heroContent, { y: -self.progress * heroContentMoveDistance });
+                g.set(heroContent, { y: -ease(self.progress) * heroContentMoveDistance });
 
                 /* 照片带缓移：0→0.45 爬到 5%，平持到 0.75，再爬到 40% */
                 var heroImgProgress;
-                if (self.progress <= 0.45) {
-                    heroImgProgress = ease(self.progress / 0.45) * 0.05;
-                } else if (self.progress <= 0.75) {
-                    heroImgProgress = 0.05;
+                if (self.progress < 0.45) {
+                    heroImgProgress = ease(self.progress / 0.45) * 0.65;
+                } else if (self.progress < 0.75) {
+                    heroImgProgress = 0.65;
                 } else {
-                    heroImgProgress = 0.05 + ease((self.progress - 0.75) / 0.25) * 0.35;
+                    heroImgProgress = 0.65 + ease((self.progress - 0.75) / 0.25) * 0.35;
                 }
                 g.set(heroImg, { y: heroImgProgress * heroImgMoveDistance });
 
