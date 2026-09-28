@@ -33,17 +33,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
     <link rel="stylesheet" href="03、设置/2.站点样式.css" />
     <link rel="stylesheet" href="03、设置/3.Hero门面样式.css" />
+    <!-- 开屏动画（landing reveal）的外观：只有 <html> 带 reveal-on 时才用得上 -->
+    <link rel="stylesheet" href="03、设置/10.开屏动画样式.css" />
 
-    <!-- ===================== 开场：门面长前言 =====================
-         2026-09-24 起，开屏动画退役，改由门面长前言兼任"开场 + 加载器"：
-         用户滚第 2-4 屏的这段时间，目录和文档索引在后台备好，
-         等待被"看内容"自然消化掉；回访（localStorage 有标记）
-         入场只走短文版，不强制等待。
-         要显示就给 <html> 加上 hero-on 类，样式见 03、设置/3.Hero门面样式.css，
-         动画与滚动剧情在 03、设置/4.Hero门面.js。
+    <!-- ===================== 开场：开屏动画 + 门面长前言 =====================
+         进站顺序（2026-09-28 起，两层开场）：
+           ① 开屏动画（landing reveal）——白底信息版 → 黑底加载屏（圆环描边）
+              → 出现「进入」→ 点一下左滑揭幕 → 「支援未来」大标题 → 淡出。
+              结构与动画在 03、设置/10.开屏动画样式.css + 11.开屏动画.js。
+              回访（localStorage 有标记）走同一套流程的快版，照样要点一下。
+           ② 门面长前言——滚第 2-4 屏的这段时间，目录和文档索引在后台备好，
+              等待被"看内容"自然消化掉。
+         两个开关类都加在 <html> 上：
+           hero-on    要不要门面（样式 03、设置/3.Hero门面样式.css，
+                      动画与滚动剧情 03、设置/4.Hero门面.js）
+           reveal-on  要不要开屏动画（只有显示门面时才加；开屏把画面交出来后
+                      这里撤掉，站点内容才露。开屏脚本没下来或 ?reveal=0 时
+                      会立刻撤掉，退回门面自带的 LOADING 开屏兜底）
          调试开关（加在网址后面）：
             ?hero=0    直达操作手册（老用法、老速度）
             ?hero=1    强制显示门面
+            ?reveal=0  不要开屏动画，直接用门面自带的开场兜底
             ?seen=0    清掉"回访"标记，重新看一遍完整入场
          其它直达参数（都是"这次访问要不要跳过门面"的开关）：
             ?jump=1    进站直接跳到目录
@@ -65,9 +75,18 @@
                老链接、老习惯、同事收藏的 URL 全都照旧 */
             var direct = query.get("jump") === "1" || !!query.get("page") || introForce === "0";
             var useHero = heroParam === "1" || (heroParam !== "0" && !direct);
+            /* ?reveal=0：这次不要开屏动画（调试用，直接用门面自带的开场兜底） */
+            var useReveal = useHero && query.get("reveal") !== "0";
 
             window.__heroMode = useHero;
+            window.__revealMode = useReveal;
             if (useHero) document.documentElement.classList.add("hero-on");
+            if (useReveal) {
+                document.documentElement.classList.add("reveal-on");
+                /* 开屏是从头看起的：别让浏览器恢复上次的滚动位置 */
+                try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch (e) { /* 忽略 */ }
+                window.scrollTo(0, 0);
+            }
         })();
     </script>
 </head>
@@ -114,7 +133,8 @@
     <!-- 站点外壳结束（.site-shell 从这里闭合） -->
     </div>
 
-    <!-- GSAP / ScrollTrigger / Lenis：门面 Hero 的滚动剧情用。
+    <!-- GSAP / ScrollTrigger / CustomEase / Lenis：开场与门面 Hero 用。
+         CustomEase 是开屏那两条自定义缓动（hop / glide）用的，没下来也能跑。
          Lenis 是教学版 <ReactLenis root /> 的平滑滚动（只作用于门面阶段，
          滚进目录后由 4.Hero门面.js 的 stopSmooth 销毁、还原生滚轮）。
          下载超时或 ?hero=0 时这里不会阻塞主页，站点照常可用 -->
@@ -125,22 +145,88 @@
             var files = [
                 ["gsap", "gsap/3.12.5/gsap.min.js", ""],
                 ["gsap", "gsap/3.12.5/ScrollTrigger.min.js", ""],
+                ["ease", "gsap/3.12.5/CustomEase.min.js", ""],
                 ["lenis", "", "https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"]
             ];
             var pending = files.length;
-            function done() { pending -= 1; if (pending === 0 && window.HeroFacade) window.HeroFacade.start(); }
+            /* ============ 开演：门面 + 开屏 ============
+               两个功能的脚本（4.Hero门面.js / 11.开屏动画.js）是普通 <script>，
+               上面这几个 CDN 库是异步注入的，谁先到都有可能——统一在这里收口：
+                 · 库到齐、或 2.5 秒兜底到点 → bootAll()
+                 · bootAll 再等门面脚本露面（最多 2 秒）→ startAll()
+               startAll 只跑一次，负责"这次开场归谁演"的分叉。 */
+            var started = false;
+
+            function startAll() {
+                if (started) return;
+                started = true;
+
+                var canReveal = window.__revealMode === true &&
+                    !!window.SupportFutureReveal && !!window.gsap;
+                if (!canReveal) {
+                    /* 开屏不可用（脚本没下来 / ?reveal=0）：先撤掉遮盖，
+                       让门面走自带的 LOADING 开屏兜底 */
+                    document.documentElement.classList.remove("reveal-on");
+                }
+                if (window.HeroFacade) window.HeroFacade.start();
+
+                if (canReveal) {
+                    window.SupportFutureReveal.boot(window.gsap, window.CustomEase)
+                        .then(function () {
+                            /* 开屏把画面交出来了：回到页首（免得门面剧情被中途接走）、
+                               撤掉遮盖、补装平滑滚轮、刷新一遍钉住计算 */
+                            try {
+                                document.documentElement.style.scrollBehavior = "auto";
+                                window.scrollTo(0, 0);
+                                document.documentElement.style.scrollBehavior = "";
+                            } catch (e) { /* 忽略 */ }
+                            document.documentElement.classList.remove("reveal-on");
+                            if (window.HeroFacade && window.HeroFacade.startSmooth) window.HeroFacade.startSmooth();
+                            if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+                        })
+                        .catch(function () {
+                            /* 开屏中途出错：别把站点关在门外 */
+                            try {
+                                document.documentElement.style.scrollBehavior = "auto";
+                                window.scrollTo(0, 0);
+                                document.documentElement.style.scrollBehavior = "";
+                            } catch (e) { /* 忽略 */ }
+                            if (window.SupportFutureReveal.dismiss) window.SupportFutureReveal.dismiss();
+                            if (window.HeroFacade && window.HeroFacade.startSmooth) window.HeroFacade.startSmooth();
+                            if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+                        });
+                }
+            }
+
+            var bootTries = 0;
+            function bootAll() {
+                if (started) return;
+                /* 门面脚本和开屏脚本都可能比 CDN 库晚一步就位，两个都等（最多 2 秒） */
+                var needHero = !window.HeroFacade;
+                var needReveal = window.__revealMode === true && !window.SupportFutureReveal;
+                if ((needHero || needReveal) && bootTries < 25) {
+                    bootTries += 1;
+                    setTimeout(bootAll, 80);
+                    return;
+                }
+                startAll();
+            }
+
+            function done() { pending -= 1; if (pending === 0) bootAll(); }
             files.forEach(function (f) {
                 var s = document.createElement("script");
                 s.src = f[2] || (base + f[1]);
                 s.onload = done;
-                s.onerror = done;      // 库挂了也照常起步（HeroFacade 会检测）
+                s.onerror = done;      // 库挂了也照常起步（下面 startAll 会检测）
                 document.head.appendChild(s);
             });
             /* 兜底：网慢也别让门面一直白等 */
-            setTimeout(function () { if (window.HeroFacade) window.HeroFacade.start(); }, 2500);
+            setTimeout(bootAll, 2500);
         })();
     </script>
     <script src="03、设置/4.Hero门面.js"></script>
+    <!-- 开屏动画：进站那套 landing reveal（只在显示门面时才有画面） -->
+    <script src="03、设置/11.开屏动画.js"></script>
 
     <!-- 内容门锁：先于主程序加载，loadContent 会调它的闸门（正文脱敏，目录公开） -->
     <script src="03、设置/5.内容门锁.js"></script>
@@ -155,12 +241,12 @@
         });
     </script>
 
-    <!-- 开屏动画（02、开屏动画）已退役：
-         2026-09-24 起由门面长前言兼任开场与加载器，这里不再引它的挂载脚本。
-         它的目录和文件都还在，想恢复就把下面这行注释取消、并把
-         开屏遮罩层（id 见 02 目录）与头部开关 class 判断加回去
-         （完整步骤见 02、开屏动画/使用说明.md）。 -->
-    <!-- <script src="02、开屏动画/6.主页挂载.js"></script> -->
+    <!-- 旧版开屏动画（02、开屏动画 那一套）仍是封存状态（2026-09-24 起退役）：
+         它的目录和文件原样留着没动，但进站的开场已经改由 03、设置 的
+         10.开屏动画样式.css + 11.开屏动画.js 负责；
+         门面自带的 LOADING 开屏只当兜底——只有 ?reveal=0、或者开屏脚本/库
+         没下下来时才会看到它。想恢复旧版开屏的完整步骤见
+         02、开屏动画/使用说明.md。 -->
 
     <!-- 门面 Hero 的引导：负责"目录在下面、先别让同事滚错地方"这类小动作 -->
     <script>

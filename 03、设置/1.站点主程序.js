@@ -472,6 +472,9 @@ function splitIntoChunks(mdBody) {
  * 有 include 的页 → 多块（单工序视图）；没有 → 单块走老目录。
  */
 async function buildPage(fullFolder, pageId) {
+    /* 首页是卡片门户，不对应任何 md 文件——预取传 ('','home') 时别去发请求，
+       免得控制台每次进站都多一条 404 */
+    if (!pageId || pageId === 'home') return null;
     const key = fullFolder + '/' + pageId;
     if (pageCache.has(key)) return pageCache.get(key);
 

@@ -34,7 +34,10 @@
      平滑滚动（照 ReactLenis root）：Lenis + GSAP ticker；
      滚出门面（hero-passed）后即销毁，目录阶段保持原生滚轮。
 
-   本站自有配置（不属于教学版、但保留）：LOADING 开屏、门面顶栏。
+   本站自有配置（不属于教学版、但保留）：LOADING 开屏（现降级为兜底）、门面顶栏。
+   开场交接：正常进站由 11.开屏动画.js 的 landing reveal 开场（点「进入」后
+   左滑揭幕），它把画面交出来之前本文件的 LOADING 开屏不演；只有在开场不可用
+   时（?reveal=0、开屏脚本没下来等）才退回 LOADING 开屏兜底。
    它不做的事：不碰侧栏、不碰目录、不碰正文——那些是 1.站点主程序.js 的活。
    ============================================================ */
 (function () {
@@ -90,6 +93,14 @@
     /* 不显示门面（?hero=0 / ?page=xxx / ?jump=1）：什么都不做，站点照旧 */
     if (!heroOn || jump) return;
 
+    /* 开场是不是交给 11.开屏动画.js 的 landing reveal：
+       以「<html> 上还有没有 reveal-on」为准（开屏把画面交出来后 index.html 会撤掉它）。
+       有这个类 = 开屏正在演或即将演，本文件的 LOADING 开屏让位；
+       没有 = 没人演开场（?reveal=0、开屏脚本没下来），LOADING 开屏兜底。 */
+    var revealTakesOver = function () {
+        return document.documentElement.classList.contains("reveal-on");
+    };
+
     /* ---------- 有没有见过（回访）---------- */
     var seenKey = "support-future-hero-seen-v1";
     var isReturn = false;
@@ -126,6 +137,21 @@
     blocksHtml = blocksHtml.replace("<h2>" + escapeHtml(CONTENT.blocks[0].title) + "</h2>",
         "<h1>" + escapeHtml(CONTENT.blocks[0].title) + "</h1>");
 
+    /* LOADING 开屏（本站自有，现在只当兜底）：
+       这层 DOM 照旧搭好；真开演前若发现开场归 11.开屏动画.js（见 start 里
+       的 revealTakesOver），会先把这层整个撤掉，免得黑布盖在门面上 */
+    var bootHtml =
+        '<div class="hero-boot">' +
+        '<div class="hero-boot-grid"></div>' +
+        '<div class="hero-boot-frame"></div>' +
+        '<i class="hero-boot-line"></i>' +
+        '<span class="hero-boot-word"></span>' +
+        '<div class="hero-boot-readout">' +
+        '<span class="hero-boot-row"><b>PHASE</b><i class="hero-boot-phase">0%</i></span>' +
+        '<span class="hero-boot-row"><b>FREQ</b><i>' + escapeHtml(CONTENT.boot.freq) + "</i></span>" +
+        "</div>" +
+        "</div>";
+
     stage.innerHTML =
         /* 照片带（竖长 200svh，bottom:0；压暗层是 CSS ::after） */
         '<div class="hero-img"><img src="' + encodeURI(CONTENT.imgSrc) + '" alt="" /></div>' +
@@ -144,17 +170,7 @@
         '<span class="hero-bar-logo">' + escapeHtml(CONTENT.logo) + "</span>" +
         '<a class="hero-bar-link" href="#siteShell" data-jump-manual>' + escapeHtml(CONTENT.barLink) + "</a>" +
         "</div>" +
-        /* LOADING 开屏（本站自有） */
-        '<div class="hero-boot">' +
-        '<div class="hero-boot-grid"></div>' +
-        '<div class="hero-boot-frame"></div>' +
-        '<i class="hero-boot-line"></i>' +
-        '<span class="hero-boot-word"></span>' +
-        '<div class="hero-boot-readout">' +
-        '<span class="hero-boot-row"><b>PHASE</b><i class="hero-boot-phase">0%</i></span>' +
-        '<span class="hero-boot-row"><b>FREQ</b><i>' + escapeHtml(CONTENT.boot.freq) + "</i></span>" +
-        "</div>" +
-        "</div>";
+        bootHtml;
 
     /* ---------- 顶栏「直达目录」 ---------- */
     function goManual(e) {
@@ -449,8 +465,10 @@
         if (reduce) { storyMounted = true; return true; }
         if (!window.gsap || !window.ScrollTrigger) return false;
         storyMounted = true;
-        /* start() 被 2.5s 兜底提前触发时 Lenis 可能还没下完——这里再补一枪 */
-        mountLenis();
+        /* start() 被 2.5s 兜底提前触发时 Lenis 可能还没下完——这里再补一枪。
+           但开屏在场时先别装：Lenis 会绕过 overflow:hidden 硬滚页面，
+           门面剧情会在揭幕之前就被滚走。交接后 index.html 调 startSmooth 补装 */
+        if (!revealTakesOver()) mountLenis();
         setupScroll();
         return true;
     }
@@ -463,12 +481,19 @@
             started = true;
             stage.setAttribute("aria-hidden", "false");
             preload();
-            mountLenis();
+            if (!revealTakesOver()) mountLenis();   /* 开屏交接后再补装，见 startSmooth */
 
             var go = function () {
-                bootSequence(function () {
+                var boot = stage.querySelector(".hero-boot");
+                if (revealTakesOver()) {
+                    /* 开场归 11.开屏动画.js：把兜底那层黑布撤掉，门面挂好等它交画面 */
+                    if (boot && boot.parentNode) boot.parentNode.removeChild(boot);
                     mountStory();
-                });
+                } else {
+                    bootSequence(function () {
+                        mountStory();
+                    });
+                }
                 var swaited = 0;
                 var stimer = setInterval(function () {
                     if (mountStory()) { clearInterval(stimer); return; }
@@ -488,6 +513,8 @@
         },
         /* 滚进目录后归还原生滚轮（index.html 的 hero-passed 会调） */
         stopSmooth: stopSmooth,
+        /* 开屏交接后补装平滑滚轮（index.html 的开场交接会调） */
+        startSmooth: mountLenis,
         goManual: goManual,
         lenis: null
     };
