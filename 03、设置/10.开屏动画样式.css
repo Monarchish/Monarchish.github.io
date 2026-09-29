@@ -1,317 +1,208 @@
-/* ============================================================
-   03、设置 · 10.开屏动画样式.css
-   ------------------------------------------------------------
-   这是什么：进站开场（landing reveal）的外观——进站先看到的那套
-   「白底信息版 → 黑屏圆环『进入』按钮 → 左滑揭幕 → 大标题」。
-   来源：照 Lil-TT/support-future-handbook 的 css/reveal.css 复刻
-        （那份又移植自 ti-landing-page-reveal-004），
-        这里按本站作用域隔离（全部挂在 .reveal-root 下）。
+/* Ported from ti-landing-page-reveal-004 — scoped to avoid handbook clash */
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Geist+Mono:wght@500&display=swap");
 
-   图层（从下往上）：
-     .preloader-backdrop  白底信息版：上下两排 6 栏小字 + 虚线框小标记
-     .reveal-stage        黑底标题屏：初始 scale(.75)，里层盖一片白色
-                          .preloader-revealer（左滑揭幕时撤走）
-     .preloader           黑底加载屏：中央圆形按钮（描边圆环 + 进入）
-
-   谁在用它：站点根 index.html 常驻引入；只有 <html> 带 reveal-on 时
-            11.开屏动画.js 才会搭出 DOM、才看得见（其余时候零开销）。
-   字体：Barlow Condensed（大标题）+ Geist Mono（小字），走 jsDelivr 的
-        fontsource（与站点其它字体同源，国内可直连）；中文回退系统字体，
-        字体挂了只是换个字形，不影响使用。
-   ============================================================ */
-
-/* ============================================================
-   一、开屏期间才生效的全局三条（其余时候等于没写）
-   ============================================================ */
-html.reveal-on {
-    /* 开屏期间锁滚动：门面那 4 屏剧情别被误滚掉 */
-    overflow: hidden;
-    /* 首帧底色 = 黑屏加载屏同色，DOM 还没搭出来时也是黑的，不白闪。
-       （注意用纯黑而不是 var(--dark)，开屏早于门面样式生效更稳） */
-    background-color: #000;
-}
-
-/* 画面交给门面之前，站点内容一律不露 */
-html.reveal-on #heroStage,
-html.reveal-on .hero-outro-tut,
-html.reveal-on .site-shell {
-    visibility: hidden;
-}
-
-/* ============================================================
-   二、字体（fontsource / jsDelivr）
-   ============================================================ */
-@font-face {
-    font-family: "Barlow Condensed";
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url("https://cdn.jsdelivr.net/npm/@fontsource/barlow-condensed@5/files/barlow-condensed-latin-700-normal.woff2") format("woff2");
-}
-
-@font-face {
-    font-family: "Barlow Condensed";
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url("https://cdn.jsdelivr.net/npm/@fontsource/barlow-condensed@5/files/barlow-condensed-latin-800-normal.woff2") format("woff2");
-}
-
-@font-face {
-    font-family: "Geist Mono";
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url("https://cdn.jsdelivr.net/npm/@fontsource/geist-mono@5/files/geist-mono-latin-500-normal.woff2") format("woff2");
-}
-
-/* ============================================================
-   三、开屏根层：满屏 fixed，压在站点所有内容之上
-   ============================================================ */
 .reveal-root {
-    --base-100: #fff;
-    --base-200: #7a7a7a;
-    --base-300: #000;
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    font-family: "Geist Mono", "DM Mono", ui-monospace, monospace;
+  --base-100: #fff;
+  --base-200: #7a7a7a;
+  --base-300: #000;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
 }
 
-/* 开屏结束（画面已交给门面）：彻底不挡点击 */
 .reveal-root.is-done {
-    pointer-events: none;
+  pointer-events: none;
 }
 
-/* 站点的全局重置只覆盖了 margin/padding/box-sizing，
-   开屏这几层自己再兜一遍，免得受站点其它排版规则影响 */
-.reveal-root,
-.reveal-root *,
-.reveal-root *::before,
-.reveal-root *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.reveal-root img {
-    display: block;
-    object-fit: contain;
-}
-
-/* ============================================================
-   四、文字规格（源码同款）
-   ============================================================ */
 .reveal-root h1 {
-    text-transform: none;
-    font-family: "Barlow Condensed", "Noto Sans SC", sans-serif;
-    font-size: clamp(3.5rem, 12vw, 10rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 0.9;
+  text-transform: none;
+  font-family: "Barlow Condensed", "Noto Sans SC", sans-serif;
+  font-size: clamp(3.5rem, 12vw, 10rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
 }
 
 .reveal-root p {
-    text-transform: uppercase;
-    font-family: "Geist Mono", "DM Mono", ui-monospace, monospace;
-    font-size: 0.75rem;
-    font-weight: 500;
-    line-height: 1.15;
+  text-transform: uppercase;
+  font-family: "Geist Mono", "DM Mono", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.15;
 }
 
-/* 逐行 / 逐字上滑的遮罩：外面 overflow:hidden，里面 translateY(100%) */
 .reveal-root .line-mask,
 .reveal-root .word-mask {
-    display: inline-block;
-    overflow: hidden;
-    vertical-align: top;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
 }
 
 .reveal-root h1 .word,
 .reveal-root p .line {
-    position: relative;
-    display: block;
-    transform: translateY(100%);
-    will-change: transform;
+  position: relative;
+  display: block;
+  transform: translateY(100%);
+  will-change: transform;
 }
 
-/* ============================================================
-   五、白底信息版 .preloader-backdrop（最底层）
-   ============================================================ */
 .reveal-root .preloader-backdrop {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100svh;
-    background-color: var(--base-100);
-    color: var(--base-200);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    z-index: 0;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100svh;
+  background-color: var(--base-100);
+  color: var(--base-200);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 0;
 }
 
 .reveal-root .pb-row {
-    width: 100%;
-    padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+  width: 100%;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .reveal-root .pb-row:nth-child(2) {
-    align-items: flex-end;
+  align-items: flex-end;
 }
 
 .reveal-root .pb-row #pb-logo {
-    width: 2.5rem;
-    height: 2.5rem;
-    padding: 0.25rem;
-    border: 1px dashed var(--base-200);
-    object-fit: contain;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.25rem;
+  border: 1px dashed var(--base-200);
+  object-fit: contain;
 }
 
-/* ============================================================
-   六、黑底加载屏 .preloader（最上层，圆环按钮就在这层）
-   ============================================================ */
 .reveal-root .preloader {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100svh;
-    background-color: var(--base-300);
-    color: var(--base-100);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    /* 揭幕时这个多边形收到左边 → 整层左滑撤走 */
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-    will-change: transform, clip-path;
-    z-index: 2;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100svh;
+  background-color: var(--base-300);
+  color: var(--base-100);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  will-change: transform, clip-path;
+  z-index: 2;
 }
 
 .reveal-root .p-row {
-    width: 100%;
-    padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
+  width: 100%;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
 }
 
 .reveal-root .p-row .p-col {
-    display: flex;
-    gap: 6rem;
-    align-items: flex-end;
+  display: flex;
+  gap: 6rem;
+  align-items: flex-end;
 }
 
-/* ---------- 中央按钮：描边圆环 + 标记 + 「进入」 ---------- */
 .reveal-root .preloader-btn-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 20rem;
-    height: 20rem;
-    cursor: pointer;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20rem;
+  height: 20rem;
+  cursor: pointer;
 }
 
 .reveal-root .pbc-svg-strokes,
 .reveal-root #pbc-logo,
 .reveal-root #pbc-label,
 .reveal-root #pbc-outro-label {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .reveal-root #pbc-logo {
-    width: 4rem;
-    height: 4rem;
-    object-fit: contain;
+  width: 4rem;
+  height: 4rem;
+  object-fit: contain;
 }
 
 .reveal-root #pbc-label,
 .reveal-root #pbc-outro-label {
-    font-size: 0.9rem;
-    white-space: nowrap;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .reveal-root .pbc-svg-strokes,
 .reveal-root .pbc-svg-strokes svg {
-    width: 100%;
-    height: 100%;
-    will-change: transform;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
 }
 
-/* ============================================================
-   七、黑底标题屏 .reveal-stage（中间层，揭幕后露出的是它）
-   ------------------------------------------------------------
-   初始 scale(.75)：四边留出白底信息版的"框"，揭幕同时放大到 1。
-   ============================================================ */
-.reveal-root .reveal-stage {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100svh;
-    padding: 1.5rem;
-    background-color: var(--base-300);
-    color: var(--base-100);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    transform: scale(0.75);
-    will-change: transform;
-    z-index: 1;
+.reveal-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100svh;
+  padding: 1.5rem;
+  background-color: var(--base-300);
+  color: var(--base-100);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transform: scale(0.75);
+  will-change: transform;
+  z-index: 1;
 }
 
-/* 标题屏里盖的那片白：左滑撤走 = 给大标题揭幕 */
-.reveal-root .reveal-stage .preloader-revealer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--base-100);
-    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-    will-change: clip-path;
+.reveal-stage .preloader-revealer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--base-100);
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  will-change: clip-path;
 }
 
-.reveal-root .reveal-stage h1 {
-    width: 90%;
-    position: relative;
-    z-index: 1;
+.reveal-stage h1 {
+  width: 90%;
+  position: relative;
+  z-index: 1;
 }
 
-.reveal-root .reveal-stage .reveal-sub {
-    position: relative;
-    z-index: 1;
-    margin-top: 1.25rem;
-    color: var(--base-200);
-    text-transform: none;
-    font-size: 0.85rem;
-    letter-spacing: 0.08em;
+.reveal-stage .reveal-sub {
+  position: relative;
+  z-index: 1;
+  margin-top: 1.25rem;
+  color: var(--base-200);
+  text-transform: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
 }
 
-/* ============================================================
-   八、窄屏（源码断点 1000px）
-   ------------------------------------------------------------
-   白底信息版原本 6 栏，窄屏只留第 3、4、6 栏；
-   圆环按钮缩到 16rem；按钮内两栏间距收紧。
-   ============================================================ */
 @media (max-width: 1000px) {
-    .reveal-root .pb-row .pb-col:nth-child(1),
-    .reveal-root .pb-row .pb-col:nth-child(2),
-    .reveal-root .pb-row .pb-col:nth-child(5) {
-        display: none;
-    }
+  .reveal-root .pb-row .pb-col:nth-child(1),
+  .reveal-root .pb-row .pb-col:nth-child(2),
+  .reveal-root .pb-row .pb-col:nth-child(5) {
+    display: none;
+  }
 
-    .reveal-root .p-row .p-col {
-        gap: 2rem;
-    }
+  .reveal-root .p-row .p-col {
+    gap: 2rem;
+  }
 
-    .reveal-root .preloader-btn-container {
-        width: 16rem;
-        height: 16rem;
-    }
+  .reveal-root .preloader-btn-container {
+    width: 16rem;
+    height: 16rem;
+  }
 }
