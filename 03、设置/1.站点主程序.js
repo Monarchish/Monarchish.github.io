@@ -128,11 +128,19 @@ function paintLevelCells(root) {
 let portalScrollArmed = false;
 
 function siteTop() {
-    if (window.__heroMode) {
-        const shell = document.querySelector('.site-shell');
-        if (shell) return shell.offsetTop;
-    }
-    return 0;
+    /* 「站点内容」的顶端在哪：
+       门面模式（开屏 + 滑动门面在演）时，站点外壳排在页面下方，
+       必须滚到外壳的起点，而不是 0 —— 0 是门面的顶部，滚到 0 等于
+       把人扔回开屏动画。
+       以前这里读 window.__heroMode，那个变量从没被赋值过（index.html
+       里真正设置的是 __animMode），判断永远为假，所以点内容总会被
+       甩回页面最顶端。
+       现在不再依赖任何标志位，直接量 .site-shell 的绝对位置：
+       只要它不在页首（?hero=0 关掉门面时它会贴在页首），就滚到它那里。 */
+    const shell = document.querySelector('.site-shell');
+    if (!shell) return 0;
+    const top = shell.getBoundingClientRect().top + window.pageYOffset;
+    return top > 8 ? top : 0;
 }
 
 /** 滚动到页面绝对位置。门面模式下 Lenis 平滑滚动在跑自己的动画循环，
