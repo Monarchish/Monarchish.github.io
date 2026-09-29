@@ -1,0 +1,213 @@
+/* ============================================================
+   支援未来 · 审美重置（覆盖 2.站点样式.css 的卡片门户部分）
+   目标：去掉 AI 感，改成安静、克制的纸质阅读感。
+   ============================================================ */
+
+/* ===== 首页整体 ===== */
+.app.view-home {
+    background: #faf9f6;
+}
+
+.app.view-home .content-area {
+    background: #faf9f6;
+}
+
+/* ===== 页头 ===== */
+.portal-hero {
+    border-bottom: 1px solid #e6e3dc;
+    padding: 40px 0 22px 0;
+    margin-bottom: 32px;
+}
+
+/* 去掉那条斜的荧光黄装饰 */
+.portal-hero::after {
+    display: none;
+}
+
+.portal-hero-title {
+    font-family: 'Cormorant Garamond', 'Songti SC', serif;
+    font-size: 34px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+}
+
+.portal-hero-meta {
+    font-size: 13px;
+    color: #9a9a94;
+    margin-bottom: 20px;
+}
+
+/* ===== 搜索框 ===== */
+.portal-search input {
+    padding: 9px 0;
+    font-size: 15px;
+    border: none;
+    border-bottom: 1px solid #d8d5cc;
+    border-radius: 0;
+    background: transparent;
+    color: #1a1a1a;
+    transition: border-color 0.2s ease;
+}
+
+.portal-search input:focus {
+    border-bottom-color: #4a9eb8;
+    box-shadow: none;
+}
+
+.portal-search input::placeholder {
+    color: #b8b5ac;
+}
+
+.portal-search-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #b8b5ac;
+}
+
+/* ===== 分组标题 ===== */
+.portal-group {
+    margin-bottom: 36px;
+}
+
+.portal-group-head {
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e6e3dc;
+}
+
+.portal-group-no {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #4a9eb8;
+}
+
+.portal-group-name {
+    font-family: 'Cormorant Garamond', 'Songti SC', serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.portal-group-meta {
+    font-size: 12px;
+    color: #b8b5ac;
+}
+
+.portal-group-line {
+    display: none;
+}
+
+/* ===== 流程列表：去掉卡片，改成列表 ===== */
+.portal-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0;
+    border-top: 1px solid #e6e3dc;
+}
+
+a.portal-card {
+    position: relative;
+    padding: 14px 16px 14px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #e6e3dc;
+    border-left: none;
+    border-radius: 0;
+    box-shadow: none;
+    transition: all 0.18s ease;
+}
+
+a.portal-card:hover {
+    padding-left: 10px;
+    border-left: 2px solid #4a9eb8;
+    background: #f2f1ec;
+    box-shadow: none;
+    transform: none;
+}
+
+.portal-card-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+    transition: color 0.18s ease;
+}
+
+a.portal-card:hover .portal-card-title {
+    color: #4a9eb8;
+}
+
+.portal-card-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #b8b5ac;
+}
+
+/* 去掉右上角那个黄色标签 */
+.portal-card-tag {
+    display: none;
+}
+
+/* ===== 侧边栏、TOC 同步调成暖色系 ===== */
+.sidebar {
+    background: #f5f4ef;
+    border-right: 1px solid #e6e3dc;
+}
+
+.sidebar .sidebar-title,
+.toc-wrapper .toc-title {
+    color: #9a9a94;
+    border-bottom-color: #e6e3dc;
+}
+
+.sidebar .menu-group .group-title {
+    color: #1a1a1a;
+}
+
+.sidebar .menu-group .group-title:hover,
+.sidebar .menu-group .sub-items a:hover,
+.toc-wrapper .toc-list a:hover {
+    background: #ecebe5;
+    color: #4a9eb8;
+}
+
+.sidebar .menu-group .sub-items a.active,
+.toc-wrapper .toc-list a.active-toc {
+    background: #ecebe5;
+    color: #4a9eb8;
+    border-left-color: #4a9eb8;
+}
+
+.toc-wrapper {
+    background: #f5f4ef;
+    border-left: 1px solid #e6e3dc;
+}
+
+/* ===== 正文区也调暖 ===== */
+.app .content-area {
+    background: #faf9f6;
+}
+
+.content-area .page-content p,
+.content-area .page-content li {
+    color: #2a2a26;
+}
+
+.content-area .page-content h2 {
+    border-bottom-color: #e6e3dc;
+}
+
+/* ===== 顶栏保持深色，但换成更暖的黑 ===== */
+.top-nav {
+    background: #17171a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ===== 加载进度条换成你动画里那种蓝 ===== */
+#loading-bar {
+    background: #4a9eb8;
+    box-shadow: 0 0 8px rgba(74, 158, 184, 0.4);
+}
