@@ -59,6 +59,7 @@
     <link rel="stylesheet" href="03、设置/2.站点样式.css" />
     <!-- 审美重置：目录门户的纸质阅读感覆盖层（2026-09-29 手工加入，保留） -->
     <link rel="stylesheet" href="03、设置/12.审美重置.css" />
+    <link rel="stylesheet" href="03、设置/13.章节门厅.css" />
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
     <link rel="stylesheet" href="03、设置/3.Hero门面样式.css" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
@@ -403,9 +404,14 @@
                 skipBtn.addEventListener("click", function () {
                     var shell = document.getElementById("siteShell");
                     if (!shell) return;
+                    /* 先结束门面阶段再滚：否则跳转动画飞到半路会触发
+                       「滚过门面 55% 就 stopSmooth」的逻辑，Lenis 被销毁，
+                       滚动卡死在门面里（跳过按钮此前就是坏的这个原因） */
+                    if (window.HeroFacade && window.HeroFacade.lenis && window.HeroFacade.stopSmooth) {
+                        window.HeroFacade.stopSmooth();
+                    }
                     var y = shell.getBoundingClientRect().top + window.scrollY - 1;
-                    if (window.HeroFacade.lenis) window.HeroFacade.lenis.scrollTo(y, { duration: 1.2 });
-                    else window.scrollTo({ top: y, behavior: "smooth" });
+                    window.scrollTo({ top: y, behavior: "smooth" });
                 });
             }
 
@@ -499,6 +505,7 @@
     <!-- 内容门锁：先于主程序加载，loadContent 会调它的闸门（正文脱敏，目录公开） -->
     <script src="03、设置/5.内容门锁.js"></script>
     <script src="03、设置/1.站点主程序.js"></script>
+    <script src="03、设置/14.章节门厅.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof init === 'function') {
