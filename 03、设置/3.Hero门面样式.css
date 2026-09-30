@@ -63,6 +63,14 @@
 
 .hero-img img {
   will-change: filter;
+  /* 图片没解码完之前不画出来（防止慢网络下出现"半张图"的碎块），
+     JS 在 img.decode() 完成后给 .hero-img 加 .img-ready 才淡入 */
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.hero-img.img-ready img {
+  opacity: 1;
 }
 
 /* Hollow cutout — same layers as source globals.css
