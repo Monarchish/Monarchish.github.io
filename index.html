@@ -72,7 +72,7 @@
     <link rel="stylesheet" href="03、设置/12.审美重置.css?v=3" />
     <link rel="stylesheet" href="03、设置/13.章节门厅.css?v=3" />
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="03、设置/3.Hero门面样式.css?v=3" />
+    <link rel="stylesheet" href="03、设置/3.Hero门面样式.css?v=4" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="03、设置/10.开屏动画样式.css?v=3" />
 
@@ -371,9 +371,37 @@
                     document.fonts ? document.fonts.ready : Promise.resolve()
                 ]).then(function () {
                     startSmooth();
-                    if (window.SupportFutureScroll) window.SupportFutureScroll.init();
-                    if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+                    armHero(0);
                 });
+            }
+
+            /* 门面初始化的"补位"：正常情况下上面 Promise.all 一结束，
+               门面脚本和库都已就位，直接 init。但线上（GitHub Pages 在国内
+               偶发单请求 6 秒超时）此前只要 4.Hero门面.js / ScrollTrigger
+               其中一个没到位，就会静默放弃——蒙版停在默认 scale 1，
+               照片缩成屏幕中央一小块、四周一大圈黑边（用户截图实锤）。
+               现在改成：没就位就每 3 秒补拉一轮，最多 20 次（约 1 分钟），
+               期间 CSS 兜底 scale(2.5) 保证照片始终满屏。
+               注意：如果用户已经滚进门面之后的目录（hero-passed），
+               就不再补初始化，避免晚到的 pin 把页面布局拽回去。 */
+            var heroArmed = false;
+            function armHero(n) {
+                if (heroArmed) return;
+                if (window.SupportFutureScroll && window.gsap && window.ScrollTrigger) {
+                    var hero = document.querySelector(".hero");
+                    var passed = document.documentElement.classList.contains("hero-passed") ||
+                        (hero && hero.getBoundingClientRect().bottom <= window.innerHeight * 0.55);
+                    if (passed) { heroArmed = true; return; }
+                    heroArmed = true;
+                    window.SupportFutureScroll.init();
+                    if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+                    return;
+                }
+                if (n >= 20) return;
+                ensureLib(LIBS.hero);
+                ensureLib(LIBS.gsap);
+                ensureLib(LIBS.scrollTrigger);
+                setTimeout(function () { armHero(n + 1); }, 3000);
             }
 
             /* 「跳过动画 · 进入手册」：原版是滚到 #manual，本站滚到自己的目录外壳 */
