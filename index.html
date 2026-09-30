@@ -326,6 +326,15 @@
 
     </div>
 
+    <!-- 本站自己的两个动画脚本，改成普通静态引入。
+         原因（2026-09-30 实测）：原先它们由下面的脚本动态插入 <head>，
+         线上偶尔会被网络中断（表现为：其它静态 css/js 全部 200，偏偏这两个
+         注入的脚本失败）→ 判成"缺库"→ 整段开屏被跳过。
+         改静态引入后它们和样式表走同一条可靠通道，不再靠运气。
+         这两个文件加载时只定义全局函数，不依赖 gsap，先加载不会出错。 -->
+    <script src="03、设置/11.开屏动画.js"></script>
+    <script src="03、设置/4.Hero门面.js"></script>
+
     <!-- ===================== 库与动画脚本 =====================
          顺序照 handbook 原版：gsap → ScrollTrigger → CustomEase → lenis → 动画脚本。
          这里用顺序注入而不是直接写 <script src>，是为了 ?hero=0 时不白下载这几个库，
@@ -522,12 +531,27 @@
                 });
             }
 
-            /* 按来源顺序试：加载完校验全局变量；缓存里可能是坏内容，带时间戳再要一次 */
+            /* 按来源顺序试：加载完校验全局变量；缓存里可能是坏内容，带时间戳再要一次；
+               全部来源试完还不算完——再给 3 秒"迟到宽限"，因为线上常见的情况是
+               脚本被网络中断一下、过一会儿才真正执行完（实测就是这么丢的开屏）。 */
             function ensureLib(lib) {
                 if (window[lib.global]) return Promise.resolve(true);
                 var i = 0;
+
+                function waitLate() {
+                    return new Promise(function (resolve) {
+                        var waited = 0;
+                        var step = 300;
+                        var timer = setInterval(function () {
+                            if (window[lib.global]) { clearInterval(timer); resolve(true); return; }
+                            waited += step;
+                            if (waited >= 2000) { clearInterval(timer); resolve(false); }
+                        }, step);
+                    });
+                }
+
                 function attempt() {
-                    if (i >= lib.urls.length) return Promise.resolve(false);
+                    if (i >= lib.urls.length) return waitLate();
                     var base = lib.urls[i++];
                     return loadOne(base).then(function () {
                         if (window[lib.global]) return true;
@@ -553,9 +577,8 @@
 
             revealChain.then(function () { boot(); });
 
-            /* 兜底：网太慢也别让开场一直黑着（10 秒还没开演就直接看目录）。
-               比原来放宽 2 秒，是给上面的换源重试留出时间。 */
-            setTimeout(function () { if (!started) boot(); }, 10000);
+            /* 兜底：网太慢也别让开场一直黑着（8 秒还没开演就直接看目录） */
+            setTimeout(function () { if (!started) boot(); }, 8000);
         })();
     </script>
 
