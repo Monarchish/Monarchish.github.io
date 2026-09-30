@@ -538,9 +538,9 @@
                 });
             }
 
-            /* 按来源顺序试：加载完校验全局变量；缓存里可能是坏内容，带时间戳再要一次；
-               全部来源试完还不算完——再给 2 秒"迟到宽限"，因为线上常见的情况是
-               脚本被网络中断一下、过一会儿才真正执行完（实测就是这么丢的开屏）。 */
+            /* 按来源顺序试：加载完校验全局变量；只有"源可达（onload 成功）却没能生效"
+               这种可疑情况（坏缓存 / 代理返回了错误页）才带时间戳重试一次；
+               源直接失败或超时就直接换下一个来源，不在同一个源上白等两轮。 */
             function waitGlobal(name, ms) {
                 return new Promise(function (resolve) {
                     var waited = 0;
@@ -559,8 +559,9 @@
                 function attempt() {
                     if (i >= lib.urls.length) return waitGlobal(lib.global, 2000);
                     var base = lib.urls[i++];
-                    return loadOne(base).then(function () {
+                    return loadOne(base).then(function (ok) {
                         if (window[lib.global]) return true;
+                        if (!ok) return attempt();          /* 源不可达：换下一个，不重试 */
                         var sep = base.indexOf("?") < 0 ? "?" : "&";
                         return loadOne(base + sep + "retry=" + Date.now()).then(function () {
                             return window[lib.global] ? true : attempt();
@@ -570,30 +571,40 @@
                 return attempt();
             }
 
+            /* 六路并行取库：彼此没有依赖——开屏脚本 / 门面脚本加载时只定义全局函数，
+               真正需要 gsap 是在 boot() 里才发生的，所以可以同时取。
+               并行之后最坏耗时从"三个库相加"变成"取其中最长的一个"，
+               慢网络下能早得多开演（之前串行是线上开屏被砍的帮凶之一）。 */
             var gsapReady = ensureLib(LIBS.gsap);
+            var easeReady = ensureLib(LIBS.customEase);
+            var revealScriptReady = ensureLib(LIBS.reveal);
+            var stReady = ensureLib(LIBS.scrollTrigger);
+            var lenisReady = ensureLib(LIBS.lenis);
+            var heroScriptReady = ensureLib(LIBS.hero);
 
-            var revealChain = gsapReady
-                .then(function () { return ensureLib(LIBS.customEase); })
-                .then(function () { return ensureLib(LIBS.reveal); })
-                /* 开屏脚本是"看不到开场动画"的唯一命门：连它也失败时别马上认输，
-                   再守着全局变量等 4 秒——线上实测它有时被中断一下、几秒后才真正执行完 */
-                .then(function (ok) {
-                    if (ok) return true;
+            var revealChain = Promise.all([gsapReady, easeReady, revealScriptReady])
+                .then(function (rs) {
+                    if (rs[2]) return true;
                     /* 连 gsap 都没取到，等开屏脚本也没用，别白等 */
                     if (!window.gsap) return false;
+                    /* 开屏脚本是"看不到开场动画"的唯一命门：它没就位时再守 4 秒，
+                       线上实测它有时被中断一下、几秒后才真正执行完 */
                     return waitGlobal(LIBS.reveal.global, 4000);
                 });
 
-            var heroChain = gsapReady
-                .then(function () { return ensureLib(LIBS.scrollTrigger); })
-                .then(function () { return ensureLib(LIBS.lenis); })
-                .then(function () { return ensureLib(LIBS.hero); });
+            var heroChain = Promise.all([gsapReady, stReady, lenisReady, heroScriptReady]);
 
+            /* 开演：取库链路一结束就开演——取到就播开屏（然后停在开屏等你点「进入」），
+               全都取不到才优雅降级进目录。判定权完全交给链路自己，因为
+               loadOne 本来就带超时，链路一定会结束，不会挂死。 */
             revealChain.then(function () { boot(); });
 
-            /* 兜底：网太慢也别让开场一直黑着（12 秒还没开演就直接看目录）。
-               只有"库全都取不到"这种极端情况才会走到这里，正常网络 1 秒内就开演了。 */
-            setTimeout(function () { if (!started) boot(); }, 12000);
+            /* 极端兜底：万一链路意外挂死，最多 22 秒就放行进站，不让人一直看黑屏。
+               这里刻意给到 22 秒（而不是原来的 12 秒）——原来的值太短，
+               链路稍慢就会抢在库到位前判"缺库"，把正在路上的开屏整段砍掉，
+               而且一旦砍掉就永久作废（started 已置位），后面库到了也不播。
+               线上"开屏时有时无、本地却永远正常"就是这么来的。 */
+            setTimeout(function () { if (!started) boot(); }, 22000);
         })();
     </script>
 
