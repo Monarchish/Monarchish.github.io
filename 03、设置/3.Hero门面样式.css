@@ -95,6 +95,13 @@
   will-change: transform;
   pointer-events: none;
   z-index: 2;
+  /* 兜底初始态 = 放大 2.5 倍（和 4.Hero门面.js 里 gsap.set 的初始值一致）。
+     原因：照片满屏靠的是脚本把这块暗色层放大、窗口洞比屏幕还大。
+     万一门面脚本/库没加载成功（线上偶发），没有这行的话暗色层会停在
+     默认 scale 1——照片缩在屏幕中央一小块、四周一大圈黑边。
+     写在 CSS 里之后：脚本没来照片也是满屏的；脚本来了一开始
+     gsap.set 就会写入同样的值，画面不变，不冲突。 */
+  transform: scale(2.5);
 }
 
 .hero-grid-overlay {
