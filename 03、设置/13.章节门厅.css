@@ -1,0 +1,243 @@
+/* ============================================================
+   03、设置 · 13.章节门厅.css
+   ------------------------------------------------------------
+   这是什么：主页的「章节门厅」——仿 inversa.com 首页的
+   五个章节画板（准入 / 采购 / 销售 / 财务 / 其他）。
+   要点：
+   · 每章占满一整屏（100vh），图片几乎满屏、贴住屏幕外缘
+   · 图片上下留 6vh 呼吸位 → 相邻两图之间有 inversa 式留白
+   · 图片在裁切框里有「微微的滑动」（视差）——JS 在
+     14.章节门厅.js 里驱动，CSS 只负责留出滑动余量(scale 1.15)
+   · 首页隐藏深色导航条（.top-nav），去掉黑边
+   · 门厅横向全出血（突破目录容器 1120px 限宽）
+   它怎么工作：只管长相。跳转、筛选、视差都在 14.章节门厅.js。
+   ============================================================ */
+
+/* ---------- 首页隐藏深色导航条（用户指的「黑边」就是它） ----------
+   注意：.top-nav 在 index.html 里是 .app 的兄弟节点（不是子元素），
+   所以不能写 .app.view-home .top-nav —— 那个选择器永远匹配不上。
+   用 body:has(...) 从外层判断：正文阅读页没有 view-home，导航条照常。 */
+body:has(.app.view-home) .top-nav { display: none; }
+
+/* 门厅横向铺满整个屏幕（突破 content-area 的 1120px 限宽）。
+   注意：不能再把 overflow-x: clip 加在 .app 上——门厅的负边距
+   会把自己撑到 .app 外面，clip 会把撑出去的部分裁掉，
+   表现为屏幕两侧出现白条（这就是上一版「左右显示失败」的根因）。
+   改成把横向裁剪放在根元素上：只裁掉滚动条宽度的溢出，
+   不影响门厅出血。 */
+html { overflow-x: clip; }
+
+.chapter-hall {
+    --hall-paper: #f2efe6;      /* 米色纸底（inversa 同款调） */
+    --hall-ink: #16150f;        /* 近黑墨色 */
+    --hall-muted: #6f6a5c;      /* 弱化文字 */
+    width: auto;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    background: var(--hall-paper);
+    color: var(--hall-ink);
+}
+
+/* ---------- 单个章节画板：占满一整屏 ---------- */
+.hall-panel {
+    position: relative;         /* 章节数字水印的定位锚点 */
+    display: grid;
+    /* 文字半屏、图片半屏：分界线压在屏幕正中心（用户要求以中心对齐） */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 0;                     /* 两半各占 50%，不需要列间距 */
+    padding: 6vh 0;             /* 上下留白：相邻两图之间的呼吸感 */
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* 偶数章节左右对调（inversa 的节奏感）：图到左边、字到右边 */
+.hall-panel:nth-child(even) .hall-figure { order: -1; }
+
+/* ---------- 文字列 ---------- */
+.hall-copy {
+    max-width: 30em;
+    box-sizing: border-box;
+    padding-left: clamp(28px, 9vw, 150px);
+    position: relative;
+    z-index: 1;                 /* 压在数字水印上面 */
+}
+.hall-panel:nth-child(even) .hall-copy {
+    padding-left: 0;
+    padding-right: clamp(28px, 9vw, 150px);
+}
+
+.hall-kicker {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--hall-muted);
+    margin: 0 0 14px 0;
+}
+
+.hall-title {
+    font-size: clamp(34px, 4.6vw, 62px);
+    line-height: 1.05;
+    margin: 0 0 18px 0;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.hall-desc {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--hall-muted);
+    margin: 0 0 30px 0;
+    max-width: 32em;
+}
+
+/* 「进入目录」按钮：inversa 式深色胶囊 */
+.hall-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 26px;
+    background: var(--hall-ink);
+    color: var(--hall-paper);
+    border: 1px solid var(--hall-ink);
+    border-radius: 999px;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.hall-btn:hover {
+    background: transparent;
+    color: var(--hall-ink);
+    transform: translateY(-1px);
+}
+.hall-btn .hall-arrow { transition: transform 0.2s ease; }
+.hall-btn:hover .hall-arrow { transform: translateX(4px); }
+
+/* ---------- 图片列：几乎满屏、贴住屏幕外缘 ----------
+   · align-self: stretch → 高度撑满面板内容区（≈88vh）
+   · 裁切形状放在外框 figure 上，里面的 img 留 15% 放大量，
+     给 JS 视差留出「微微滑动」的余量 */
+.hall-figure {
+    margin: 0;
+    position: relative;
+    height: 88vh;               /* 显式高度：stretch 会被竖版大图的原始高度撑爆 */
+    overflow: hidden;
+    z-index: 1;
+    clip-path: polygon(0 0, 82% 0, 100% 18%, 100% 100%, 12% 100%, 0 86%);
+}
+.hall-panel:nth-child(even) .hall-figure {
+    clip-path: polygon(18% 0, 100% 0, 100% 86%, 88% 100%, 0 100%, 0 18%);
+}
+.hall-figure .hall-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.15);     /* JS 视差在这基础上上下平移 */
+    will-change: transform;
+}
+.hall-figure figcaption {
+    position: absolute;
+    left: 14px;
+    bottom: 12px;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+    z-index: 2;
+}
+
+/* ---------- 章节数字水印 ----------
+   锚定在本章节画板内部（panel 已设 position:relative），
+   各章各占各的角落，不会互相叠。 */
+.hall-no {
+    position: absolute;
+    font-size: clamp(90px, 14vw, 190px);
+    font-weight: 700;
+    line-height: 1;
+    color: rgba(22, 21, 15, 0.05);
+    pointer-events: none;
+    top: 6vh;
+    z-index: 0;
+}
+/* 数字放在文字一侧的角落（另一侧是满屏图片，放那边会被盖住） */
+.hall-panel:nth-child(odd) .hall-no { left: 3vw; }
+.hall-panel:nth-child(even) .hall-no { right: 3vw; }
+
+/* ============================================================
+   主页 / 目录 两种模式的切换
+   ------------------------------------------------------------
+   hall-mode（主页）：只显示五个章节画板，「操作手册目录」
+   及其下面的内容全部隐藏；
+   点「进入目录」后由 JS 摘掉 hall-mode，目录显现并滚过去。
+   ============================================================ */
+.portal.hall-mode .portal-hero,
+.portal.hall-mode .portal-group,
+.portal.hall-mode .portal-empty { display: none; }
+
+/* ---------- 章节筛选：被筛掉的分组整组隐藏 ---------- */
+.portal-group.grp-off { display: none; }
+
+/* ---------- 目录页里的章节筛选胶囊 ---------- */
+.hall-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+.hall-chip {
+    padding: 8px 20px;
+    border-radius: 999px;
+    border: 1px solid rgba(22, 21, 15, 0.28);
+    background: transparent;
+    color: var(--hall-ink, #16150f);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.hall-chip:hover {
+    border-color: var(--hall-ink, #16150f);
+    transform: translateY(-1px);
+}
+.hall-chip.is-active {
+    background: var(--hall-ink, #16150f);
+    color: #f2efe6;
+    border-color: var(--hall-ink, #16150f);
+}
+
+/* ---------- 被按钮跳到时的分组高亮 ---------- */
+@keyframes hallFlash {
+    0% { background: rgba(9, 105, 218, 0.10); }
+    100% { background: transparent; }
+}
+.portal-group.hall-flash .portal-group-head {
+    animation: hallFlash 1.6s ease-out 1;
+    border-radius: 8px;
+}
+
+/* ---------- 小屏适配 ---------- */
+@media (max-width: 860px) {
+    .hall-panel,
+    .hall-panel:nth-child(even) {
+        grid-template-columns: 1fr;
+        min-height: 0;          /* 手机上不强求一屏一章，内容优先 */
+        gap: 22px;
+        padding: 44px 0;
+    }
+    .hall-panel:nth-child(even) .hall-figure { order: 1; }
+    .hall-copy, .hall-panel:nth-child(even) .hall-copy {
+        padding-left: 18px;
+        padding-right: 18px;
+        max-width: none;
+    }
+    .hall-figure { align-self: auto; }
+    .hall-figure .hall-img {
+        height: auto;
+        aspect-ratio: 16 / 10;
+        transform: none;        /* 小屏关视差，JS 里也会同步跳过 */
+    }
+    .hall-no { font-size: 96px; opacity: 0.7; }
+}
