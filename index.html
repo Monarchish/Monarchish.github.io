@@ -326,19 +326,12 @@
 
     </div>
 
-    <!-- 本站自己的两个动画脚本，改成普通静态引入。
-         原因（2026-09-30 实测）：原先它们由下面的脚本动态插入 <head>，
-         线上偶尔会被网络中断（表现为：其它静态 css/js 全部 200，偏偏这两个
-         注入的脚本失败）→ 判成"缺库"→ 整段开屏被跳过。
-         改静态引入后它们和样式表走同一条可靠通道，不再靠运气。
-         这两个文件加载时只定义全局函数，不依赖 gsap，先加载不会出错。 -->
-    <script src="03、设置/11.开屏动画.js"></script>
-    <script src="03、设置/4.Hero门面.js"></script>
-
     <!-- ===================== 库与动画脚本 =====================
          顺序照 handbook 原版：gsap → ScrollTrigger → CustomEase → lenis → 动画脚本。
          这里用顺序注入而不是直接写 <script src>，是为了 ?hero=0 时不白下载这几个库，
-         而且某个库挂掉时不会把整页卡住（少了库就退回"直接看目录"，站点永远能用）。 -->
+         而且某个库挂掉时不会把整页卡住（少了库就退回"直接看目录"，站点永远能用）。
+         注意：本站这两个脚本（11.开屏动画.js / 4.Hero门面.js）也不要改成静态 <script src>，
+         静态标签会阻塞后面的脚本解析，网络一卡整页都要等（试过，会卡 9 秒）。 -->
     <script>
         (function () {
             var html = document.documentElement;
@@ -532,26 +525,25 @@
             }
 
             /* 按来源顺序试：加载完校验全局变量；缓存里可能是坏内容，带时间戳再要一次；
-               全部来源试完还不算完——再给 3 秒"迟到宽限"，因为线上常见的情况是
+               全部来源试完还不算完——再给 2 秒"迟到宽限"，因为线上常见的情况是
                脚本被网络中断一下、过一会儿才真正执行完（实测就是这么丢的开屏）。 */
+            function waitGlobal(name, ms) {
+                return new Promise(function (resolve) {
+                    var waited = 0;
+                    var step = 300;
+                    var timer = setInterval(function () {
+                        if (window[name]) { clearInterval(timer); resolve(true); return; }
+                        waited += step;
+                        if (waited >= ms) { clearInterval(timer); resolve(false); }
+                    }, step);
+                });
+            }
+
             function ensureLib(lib) {
                 if (window[lib.global]) return Promise.resolve(true);
                 var i = 0;
-
-                function waitLate() {
-                    return new Promise(function (resolve) {
-                        var waited = 0;
-                        var step = 300;
-                        var timer = setInterval(function () {
-                            if (window[lib.global]) { clearInterval(timer); resolve(true); return; }
-                            waited += step;
-                            if (waited >= 2000) { clearInterval(timer); resolve(false); }
-                        }, step);
-                    });
-                }
-
                 function attempt() {
-                    if (i >= lib.urls.length) return waitLate();
+                    if (i >= lib.urls.length) return waitGlobal(lib.global, 2000);
                     var base = lib.urls[i++];
                     return loadOne(base).then(function () {
                         if (window[lib.global]) return true;
@@ -568,7 +560,15 @@
 
             var revealChain = gsapReady
                 .then(function () { return ensureLib(LIBS.customEase); })
-                .then(function () { return ensureLib(LIBS.reveal); });
+                .then(function () { return ensureLib(LIBS.reveal); })
+                /* 开屏脚本是"看不到开场动画"的唯一命门：连它也失败时别马上认输，
+                   再守着全局变量等 4 秒——线上实测它有时被中断一下、几秒后才真正执行完 */
+                .then(function (ok) {
+                    if (ok) return true;
+                    /* 连 gsap 都没取到，等开屏脚本也没用，别白等 */
+                    if (!window.gsap) return false;
+                    return waitGlobal(LIBS.reveal.global, 4000);
+                });
 
             var heroChain = gsapReady
                 .then(function () { return ensureLib(LIBS.scrollTrigger); })
@@ -577,8 +577,9 @@
 
             revealChain.then(function () { boot(); });
 
-            /* 兜底：网太慢也别让开场一直黑着（8 秒还没开演就直接看目录） */
-            setTimeout(function () { if (!started) boot(); }, 8000);
+            /* 兜底：网太慢也别让开场一直黑着（12 秒还没开演就直接看目录）。
+               只有"库全都取不到"这种极端情况才会走到这里，正常网络 1 秒内就开演了。 */
+            setTimeout(function () { if (!started) boot(); }, 12000);
         })();
     </script>
 
