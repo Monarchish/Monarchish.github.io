@@ -63,8 +63,10 @@ html { overflow-x: clip; }
     z-index: 1;                 /* 压在数字水印上面 */
 }
 .hall-panel:nth-child(even) .hall-copy {
-    padding-left: 0;
-    padding-right: clamp(28px, 9vw, 150px);
+    /* 字在右半屏：离左边图片退开一段（和奇数章离屏幕边的呼吸位一致），
+       不再贴着图片边缘（用户反馈：02 章字压在图上） */
+    padding-left: clamp(28px, 9vw, 150px);
+    padding-right: clamp(28px, 4vw, 60px);
 }
 
 .hall-kicker {
