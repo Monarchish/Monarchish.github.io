@@ -41,8 +41,8 @@
 
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="preload" href="03、设置/2.站点样式.css" as="style" />
-    <link rel="preload" href="03、设置/1.站点主程序.js" as="script" />
+    <link rel="preload" href="03、设置/2.站点样式.css?v=3" as="style" />
+    <link rel="preload" href="03、设置/1.站点主程序.js?v=3" as="script" />
     <!-- 门面大图提前预载：开屏动画演的同时它就在下载，进门面时不至于画半张图 -->
     <link rel="preload" href="03、设置/6.门面主图A.jpg" as="image" fetchpriority="high" />
 
@@ -58,14 +58,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 
     <!-- 站点自身样式（顶部栏、侧边目录、正文排版、内容门锁）——原样未动 -->
-    <link rel="stylesheet" href="03、设置/2.站点样式.css" />
+    <link rel="stylesheet" href="03、设置/2.站点样式.css?v=3" />
     <!-- 审美重置：目录门户的纸质阅读感覆盖层（2026-09-29 手工加入，保留） -->
-    <link rel="stylesheet" href="03、设置/12.审美重置.css" />
-    <link rel="stylesheet" href="03、设置/13.章节门厅.css" />
+    <link rel="stylesheet" href="03、设置/12.审美重置.css?v=3" />
+    <link rel="stylesheet" href="03、设置/13.章节门厅.css?v=3" />
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="03、设置/3.Hero门面样式.css" />
+    <link rel="stylesheet" href="03、设置/3.Hero门面样式.css?v=3" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
-    <link rel="stylesheet" href="03、设置/10.开屏动画样式.css" />
+    <link rel="stylesheet" href="03、设置/10.开屏动画样式.css?v=3" />
 
     <style>
         /* 掩膜开窗：照 handbook 入口里的内联块，只把图指到 03、设置/ */
@@ -136,80 +136,16 @@
     <!-- ===================== 开场动画（handbook 原版 landing reveal） ===================== -->
     <div class="reveal-root" id="reveal-root" aria-label="开场动画">
         <div class="preloader-backdrop">
-            <div class="pb-row">
-                <div class="pb-col">
-                    <p>SF//支援未来</p>
-                    <p>SF//支援未来</p>
-                    <p>SF//支援未来</p>
-                    <p>SF//支援未来</p>
-                    <p>SF//支援未来</p>
-                </div>
-                <div class="pb-col">
-                    <p>手册 / 攻略本</p>
-                </div>
-                <div class="pb-col">
-                    <p>准入 · 采购 · 销售</p>
-                </div>
-                <div class="pb-col">
-                    <p>目录导航 / TOC</p>
-                </div>
-                <div class="pb-col">
-                    <p>检索 / Search Ready</p>
-                </div>
-                <div class="pb-col">
-                    <img id="pb-logo" src="03、设置/13.开屏标志-深.png" alt="" />
-                    <p>GitHub Pages</p>
-                </div>
-            </div>
-
-            <div class="pb-row">
-                <div class="pb-col">
-                    <p>从 Excel 迁出</p>
-                </div>
-                <div class="pb-col">
-                    <p>// / / ///// / / / ///</p>
-                </div>
-                <div class="pb-col">
-                    <p>WPS 目录对齐</p>
-                </div>
-                <div class="pb-col">
-                    <p>工序装载中</p>
-                    <p>171 篇工序文档</p>
-                </div>
-                <div class="pb-col">
-                    <p>多端可查</p>
-                    <p>手机 · 电脑</p>
-                </div>
-                <div class="pb-col">
-                    <p>SF-01</p>
-                </div>
-            </div>
+            <!-- 四角装饰小字（SF//支援未来、手册/攻略本、SF-01 等）按用户要求移除 -->
         </div>
 
         <div class="preloader">
-            <div class="p-row">
-                <p>初始化手册</p>
-            </div>
-            <div class="p-row">
-                <div class="p-col">
-                    <div class="p-sub-col">
-                        <p>阶段 01</p>
-                        <p>序列启动</p>
-                    </div>
-                    <div class="p-sub-col">
-                        <p>工序扫描</p>
-                        <p>5 大板块</p>
-                    </div>
-                </div>
-                <div class="p-col">
-                    <p>SF-01</p>
-                </div>
-            </div>
+            <!-- 四角的装饰小字（初始化手册 / 阶段01 / SF-01 等）按用户要求移除 -->
 
             <div class="preloader-btn-container" role="button" tabindex="0" aria-label="进入手册">
                 <img id="pbc-logo" src="03、设置/12.开屏标志-白.png" alt="" />
-                <p id="pbc-label">进入</p>
-                <p id="pbc-outro-label">已就绪</p>
+                <p id="pbc-label"><span class="line">进入</span></p>
+                <p id="pbc-outro-label"><span class="line">已就绪</span></p>
 
                 <div class="pbc-svg-strokes">
                     <svg viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -513,8 +449,8 @@
                     ]
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
-                reveal: { global: "SupportFutureReveal", urls: ["03、设置/11.开屏动画.js"] },
-                hero: { global: "SupportFutureScroll", urls: ["03、设置/4.Hero门面.js"] }
+                reveal: { global: "SupportFutureReveal", urls: ["03、设置/11.开屏动画.js?v=3"] },
+                hero: { global: "SupportFutureScroll", urls: ["03、设置/4.Hero门面.js?v=3"] }
             };
 
             /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */
@@ -609,10 +545,10 @@
     </script>
 
     <!-- 内容门锁：先于主程序加载，loadContent 会调它的闸门（正文脱敏，目录公开） -->
-    <script src="03、设置/5.内容门锁.js"></script>
-    <script src="03、设置/1.站点主程序.js"></script>
-    <script src="03、设置/14.章节门厅.js"></script>
-    <script src="03、设置/15.自动目录.js"></script>
+    <script src="03、设置/5.内容门锁.js?v=3"></script>
+    <script src="03、设置/1.站点主程序.js?v=3"></script>
+    <script src="03、设置/14.章节门厅.js?v=3"></script>
+    <script src="03、设置/15.自动目录.js?v=3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof init === 'function') {
