@@ -456,49 +456,106 @@
             /* ============ 取库：两条链同时进行 ============
                开场只要 gsap + CustomEase + 开屏脚本，这链一到位就开演（尽量贴近原版时序）；
                门面要的 ScrollTrigger / lenis / 门面脚本走另一条链同时取，等开场演完正好就位。
-               某一步挂了也不会卡住：跳过它，最后按"缺库"退回直接看目录。 */
-            var GSAP_BASE = "https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/";
+               某一步挂了也不会卡住：跳过它，最后按"缺库"退回直接看目录。
 
-            function loadScript(src) {
+               加固（2026-09-30）：之前只从一个 CDN 取，网络抖一下或代理拦一下就
+               "缺库" → 整段开屏被跳过（现象：本地预览有开屏、线上打开却没有）。
+               现在每个库都备了三个来源，并且加载完会校验全局变量是否真的出现
+               （代理返回一页错误 HTML 时 onload 也会触发，光看 onload 会误判成功）；
+               失败就换下一个源，再失败带时间戳重试一次，全都失败才认输。 */
+            var GSAP_VER = "3.14.2";
+            var LIBS = {
+                gsap: {
+                    global: "gsap",
+                    urls: [
+                        "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/gsap.min.js",
+                        "https://unpkg.com/gsap@" + GSAP_VER + "/dist/gsap.min.js",
+                        "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/gsap.min.js"
+                    ]
+                },
+                customEase: {
+                    global: "CustomEase",
+                    urls: [
+                        "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/CustomEase.min.js",
+                        "https://unpkg.com/gsap@" + GSAP_VER + "/dist/CustomEase.min.js",
+                        "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/CustomEase.min.js"
+                    ]
+                },
+                scrollTrigger: {
+                    global: "ScrollTrigger",
+                    urls: [
+                        "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/ScrollTrigger.min.js",
+                        "https://unpkg.com/gsap@" + GSAP_VER + "/dist/ScrollTrigger.min.js",
+                        "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/ScrollTrigger.min.js"
+                    ]
+                },
+                lenis: {
+                    global: "Lenis",
+                    urls: [
+                        "https://cdn.jsdelivr.net/npm/lenis@1.3.17/dist/lenis.min.js",
+                        "https://unpkg.com/lenis@1.3.17/dist/lenis.min.js"
+                    ]
+                },
+                /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
+                reveal: { global: "SupportFutureReveal", urls: ["03、设置/11.开屏动画.js"] },
+                hero: { global: "SupportFutureScroll", urls: ["03、设置/4.Hero门面.js"] }
+            };
+
+            /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */
+            function loadOne(src, timeoutMs) {
                 return new Promise(function (resolve) {
                     var s = document.createElement("script");
+                    var done = false;
+                    var timer = setTimeout(function () { finish(false); }, timeoutMs || 6000);
+                    function finish(ok) {
+                        if (done) return;
+                        done = true;
+                        clearTimeout(timer);
+                        s.onload = null;
+                        s.onerror = null;
+                        resolve(ok);
+                    }
+                    s.onload = function () { finish(true); };
+                    s.onerror = function () { finish(false); };
                     s.src = src;
-                    s.onload = resolve;
-                    s.onerror = resolve;   /* 失败也往下走，由调用方判断缺了什么 */
                     document.head.appendChild(s);
                 });
             }
 
-            var gsapReady = window.gsap ? Promise.resolve() : loadScript(GSAP_BASE + "gsap.min.js");
+            /* 按来源顺序试：加载完校验全局变量；缓存里可能是坏内容，带时间戳再要一次 */
+            function ensureLib(lib) {
+                if (window[lib.global]) return Promise.resolve(true);
+                var i = 0;
+                function attempt() {
+                    if (i >= lib.urls.length) return Promise.resolve(false);
+                    var base = lib.urls[i++];
+                    return loadOne(base).then(function () {
+                        if (window[lib.global]) return true;
+                        var sep = base.indexOf("?") < 0 ? "?" : "&";
+                        return loadOne(base + sep + "retry=" + Date.now()).then(function () {
+                            return window[lib.global] ? true : attempt();
+                        });
+                    });
+                }
+                return attempt();
+            }
+
+            var gsapReady = ensureLib(LIBS.gsap);
 
             var revealChain = gsapReady
-                .then(function () {
-                    if (window.CustomEase) return null;
-                    return loadScript(GSAP_BASE + "CustomEase.min.js");
-                })
-                .then(function () {
-                    if (window.SupportFutureReveal) return null;
-                    return loadScript("03、设置/11.开屏动画.js");
-                });
+                .then(function () { return ensureLib(LIBS.customEase); })
+                .then(function () { return ensureLib(LIBS.reveal); });
 
             var heroChain = gsapReady
-                .then(function () {
-                    if (window.ScrollTrigger) return null;
-                    return loadScript(GSAP_BASE + "ScrollTrigger.min.js");
-                })
-                .then(function () {
-                    if (window.Lenis) return null;
-                    return loadScript("https://cdn.jsdelivr.net/npm/lenis@1.3.17/dist/lenis.min.js");
-                })
-                .then(function () {
-                    if (window.SupportFutureScroll) return null;
-                    return loadScript("03、设置/4.Hero门面.js");
-                });
+                .then(function () { return ensureLib(LIBS.scrollTrigger); })
+                .then(function () { return ensureLib(LIBS.lenis); })
+                .then(function () { return ensureLib(LIBS.hero); });
 
             revealChain.then(function () { boot(); });
 
-            /* 兜底：网太慢也别让开场一直黑着（8 秒还没开演就直接看目录） */
-            setTimeout(function () { if (!started) boot(); }, 8000);
+            /* 兜底：网太慢也别让开场一直黑着（10 秒还没开演就直接看目录）。
+               比原来放宽 2 秒，是给上面的换源重试留出时间。 */
+            setTimeout(function () { if (!started) boot(); }, 10000);
         })();
     </script>
 
