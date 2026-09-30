@@ -140,6 +140,9 @@
   font-size: 1.4rem;
   letter-spacing: 0.18em;
   white-space: nowrap;
+  /* 遮罩：文字藏在 .line 里，由开场动画从下方滑入。
+     没有这个 overflow，文字会和 S 标志叠在同一位置裸露出来（之前"乱码"的根源） */
+  overflow: hidden;
 }
 
 .reveal-root .pbc-svg-strokes,
