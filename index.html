@@ -43,6 +43,8 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="preload" href="03、设置/2.站点样式.css" as="style" />
     <link rel="preload" href="03、设置/1.站点主程序.js" as="script" />
+    <!-- 门面大图提前预载：开屏动画演的同时它就在下载，进门面时不至于画半张图 -->
+    <link rel="preload" href="03、设置/6.门面主图A.jpg" as="image" fetchpriority="high" />
 
     <!-- 开场与门面用的字体：与 handbook 原版同一份（DM Sans / DM Mono / Noto Sans SC） -->
     <link rel="stylesheet"
@@ -375,6 +377,18 @@
                 html.classList.remove("play-reveal");
             }
 
+            /* 门面大图「就绪才显示」：decode 完成前保持透明（CSS 里有配套规则），
+               避免慢网络下把半下载的图块画进像素窗里 */
+            (function () {
+                var wrap = document.querySelector(".hero-img");
+                var img = wrap && wrap.querySelector("img");
+                if (!wrap || !img) return;
+                var mark = function () { wrap.classList.add("img-ready"); };
+                if (img.complete && img.naturalWidth) mark();
+                else if (img.decode) img.decode().then(mark, mark);
+                else { img.addEventListener("load", mark); img.addEventListener("error", mark); }
+            })();
+
             /* 不演开屏（?reveal=0 / ?hero=0）：站点外壳立刻露脸 */
             if (!animMode || !revealMode) {
                 if (!revealMode) html.classList.add("no-reveal");
@@ -385,13 +399,13 @@
             function startSite() {
                 if (siteStarted || !animMode) return;
                 siteStarted = true;
-                var heroImg = document.querySelector(".hero-img img");
-                var waitImg = heroImg && heroImg.decode ? heroImg.decode().catch(function () { }) : Promise.resolve();
+                /* 注意：这里刻意不等门面大图 decode——线上网络慢时图片会卡很久，
+                   等它 = 滚动动画一直不初始化（用户实测线上"下拉没动画"就是这个原因）。
+                   图片改由 .img-ready 门控显示：加载完自己淡入，不拖累动画。 */
                 Promise.all([
                     /* 门面那两个库（ScrollTrigger / lenis）和门面脚本可能还在路上，
                        一起等，免得交接时门面还没准备好 */
                     heroChain || Promise.resolve(),
-                    waitImg,
                     document.fonts ? document.fonts.ready : Promise.resolve()
                 ]).then(function () {
                     startSmooth();
