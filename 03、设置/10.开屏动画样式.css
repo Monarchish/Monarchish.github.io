@@ -42,7 +42,9 @@
 .reveal-root p .line {
   position: relative;
   display: block;
-  transform: translateY(100%);
+  /* 130% 而不是 100%：中文字形会高出字面框一点点，
+     100% 时"进入/已就绪"的字头会从遮罩里探出来，贴着 S 标志像乱码 */
+  transform: translateY(130%);
   will-change: transform;
 }
 
@@ -135,7 +137,8 @@
 
 .reveal-root #pbc-label,
 .reveal-root #pbc-outro-label {
-  font-size: 0.9rem;
+  font-size: 1.4rem;
+  letter-spacing: 0.18em;
   white-space: nowrap;
 }
 
