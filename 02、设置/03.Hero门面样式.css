@@ -84,12 +84,12 @@
   width: 100%;
   height: 100vh;
   background-color: var(--dark);
-  -webkit-mask-image: linear-gradient(#fff, #fff), url("8.门面蒙版窗.svg?v=3");
+  -webkit-mask-image: linear-gradient(#fff, #fff), url("素材/03.门面蒙版窗.svg?v=3");
   -webkit-mask-position: center, center;
   -webkit-mask-size: auto, 50%;
   -webkit-mask-repeat: no-repeat, no-repeat;
   -webkit-mask-composite: xor;
-  mask-image: linear-gradient(#fff, #fff), url("8.门面蒙版窗.svg?v=3");
+  mask-image: linear-gradient(#fff, #fff), url("素材/03.门面蒙版窗.svg?v=3");
   mask-position: center, center;
   mask-size: auto, 50%;
   mask-repeat: no-repeat, no-repeat;
@@ -97,7 +97,7 @@
   will-change: transform;
   pointer-events: none;
   z-index: 2;
-  /* 兜底初始态 = 放大 2.5 倍（和 4.Hero门面.js 里 gsap.set 的初始值一致）。
+  /* 兜底初始态 = 放大 2.5 倍（和 04.Hero门面.js 里 gsap.set 的初始值一致）。
      原因：照片满屏靠的是脚本把这块暗色层放大、窗口洞比屏幕还大。
      万一门面脚本/库没加载成功（线上偶发），没有这行的话暗色层会停在
      默认 scale 1——照片缩在屏幕中央一小块、四周一大圈黑边。

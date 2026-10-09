@@ -2,22 +2,26 @@
 <!-- ============================================================
      站点入口（index.html 是 GitHub Pages 的首页约定名，不能改）
 
-     仓库结构：
+     仓库结构（2026-10 整理后）：
        01、支援未来/    文档正文（.md），改内容只动这里
-       02、开屏动画/    旧版开场（封存中，没在用）
-       03、设置/        主页的功能代码与样式
+       02、设置/        主页的功能代码与样式
+         01~11.*        脚本与样式，按加载顺序编号
+         素材/          图片（门面主图 / 蒙版窗 / 方格网 / 开屏标志）
+         库/            自托管的第三方库与字体（不吃 CDN）
+       （末尾的 README.md 是"怎么加一篇新工序"的说明；.nojekyll 用来关掉
+         GitHub Pages 自带的 Jekyll 处理，中文目录名才不会被误判。）
 
      这份入口只做四件事：
        ① 搭主页骨架——开场动画层（reveal）、滚动门面（hero）、站点外壳（目录/正文）
-       ② 引 03、设置/ 的样式与脚本
+       ② 引 02、设置/ 的样式与脚本
        ③ 决定这次进站要不要演开场与门面（网址开关见下）
        ④ 把 CDN 库按顺序取回来，再开演
 
      开场与门面两套动画：整段取自《支援未来 handbook》原版（用户已购下该仓库），
      逐字照搬、没有改动画本身；差别只有资源路径（图片/掩膜/标志在本仓库里的位置）。
-       开屏动画   03、设置/10.开屏动画样式.css  +  11.开屏动画.js
-       滚动门面   03、设置/3.Hero门面样式.css   +  4.Hero门面.js
-     门面滚完就是下面的站点外壳——目录（1.站点主程序.js）、正文、内容门锁，
+       开屏动画   02、设置/06.开屏动画样式.css  +  07.开屏动画.js
+       滚动门面   02、设置/03.Hero门面样式.css   +  04.Hero门面.js
+     门面滚完就是下面的站点外壳——目录（01.站点主程序.js）、正文、内容门锁，
      这一整块本来就是本站的，一行没动。
 
      调试开关（加在网址后面）：
@@ -41,10 +45,10 @@
 
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="preload" href="03、设置/2.站点样式.css?v=3" as="style" />
-    <link rel="preload" href="03、设置/1.站点主程序.js?v=3" as="script" />
+    <link rel="preload" href="02、设置/02.站点样式.css?v=3" as="style" />
+    <link rel="preload" href="02、设置/01.站点主程序.js?v=3" as="script" />
     <!-- 门面大图提前预载：开屏动画演的同时它就在下载，进门面时不至于画半张图 -->
-    <link rel="preload" href="03、设置/6.门面主图A.jpg" as="image" fetchpriority="high" />
+    <link rel="preload" href="02、设置/素材/01.门面主图A.jpg" as="image" fetchpriority="high" />
 
     <!-- 开场与门面用的字体：与 handbook 原版同一份（DM Sans / DM Mono / Noto Sans SC）。
          改成"非阻塞"加载（media=print 先不阻塞渲染，加载完再切成 all）：
@@ -58,50 +62,50 @@
     </noscript>
     <!-- 站点正文用的两个字体（自托管，同源直取，不再依赖 CDN） -->
     <link rel="preload" as="font" type="font/woff2" crossorigin
-          href="03、设置/库/space-grotesk-500.woff2" />
+          href="02、设置/库/space-grotesk-500.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin
-          href="03、设置/库/jetbrains-mono-400.woff2" />
+          href="02、设置/库/jetbrains-mono-400.woff2" />
 
     <!-- Markdown 解析库：同样自托管（原先是 cdnjs，被拦就整站内容渲染不出来） -->
-    <script src="03、设置/库/marked.min.js?v=3"
+    <script src="02、设置/库/marked.min.js?v=3"
             onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js';document.head.appendChild(s);"></script>
 
     <!-- 站点自身样式（顶部栏、侧边目录、正文排版、内容门锁）——原样未动 -->
-    <link rel="stylesheet" href="03、设置/2.站点样式.css?v=3" />
+    <link rel="stylesheet" href="02、设置/02.站点样式.css?v=3" />
     <!-- 审美重置：目录门户的纸质阅读感覆盖层（2026-09-29 手工加入，保留） -->
-    <link rel="stylesheet" href="03、设置/12.审美重置.css?v=3" />
-    <link rel="stylesheet" href="03、设置/13.章节门厅.css?v=8" />
+    <link rel="stylesheet" href="02、设置/08.审美重置.css?v=3" />
+    <link rel="stylesheet" href="02、设置/09.章节门厅.css?v=8" />
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="03、设置/3.Hero门面样式.css?v=8" />
+    <link rel="stylesheet" href="02、设置/03.Hero门面样式.css?v=8" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
-    <link rel="stylesheet" href="03、设置/10.开屏动画样式.css?v=5" />
+    <link rel="stylesheet" href="02、设置/06.开屏动画样式.css?v=5" />
 
     <style>
         /* 站点正文字体：自托管（原先只预载了 CDN 文件却从没写 @font-face，
-           等于白下；现在补上声明，并改成从本站 03、设置/库/ 读，同源必达） */
+           等于白下；现在补上声明，并改成从本站 02、设置/库/ 读，同源必达） */
         @font-face {
             font-family: "Space Grotesk";
             font-style: normal;
             font-weight: 500;
             font-display: swap;
-            src: url("03、设置/库/space-grotesk-500.woff2") format("woff2");
+            src: url("02、设置/库/space-grotesk-500.woff2") format("woff2");
         }
         @font-face {
             font-family: "JetBrains Mono";
             font-style: normal;
             font-weight: 400;
             font-display: swap;
-            src: url("03、设置/库/jetbrains-mono-400.woff2") format("woff2");
+            src: url("02、设置/库/jetbrains-mono-400.woff2") format("woff2");
         }
 
-        /* 掩膜开窗：照 handbook 入口里的内联块，只把图指到 03、设置/ */
+        /* 掩膜开窗：照 handbook 入口里的内联块，只把图指到 02、设置/ */
         .hero-mask {
-            -webkit-mask-image: linear-gradient(#fff, #fff), url("03、设置/8.门面蒙版窗.svg?v=3");
+            -webkit-mask-image: linear-gradient(#fff, #fff), url("02、设置/素材/03.门面蒙版窗.svg?v=3");
             -webkit-mask-position: center, center;
             -webkit-mask-size: auto, 50%;
             -webkit-mask-repeat: no-repeat, no-repeat;
             -webkit-mask-composite: xor;
-            mask-image: linear-gradient(#fff, #fff), url("03、设置/8.门面蒙版窗.svg?v=3");
+            mask-image: linear-gradient(#fff, #fff), url("02、设置/素材/03.门面蒙版窗.svg?v=3");
             mask-position: center, center;
             mask-size: auto, 50%;
             mask-repeat: no-repeat, no-repeat;
@@ -169,7 +173,7 @@
             <!-- 四角的装饰小字（初始化手册 / 阶段01 / SF-01 等）按用户要求移除 -->
 
             <div class="preloader-btn-container" role="button" tabindex="0" aria-label="进入手册">
-                <img id="pbc-logo" src="03、设置/12.开屏标志-白.png" alt="" />
+                <img id="pbc-logo" src="02、设置/素材/05.开屏标志白.png" alt="" />
                 <p id="pbc-label"><span class="line">进入</span></p>
                 <p id="pbc-outro-label"><span class="line">已就绪</span></p>
 
@@ -214,11 +218,11 @@
     <!-- 滚动门面（handbook 原版结构）：空心掩膜开窗 + 方格网 + 两个标记 + 4 屏文案 -->
     <section class="hero" aria-label="滚动介绍">
         <div class="hero-img">
-            <img src="03、设置/6.门面主图C.webp" alt="" fetchpriority="high" />
+            <img src="02、设置/素材/02.门面主图C.webp" alt="" fetchpriority="high" />
         </div>
         <div class="hero-mask"></div>
         <div class="hero-grid-overlay">
-            <img src="03、设置/9.门面方格网.svg" alt="" />
+            <img src="02、设置/素材/04.门面方格网.svg" alt="" />
         </div>
 
         <div class="marker marker-1">
@@ -320,7 +324,7 @@
          顺序照 handbook 原版：gsap → ScrollTrigger → CustomEase → lenis → 动画脚本。
          这里用顺序注入而不是直接写 <script src>，是为了 ?hero=0 时不白下载这几个库，
          而且某个库挂掉时不会把整页卡住（少了库就退回"直接看目录"，站点永远能用）。
-         注意：本站这两个脚本（11.开屏动画.js / 4.Hero门面.js）也不要改成静态 <script src>，
+         注意：本站这两个脚本（07.开屏动画.js / 04.Hero门面.js）也不要改成静态 <script src>，
          静态标签会阻塞后面的脚本解析，网络一卡整页都要等（试过，会卡 9 秒）。 -->
     <script>
         (function () {
@@ -353,7 +357,7 @@
                 window.HeroFacade.lenis = null;
             }
 
-            /* 站点主程序（1.站点主程序.js）会认这个对象：有 lenis 就用平滑滚，没有就原生滚 */
+            /* 站点主程序（01.站点主程序.js）会认这个对象：有 lenis 就用平滑滚，没有就原生滚 */
             window.HeroFacade = {
                 lenis: null,
                 startSmooth: startSmooth,
@@ -403,7 +407,7 @@
 
             /* 门面初始化的"补位"：正常情况下上面 Promise.all 一结束，
                门面脚本和库都已就位，直接 init。但线上（GitHub Pages 在国内
-               偶发单请求 6 秒超时）此前只要 4.Hero门面.js / ScrollTrigger
+               偶发单请求 6 秒超时）此前只要 04.Hero门面.js / ScrollTrigger
                其中一个没到位，就会静默放弃——蒙版停在默认 scale 1，
                照片缩成屏幕中央一小块、四周一大圈黑边（用户截图实锤）。
                现在改成：没就位就每 3 秒补拉一轮，最多 20 次（约 1 分钟），
@@ -496,7 +500,7 @@
                （代理返回一页错误 HTML 时 onload 也会触发，光看 onload 会误判成功）；
                失败就换下一个源，再失败带时间戳重试一次，全都失败才认输。
 
-               自托管（2026-09-30）：首个来源改成站点自带的 03、设置/库/ 本地副本。
+               自托管（2026-09-30）：首个来源改成站点自带的 02、设置/库/ 本地副本。
                原因：jsdelivr 等公共 CDN 在部分网络（含国内常见线路）会被污染或拖慢，
                库拿不到 → 判"缺库" → 开屏和滑动动画整段消失。本地副本和网页同源，
                网页能打开它就一定能下载到，公共 CDN 只作为兜底。 */
@@ -505,7 +509,7 @@
                 gsap: {
                     global: "gsap",
                     urls: [
-                        "03、设置/库/gsap.min.js?v=3",
+                        "02、设置/库/gsap.min.js?v=3",
                         "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/gsap.min.js",
                         "https://unpkg.com/gsap@" + GSAP_VER + "/dist/gsap.min.js",
                         "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/gsap.min.js"
@@ -514,7 +518,7 @@
                 customEase: {
                     global: "CustomEase",
                     urls: [
-                        "03、设置/库/CustomEase.min.js?v=3",
+                        "02、设置/库/CustomEase.min.js?v=3",
                         "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/CustomEase.min.js",
                         "https://unpkg.com/gsap@" + GSAP_VER + "/dist/CustomEase.min.js",
                         "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/CustomEase.min.js"
@@ -523,7 +527,7 @@
                 scrollTrigger: {
                     global: "ScrollTrigger",
                     urls: [
-                        "03、设置/库/ScrollTrigger.min.js?v=3",
+                        "02、设置/库/ScrollTrigger.min.js?v=3",
                         "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/ScrollTrigger.min.js",
                         "https://unpkg.com/gsap@" + GSAP_VER + "/dist/ScrollTrigger.min.js",
                         "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/ScrollTrigger.min.js"
@@ -532,7 +536,7 @@
                 lenis: {
                     global: "Lenis",
                     urls: [
-                        "03、设置/库/lenis.min.js?v=3",
+                        "02、设置/库/lenis.min.js?v=3",
                         "https://cdn.jsdelivr.net/npm/lenis@1.3.17/dist/lenis.min.js",
                         "https://unpkg.com/lenis@1.3.17/dist/lenis.min.js"
                     ]
@@ -541,14 +545,14 @@
                 scrambleText: {
                     global: "ScrambleTextPlugin",
                     urls: [
-                        "03、设置/库/ScrambleTextPlugin.min.js?v=1",
+                        "02、设置/库/ScrambleTextPlugin.min.js?v=1",
                         "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/ScrambleTextPlugin.min.js",
                         "https://unpkg.com/gsap@" + GSAP_VER + "/dist/ScrambleTextPlugin.min.js"
                     ]
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
-                reveal: { global: "SupportFutureReveal", urls: ["03、设置/11.开屏动画.js?v=5"] },
-                hero: { global: "SupportFutureScroll", urls: ["03、设置/4.Hero门面.js?v=6"] }
+                reveal: { global: "SupportFutureReveal", urls: ["02、设置/07.开屏动画.js?v=5"] },
+                hero: { global: "SupportFutureScroll", urls: ["02、设置/04.Hero门面.js?v=6"] }
             };
 
             /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */
@@ -648,16 +652,16 @@
     </script>
 
     <!-- 内容门锁：先于主程序加载，loadContent 会调它的闸门（正文脱敏，目录公开） -->
-    <script src="03、设置/5.内容门锁.js?v=3"></script>
-    <script src="03、设置/1.站点主程序.js?v=3"></script>
-    <script src="03、设置/14.章节门厅.js?v=8"></script>
-    <script src="03、设置/15.自动目录.js?v=3"></script>
+    <script src="02、设置/05.内容门锁.js?v=3"></script>
+    <script src="02、设置/01.站点主程序.js?v=3"></script>
+    <script src="02、设置/10.章节门厅.js?v=8"></script>
+    <script src="02、设置/11.自动目录.js?v=3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof init === 'function') {
                 init();
             } else {
-                console.error('1.站点主程序.js 未加载或 init 函数未定义');
+                console.error('01.站点主程序.js 未加载或 init 函数未定义');
             }
         });
     </script>
@@ -710,10 +714,10 @@
         })();
     </script>
 
-    <!-- 旧版开屏动画（02、开屏动画 那一套）仍是封存状态：
-         它的目录和文件原样留着没动，进站的开场已由 03、设置 的
-         10.开屏动画样式.css + 11.开屏动画.js 负责（handbook 原版那套）。
-         想看旧版开屏的完整步骤见 02、开屏动画/使用说明.md。 -->
+    <!-- 开场动画由 02、设置/06.开屏动画样式.css + 07.开屏动画.js 负责
+         （取自《支援未来 handbook》原版那套）。
+         旧版动画包（原 02、开屏动画/）已在 2026-10 整理时移除，
+         备份见桌面「支援未来-仓库冗余备份-20261009.zip」，需要时可解压回仓库。 -->
 
 </body>
 </html>
