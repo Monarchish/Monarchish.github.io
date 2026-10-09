@@ -35,7 +35,8 @@
       const mask = document.createElement("span");
       mask.className = "word-mask";
       // Keep CJK stagger readable: small gap between word masks
-      if (!raw.includes(" ")) mask.style.marginRight = "0.12em";
+      // 最后一个词不加边距：否则标题整体会被这 0.12em 顶得偏离正中
+      if (!raw.includes(" ") && i < parts.length - 1) mask.style.marginRight = "0.12em";
       const word = document.createElement("span");
       word.className = "word";
       word.textContent = part;
@@ -237,15 +238,6 @@
               stagger: 0.06,
             },
             "-=1.75"
-          )
-          .to(
-            root.querySelectorAll(".reveal-stage .reveal-sub .line"),
-            {
-              y: "0%",
-              duration: 0.7,
-              ease: "power3.out",
-            },
-            "-=0.85"
           );
       };
 
