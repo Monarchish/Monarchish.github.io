@@ -243,3 +243,517 @@ html { overflow-x: clip; }
     }
     .hall-no { font-size: 96px; opacity: 0.7; }
 }
+
+/* ============================================================
+   v4 · 抽屉版新增
+   ------------------------------------------------------------
+   点「进入目录」→ 在本章画板下方原地向下展开该章的流程列表。
+   手风琴：一次只开一章。展开动画用 grid-template-rows 0fr→1fr，
+   高度自适应，不依赖 JS 算像素。
+   ============================================================ */
+
+/* ---------- 抽屉壳：横跨两列，收起时高度为 0 ---------- */
+.hall-drawer-wrap {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hall-panel.is-open .hall-drawer-wrap { grid-template-rows: 1fr; }
+.hall-drawer { min-height: 0; overflow: hidden; }
+
+/* ---------- 抽屉内里 ---------- */
+.hall-drawer-inner {
+    border-top: 1px solid rgba(22, 21, 15, 0.12);
+    background: #ede9db;               /* 比画板纸色深半档，标出"层"的存在 */
+    padding: 30px clamp(28px, 9vw, 150px) 44px;
+}
+.hall-drawer-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+.hall-drawer-kicker {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--hall-muted);
+}
+.hall-drawer-hint {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: rgba(111, 106, 92, 0.75);
+}
+
+/* ---------- 流程行：编辑部式清单 ---------- */
+.hall-row {
+    display: grid;
+    grid-template-columns: 3.2em minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 18px;
+    padding: 21px 10px;
+    border-top: 1px solid rgba(22, 21, 15, 0.09);
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.25s ease;
+}
+.hall-drawer-list .hall-row:last-child {
+    border-bottom: 1px solid rgba(22, 21, 15, 0.09);
+}
+.hall-row:hover { background: rgba(22, 21, 15, 0.04); }
+
+/* 错峰入场：开抽屉的瞬间，行自下而上依次浮入 */
+.hall-row {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+        opacity 0.5s ease calc(0.12s + var(--i, 0) * 0.07s),
+        transform 0.62s cubic-bezier(0.22, 1, 0.36, 1) calc(0.12s + var(--i, 0) * 0.07s),
+        background 0.25s ease;
+}
+.hall-drawer.is-in .hall-row { opacity: 1; transform: translateY(0); }
+
+.hall-row-no {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--hall-muted);
+    transition: color 0.25s ease;
+}
+.hall-row:hover .hall-row-no { color: #b5502f; }   /* 赭石点缀，与图片土色呼应 */
+
+.hall-row-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hall-row-title {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hall-row:hover .hall-row-title { transform: translateX(6px); }
+.hall-row-meta {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--hall-muted);
+}
+.hall-row.is-missing .hall-row-title { color: rgba(22, 21, 15, 0.45); }
+
+.hall-row-arrow {
+    font-size: 18px;
+    color: var(--hall-ink);
+    opacity: 0.35;
+    transform: translateX(-8px);
+    transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hall-row:hover .hall-row-arrow { opacity: 1; transform: translateX(0); }
+
+.hall-drawer-empty {
+    margin: 0;
+    padding: 26px 0 8px;
+    font-size: 14px;
+    color: var(--hall-muted);
+}
+
+/* ---------- 「进入目录」按钮的展开态：实心 → 描边，箭头转向上 ---------- */
+.hall-panel.is-open .hall-btn {
+    background: transparent;
+    color: var(--hall-ink);
+}
+.hall-panel.is-open .hall-btn .hall-arrow {
+    transform: rotate(-90deg);
+}
+
+/* ---------- 尊重系统的"减少动态效果" ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .hall-drawer-wrap { transition: none; }
+    .hall-row { opacity: 1; transform: none; transition: none; }
+}
+
+/* ---------- 小屏适配 ---------- */
+@media (max-width: 860px) {
+    .hall-drawer-inner { padding: 22px 18px 30px; }
+    .hall-drawer-hint { display: none; }
+    .hall-row { grid-template-columns: 2.4em minmax(0, 1fr) auto; gap: 12px; padding: 17px 4px; }
+    .hall-row-title { font-size: 16px; }
+    .hall-row-arrow { font-size: 15px; }
+}
+
+/* ============================================================
+   v5 · 大气版（获奖站标准重做抽屉）
+   ------------------------------------------------------------
+   · 巨型描边章节号水印压在抽屉右上（纯装饰，逐字浮入）
+   · 头部：Chapter 编号宽字距 + 右侧流程数计
+   · 行：编号 / 大标题(clamp 24~36px) / 步骤数 / 圆环箭头
+   · 悬停：墨色幕布自下而上灌满整行，文字反白——获奖站
+     最经典的「整行反转」微交互；离开时幕布退回
+   · 发丝线逐行从左向右绘出（错峰，与行入场同步）
+   ============================================================ */
+
+/* ---------- 抽屉内里：更高更透气 ---------- */
+.hall-drawer-inner {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(44px, 6vw, 72px) clamp(24px, 7vw, 120px) clamp(52px, 7vw, 88px);
+}
+
+/* ---------- 巨型描边章节号水印 ---------- */
+.hall-drawer-ghost {
+    position: absolute;
+    top: -0.16em;
+    right: -0.03em;
+    z-index: 0;
+    font-family: "Space Grotesk", "JetBrains Mono", sans-serif;
+    font-size: clamp(150px, 21vw, 300px);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(22, 21, 15, 0.11);
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+    transform: translateY(36px);
+    transition:
+        opacity 1s ease 0.18s,
+        transform 1s cubic-bezier(0.22, 1, 0.36, 1) 0.18s;
+}
+.hall-drawer.is-in .hall-drawer-ghost { opacity: 1; transform: translateY(0); }
+
+/* ---------- 头部：编辑部式题眉 ---------- */
+.hall-drawer-head {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: clamp(18px, 3vw, 34px);
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+        opacity 0.6s ease 0.08s,
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
+}
+.hall-drawer.is-in .hall-drawer-head { opacity: 1; transform: translateY(0); }
+.hall-drawer-kicker {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--hall-muted);
+}
+.hall-drawer-count {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--hall-muted);
+    white-space: nowrap;
+}
+.hall-drawer-count b {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--hall-ink);
+    margin-right: 4px;
+}
+.hall-drawer-count i { font-style: normal; margin-left: 10px; opacity: 0.75; }
+
+/* ---------- 行：四栏编辑部清单 ---------- */
+.hall-row {
+    border-top: 0;                                  /* v4 的静态发丝线退役，改用逐行绘出 */
+    grid-template-columns: 4.2em minmax(0, 1fr) auto auto;
+    gap: clamp(14px, 2.4vw, 34px);
+    padding: clamp(24px, 3.2vw, 38px) clamp(10px, 1.8vw, 24px);
+    isolation: isolate;                             /* 幕布 ::before 关在本行内 */
+    transition:
+        opacity 0.5s ease calc(0.14s + var(--i, 0) * 0.06s),
+        transform 0.62s cubic-bezier(0.22, 1, 0.36, 1) calc(0.14s + var(--i, 0) * 0.06s);
+}
+.hall-row:hover { background: transparent; }        /* v4 的浅底 hover 退役 */
+
+/* 发丝线：逐行从左向右绘出 */
+.hall-row::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 1px;
+    background: rgba(22, 21, 15, 0.18);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) calc(0.16s + var(--i, 0) * 0.05s);
+}
+.hall-drawer.is-in .hall-row::after { transform: scaleX(1); }
+.hall-drawer-list { border-bottom: 1px solid rgba(22, 21, 15, 0.18); }
+.hall-drawer-list .hall-row:last-child { border-bottom: 0; }
+
+/* 墨色幕布：hover 自下而上灌满，离开时退回 */
+.hall-row::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--hall-ink);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.hall-row:hover::before,
+.hall-row:focus-visible::before { transform: scaleY(1); }
+
+/* 行内元素全部抬到幕布之上，并参与反白 */
+.hall-row > * {
+    position: relative;
+    z-index: 1;
+    transition: color 0.32s ease;
+}
+.hall-row:hover .hall-row-no,
+.hall-row:hover .hall-row-title { color: #f2efe6; }
+.hall-row:hover .hall-row-meta { color: rgba(242, 239, 230, 0.6); }
+
+/* 编号 */
+.hall-row-no {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    font-variant-numeric: tabular-nums;
+    color: var(--hall-muted);
+    transition: color 0.32s ease;
+}
+.hall-row:hover .hall-row-no { color: #e09a66; }    /* 幕布上的暖赭石 */
+
+/* 标题：放大到撑得起整屏清单 */
+.hall-row-body { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.hall-row-title {
+    font-size: clamp(24px, 2.8vw, 36px);
+    font-weight: 600;
+    line-height: 1.18;
+    letter-spacing: 0.015em;
+    transition:
+        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        color 0.32s ease;
+}
+.hall-row:hover .hall-row-title { transform: translateX(16px); }
+
+/* 步骤数：右移到独立栏 */
+.hall-row-meta {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--hall-muted);
+    white-space: nowrap;
+}
+
+/* 圆环箭头：hover 时环体反白、箭头斜向右上 */
+.hall-row-arrow {
+    width: clamp(40px, 3.6vw, 52px);
+    height: clamp(40px, 3.6vw, 52px);
+    border-radius: 50%;
+    border: 1px solid rgba(22, 21, 15, 0.4);
+    display: grid;
+    place-items: center;
+    font-size: 17px;
+    color: var(--hall-ink);
+    transition:
+        background 0.32s ease,
+        border-color 0.32s ease,
+        color 0.32s ease,
+        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hall-row-arrow i { font-style: normal; transition: transform 0.35s ease; }
+.hall-row:hover .hall-row-arrow {
+    background: #f2efe6;
+    border-color: #f2efe6;
+    color: var(--hall-ink);
+    transform: rotate(-45deg);
+}
+.hall-row:hover .hall-row-arrow i { transform: none; }
+
+/* 待补充行：不参与幕布反转，保持安静 */
+.hall-row.is-missing { cursor: default; }
+.hall-row.is-missing::before { display: none; }
+.hall-row.is-missing .hall-row-title { color: rgba(22, 21, 15, 0.4); }
+.hall-row.is-missing:hover .hall-row-title { color: rgba(22, 21, 15, 0.4); transform: none; }
+.hall-row.is-missing .hall-row-arrow { opacity: 0.3; }
+
+/* ---------- 减少动态效果 ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .hall-drawer-ghost,
+    .hall-drawer-head { opacity: 1; transform: none; transition: none; }
+    .hall-row::after { transform: scaleX(1); transition: none; }
+    .hall-row::before { transition: none; }
+}
+
+/* ---------- 小屏适配 ---------- */
+@media (max-width: 860px) {
+    .hall-drawer-ghost { font-size: 132px; top: -0.1em; -webkit-text-stroke: 1px rgba(22, 21, 15, 0.1); }
+    .hall-drawer-head { flex-direction: column; gap: 6px; }
+    .hall-row { grid-template-columns: 2.8em minmax(0, 1fr) auto; gap: 12px; }
+    .hall-row-meta { display: none; }               /* 窄屏把步骤数让给标题呼吸感 */
+    .hall-row-title { font-size: 20px; }
+    .hall-row-arrow { width: 36px; height: 36px; font-size: 14px; }
+}
+
+/* ============================================================
+   v6 · 行级正文展开
+   ------------------------------------------------------------
+   点行 → SOP 正文在行下方就地展开（再点收起，一次只开一行）。
+   正文容器挂 .page-content .markdown-body，直接继承站点
+   正文排版（表格/步骤抽屉/要点上色），观感与正文页一致。
+   ============================================================ */
+
+/* ---------- 展开壳：0fr→1fr 高度自适应动画 ---------- */
+.hall-detail-wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hall-detail-wrap.is-open { grid-template-rows: 1fr; }
+.hall-detail { min-height: 0; overflow: hidden; }
+
+/* ---------- 正文容器：赭石左线 + 微沉底色，起点与标题列对齐 ---------- */
+.hall-detail-body {
+    margin: 2px 0 14px;
+    padding: 28px 28px 36px calc(4.2em + clamp(14px, 2.4vw, 34px));
+    background: rgba(22, 21, 15, 0.035);
+    border-left: 2px solid #b5502f;
+}
+.hall-detail-body h2 { margin-top: 1.7em; }
+.hall-detail-body h2:first-child { margin-top: 0; }
+.hall-detail-body table { background: #f6f3ea; }
+
+/* ---------- 加载/缺失态 ---------- */
+.hall-detail-loading,
+.hall-detail-missing {
+    margin: 0;
+    padding: 22px 0 30px calc(4.2em + clamp(14px, 2.4vw, 34px));
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    color: var(--hall-muted);
+}
+.hall-detail-loading { animation: hall-pulse 1.2s ease-in-out infinite; }
+@keyframes hall-pulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
+}
+
+/* ---------- 行展开态：箭头转下、圆环实心墨色 ---------- */
+.hall-row.is-open { background: rgba(22, 21, 15, 0.035); }
+.hall-row.is-open::after { background: rgba(22, 21, 15, 0.3); }
+.hall-row.is-open .hall-row-arrow {
+    background: var(--hall-ink);
+    border-color: var(--hall-ink);
+    color: #f2efe6;
+    transform: rotate(90deg);
+}
+
+/* ---------- 降级与适配 ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .hall-detail-wrap { transition: none; }
+    .hall-detail-loading { animation: none; }
+}
+@media (max-width: 860px) {
+    .hall-detail-body { padding: 18px 16px 24px 16px; }
+    .hall-detail-loading,
+    .hall-detail-missing { padding-left: 16px; }
+}
+
+/* ============================================================
+   v8 · 行内正文的「本页指引」左栏
+   ------------------------------------------------------------
+   聚合页展开时：右边正文（一次显示一个工序），左边分支清单。
+   点左栏项 → 右边切到对应工序——和正文页「本页指引」同款交互。
+   ============================================================ */
+
+.hall-detail-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+}
+.hall-detail-layout .hall-detail-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 2px 0 14px;
+}
+
+/* ---------- 左栏：纸面小卡片，吸附在视口侧（v8：右栏挪到左边） ---------- */
+.hall-detail-toc {
+    flex: 0 0 210px;
+    order: -1;
+    position: sticky;
+    top: 24px;
+    background: #f6f3ea;
+    border: 1px solid rgba(22, 21, 15, 0.14);
+    padding: 16px 0 8px;
+}
+.hall-toc-title {
+    margin: 0;
+    padding: 0 18px 12px;
+    border-bottom: 1px solid rgba(22, 21, 15, 0.1);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--hall-muted);
+}
+.hall-toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+}
+.hall-toc-list a {
+    display: block;
+    padding: 9px 16px 9px 18px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--hall-muted);
+    text-decoration: none;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: color 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+}
+.hall-toc-list a:hover {
+    color: var(--hall-ink);
+    background: rgba(22, 21, 15, 0.04);
+}
+.hall-toc-list a.is-active {
+    color: var(--hall-ink);
+    font-weight: 600;
+    border-left-color: #b5502f;
+    background: rgba(22, 21, 15, 0.05);
+}
+
+/* ---------- 小屏：左栏变顶部横向胶囊 ---------- */
+@media (max-width: 860px) {
+    .hall-detail-layout { flex-direction: column; gap: 12px; }
+    .hall-detail-toc {
+        position: static;
+        order: -1;
+        flex: none;
+        width: 100%;
+        padding: 10px 0 6px;
+    }
+    .hall-toc-title { padding: 0 14px 8px; }
+    .hall-toc-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px 12px 4px;
+    }
+    .hall-toc-list a {
+        padding: 6px 12px;
+        border: 1px solid rgba(22, 21, 15, 0.22);
+        border-radius: 999px;
+        border-left-width: 1px;
+        font-size: 12px;
+    }
+    .hall-toc-list a.is-active {
+        background: var(--hall-ink);
+        border-color: var(--hall-ink);
+        color: #f2efe6;
+    }
+}
