@@ -181,20 +181,15 @@
 }
 
 .reveal-stage h1 {
-  width: 90%;
+  /* 收缩贴字（width:auto）：h1 盒子正好包住「支援未来」，
+     由 .reveal-stage 的 flex 精确居中——90% 宽在收缩容器里会把
+     标题顶偏（实测偏左近 30px） */
+  width: auto;
   position: relative;
   z-index: 1;
 }
 
-.reveal-stage .reveal-sub {
-  position: relative;
-  z-index: 1;
-  margin-top: 1.25rem;
-  color: var(--base-200);
-  text-transform: none;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-}
+/* 副标题小字按用户要求移除（2026-10-09）：现在开屏只剩居中的「支援未来」 */
 
 @media (max-width: 1000px) {
   .reveal-root .pb-row .pb-col:nth-child(1),
