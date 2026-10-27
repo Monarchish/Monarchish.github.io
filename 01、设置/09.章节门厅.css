@@ -52,7 +52,10 @@ html { overflow-x: clip; }
 }
 
 /* 偶数章节左右对调（inversa 的节奏感）：图到左边、字到右边 */
-.hall-panel:nth-child(even) .hall-figure { order: -1; }
+.hall-panel:nth-child(even) .hall-figure {
+    /* 图片就位前的垫色：米色纸调，杜绝黑块 */
+    background: linear-gradient(165deg, #e9e4d4, #d9d3c0 55%, #c8c1ac);
+    overflow: hidden; order: -1; }
 
 /* ---------- 文字列 ---------- */
 .hall-copy {
@@ -130,6 +133,13 @@ html { overflow-x: clip; }
 }
 .hall-panel:nth-child(even) .hall-figure {
     clip-path: polygon(18% 0, 100% 0, 100% 86%, 88% 100%, 0 100%, 0 18%);
+}
+.hall-figure .hall-img {
+    opacity: 0;                 /* 就位才淡入，避免半张图闪现 */
+    transition: opacity 0.6s ease;
+}
+.hall-figure .hall-img.is-loaded {
+    opacity: 1;
 }
 .hall-figure .hall-img {
     display: block;

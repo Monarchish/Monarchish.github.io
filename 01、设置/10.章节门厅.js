@@ -435,6 +435,21 @@
             img.alt = c.zh + "章节配图";
             img.src = HALL_IMG;
             img.style.objectPosition = CROPS[idx % CROPS.length];
+            /* 就位才淡入；失败自动重试 2 次，仍失败就整块隐掉（露出纸色垫底） */
+            var hallMark = function () { img.classList.add("is-loaded"); };
+            var hallRetry = 0;
+            img.addEventListener("load", hallMark);
+            img.addEventListener("error", function () {
+                hallRetry++;
+                if (hallRetry <= 2) {
+                    setTimeout(function () {
+                        img.src = HALL_IMG.split("?_r=")[0] + "?_r=" + hallRetry;
+                    }, 1500 * hallRetry);
+                } else {
+                    img.style.visibility = "hidden";
+                }
+            });
+            if (img.complete && img.naturalWidth) hallMark();
             fig.appendChild(img);
             var cap = document.createElement("figcaption");
             cap.textContent = c.en;

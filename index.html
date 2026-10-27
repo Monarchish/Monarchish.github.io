@@ -377,12 +377,47 @@
                避免慢网络下把半下载的图块画进像素窗里 */
             (function () {
                 var wrap = document.querySelector(".hero-img");
-                var img = wrap && wrap.querySelector("img");
-                if (!wrap || !img) return;
-                var mark = function () { wrap.classList.add("img-ready"); };
-                if (img.complete && img.naturalWidth) mark();
-                else if (img.decode) img.decode().then(mark, mark);
-                else { img.addEventListener("load", mark); img.addEventListener("error", mark); }
+                if (!wrap) return;
+                var imgs = wrap.querySelectorAll("img");
+                if (!imgs.length) { wrap.classList.add("img-ready"); return; }
+                /* 图没就位前，掩膜窗里露的是 .hero-img 的纸色占位底（CSS）；
+                   单张失败自动换缓存戳重试 2 次，全失败才挂 img-failed（占位底常驻） */
+                var left = imgs.length, dead = 0, marked = false;
+                var settle = function () {
+                    if (marked) return;
+                    marked = true;
+                    wrap.classList.add("img-ready");
+                    if (dead >= imgs.length) wrap.classList.add("img-failed");
+                };
+                Array.prototype.forEach.call(imgs, function (img) {
+                    var settled = false;
+                    var ok = function () {
+                        if (settled) return; settled = true;
+                        if (--left === 0) settle();
+                    };
+                    var bad = function () {
+                        if (settled) return;
+                        img.__retry = (img.__retry || 0) + 1;
+                        if (img.__retry <= 2) {
+                            settled = false;
+                            setTimeout(function () {
+                                img.src = img.src.split("?_r=")[0] + "?_r=" + img.__retry;
+                            }, 1500 * img.__retry);
+                        } else {
+                            settled = true;
+                            img.style.display = "none";
+                            dead++;
+                            if (--left === 0) settle();
+                        }
+                    };
+                    if (img.complete && img.naturalWidth) { ok(); return; }
+                    if (img.complete && !img.naturalWidth) { bad(); return; }
+                    img.addEventListener("load", ok);
+                    img.addEventListener("error", bad);
+                    if (img.decode) img.decode().then(function () {
+                        if (img.naturalWidth) ok(); else bad();
+                    }, bad);
+                });
             })();
 
             /* 不演开屏（?reveal=0 / ?hero=0）：站点外壳立刻露脸 */
@@ -652,6 +687,16 @@
                而且一旦砍掉就永久作废（started 已置位），后面库到了也不播。
                线上"开屏时有时无、本地却永远正常"就是这么来的。 */
             setTimeout(function () { if (!started) boot(); }, 22000);
+
+            /* 内容区兜底：12 秒后还停在「加载中...」就换成可操作的提示，
+               不让正文区永远卡在一句话上（慢网络 / 脚本没到位时保底） */
+            setTimeout(function () {
+                var l = document.getElementById("contentLoader");
+                if (l && /加载中/.test(l.textContent || "")) {
+                    l.innerHTML = '<div class="loader-slow">内容加载较慢，可能是网络不稳。' +
+                        '<a href="javascript:location.reload()">刷新重试</a></div>';
+                }
+            }, 12000);
         })();
     </script>
 
