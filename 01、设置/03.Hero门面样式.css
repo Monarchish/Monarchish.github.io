@@ -45,7 +45,7 @@
   bottom: 0;
   width: 100%;
   height: 200vh;
-  --overlay-opacity: 0.35;
+  --overlay-opacity: 0.16;
   will-change: transform;
 }
 
@@ -429,3 +429,16 @@
 html.play-reveal, html.play-reveal body { background-color: #141414; }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+
+/* ===== 第二张门面背景图（结尾前全程匀速渐变） ===== */
+.hero-img img.img2 {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* 与第一张同款 180° 翻转 */
+  transform: scale(-1);
+  will-change: opacity, filter;
+}

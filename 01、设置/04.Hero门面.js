@@ -11,6 +11,7 @@
     const heroContent = document.querySelector(".hero-content");
     const heroImg = document.querySelector(".hero-img");
     const heroImgElement = document.querySelector(".hero-img img");
+    const heroImgSecond = document.querySelector(".hero-img img.img2");
     const heroMask = document.querySelector(".hero-mask");
     const heroGridOverlay = document.querySelector(".hero-grid-overlay");
     const marker1 = document.querySelector(".marker-1");
@@ -167,25 +168,25 @@
         if (self.progress <= 0.4) {
           heroMaskScale = FULL;
           heroImgSaturation = 1;
-          heroImgOverlayOpacity = 0.35;
+          heroImgOverlayOpacity = 0.16;
         } else if (self.progress <= 0.5) {
           const phaseProgress = ease((self.progress - 0.4) / 0.1);
           heroMaskScale = FULL - phaseProgress * (FULL - 1);
           heroImgSaturation = 1 - phaseProgress;
-          heroImgOverlayOpacity = 0.35 + phaseProgress * 0.35;
+          heroImgOverlayOpacity = 0.16 + phaseProgress * 0.26;
         } else if (self.progress <= 0.75) {
           heroMaskScale = 1;
           heroImgSaturation = 0;
-          heroImgOverlayOpacity = 0.7;
+          heroImgOverlayOpacity = 0.42;
         } else if (self.progress <= 0.85) {
           const phaseProgress = ease((self.progress - 0.75) / 0.1);
           heroMaskScale = 1 + phaseProgress * (FULL - 1);
           heroImgSaturation = phaseProgress;
-          heroImgOverlayOpacity = 0.7 - phaseProgress * 0.35;
+          heroImgOverlayOpacity = 0.42 - phaseProgress * 0.26;
         } else {
           heroMaskScale = FULL;
           heroImgSaturation = 1;
-          heroImgOverlayOpacity = 0.35;
+          heroImgOverlayOpacity = 0.16;
         }
 
         gsap.set(heroMask, {
@@ -197,6 +198,16 @@
         gsap.set(heroImg, {
           "--overlay-opacity": heroImgOverlayOpacity,
         });
+
+        /* 门面双图：从滚动一开始就匀速把第二张背景图渐变进来，p=1 换完；
+           与饱和度节奏同步 */
+        if (heroImgSecond) {
+          const swapProgress = Math.min(1, Math.max(0, self.progress));
+          gsap.set(heroImgSecond, {
+            opacity: swapProgress,
+            filter: `saturate(${heroImgSaturation})`,
+          });
+        }
 
         let heroGridOpacity;
         if (self.progress <= 0.475) {
