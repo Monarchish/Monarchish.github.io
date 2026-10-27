@@ -48,7 +48,6 @@
     <link rel="preload" href="01、设置/02.站点样式.css?v=3" as="style" />
     <link rel="preload" href="01、设置/01.站点主程序.js?v=3" as="script" />
     <!-- 门面大图提前预载：开屏动画演的同时它就在下载，进门面时不至于画半张图 -->
-    <link rel="preload" href="01、设置/素材/01.门面主图A.jpg" as="image" fetchpriority="high" />
 
     <!-- 开场与门面用的字体：与 handbook 原版同一份（DM Sans / DM Mono / Noto Sans SC）。
          改成"非阻塞"加载（media=print 先不阻塞渲染，加载完再切成 all）：
@@ -72,9 +71,6 @@
 
     <!-- 站点自身样式（顶部栏、侧边目录、正文排版、内容门锁）——原样未动 -->
     <link rel="stylesheet" href="01、设置/02.站点样式.css?v=3" />
-    <!-- 审美重置：目录门户的纸质阅读感覆盖层（2026-09-29 手工加入，保留） -->
-    <link rel="stylesheet" href="01、设置/08.审美重置.css?v=3" />
-    <link rel="stylesheet" href="01、设置/09.章节门厅.css?v=8" />
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
     <link rel="stylesheet" href="01、设置/03.Hero门面样式.css?v=8" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
@@ -703,7 +699,6 @@
     <!-- 内容门锁：先于主程序加载，loadContent 会调它的闸门（正文脱敏，目录公开） -->
     <script src="01、设置/05.内容门锁.js?v=3"></script>
     <script src="01、设置/01.站点主程序.js?v=3"></script>
-    <script src="01、设置/10.章节门厅.js?v=8"></script>
     <script src="01、设置/11.自动目录.js?v=3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {

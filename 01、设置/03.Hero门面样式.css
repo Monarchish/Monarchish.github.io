@@ -41,9 +41,8 @@
 }
 
 .hero-img {
-  /* 图片就位前的占位底：米色纸调（同章节门厅 --hall-paper 系），
-     避免慢网络下掩膜窗里是一片死黑 */
-  background: linear-gradient(165deg, #e9e4d4, #d9d3c0 55%, #c8c1ac);
+  /* 图片就位前的占位底：深色（同门面底色系），避免慢网络下闪现突兀色块 */
+  background: linear-gradient(165deg, #16150f, #100f0a 55%, #0b0b0a);
 
   position: absolute;
   bottom: 0;
@@ -449,5 +448,5 @@ html.lenis, html.lenis body { height: auto; }
 
 /* 门面图全数加载失败：占位底常驻，标题照常可读（img 已被 JS 隐藏） */
 .hero-img.img-failed {
-  background: linear-gradient(165deg, #e9e4d4, #d9d3c0 55%, #c8c1ac);
+  background: linear-gradient(165deg, #16150f, #100f0a 55%, #0b0b0a);
 }
