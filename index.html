@@ -48,11 +48,11 @@
           href="0、公共库/字体/jetbrains-mono-400.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=11" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=12" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
-    <link rel="stylesheet" href="3、站点简介/样式.css?v=11" />
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=12" />
     <link rel="stylesheet" href="4、页脚/样式.css?v=4" />
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
     <script src="3、站点简介/动画.js?v=3" defer></script>
@@ -352,16 +352,22 @@
             var tickerFn = null;
 
             function startSmooth() {
-                if (lenis || !window.Lenis || !window.gsap || !window.ScrollTrigger) return;
-                /* lerp 0.08：阻尼惯性滑行（0.05-0.1 区间，越小越"黄油"）；
+                if (lenis) return true;
+                /* 只要 Lenis 和 gsap 到位就起，不依赖 ScrollTrigger：
+                   ScrollTrigger 万一迟到，绑定回调里再补，别让滚动一直裸奔 */
+                if (!window.Lenis || !window.gsap) return false;
+                /* lerp 0.06：阻尼惯性滑行（0.05-0.1 区间，越小越"黄油"）；
                    autoRaf 必须显式关掉——滚动帧统一由下面 gsap.ticker 驱动，
                    Lenis 自带的 rAF 若也开着会和 ticker 双驱动，滚动会发贼/生硬 */
-                lenis = new window.Lenis({ lerp: 0.08, autoRaf: false });
-                lenis.on("scroll", window.ScrollTrigger.update);
+                lenis = new window.Lenis({ lerp: 0.06, autoRaf: false });
+                lenis.on("scroll", function () {
+                    if (window.ScrollTrigger) window.ScrollTrigger.update();
+                });
                 tickerFn = function (time) { lenis.raf(time * 1000); };
                 window.gsap.ticker.add(tickerFn);
                 window.gsap.ticker.lagSmoothing(0);
                 window.HeroFacade.lenis = lenis;
+                return true;
             }
 
             function stopSmooth() {
@@ -465,6 +471,16 @@
                 /* 注意：这里刻意不等门面大图 decode——线上网络慢时图片会卡很久，
                    等它 = 滚动动画一直不初始化（用户实测线上"下拉没动画"就是这个原因）。
                    图片改由 .img-ready 门控显示：加载完自己淡入，不拖累动画。 */
+                /* 平滑滚动也不等字体：之前 startSmooth 挂在 fonts.ready 后面，
+                   开屏收尾到字体下完这段（几百毫秒到数秒）滚动是原生的——
+                   手感就是"一开始就硬"。现在先抢着接上，库没到就短轮询。 */
+                var smoothTries = 0;
+                if (!startSmooth()) {
+                    var smoothTimer = setInterval(function () {
+                        smoothTries++;
+                        if (startSmooth() || smoothTries > 150) clearInterval(smoothTimer);
+                    }, 80);
+                }
                 Promise.all([
                     /* 门面那两个库（ScrollTrigger / lenis）和门面脚本可能还在路上，
                        一起等，免得交接时门面还没准备好 */

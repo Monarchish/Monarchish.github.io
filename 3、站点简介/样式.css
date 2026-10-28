@@ -45,11 +45,20 @@
    只用 translateX 把图片往各自的外侧边缘再推一点（奇右偶左） */
 .value-block:nth-child(odd) .value-asset {
     margin-right: calc(-1 * max(1.6rem, 4vw));
-    transform: translateX(30px);
+    transform: translateX(60px);
 }
 .value-block:nth-child(2n) .value-asset {
     width: clamp(480px, 46vw, 900px);
-    transform: translateX(-30px);
+    transform: translateX(-60px);
+}
+/* 图一（第一块）单独按导师站实测值定位：
+   inversa.com 的 .asset 右缘正好落在 .container 右缘上，
+   container 左右各留 1.6rem(16px) —— 也就是图片右缘距屏幕右边缘 16px，
+   既不裁切也不贴死。这里用 margin-right 抵消 .home-intro 的横向 padding 后再减到 16px，
+   所以任何视口下右边距都恒等于 16px。宽高、比例、蒙版都不动。 */
+.value-block:nth-child(1) .value-asset {
+    margin-right: calc(16px - max(1.6rem, 4vw));
+    transform: translateX(0);
 }
 /* 内容列：inversa 38rem 宽；奇数块靠左缩进 13.2rem，偶数块靠右缩进 20rem */
 .value-content { width: min(380px, 90vw); flex-shrink: 0; }
