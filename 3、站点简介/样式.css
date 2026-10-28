@@ -40,15 +40,16 @@
 }
 .value-block + .value-block { margin: clamp(72px, 7.2vw, 115px) 0; }
 .value-block:nth-child(2n) { flex-direction: row-reverse; }
-/* 图片留白呼吸感（2d1b28d4ad 二改）：不再贴边——图片和文字整体向内推，
-   远离屏幕边缘和中心线。只动 margin/width，蒙版切角与结构一字未动。
-   （旧版是负 margin 抵消 .home-intro 的横向 padding 铺到屏幕边） */
-.value-block:nth-child(odd) .value-asset { margin-right: max(5vw, 80px); margin-left: 5vw; }
-.value-block:nth-child(2n) .value-asset { margin-left: max(5vw, 80px); margin-right: 5vw; }
+/* 图片巨大化 + 屏幕边缘呼吸位（6f3034a882 二改）：
+   留白来自"没贴死屏幕边"，不是把图片缩小——容器 50vw 巨大尺寸，
+   只在外侧留 4vw 呼吸位（加上 .home-intro 的 4vw padding 共约 8vw），
+   离文字一侧的空间由 flex 自动分配。只动 margin/width，切角蒙版不动 */
+.value-block:nth-child(odd) .value-asset { margin-right: max(4vw, 64px); }
+.value-block:nth-child(2n) .value-asset { margin-left: max(4vw, 64px); }
 /* 内容列：inversa 38rem 宽；奇数块靠左缩进 13.2rem，偶数块靠右缩进 20rem */
 .value-content { width: min(380px, 90vw); flex-shrink: 0; }
 .value-block:nth-child(odd) .value-content { margin-left: clamp(24px, 8.2vw, 132px); }
-.value-block:nth-child(2n) .value-content { margin-right: clamp(24px, 12.5vw, 200px); }
+.value-block:nth-child(2n) .value-content { margin-right: clamp(24px, 8.2vw, 132px); }
 /* 标题：JetBrains Mono 2rem 大写 + 闪烁小方块（inversa 的 is-blinker） */
 .value-title {
     font-family: "JetBrains Mono", "DM Mono", "Noto Sans SC", monospace;
@@ -77,11 +78,11 @@
     font-weight: 400;
     line-height: 1.25;
 }
-/* 图片框：比例 776/830，mask 用三个边框 SVG（用户桌面原件）
-   宽度从 52vw 收到 36vw：给两侧留白腾位置（切角蒙版/比例不动） */
+/* 图片框：比例 776/830（竖长方形），mask 用三个边框 SVG（用户桌面原件）
+   宽度恢复巨大 50vw（1600 屏下 800px、高约 857px≈95vh），撑出视觉冲击力 */
 .value-asset {
     aspect-ratio: 776 / 830;
-    width: clamp(420px, 36vw, 680px);
+    width: clamp(560px, 50vw, 1000px);
     background: #13140e;
     -webkit-mask-position: center center;
     -webkit-mask-repeat: no-repeat;
