@@ -41,23 +41,19 @@
 /* 块间距：基准 7.2vw 再加 10vh 空白（用户要求上下明显拉开） */
 .value-block + .value-block { margin: calc(clamp(72px, 7.2vw, 115px) + 10vh) 0; }
 .value-block:nth-child(2n) { flex-direction: row-reverse; }
-/* 位置只微调不变形：宽高、比例、蒙版全部不动，
-   只用 translateX 把图片往各自的外侧边缘再推一点（奇右偶左） */
+/* ===== 左右位置：导师站 inversa.com 像素级实测复刻（窗口宽 1600） =====
+   原站实测绝对值：右图（第1/3块）图右缘 = 1569；左图（第2块）图左缘 = 16。
+   换算到「距屏幕边缘」：右侧 16px（浏览器带 15px 滚动条时）、左侧 16px。
+   实现：用 margin 先抵消 .home-intro 自带的 max(1.6rem,4vw) 横向 padding，
+   再留回 16px —— 于是任何视口下图片到屏幕边缘恒为 16px，既不裁切也不贴死。
+   注意：这一条只动 margin / transform，宽高、比例、蒙版、切角一律未碰。 */
 .value-block:nth-child(odd) .value-asset {
-    margin-right: calc(-1 * max(1.6rem, 4vw));
-    transform: translateX(60px);
+    margin-right: calc(16px - max(1.6rem, 4vw));
+    transform: translateX(0);
 }
 .value-block:nth-child(2n) .value-asset {
     width: clamp(480px, 46vw, 900px);
-    transform: translateX(-60px);
-}
-/* 图一（第一块）单独按导师站实测值定位：
-   inversa.com 的 .asset 右缘正好落在 .container 右缘上，
-   container 左右各留 1.6rem(16px) —— 也就是图片右缘距屏幕右边缘 16px，
-   既不裁切也不贴死。这里用 margin-right 抵消 .home-intro 的横向 padding 后再减到 16px，
-   所以任何视口下右边距都恒等于 16px。宽高、比例、蒙版都不动。 */
-.value-block:nth-child(1) .value-asset {
-    margin-right: calc(16px - max(1.6rem, 4vw));
+    margin-left: calc(16px - max(1.6rem, 4vw));
     transform: translateX(0);
 }
 /* 内容列：inversa 38rem 宽；奇数块靠左缩进 13.2rem，偶数块靠右缩进 20rem */
