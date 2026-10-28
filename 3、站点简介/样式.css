@@ -1,64 +1,114 @@
-/* ===== 3、站点简介：门面之后的几段总介绍 =====
-   版式照导师站 inversa.com 的米色段：奶油底、大字宣言、编号分块。
-   想改文案去 index.html 搜 home-intro；晃动幅度搜 动画.js 的 data-sway。 */
+/* ===== 3、站点简介：照导师站 inversa.com 的 values 段 1:1 落地 =====
+   颜色/字号/间距全部取自 inversa 官方 CSS（--color-creme #f4f3e8、--color-black #13140e）。
+   inversa 的 1rem = 视口 1600px 时的 10px，本文件按此换算成 px/clamp。
+   文案在 index.html 搜 intro-statement / value-title。 */
 .site-shell {
     background: #141414;
     color: #e8e6e1;
     font-family: "DM Sans", "Noto Sans SC", sans-serif;
 }
 .home-intro {
-    background: #f0efe5;
-    color: #1b1a15;
-    padding: 16vh 8vw 18vh;
+    background: #f4f3e8;
+    color: #13140e;
+    padding: 0 max(1.6rem, 4vw) 0;
 }
 .intro-kicker {
     font-family: "JetBrains Mono", "DM Mono", monospace;
     font-size: 12px;
     letter-spacing: 0.35em;
-    color: #8b887c;
-    margin: 0 0 5vh;
-}
-/* 大字宣言（inversa 的 "Inversa is where ..." 那块） */
-.intro-statement {
-    font-size: clamp(34px, 5.2vw, 64px);
-    font-weight: 600;
-    line-height: 1.28;
-    letter-spacing: 0.01em;
-    margin: 0 0 12vh;
-    max-width: 18em;
-    will-change: transform;
-}
-.intro-blocks { display: grid; gap: 10vh; }
-.intro-block {
-    display: grid;
-    grid-template-columns: 88px 1fr;
-    gap: 28px;
-    align-items: start;
-    will-change: transform;
-}
-.intro-num {
-    font-family: "JetBrains Mono", "DM Mono", monospace;
-    font-size: 14px;
-    color: #97948a;
-    padding-top: 14px;
-}
-.intro-block h3 {
-    font-size: clamp(24px, 2.6vw, 34px);
-    font-weight: 600;
-    margin: 0 0 16px;
-}
-.intro-block p {
+    color: #595a51;
     margin: 0;
-    font-size: 16px;
-    line-height: 2.1;
-    color: #55534a;
-    max-width: 34em;
+    padding-top: 72px;
 }
-/* 分块交错：偶数块往右挪一点，版式不呆板 */
-.intro-block:nth-child(even) { justify-items: end; text-align: left; }
-.intro-block:nth-child(even) .intro-body { max-width: 620px; }
-@media (max-width: 640px) {
-    .intro-block { grid-template-columns: 1fr; gap: 10px; }
-    .intro-block:nth-child(even) { justify-items: start; }
-    .home-intro { padding: 12vh 7vw 12vh; }
+/* 大字宣言：inversa .heading —— 6.4rem/400/-0.03em/1.06，宽 67rem，上 14.5rem 下 7.5rem */
+.intro-statement {
+    font-size: clamp(34px, 4vw, 64px);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.06;
+    margin: 0 auto 0 0;
+    max-width: 670px;
+    padding: clamp(90px, 9vw, 145px) 0 clamp(44px, 4.7vw, 75px);
+    will-change: transform;
+}
+/* 三块：桌面横排（偶数块反向），块间距 11.5rem=115px */
+.intro-values { overflow: hidden; }
+.value-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.value-block + .value-block { margin: clamp(72px, 7.2vw, 115px) 0; }
+.value-block:nth-child(2n) { flex-direction: row-reverse; }
+/* 内容列：inversa 38rem 宽；奇数块靠左缩进 13.2rem，偶数块靠右缩进 20rem */
+.value-content { width: min(380px, 90vw); flex-shrink: 0; }
+.value-block:nth-child(odd) .value-content { margin-left: clamp(24px, 8.2vw, 132px); }
+.value-block:nth-child(2n) .value-content { margin-right: clamp(24px, 12.5vw, 200px); }
+/* 标题：JetBrains Mono 2rem 大写 + 闪烁小方块（inversa 的 is-blinker） */
+.value-title {
+    font-family: "JetBrains Mono", "DM Mono", "Noto Sans SC", monospace;
+    font-size: clamp(16px, 1.25vw, 20px);
+    font-weight: 300;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    margin: 0 0 clamp(20px, 2.25vw, 36px);
+}
+.value-title::before {
+    content: "";
+    background: currentcolor;
+    display: block;
+    width: 4px;
+    height: 4px;
+    margin-right: 12px;
+    animation: value-flash 1s step-start 0s infinite;
+}
+@keyframes value-flash { 50% { opacity: 0; } }
+/* 正文：2rem/1.25 */
+.value-text {
+    margin: 0;
+    font-size: clamp(15px, 1.25vw, 20px);
+    font-weight: 400;
+    line-height: 1.25;
+}
+/* 图片框：比例 776/830，桌面 77.6rem×83rem，mask 用三个边框 SVG（用户桌面原件） */
+.value-asset {
+    aspect-ratio: 776 / 830;
+    width: min(776px, 48vw);
+    background: #13140e;
+    -webkit-mask-position: center center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-position: center center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    position: relative;
+    overflow: hidden;
+}
+.value-block:nth-child(1) .value-asset { -webkit-mask-image: url("素材/边框1.svg"); mask-image: url("素材/边框1.svg"); }
+.value-block:nth-child(2) .value-asset { -webkit-mask-image: url("素材/边框2.svg"); mask-image: url("素材/边框2.svg"); }
+.value-block:nth-child(3) .value-asset { -webkit-mask-image: url("素材/边框3.svg"); mask-image: url("素材/边框3.svg"); }
+/* 图比框高 16%，滚动时 JS 上下平移（视差），遮罩负责裁形 */
+.value-asset img {
+    position: absolute;
+    left: 0;
+    top: -8%;
+    width: 100%;
+    height: 116%;
+    object-fit: cover;
+    will-change: transform;
+}
+/* 移动端：竖排、图在上（inversa 移动端 .content order 2 同款） */
+@media (max-width: 900px) {
+    .value-block, .value-block:nth-child(2n) { flex-direction: column; }
+    .value-asset { width: min(351px, 88vw); margin: 0 auto 40px; order: 1; }
+    .value-content, .value-block:nth-child(odd) .value-content, .value-block:nth-child(2n) .value-content {
+        order: 2;
+        width: 100%;
+        margin: 0;
+    }
+    .value-text { font-size: 16px; line-height: 1.62; }
+    .value-block + .value-block { margin-top: 65px; }
+    .intro-statement { padding-top: 90px; }
 }
