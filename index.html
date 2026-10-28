@@ -196,8 +196,15 @@
     <!-- 滚动门面（handbook 原版结构）：空心掩膜开窗 + 方格网 + 两个标记 + 4 屏文案 -->
     <section class="hero" aria-label="滚动介绍">
         <div class="hero-img">
-            <img src="2、滚动门面/主图-开场.webp" alt="" fetchpriority="high" />
-            <img class="img2" src="2、滚动门面/主图-结尾.webp" alt="" style="opacity:0" />
+            <!-- AVIF 优先（约 1/4 体积，慢网络首屏快得多），webp 兜底 -->
+            <picture>
+                <source srcset="2、滚动门面/主图-开场.avif" type="image/avif" />
+                <img src="2、滚动门面/主图-开场.webp" alt="" fetchpriority="high" />
+            </picture>
+            <picture>
+                <source srcset="2、滚动门面/主图-结尾.avif" type="image/avif" />
+                <img class="img2" src="2、滚动门面/主图-结尾.webp" alt="" style="opacity:0" />
+            </picture>
         </div>
         <div class="hero-mask"></div>
         <div class="hero-grid-overlay">
