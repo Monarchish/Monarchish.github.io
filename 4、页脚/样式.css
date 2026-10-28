@@ -1,17 +1,17 @@
-/* ===== 4、页脚：大字居中 + inversa 同款滚动滑出 =====
+/* ===== 4、页脚：大字居中（黑底占 2/3 屏） + 底部横条浮上（inversa 底栏同款） =====
    想改文案去 index.html 搜 site-footer；想改样式就在这个文件。
-   动画（字标随滚动升起、角标滑出）在 动画.js —— JS 不跑时页面照常完整显示。 */
+   动画（字标随滚动升起、横条从下浮上来）在 动画.js —— JS 不跑时页面照常完整显示。 */
 .site-footer {
     position: relative;
     background: #191913;
     color: #f0efe5;
-    min-height: 100vh;
+    box-sizing: border-box; /* 否则 min-height 66vh 加上 padding 会变成 82vh */
+    min-height: 66vh; /* 用户拍板：黑色背景只要 2/3 屏 */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    padding: 10vh max(1.6rem, 4vw);
+    padding: 8vh max(1.6rem, 4vw);
 }
 .footer-statement {
     font-size: clamp(44px, 7.5vw, 112px);
@@ -22,20 +22,32 @@
     margin: 0;
     will-change: transform;
 }
-/* 角标：右下角（inversa 底栏同位置），由动画.js 控制滑出 */
-.footer-note {
+/* 底部横条：overflow hidden 的外框 + 内条，动画.js 控制内条从下浮上来
+   （inversa 的 ©2025 INVERSA / Privacy Policy 底栏同款） */
+.footer-bar-wrap {
     position: absolute;
-    right: max(1.6rem, 4vw);
-    bottom: 5.5vh;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    background: #191913;
+    border-top: 1px solid rgba(240, 239, 229, 0.1);
+}
+.footer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px max(1.6rem, 4vw);
+    will-change: transform;
+}
+.footer-bar-cell {
     margin: 0;
-    text-align: right;
     font-size: 13px;
-    line-height: 1.9;
+    line-height: 1.6;
     color: #b9b6a8;
 }
-.footer-note .footer-meta {
-    display: block;
-    margin-top: 12px;
+.footer-bar-right {
     font-family: "JetBrains Mono", "DM Mono", monospace;
     font-size: 11px;
     letter-spacing: 0.22em;
@@ -43,5 +55,5 @@
 }
 @media (max-width: 640px) {
     .footer-statement { font-size: clamp(34px, 10vw, 52px); }
-    .footer-note { position: static; margin-top: 8vh; text-align: center; }
+    .footer-bar { flex-direction: column; align-items: flex-start; gap: 4px; }
 }

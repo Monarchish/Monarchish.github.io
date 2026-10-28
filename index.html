@@ -48,15 +48,15 @@
           href="0、公共库/字体/jetbrains-mono-400.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=9" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=10" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
-    <link rel="stylesheet" href="3、站点简介/样式.css?v=5" />
-    <link rel="stylesheet" href="4、页脚/样式.css?v=3" />
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=6" />
+    <link rel="stylesheet" href="4、页脚/样式.css?v=4" />
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
-    <script src="3、站点简介/动画.js?v=2" defer></script>
-    <script src="4、页脚/动画.js?v=1" defer></script>
+    <script src="3、站点简介/动画.js?v=3" defer></script>
+    <script src="4、页脚/动画.js?v=2" defer></script>
 
     <style>
         /* 站点正文字体：自托管（原先只预载了 CDN 文件却从没写 @font-face，
@@ -323,10 +323,12 @@
 
         <footer class="site-footer">
             <h2 class="footer-statement">把要用的东西，<br>放在一屏之内。</h2>
-            <p class="footer-note">
-                支援未来 · SUPPORT FUTURE
-                <span class="footer-meta">© 2026 · 设计中</span>
-            </p>
+            <div class="footer-bar-wrap">
+                <div class="footer-bar">
+                    <p class="footer-bar-cell">© 2026 支援未来</p>
+                    <p class="footer-bar-cell footer-bar-right">SUPPORT FUTURE · 设计中</p>
+                </div>
+            </div>
         </footer>
 
     </div>

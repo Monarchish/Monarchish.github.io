@@ -429,6 +429,9 @@
 .hero h1, .hero h2, .hero p,
 .reveal-root h1, .reveal-root p { margin: 0; padding: 0; }
 .hero *, .reveal-root * { box-sizing: border-box; }
+/* 原版 styles.css 的 reset 里有 body 归零，本站此前漏了：
+   默认 8px margin 让门面整体内缩、简介图片贴不到屏幕边 */
+body { margin: 0; }
 html.play-reveal, html.play-reveal body { background-color: #141414; }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }

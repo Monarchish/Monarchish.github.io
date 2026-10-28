@@ -39,7 +39,7 @@
             /* 元素中心相对视口中心的进度：-1（刚从下面进来）… 1（快滚出去了） */
             var p = ((box.top + box.height / 2) - vh / 2) / (vh / 2 + box.height / 2);
             p = Math.max(-1, Math.min(1, p));
-            /* 图片高度是框的 116%，上下各留 8% 余量，正反走得满不满都不穿帮 */
+            /* 图片高度是框的 118%（上下各 1% 缓冲防露黑边），正反走得满不满都不穿帮 */
             assets[i].style.transform = "translate3d(0," + (p * 8).toFixed(2) + "%,0)";
         }
     }
