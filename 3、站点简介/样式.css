@@ -40,13 +40,16 @@
 }
 .value-block + .value-block { margin: clamp(72px, 7.2vw, 115px) 0; }
 .value-block:nth-child(2n) { flex-direction: row-reverse; }
-/* 图片顶天立地贴屏幕边（56815ee8cc 二改，用户拍板）：
-   原站大图几乎贴死屏幕边缘（留白极小甚至切出屏幕），呼吸感来自
-   中间的大空间——图片外侧 margin 用负值抵消 .home-intro 的横向
-   padding，真正贴到边缘；文字一侧的留白由 flex 自动撑开。
-   只动 margin/width，切角蒙版与结构不动 */
+/* 图片巨图贴屏幕边 + 错落节奏（用户拍板终局）：
+   奇数块 55vw 贴死外侧边缘，偶数块收窄到 46vw 并内收 2vw（一进一出的错落）；
+   .home-intro 自带 4vw 横向 padding，负 margin 抵消它才真正贴边，
+   偶数块 = 抵消 4vw 再内收 2vw。文字一侧的留白由 flex 自动撑开。
+   只动 margin/width，边框模板与 HTML 结构不动 */
 .value-block:nth-child(odd) .value-asset { margin-right: calc(-1 * max(1.6rem, 4vw)); }
-.value-block:nth-child(2n) .value-asset { margin-left: calc(-1 * max(1.6rem, 4vw)); }
+.value-block:nth-child(2n) .value-asset {
+    width: clamp(480px, 46vw, 900px);
+    margin-left: calc(max(2vw, 32px) - max(1.6rem, 4vw));
+}
 /* 内容列：inversa 38rem 宽；奇数块靠左缩进 13.2rem，偶数块靠右缩进 20rem */
 .value-content { width: min(380px, 90vw); flex-shrink: 0; }
 .value-block:nth-child(odd) .value-content { margin-left: clamp(24px, 8.2vw, 132px); }
@@ -79,11 +82,14 @@
     font-weight: 400;
     line-height: 1.25;
 }
-/* 图片框：比例 776/830（竖长方形），mask 用三个边框 SVG（用户桌面原件）
-   宽度 55vw（1600 屏下 880px、高约 941px，顶天立地超出视口高的巨图） */
+/* 图片框：比例 776/830（与边框模板 viewBox 一致，mask contain 才能满铺），mask 用三个边框 SVG
+   奇数块 55vw（1600 屏下 880×941 顶天立地），偶数块 46vw（736×787）错落。
+   border-radius 与 mask 同时生效：mask 负责异形斜切，border-radius 负责外圈圆角
+   （模板自带圆角只有 10/776≈1.3%，55vw 巨图下不足 12px，肉眼近乎直角，故外圈再加 24px） */
 .value-asset {
     aspect-ratio: 776 / 830;
     width: clamp(560px, 55vw, 1100px);
+    border-radius: 24px;
     background: #13140e;
     -webkit-mask-position: center center;
     -webkit-mask-repeat: no-repeat;
@@ -109,9 +115,10 @@
     object-fit: cover;
     will-change: transform;
 }
-/* 中等宽度屏（笔记本竖窗/小桌面）：55vw 大图会压到文字，收一档仍然贴边 */
+/* 中等宽度屏（笔记本竖窗/小桌面）：大图会压到文字，整体收一档（错落比例不变） */
 @media (min-width: 901px) and (max-width: 1200px) {
     .value-asset { width: clamp(420px, 44vw, 700px); }
+    .value-block:nth-child(2n) .value-asset { width: clamp(360px, 37vw, 580px); }
 }
 /* 移动端：竖排、图在上（inversa 移动端 .content order 2 同款） */
 @media (max-width: 900px) {
