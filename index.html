@@ -48,11 +48,11 @@
           href="0、公共库/字体/jetbrains-mono-400.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=10" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=11" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
-    <link rel="stylesheet" href="3、站点简介/样式.css?v=6" />
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=7" />
     <link rel="stylesheet" href="4、页脚/样式.css?v=4" />
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
     <script src="3、站点简介/动画.js?v=3" defer></script>
@@ -353,7 +353,10 @@
 
             function startSmooth() {
                 if (lenis || !window.Lenis || !window.gsap || !window.ScrollTrigger) return;
-                lenis = new window.Lenis({ lerp: 0.08 });
+                /* lerp 0.08：阻尼惯性滑行（0.05-0.1 区间，越小越"黄油"）；
+                   autoRaf 必须显式关掉——滚动帧统一由下面 gsap.ticker 驱动，
+                   Lenis 自带的 rAF 若也开着会和 ticker 双驱动，滚动会发贼/生硬 */
+                lenis = new window.Lenis({ lerp: 0.08, autoRaf: false });
                 lenis.on("scroll", window.ScrollTrigger.update);
                 tickerFn = function (time) { lenis.raf(time * 1000); };
                 window.gsap.ticker.add(tickerFn);

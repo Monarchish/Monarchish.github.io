@@ -433,8 +433,13 @@
    默认 8px margin 让门面整体内缩、简介图片贴不到屏幕边 */
 body { margin: 0; }
 html.play-reveal, html.play-reveal body { background-color: #141414; }
+/* Lenis 官方推荐 CSS（配合惯性滚动，防原生滚动行为打架） */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+/* 橡皮筋/回弹禁掉，滚动完全交给 Lenis 阻尼 */
+html, body { overscroll-behavior: none; }
 
 
 /* ===== 第二张门面背景图（结尾前全程匀速渐变） ===== */
