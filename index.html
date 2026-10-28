@@ -2,35 +2,19 @@
 <!-- ============================================================
      站点入口（index.html 是 GitHub Pages 的首页约定名，不能改）
 
-     仓库结构（2026-10-27 大扫除后，正文文档已移除，只留界面）：
-       01、设置/        主页的功能代码与样式
-         01~11.*        脚本与样式，按加载顺序编号
-         素材/          图片（门面主图 / 蒙版窗 / 方格网 / 开屏标志）
-         库/            自托管的第三方库与字体（不吃 CDN）
-       （末尾的 README.md 是"怎么加一篇新工序"的说明；.nojekyll 用来关掉
-         GitHub Pages 自带的 Jekyll 处理，中文目录名才不会被误判。）
-
-     这份入口只做四件事：
-       ① 搭主页骨架——开场动画层（reveal）、滚动门面（hero）、站点外壳（目录/正文）
-       ② 引 01、设置/ 的样式与脚本
-       ③ 决定这次进站要不要演开场与门面（网址开关见下）
-       ④ 把 CDN 库按顺序取回来，再开演
-
-     开场与门面两套动画：整段取自《支援未来 handbook》原版（用户已购下该仓库），
-     逐字照搬、没有改动画本身；差别只有资源路径（图片/掩膜/标志在本仓库里的位置）。
-       开屏动画   01、设置/06.开屏动画样式.css  +  07.开屏动画.js
-       滚动门面   01、设置/03.Hero门面样式.css   +  04.Hero门面.js
-     门面滚完就是下面的站点外壳——目录（01.站点主程序.js）、正文、内容门锁，
-     这一整块本来就是本站的，一行没动。
+     2026-10-28 定稿：只留一个简单的 home 门户——
+       ① 开屏动画（06/07）
+       ② 滚动门面介绍（03/04）
+       ③ 门面之后几段总的介绍（本文件内联，想改文案直接搜 home-intro）
+       ④ 页脚（占位，待设计）
+     原来的目录 / SOP 正文 / 侧栏 / 内容门锁整块已移除（git 历史可回溯）。
 
      调试开关（加在网址后面）：
-       ?hero=0    直达操作手册（不演开场与门面）
+       ?hero=0    直达简介（不演开场与门面）
        ?hero=1    强制演门面
        ?reveal=0  只演门面，跳过开屏动画
        ?seen=0    清掉"回访"标记，重新看一遍完整入场
-     其它直达参数（这次访问要不要跳过门面）：
-       ?jump=1    进站直接跳到目录
-       ?page=xxx  直接打开某篇文档
+       ?jump=1    进站直接跳到简介
      ============================================================ -->
 <html lang="zh-CN">
 <head>
@@ -44,8 +28,6 @@
 
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="preload" href="01、设置/02.站点样式.css?v=3" as="style" />
-    <link rel="preload" href="01、设置/01.站点主程序.js?v=3" as="script" />
     <!-- 门面大图提前预载：开屏动画演的同时它就在下载，进门面时不至于画半张图 -->
 
     <!-- 开场与门面用的字体：与 handbook 原版同一份（DM Sans / DM Mono / Noto Sans SC）。
@@ -58,18 +40,12 @@
         <link rel="stylesheet"
               href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
     </noscript>
-    <!-- 站点正文用的两个字体（自托管，同源直取，不再依赖 CDN） -->
+    <!-- 简介/页脚用的两个字体（自托管，同源直取，不再依赖 CDN） -->
     <link rel="preload" as="font" type="font/woff2" crossorigin
           href="01、设置/库/space-grotesk-500.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin
           href="01、设置/库/jetbrains-mono-400.woff2" />
 
-    <!-- Markdown 解析库：同样自托管（原先是 cdnjs，被拦就整站内容渲染不出来） -->
-    <script src="01、设置/库/marked.min.js?v=3"
-            onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js';document.head.appendChild(s);"></script>
-
-    <!-- 站点自身样式（顶部栏、侧边目录、正文排版、内容门锁）——原样未动 -->
-    <link rel="stylesheet" href="01、设置/02.站点样式.css?v=3" />
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
     <link rel="stylesheet" href="01、设置/03.Hero门面样式.css?v=8" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
@@ -121,8 +97,83 @@
 
         /* 不演开场时，把开场层收起来；?hero=0 这类直达链接连门面一起收 */
         html.no-reveal .reveal-root,
+        html.no-reveal .hero,
         html.no-hero .reveal-root,
         html.no-hero .hero { display: none !important; }
+
+        /* ===== 门面之后的简单首页：总介绍 + 页脚（2026-10-28） =====
+           想改介绍文案，直接搜下面的 home-intro；页脚还没设计，先占位。 */
+        .site-shell {
+            background: #141414;
+            color: #e8e6e1;
+            font-family: "DM Sans", "Noto Sans SC", sans-serif;
+        }
+        .home-intro {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 22vh 6vw 16vh;
+        }
+        .intro-kicker {
+            font-family: "JetBrains Mono", "DM Mono", monospace;
+            font-size: 12px;
+            letter-spacing: 0.35em;
+            color: #8f8c86;
+            margin: 0 0 18px;
+        }
+        .home-intro > h2 {
+            font-size: clamp(30px, 4.5vw, 46px);
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            margin: 0 0 10vh;
+        }
+        .intro-blocks { display: grid; gap: 64px; }
+        .intro-block {
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            padding-top: 26px;
+            display: grid;
+            grid-template-columns: 72px 1fr;
+            gap: 24px;
+        }
+        .intro-num {
+            font-family: "JetBrains Mono", "DM Mono", monospace;
+            font-size: 13px;
+            color: #6f6d68;
+            padding-top: 6px;
+        }
+        .intro-block h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 12px;
+        }
+        .intro-block p {
+            margin: 0;
+            font-size: 15px;
+            line-height: 2;
+            color: #b9b6af;
+        }
+        .site-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            padding: 44px 6vw 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .footer-logo {
+            font-weight: 600;
+            letter-spacing: 0.08em;
+        }
+        .footer-note {
+            font-family: "JetBrains Mono", "DM Mono", monospace;
+            font-size: 12px;
+            color: #6f6d68;
+            letter-spacing: 0.12em;
+        }
+        @media (max-width: 640px) {
+            .intro-block { grid-template-columns: 1fr; gap: 10px; }
+            .home-intro { padding: 14vh 7vw 12vh; }
+        }
     </style>
 
     <script>
@@ -136,7 +187,7 @@
             }
 
             /* 门面默认显示；带任何"直达"参数就跳过，老链接、老习惯、同事收藏的 URL 全都照旧 */
-            var direct = query.get("jump") === "1" || !!query.get("page") || query.get("intro") === "0";
+            var direct = query.get("jump") === "1" || query.get("intro") === "0";
             var useHero = heroParam === "1" || (heroParam !== "0" && !direct);
             var useReveal = useHero && query.get("reveal") !== "0";
 
@@ -223,11 +274,11 @@
 
         <div class="marker marker-1">
             <span class="marker-icon"></span>
-            <p class="marker-label">目录导航</p>
+            <p class="marker-label">SF-01</p>
         </div>
         <div class="marker marker-2">
             <span class="marker-icon"></span>
-            <p class="marker-label">智能检索</p>
+            <p class="marker-label">SF-02</p>
         </div>
 
         <div class="hero-content">
@@ -238,20 +289,20 @@
             </div>
             <div class="hero-content-block">
                 <div class="hero-content-copy">
-                    <h2>不是 SOP，是攻略本</h2>
-                    <p>上班遇到不会的，翻一下，至少知道之前是怎么做的。内容你一直在写，我们只是让它更好翻。</p>
+                    <h2>不是堆功能，是门面</h2>
+                    <p>开场一屏，滚动一程，介绍几段。想看的东西往后放，这里只留最干净的骨架。</p>
                 </div>
             </div>
             <div class="hero-content-block">
                 <div class="hero-content-copy">
-                    <h2>比 Excel / WPS 更顺</h2>
-                    <p>左侧目录对上 WPS 的目录功能；顶部搜索补上 Excel 不够聪明的检索。手机电脑同一个链接。</p>
+                    <h2>简单，直接</h2>
+                    <p>没有目录、没有搜索、没有多余的界面。往下滚就是全部内容，手机电脑同一个链接。</p>
                 </div>
             </div>
             <div class="hero-content-block">
                 <div class="hero-content-copy">
-                    <h2>滚动与内容已绑定</h2>
-                    <p>往下滚，文案跟着走。下面就是完整手册——准入、采购、销售、财务……</p>
+                    <h2>往下滚，跟着走</h2>
+                    <p>往下滚，文案跟着走。门面结束之后，就是站点简介。</p>
                 </div>
             </div>
         </div>
@@ -290,31 +341,43 @@
         </div>
     </section>
 
-    <!-- 站点外壳：原来 index.html 里的全部内容都在这里面，样式一点没改 -->
+    <!-- 门面之后：几段总的介绍 + 页脚（页脚待设计，先占位）。
+         id 保留 siteShell：右上角 Menu 与 ?jump=1 都滚到这里。 -->
     <div class="site-shell" id="siteShell">
 
-    <header class="top-nav">
-        <div class="logo">支援未来</div>
-    </header>
-
-    <div id="loading-bar"></div>
-
-    <div class="app">
-        <div class="main-body">
-            <aside class="sidebar" id="sidebar"></aside>
-            <div class="content-wrapper">
-                <main class="content-area" id="contentArea">
-                    <div id="contentLoader">加载中...</div>
-                </main>
-                <aside class="toc-wrapper" id="tocWrapper">
-                    <div class="toc-title">本页指引</div>
-                    <ul class="toc-list" id="tocList"></ul>
-                </aside>
+        <section class="home-intro" aria-label="站点简介">
+            <p class="intro-kicker">ABOUT</p>
+            <h2>支援未来</h2>
+            <div class="intro-blocks">
+                <div class="intro-block">
+                    <span class="intro-num">01</span>
+                    <div>
+                        <h3>这是什么</h3>
+                        <p>一个给自己看的个人门户。这里曾经放着一整套操作手册，现在只留下最想要的骨架：开屏、门面、几段介绍。</p>
+                    </div>
+                </div>
+                <div class="intro-block">
+                    <span class="intro-num">02</span>
+                    <div>
+                        <h3>现在有什么</h3>
+                        <p>进场一段开场动画，往下滚一整屏的地图介绍，然后就是这里——简单、直接，没有多余的东西。</p>
+                    </div>
+                </div>
+                <div class="intro-block">
+                    <span class="intro-num">03</span>
+                    <div>
+                        <h3>接下来</h3>
+                        <p>页脚和更多板块在设计中。想往这里放什么，随时说，改文案只需要动这个文件。</p>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- 站点外壳结束（.site-shell 从这里闭合） -->
+        <footer class="site-footer">
+            <span class="footer-logo">支援未来</span>
+            <span class="footer-note">FOOTER · 设计中</span>
+        </footer>
+
     </div>
 
     </div>
@@ -356,7 +419,7 @@
                 window.HeroFacade.lenis = null;
             }
 
-            /* 站点主程序（01.站点主程序.js）会认这个对象：有 lenis 就用平滑滚，没有就原生滚 */
+            /* 简介外壳会认这个对象：有 lenis 就用平滑滚，没有就原生滚 */
             window.HeroFacade = {
                 lenis: null,
                 startSmooth: startSmooth,
@@ -682,31 +745,7 @@
                而且一旦砍掉就永久作废（started 已置位），后面库到了也不播。
                线上"开屏时有时无、本地却永远正常"就是这么来的。 */
             setTimeout(function () { if (!started) boot(); }, 22000);
-
-            /* 内容区兜底：12 秒后还停在「加载中...」就换成可操作的提示，
-               不让正文区永远卡在一句话上（慢网络 / 脚本没到位时保底） */
-            setTimeout(function () {
-                var l = document.getElementById("contentLoader");
-                if (l && /加载中/.test(l.textContent || "")) {
-                    l.innerHTML = '<div class="loader-slow">内容加载较慢，可能是网络不稳。' +
-                        '<a href="javascript:location.reload()">刷新重试</a></div>';
-                }
-            }, 12000);
         })();
-    </script>
-
-    <!-- 内容门锁：先于主程序加载，loadContent 会调它的闸门（正文脱敏，目录公开） -->
-    <script src="01、设置/05.内容门锁.js?v=3"></script>
-    <script src="01、设置/01.站点主程序.js?v=3"></script>
-    <script src="01、设置/11.自动目录.js?v=3"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (typeof init === 'function') {
-                init();
-            } else {
-                console.error('01.站点主程序.js 未加载或 init 函数未定义');
-            }
-        });
     </script>
 
     <!-- 门面阶段的收尾：滚进目录后把平滑滚轮关掉，正文回到原生 1:1 -->
