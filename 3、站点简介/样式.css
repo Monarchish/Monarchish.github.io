@@ -72,10 +72,11 @@
     font-weight: 400;
     line-height: 1.25;
 }
-/* 图片框：比例 776/830，桌面 77.6rem×83rem，mask 用三个边框 SVG（用户桌面原件） */
+/* 图片框：比例 776/830，mask 用三个边框 SVG（用户桌面原件）
+   尺寸：inversa 原版是 77.6rem（1600 视口下的 776px），这里放大一档更接近导师站观感 */
 .value-asset {
     aspect-ratio: 776 / 830;
-    width: min(776px, 48vw);
+    width: clamp(460px, 52vw, 1060px);
     background: #13140e;
     -webkit-mask-position: center center;
     -webkit-mask-repeat: no-repeat;
