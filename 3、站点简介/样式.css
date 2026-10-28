@@ -10,7 +10,9 @@
 .home-intro {
     background: #f4f3e8;
     color: #13140e;
-    padding: 0 max(1.6rem, 4vw) 0;
+    /* 原站 .container 实测：margin 左右各 16px，宽 = 视口 - 32。
+       这样区块的一半才正好等于原站的 776.5px（= 图片宽度） */
+    padding: 0 16px;
 }
 .intro-kicker {
     font-family: "JetBrains Mono", "DM Mono", monospace;
@@ -31,37 +33,33 @@
     padding: clamp(90px, 9vw, 145px) 0 clamp(44px, 4.7vw, 75px);
     will-change: transform;
 }
-/* 三块：桌面横排（偶数块反向） */
+/* ===== 三块：严格 50% / 50% 平分（原站就是 display:flex，两半各 776.5 = 1553 的一半）=====
+   绝对对称，不再有任何 55vw / 46vw 的宽度差。奇数行图在右、偶数行图在左。 */
 .intro-values { overflow: hidden; }
 .value-block {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    align-items: center;   /* 原站同款：文字与图片垂直居中对齐 */
 }
 /* 块间距：原站 inversa.com 像素级实测 = 115px（1600 视口即 7.2vw）。
-   相邻块的上下 margin 会折叠，所以这里的单条值就是最终空隙，不用再翻倍。
-   （此前为了「拉开」额外加过 10vh = 216px，现按用户拍板回退到原站值。） */
+   相邻块的上下 margin 会折叠，所以这里的单条值就是最终空隙，不用再翻倍。 */
 .value-block + .value-block { margin: clamp(72px, 7.2vw, 115px) 0; }
 .value-block:nth-child(2n) { flex-direction: row-reverse; }
-/* ===== 左右位置：导师站 inversa.com 像素级实测复刻（窗口宽 1600） =====
-   原站实测绝对值：右图（第1/3块）图右缘 = 1569；左图（第2块）图左缘 = 16。
-   换算到「距屏幕边缘」：右侧 16px（浏览器带 15px 滚动条时）、左侧 16px。
-   实现：用 margin 先抵消 .home-intro 自带的 max(1.6rem,4vw) 横向 padding，
-   再留回 16px —— 于是任何视口下图片到屏幕边缘恒为 16px，既不裁切也不贴死。
-   注意：这一条只动 margin / transform，宽高、比例、蒙版、切角一律未碰。 */
-.value-block:nth-child(odd) .value-asset {
-    margin-right: calc(16px - max(1.6rem, 4vw));
-    transform: translateX(0);
+/* 图片侧：撑满自己那一半（flex-basis 50% = 区块的一半），不再有宽度错落 */
+.value-asset {
+    flex: 0 0 50%;
+    width: 50%;
 }
-.value-block:nth-child(2n) .value-asset {
-    width: clamp(480px, 46vw, 900px);
-    margin-left: calc(16px - max(1.6rem, 4vw));
-    transform: translateX(0);
+/* 文字侧：占另一半。原站实测——奇数块左缩进 132px、右侧 auto 吃掉剩余 265px；
+   偶数块右缩进 200px、左侧 auto 吃掉剩余 196px。数字完全照抄，所以图片必然落在半区正中。 */
+.value-content { width: min(380px, 90vw); flex: 0 0 auto; }
+.value-block:nth-child(odd) .value-content {
+    margin-left: clamp(24px, 8.25vw, 132px);
+    margin-right: auto;
 }
-/* 内容列：inversa 38rem 宽；奇数块靠左缩进 13.2rem，偶数块靠右缩进 20rem */
-.value-content { width: min(380px, 90vw); flex-shrink: 0; }
-.value-block:nth-child(odd) .value-content { margin-left: clamp(24px, 8.2vw, 132px); }
-.value-block:nth-child(2n) .value-content { margin-right: clamp(24px, 8.2vw, 132px); }
+.value-block:nth-child(2n) .value-content {
+    margin-right: clamp(24px, 12.5vw, 200px);
+    margin-left: auto;
+}
 /* 标题：JetBrains Mono 2rem 大写 + 闪烁小方块（inversa 的 is-blinker） */
 .value-title {
     font-family: "JetBrains Mono", "DM Mono", "Noto Sans SC", monospace;
@@ -90,11 +88,14 @@
     font-weight: 400;
     line-height: 1.25;
 }
-/* 图片框：比例 776/830（与边框模板 viewBox 一致，mask contain 才能满铺），mask 用三个边框模板
-   宽高与比例冻结不动；位置微调只走外层的 translateX（见上） */
+/* 图片框：宽度由上面的 flex 50% 决定，比例锁死 776/830 = 模板 viewBox 比例。
+   ★ 圆角/切角不变形的关键就在这里：元素比例 == viewBox 比例时，mask-size: contain
+   正好 100% 满铺，既不留黑边也不缩放变形，四个外角的圆弧与斜切和模板一模一样。
+   （之前圆角"丢失"的真凶是：宽度写成 55vw 却配 776/830 的比例 → contain 按短边缩放居中，
+   两侧出现空白带；再加上 translateX 把图推出屏幕，外角被屏幕裁掉。）
+   ⚠ 不要把这里的 aspect-ratio 换成 height: 80vh —— 一旦比例 ≠ 776/830，蒙版必然被拉伸。 */
 .value-asset {
     aspect-ratio: 776 / 830;
-    width: clamp(560px, 55vw, 1100px);
     background: #13140e;
     -webkit-mask-position: center center;
     -webkit-mask-repeat: no-repeat;
@@ -120,15 +121,15 @@
     object-fit: cover;
     will-change: transform;
 }
-/* 中等宽度屏（笔记本竖窗/小桌面）：大图会压到文字，整体收一档（错落比例不变） */
+/* 中等宽度屏：50/50 比例不变，只把文字列的缩进收一档，避免文字被挤成窄条 */
 @media (min-width: 901px) and (max-width: 1200px) {
-    .value-asset { width: clamp(420px, 44vw, 700px); }
-    .value-block:nth-child(2n) .value-asset { width: clamp(360px, 37vw, 580px); }
+    .value-block:nth-child(odd) .value-content { margin-left: clamp(20px, 4vw, 60px); }
+    .value-block:nth-child(2n) .value-content { margin-right: clamp(20px, 4vw, 60px); }
 }
 /* 移动端：竖排、图在上（inversa 移动端 .content order 2 同款） */
 @media (max-width: 900px) {
     .value-block, .value-block:nth-child(2n) { flex-direction: column; }
-    .value-asset { width: min(351px, 88vw); margin: 0 auto 40px; order: 1; }
+    .value-asset { flex: 0 0 auto; width: min(351px, 88vw); margin: 0 auto 40px; order: 1; }
     .value-content, .value-block:nth-child(odd) .value-content, .value-block:nth-child(2n) .value-content {
         order: 2;
         width: 100%;
