@@ -2,11 +2,12 @@
 <!-- ============================================================
      站点入口（index.html 是 GitHub Pages 的首页约定名，不能改）
 
-     2026-10-28 定稿：只留一个简单的 home 门户——
-       ① 开屏动画（06/07）
-       ② 滚动门面介绍（03/04）
-       ③ 门面之后几段总的介绍（本文件内联，想改文案直接搜 home-intro）
-       ④ 页脚（占位，待设计）
+     2026-10-28 定稿：只留一个简单的 home 门户，仓库按功能分四个文件夹——
+       1、开屏动画/   开场揭幕（样式 + 动画 + 标志）
+       2、滚动门面/   滑屏介绍（样式 + 动画 + 主图/蒙版窗/方格网）
+       3、站点简介/   门面之后的几段总介绍（文案在 index.html 搜 home-intro）
+       4、页脚/       页脚（占位，待设计；文案在 index.html 搜 site-footer）
+       0、公共库/     gsap 等动画库与字体（开屏和门面共用）
      原来的目录 / SOP 正文 / 侧栏 / 内容门锁整块已移除（git 历史可回溯）。
 
      调试开关（加在网址后面）：
@@ -42,41 +43,44 @@
     </noscript>
     <!-- 简介/页脚用的两个字体（自托管，同源直取，不再依赖 CDN） -->
     <link rel="preload" as="font" type="font/woff2" crossorigin
-          href="01、设置/库/space-grotesk-500.woff2" />
+          href="0、公共库/字体/space-grotesk-500.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin
-          href="01、设置/库/jetbrains-mono-400.woff2" />
+          href="0、公共库/字体/jetbrains-mono-400.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="01、设置/03.Hero门面样式.css?v=8" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=9" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
-    <link rel="stylesheet" href="01、设置/06.开屏动画样式.css?v=5" />
+    <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
+    <!-- 站点简介与页脚 -->
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=1" />
+    <link rel="stylesheet" href="4、页脚/样式.css?v=1" />
 
     <style>
         /* 站点正文字体：自托管（原先只预载了 CDN 文件却从没写 @font-face，
-           等于白下；现在补上声明，并改成从本站 01、设置/库/ 读，同源必达） */
+           等于白下；现在补上声明，并改成从本站 0、公共库/字体/ 读，同源必达） */
         @font-face {
             font-family: "Space Grotesk";
             font-style: normal;
             font-weight: 500;
             font-display: swap;
-            src: url("01、设置/库/space-grotesk-500.woff2") format("woff2");
+            src: url("0、公共库/字体/space-grotesk-500.woff2") format("woff2");
         }
         @font-face {
             font-family: "JetBrains Mono";
             font-style: normal;
             font-weight: 400;
             font-display: swap;
-            src: url("01、设置/库/jetbrains-mono-400.woff2") format("woff2");
+            src: url("0、公共库/字体/jetbrains-mono-400.woff2") format("woff2");
         }
 
-        /* 掩膜开窗：照 handbook 入口里的内联块，只把图指到 01、设置/ */
+        /* 掩膜开窗：照 handbook 入口里的内联块，只把图指到 2、滚动门面/ */
         .hero-mask {
-            -webkit-mask-image: linear-gradient(#fff, #fff), url("01、设置/素材/03.门面蒙版窗.svg?v=3");
+            -webkit-mask-image: linear-gradient(#fff, #fff), url("2、滚动门面/蒙版窗.svg?v=3");
             -webkit-mask-position: center, center;
             -webkit-mask-size: auto, 50%;
             -webkit-mask-repeat: no-repeat, no-repeat;
             -webkit-mask-composite: xor;
-            mask-image: linear-gradient(#fff, #fff), url("01、设置/素材/03.门面蒙版窗.svg?v=3");
+            mask-image: linear-gradient(#fff, #fff), url("2、滚动门面/蒙版窗.svg?v=3");
             mask-position: center, center;
             mask-size: auto, 50%;
             mask-repeat: no-repeat, no-repeat;
@@ -102,79 +106,6 @@
         html.no-hero .reveal-root,
         html.no-hero .hero { display: none !important; }
 
-        /* ===== 门面之后的简单首页：总介绍 + 页脚（2026-10-28） =====
-           想改介绍文案，直接搜下面的 home-intro；页脚还没设计，先占位。 */
-        .site-shell {
-            background: #141414;
-            color: #e8e6e1;
-            font-family: "DM Sans", "Noto Sans SC", sans-serif;
-        }
-        .home-intro {
-            max-width: 920px;
-            margin: 0 auto;
-            padding: 22vh 6vw 16vh;
-        }
-        .intro-kicker {
-            font-family: "JetBrains Mono", "DM Mono", monospace;
-            font-size: 12px;
-            letter-spacing: 0.35em;
-            color: #8f8c86;
-            margin: 0 0 18px;
-        }
-        .home-intro > h2 {
-            font-size: clamp(30px, 4.5vw, 46px);
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            margin: 0 0 10vh;
-        }
-        .intro-blocks { display: grid; gap: 64px; }
-        .intro-block {
-            border-top: 1px solid rgba(255, 255, 255, 0.14);
-            padding-top: 26px;
-            display: grid;
-            grid-template-columns: 72px 1fr;
-            gap: 24px;
-        }
-        .intro-num {
-            font-family: "JetBrains Mono", "DM Mono", monospace;
-            font-size: 13px;
-            color: #6f6d68;
-            padding-top: 6px;
-        }
-        .intro-block h3 {
-            font-size: 20px;
-            font-weight: 600;
-            margin: 0 0 12px;
-        }
-        .intro-block p {
-            margin: 0;
-            font-size: 15px;
-            line-height: 2;
-            color: #b9b6af;
-        }
-        .site-footer {
-            border-top: 1px solid rgba(255, 255, 255, 0.14);
-            padding: 44px 6vw 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .footer-logo {
-            font-weight: 600;
-            letter-spacing: 0.08em;
-        }
-        .footer-note {
-            font-family: "JetBrains Mono", "DM Mono", monospace;
-            font-size: 12px;
-            color: #6f6d68;
-            letter-spacing: 0.12em;
-        }
-        @media (max-width: 640px) {
-            .intro-block { grid-template-columns: 1fr; gap: 10px; }
-            .home-intro { padding: 14vh 7vw 12vh; }
-        }
     </style>
 
     <script>
@@ -220,7 +151,7 @@
             <!-- 四角的装饰小字（初始化手册 / 阶段01 / SF-01 等）按用户要求移除 -->
 
             <div class="preloader-btn-container" role="button" tabindex="0" aria-label="进入手册">
-                <img id="pbc-logo" src="01、设置/素材/05.开屏标志白.png" alt="" />
+                <img id="pbc-logo" src="1、开屏动画/标志-白.png" alt="" />
                 <p id="pbc-label"><span class="line">进入</span></p>
                 <p id="pbc-outro-label"><span class="line">已就绪</span></p>
 
@@ -265,12 +196,12 @@
     <!-- 滚动门面（handbook 原版结构）：空心掩膜开窗 + 方格网 + 两个标记 + 4 屏文案 -->
     <section class="hero" aria-label="滚动介绍">
         <div class="hero-img">
-            <img src="01、设置/素材/07.门面主图D.webp" alt="" fetchpriority="high" />
-            <img class="img2" src="01、设置/素材/06.门面主图B.webp" alt="" style="opacity:0" />
+            <img src="2、滚动门面/主图-开场.webp" alt="" fetchpriority="high" />
+            <img class="img2" src="2、滚动门面/主图-结尾.webp" alt="" style="opacity:0" />
         </div>
         <div class="hero-mask"></div>
         <div class="hero-grid-overlay">
-            <img src="01、设置/素材/04.门面方格网.svg" alt="" />
+            <img src="2、滚动门面/方格网.svg" alt="" />
         </div>
 
         <div class="marker marker-1">
@@ -598,7 +529,7 @@
                （代理返回一页错误 HTML 时 onload 也会触发，光看 onload 会误判成功）；
                失败就换下一个源，再失败带时间戳重试一次，全都失败才认输。
 
-               自托管（2026-09-30）：首个来源改成站点自带的 01、设置/库/ 本地副本。
+               自托管（2026-09-30）：首个来源改成站点自带的 0、公共库/ 本地副本。
                原因：jsdelivr 等公共 CDN 在部分网络（含国内常见线路）会被污染或拖慢，
                库拿不到 → 判"缺库" → 开屏和滑动动画整段消失。本地副本和网页同源，
                网页能打开它就一定能下载到，公共 CDN 只作为兜底。 */
@@ -607,7 +538,7 @@
                 gsap: {
                     global: "gsap",
                     urls: [
-                        "01、设置/库/gsap.min.js?v=3",
+                        "0、公共库/gsap.min.js?v=3",
                         "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/gsap.min.js",
                         "https://unpkg.com/gsap@" + GSAP_VER + "/dist/gsap.min.js",
                         "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/gsap.min.js"
@@ -616,7 +547,7 @@
                 customEase: {
                     global: "CustomEase",
                     urls: [
-                        "01、设置/库/CustomEase.min.js?v=3",
+                        "0、公共库/CustomEase.min.js?v=3",
                         "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/CustomEase.min.js",
                         "https://unpkg.com/gsap@" + GSAP_VER + "/dist/CustomEase.min.js",
                         "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/CustomEase.min.js"
@@ -625,7 +556,7 @@
                 scrollTrigger: {
                     global: "ScrollTrigger",
                     urls: [
-                        "01、设置/库/ScrollTrigger.min.js?v=3",
+                        "0、公共库/ScrollTrigger.min.js?v=3",
                         "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/ScrollTrigger.min.js",
                         "https://unpkg.com/gsap@" + GSAP_VER + "/dist/ScrollTrigger.min.js",
                         "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/ScrollTrigger.min.js"
@@ -634,7 +565,7 @@
                 lenis: {
                     global: "Lenis",
                     urls: [
-                        "01、设置/库/lenis.min.js?v=3",
+                        "0、公共库/lenis.min.js?v=3",
                         "https://cdn.jsdelivr.net/npm/lenis@1.3.17/dist/lenis.min.js",
                         "https://unpkg.com/lenis@1.3.17/dist/lenis.min.js"
                     ]
@@ -643,14 +574,14 @@
                 scrambleText: {
                     global: "ScrambleTextPlugin",
                     urls: [
-                        "01、设置/库/ScrambleTextPlugin.min.js?v=1",
+                        "0、公共库/ScrambleTextPlugin.min.js?v=1",
                         "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/ScrambleTextPlugin.min.js",
                         "https://unpkg.com/gsap@" + GSAP_VER + "/dist/ScrambleTextPlugin.min.js"
                     ]
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
-                reveal: { global: "SupportFutureReveal", urls: ["01、设置/07.开屏动画.js?v=5"] },
-                hero: { global: "SupportFutureScroll", urls: ["01、设置/04.Hero门面.js?v=6"] }
+                reveal: { global: "SupportFutureReveal", urls: ["1、开屏动画/动画.js?v=6"] },
+                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=7"] }
             };
 
             /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */
@@ -797,7 +728,7 @@
         })();
     </script>
 
-    <!-- 开场动画由 01、设置/06.开屏动画样式.css + 07.开屏动画.js 负责
+    <!-- 开场动画由 1、开屏动画/样式.css + 动画.js 负责
          （取自《支援未来 handbook》原版那套）。 -->
 
 </body>

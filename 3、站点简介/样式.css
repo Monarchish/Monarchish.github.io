@@ -1,0 +1,54 @@
+/* ===== 3、站点简介：门面之后的几段总介绍 =====
+   想改文案去 index.html 搜 home-intro；想改样式就在这个文件。 */
+.site-shell {
+    background: #141414;
+    color: #e8e6e1;
+    font-family: "DM Sans", "Noto Sans SC", sans-serif;
+}
+.home-intro {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 22vh 6vw 16vh;
+}
+.intro-kicker {
+    font-family: "JetBrains Mono", "DM Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.35em;
+    color: #8f8c86;
+    margin: 0 0 18px;
+}
+.home-intro > h2 {
+    font-size: clamp(30px, 4.5vw, 46px);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 0 0 10vh;
+}
+.intro-blocks { display: grid; gap: 64px; }
+.intro-block {
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    padding-top: 26px;
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 24px;
+}
+.intro-num {
+    font-family: "JetBrains Mono", "DM Mono", monospace;
+    font-size: 13px;
+    color: #6f6d68;
+    padding-top: 6px;
+}
+.intro-block h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 12px;
+}
+.intro-block p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 2;
+    color: #b9b6af;
+}
+@media (max-width: 640px) {
+    .intro-block { grid-template-columns: 1fr; gap: 10px; }
+    .home-intro { padding: 14vh 7vw 12vh; }
+}
