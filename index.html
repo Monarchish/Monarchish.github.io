@@ -379,18 +379,21 @@
                 if (!imgs.length) { wrap.classList.add("img-ready"); return; }
                 /* 图没就位前，掩膜窗里露的是 .hero-img 的纸色占位底（CSS）；
                    单张失败自动换缓存戳重试 2 次，全失败才挂 img-failed（占位底常驻） */
-                var left = imgs.length, dead = 0, marked = false;
-                var settle = function () {
+                /* 只等开场主图（imgs[0]）就位就放行画面——第二张图开场时全透明，
+                   让它后台慢慢下，掩膜窗能提早近一倍亮出来 */
+                var first = imgs[0];
+                var dead2 = 0, marked = false;
+                var settle = function (failed) {
                     if (marked) return;
                     marked = true;
                     wrap.classList.add("img-ready");
-                    if (dead >= imgs.length) wrap.classList.add("img-failed");
+                    if (failed) wrap.classList.add("img-failed");
                 };
-                Array.prototype.forEach.call(imgs, function (img) {
+                (function watch(img, isGate) {
                     var settled = false;
                     var ok = function () {
                         if (settled) return; settled = true;
-                        if (--left === 0) settle();
+                        if (isGate) settle(false);
                     };
                     var bad = function () {
                         if (settled) return;
@@ -403,8 +406,8 @@
                         } else {
                             settled = true;
                             img.style.display = "none";
-                            dead++;
-                            if (--left === 0) settle();
+                            dead2++;
+                            if (isGate) settle(dead2 >= imgs.length);
                         }
                     };
                     if (img.complete && img.naturalWidth) { ok(); return; }
@@ -414,7 +417,22 @@
                     if (img.decode) img.decode().then(function () {
                         if (img.naturalWidth) ok(); else bad();
                     }, bad);
-                });
+                })(first, true);
+                for (var i = 1; i < imgs.length; i++) {
+                    (function (im) {
+                        var done = false;
+                        var ok2 = function () { if (!done) { done = true; im.removeEventListener("error", bad2); } };
+                        var bad2 = function () {
+                            if (done) return;
+                            im.__r2 = (im.__r2 || 0) + 1;
+                            if (im.__r2 <= 2) {
+                                setTimeout(function () { im.src = im.src.split("?_r=")[0] + "?_r=" + im.__r2; }, 1500 * im.__r2);
+                            } else { done = true; im.style.display = "none"; }
+                        };
+                        im.addEventListener("load", ok2);
+                        im.addEventListener("error", bad2);
+                    })(imgs[i]);
+                }
             })();
 
             /* 不演开屏（?reveal=0 / ?hero=0）：站点外壳立刻露脸 */
