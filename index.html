@@ -95,9 +95,10 @@
         body.is-ready #site-main,
         html.no-hero #site-main { visibility: visible; }
 
-        /* 不演开场时，把开场层收起来；?hero=0 这类直达链接连门面一起收 */
+        /* 不演开场时，把开场层收起来；?hero=0 这类直达链接连门面一起收。
+           注意：no-reveal 只收开场层，门面照演（开屏脚本没加载成功时
+           也不许把门面藏掉——2026-10-28 曾因多加一条规则把门面藏没） */
         html.no-reveal .reveal-root,
-        html.no-reveal .hero,
         html.no-hero .reveal-root,
         html.no-hero .hero { display: none !important; }
 
