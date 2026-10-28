@@ -52,8 +52,10 @@
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
-    <link rel="stylesheet" href="3、站点简介/样式.css?v=1" />
-    <link rel="stylesheet" href="4、页脚/样式.css?v=1" />
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=2" />
+    <link rel="stylesheet" href="4、页脚/样式.css?v=2" />
+    <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
+    <script src="3、站点简介/动画.js?v=1" defer></script>
 
     <style>
         /* 站点正文字体：自托管（原先只预载了 CDN 文件却从没写 @font-face，
@@ -286,25 +288,25 @@
 
         <section class="home-intro" aria-label="站点简介">
             <p class="intro-kicker">ABOUT</p>
-            <h2>支援未来</h2>
+            <h2 class="intro-statement" data-sway="0.4">支援未来，是给自己的一屏。<br>要用的东西，都在它该在的地方。</h2>
             <div class="intro-blocks">
-                <div class="intro-block">
+                <div class="intro-block" data-sway="1">
                     <span class="intro-num">01</span>
-                    <div>
+                    <div class="intro-body">
                         <h3>这是什么</h3>
                         <p>一个给自己看的个人门户。这里曾经放着一整套操作手册，现在只留下最想要的骨架：开屏、门面、几段介绍。</p>
                     </div>
                 </div>
-                <div class="intro-block">
+                <div class="intro-block" data-sway="1.5">
                     <span class="intro-num">02</span>
-                    <div>
+                    <div class="intro-body">
                         <h3>现在有什么</h3>
                         <p>进场一段开场动画，往下滚一整屏的地图介绍，然后就是这里——简单、直接，没有多余的东西。</p>
                     </div>
                 </div>
-                <div class="intro-block">
+                <div class="intro-block" data-sway="0.7">
                     <span class="intro-num">03</span>
-                    <div>
+                    <div class="intro-body">
                         <h3>接下来</h3>
                         <p>页脚和更多板块在设计中。想往这里放什么，随时说，改文案只需要动这个文件。</p>
                     </div>
@@ -313,8 +315,11 @@
         </section>
 
         <footer class="site-footer">
-            <span class="footer-logo">支援未来</span>
-            <span class="footer-note">FOOTER · 设计中</span>
+            <h2 class="footer-statement">把要用的东西，<br>放在一屏之内。</h2>
+            <p class="footer-note">
+                支援未来 · SUPPORT FUTURE
+                <span class="footer-meta">© 2026 · 设计中</span>
+            </p>
         </footer>
 
     </div>

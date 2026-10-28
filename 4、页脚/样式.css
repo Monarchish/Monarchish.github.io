@@ -1,21 +1,38 @@
-/* ===== 4、页脚：占位（还没正式设计）=====
+/* ===== 4、页脚：照 inversa 深色大字段做（先这样用，后续再精修）=====
    想改文案去 index.html 搜 site-footer；想改样式就在这个文件。 */
 .site-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    padding: 44px 6vw 60px;
+    background: #191913;
+    color: #f0efe5;
+    padding: 20vh 8vw 12vh;
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 16px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 8vh;
 }
-.footer-logo {
+.footer-statement {
+    font-size: clamp(40px, 6.5vw, 78px);
     font-weight: 600;
-    letter-spacing: 0.08em;
+    line-height: 1.22;
+    letter-spacing: 0.01em;
+    margin: 0;
+    max-width: 14em;
 }
 .footer-note {
+    align-self: flex-end;
+    text-align: left;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.9;
+    color: #b9b6a8;
+    max-width: 30em;
+}
+.footer-note .footer-meta {
+    display: block;
+    margin-top: 14px;
     font-family: "JetBrains Mono", "DM Mono", monospace;
-    font-size: 12px;
-    color: #6f6d68;
-    letter-spacing: 0.12em;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: #75726a;
+}
+@media (max-width: 640px) {
+    .site-footer { padding: 14vh 7vw 10vh; }
 }

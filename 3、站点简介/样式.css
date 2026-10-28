@@ -1,54 +1,64 @@
 /* ===== 3、站点简介：门面之后的几段总介绍 =====
-   想改文案去 index.html 搜 home-intro；想改样式就在这个文件。 */
+   版式照导师站 inversa.com 的米色段：奶油底、大字宣言、编号分块。
+   想改文案去 index.html 搜 home-intro；晃动幅度搜 动画.js 的 data-sway。 */
 .site-shell {
     background: #141414;
     color: #e8e6e1;
     font-family: "DM Sans", "Noto Sans SC", sans-serif;
 }
 .home-intro {
-    max-width: 920px;
-    margin: 0 auto;
-    padding: 22vh 6vw 16vh;
+    background: #f0efe5;
+    color: #1b1a15;
+    padding: 16vh 8vw 18vh;
 }
 .intro-kicker {
     font-family: "JetBrains Mono", "DM Mono", monospace;
     font-size: 12px;
     letter-spacing: 0.35em;
-    color: #8f8c86;
-    margin: 0 0 18px;
+    color: #8b887c;
+    margin: 0 0 5vh;
 }
-.home-intro > h2 {
-    font-size: clamp(30px, 4.5vw, 46px);
+/* 大字宣言（inversa 的 "Inversa is where ..." 那块） */
+.intro-statement {
+    font-size: clamp(34px, 5.2vw, 64px);
     font-weight: 600;
-    letter-spacing: 0.02em;
-    margin: 0 0 10vh;
+    line-height: 1.28;
+    letter-spacing: 0.01em;
+    margin: 0 0 12vh;
+    max-width: 18em;
+    will-change: transform;
 }
-.intro-blocks { display: grid; gap: 64px; }
+.intro-blocks { display: grid; gap: 10vh; }
 .intro-block {
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    padding-top: 26px;
     display: grid;
-    grid-template-columns: 72px 1fr;
-    gap: 24px;
+    grid-template-columns: 88px 1fr;
+    gap: 28px;
+    align-items: start;
+    will-change: transform;
 }
 .intro-num {
     font-family: "JetBrains Mono", "DM Mono", monospace;
-    font-size: 13px;
-    color: #6f6d68;
-    padding-top: 6px;
+    font-size: 14px;
+    color: #97948a;
+    padding-top: 14px;
 }
 .intro-block h3 {
-    font-size: 20px;
+    font-size: clamp(24px, 2.6vw, 34px);
     font-weight: 600;
-    margin: 0 0 12px;
+    margin: 0 0 16px;
 }
 .intro-block p {
     margin: 0;
-    font-size: 15px;
-    line-height: 2;
-    color: #b9b6af;
+    font-size: 16px;
+    line-height: 2.1;
+    color: #55534a;
+    max-width: 34em;
 }
+/* 分块交错：偶数块往右挪一点，版式不呆板 */
+.intro-block:nth-child(even) { justify-items: end; text-align: left; }
+.intro-block:nth-child(even) .intro-body { max-width: 620px; }
 @media (max-width: 640px) {
     .intro-block { grid-template-columns: 1fr; gap: 10px; }
-    .home-intro { padding: 14vh 7vw 12vh; }
+    .intro-block:nth-child(even) { justify-items: start; }
+    .home-intro { padding: 12vh 7vw 12vh; }
 }
