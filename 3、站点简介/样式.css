@@ -38,8 +38,10 @@
     align-items: center;
     justify-content: space-between;
 }
-/* 块间距：基准 7.2vw 再加 10vh 空白（用户要求上下明显拉开） */
-.value-block + .value-block { margin: calc(clamp(72px, 7.2vw, 115px) + 10vh) 0; }
+/* 块间距：原站 inversa.com 像素级实测 = 115px（1600 视口即 7.2vw）。
+   相邻块的上下 margin 会折叠，所以这里的单条值就是最终空隙，不用再翻倍。
+   （此前为了「拉开」额外加过 10vh = 216px，现按用户拍板回退到原站值。） */
+.value-block + .value-block { margin: clamp(72px, 7.2vw, 115px) 0; }
 .value-block:nth-child(2n) { flex-direction: row-reverse; }
 /* ===== 左右位置：导师站 inversa.com 像素级实测复刻（窗口宽 1600） =====
    原站实测绝对值：右图（第1/3块）图右缘 = 1569；左图（第2块）图左缘 = 16。
