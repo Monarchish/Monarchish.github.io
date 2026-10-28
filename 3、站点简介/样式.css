@@ -31,24 +31,25 @@
     padding: clamp(90px, 9vw, 145px) 0 clamp(44px, 4.7vw, 75px);
     will-change: transform;
 }
-/* 三块：桌面横排（偶数块反向），块间距 11.5rem=115px */
+/* 三块：桌面横排（偶数块反向） */
 .intro-values { overflow: hidden; }
 .value-block {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-.value-block + .value-block { margin: clamp(72px, 7.2vw, 115px) 0; }
+/* 块间距：基准 7.2vw 再加 10vh 空白（用户要求上下明显拉开） */
+.value-block + .value-block { margin: calc(clamp(72px, 7.2vw, 115px) + 10vh) 0; }
 .value-block:nth-child(2n) { flex-direction: row-reverse; }
-/* 图片巨图贴屏幕边 + 错落节奏（用户拍板终局）：
-   奇数块 55vw 贴死外侧边缘，偶数块收窄到 46vw 并内收 2vw（一进一出的错落）；
-   .home-intro 自带 4vw 横向 padding，负 margin 抵消它才真正贴边，
-   偶数块 = 抵消 4vw 再内收 2vw。文字一侧的留白由 flex 自动撑开。
-   只动 margin/width，边框模板与 HTML 结构不动 */
-.value-block:nth-child(odd) .value-asset { margin-right: calc(-1 * max(1.6rem, 4vw)); }
+/* 位置只微调不变形：宽高、比例、蒙版全部不动，
+   只用 translateX 把图片往各自的外侧边缘再推一点（奇右偶左） */
+.value-block:nth-child(odd) .value-asset {
+    margin-right: calc(-1 * max(1.6rem, 4vw));
+    transform: translateX(30px);
+}
 .value-block:nth-child(2n) .value-asset {
     width: clamp(480px, 46vw, 900px);
-    margin-left: calc(max(2vw, 32px) - max(1.6rem, 4vw));
+    transform: translateX(-30px);
 }
 /* 内容列：inversa 38rem 宽；奇数块靠左缩进 13.2rem，偶数块靠右缩进 20rem */
 .value-content { width: min(380px, 90vw); flex-shrink: 0; }
@@ -82,14 +83,11 @@
     font-weight: 400;
     line-height: 1.25;
 }
-/* 图片框：比例 776/830（与边框模板 viewBox 一致，mask contain 才能满铺），mask 用三个边框 SVG
-   奇数块 55vw（1600 屏下 880×941 顶天立地），偶数块 46vw（736×787）错落。
-   border-radius 与 mask 同时生效：mask 负责异形斜切，border-radius 负责外圈圆角
-   （模板自带圆角只有 10/776≈1.3%，55vw 巨图下不足 12px，肉眼近乎直角，故外圈再加 24px） */
+/* 图片框：比例 776/830（与边框模板 viewBox 一致，mask contain 才能满铺），mask 用三个边框模板
+   宽高与比例冻结不动；位置微调只走外层的 translateX（见上） */
 .value-asset {
     aspect-ratio: 776 / 830;
     width: clamp(560px, 55vw, 1100px);
-    border-radius: 24px;
     background: #13140e;
     -webkit-mask-position: center center;
     -webkit-mask-repeat: no-repeat;
