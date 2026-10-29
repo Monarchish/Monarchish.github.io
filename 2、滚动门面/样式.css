@@ -127,9 +127,26 @@
   will-change: opacity;
   z-index: 3;
   opacity: 0;
+
+  /* ===== 取景框裁切（v22，修复"网格穿透黑幕"） =====
+     用与 .hero-mask 同一张阶梯窗 SVG 做蒙版：网格（细网格 + 粗线 path）
+     只在取景框内部显示，出框部分全部裁掉。
+     尺寸推导（桌面档）：窗口实际宽 = 蒙版层宽 × 50%(mask-size) × FOCUS(1.3)
+                       = 内容宽 × 65% = 本容器宽
+     ⇒ mask-size: 100% auto 恰好就是真窗口的大小和位置（同为中心对齐），
+        纵向按 SVG 固有比例 1030:701 取高，与真窗口逐像素重合。
+     手机档（mask-size 75%）见下方媒体查询：97.5% = 75% × 1.3。 */
+  -webkit-mask-image: url("蒙版窗.svg?v=3");
+  -webkit-mask-position: center center;
+  -webkit-mask-size: 100% auto;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("蒙版窗.svg?v=3");
+  mask-position: center center;
+  mask-size: 100% auto;
+  mask-repeat: no-repeat;
 }
 
-/* ===== 战术网格 v21（2026-10-29）=====
+/* ===== 战术网格 v22（2026-10-29）=====
    分两层，各自负责一件事：
    1) .tactical-grid-fine —— CSS 渐变画 20px 细线，inset:0 铺满整个容器（雷达底纹感），
       不跟着异形轮廓裁切；
@@ -137,7 +154,16 @@
       线条是 path 自身的 1 单位细缝，闭合不可能断。
    细线的 background-size 用 cqw（容器宽百分比）：83/4 ÷ 1080 = 1.9213%，
    与粗线共用同一套等比关系 ⇒ 每个大格必然 4×4。20px 只是老浏览器兜底。
-   显隐仍由 .hero-grid-overlay 的 opacity 动画控制，动画逻辑一行未动。 */
+   显隐仍由 .hero-grid-overlay 的 opacity 动画控制，动画逻辑一行未动。
+
+   ★ 定位终极规律（原站 inversa 实测验证，2026-10-29）：画面正中 = 第 5 排第 7 列粗格正中心。
+     依据：粗格 83 用户单位、缝宽 1、线心在 0.5+83k；第 n 列格心 = 42 + 83(n-1)。
+     第 7 列格心 = 42+83×6 = 540 = viewBox 横向正中；第 5 排格心 = 42+83×4 = 374 = 纵向正中。
+     原站实测：网格中心 (793.5,501) vs 画面中心 (792.5,500)，仅差 1px（作者取整）。
+     本站网格 inset:0 等比铺满容器 ⇒ 容器中心天然就是第 7 列/第 5 排格心
+     （本地实测 col 7.000 / row 5.000，零偏差），且与视口大小无关——
+     所以这里【禁止】再加 520px/360px 之类的绝对像素偏移：
+     那会把锚点推离格心 30+px，而且换了视口宽度就又漂了。 */
 .tactical-grid-fine {
   position: absolute;
   inset: 0;
@@ -173,7 +199,13 @@
 
 .hero .marker-1 {
   top: 50vh;
-  left: 50vw;
+  /* v22：红点圆心必须精确落在画面正中（= 第 7 列/第 5 排格心，原站 HOTSPOT 同款）。
+     旧写法 translate(-50%,-50%) 是"整行居中"，图标是行里靠左的元素，
+     实测圆心会偏到画面中心左边 25px（滚动条 7.5px + 行宽差 17.8px）。
+     改成：行左缘钉在 50%-半个图标宽(0.25rem)，只做纵向居中，
+     圆心 = 50%-0.25rem + 0.25rem = 50%，与标签字体宽度彻底解耦。 */
+  left: calc(50% - 0.25rem);
+  transform: translateY(-50%);
 }
 
 .hero .marker-2 {
@@ -431,11 +463,16 @@
 
   .hero-grid-overlay {
     width: 100%;
+    /* 手机档窗口 = 75%(mask-size) × FOCUS(1.3) = 内容宽 97.5% */
+    -webkit-mask-size: 97.5% auto;
+    mask-size: 97.5% auto;
   }
 
   .hero .marker-1 {
     top: 52.5vh;
-    left: 50vw;
+    /* 与桌面同款：红点圆心钉死在 50%（见 .marker-1 主规则注释） */
+    left: calc(50% - 0.25rem);
+    transform: translateY(-50%);
   }
 
   .hero .marker-2 {
