@@ -114,13 +114,14 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* 69%：画框溢出（v23，原站同款）。原站实测：网格 1076×745 vs 聚焦窗口 1014.4×690.4
+  /* 71%：画框溢出（v23，原站同款，用户 2026-10-29 把 69%→71% 修复右侧断线）。
+     原站实测：网格 1076×745 vs 聚焦窗口 1014.4×690.4
      （mask-size 64%），网格/窗口宽比恒为 1.0607 ⇒ 每边溢出约 30.8px（横）/27.3px（纵）。
-     本站窗口 = 蒙版层 50% × FOCUS 1.3 = 内容宽 65%，放大 1.0607 倍 ⇒ 68.95% ≈ 69%，
+     本站窗口 = 蒙版层 50% × FOCUS 1.3 = 内容宽 65%，放大 1.0607 倍 ⇒ ≈ 71%，
      溢出量与原站等比一致（粗格 84px / 细格 21px，原站 82.7px）。
      注意：容器高度必须保持 1080/748（与粗线 path 的 viewBox 同比例），
      改了比例粗线会 letterbox、细线 cqw 就和粗线错位。 */
-  width: 69%;
+  width: 71%;
   /* 网格容器的高度：以前靠里面那张 <img> 的内在高度撑着，
      换成纯 div 之后父级会塌成 0 高、网格整片消失。
      这里按原版素材 viewBox 1080×748 的比例直接定高。 */
@@ -164,7 +165,7 @@
      的 linear-gradient），均非纯白。 */
 
 /* 细线层：黑幕之下、只在窗口内可见。
-   定位与 .hero-grid-overlay 完全一致（居中 69%、1080/748 比例、cqw 定格），
+   定位与 .hero-grid-overlay 完全一致（居中 71%、1080/748 比例、cqw 定格），
    网格线位置与 v23 逐像素相同（tile 原点同在容器左上、同 cqw 间距），
    对齐关系不受拆层影响。手机档宽 103.4% 见媒体查询。 */
 .bg-fine-grid {
@@ -172,7 +173,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 69%;
+  width: 71%;
   aspect-ratio: 1080 / 748;
   container-type: inline-size;
   will-change: opacity;
@@ -492,6 +493,9 @@
   .bg-fine-grid {
     width: 103.4%;
   }
+  .hero-mask-wrapper {
+    width: 103.4%;
+  }
 
   .hero .marker-1 {
     top: 52.5vh;
@@ -555,4 +559,49 @@ html, body { overscroll-behavior: none; }
 /* 门面图全数加载失败：占位底常驻，标题照常可读（img 已被 JS 隐藏） */
 .hero-img.img-failed {
   background: linear-gradient(165deg, #16150f, #100f0a 55%, #0b0b0a);
+}
+
+/* ===== v25：散点雷达 + 发光光晕（纯新增，独立于网格/蒙版/Lenis；不改动任何现有规则） =====
+   结构：所有散点/HUD 放进 .hero-mask-wrapper，该层是 .hero-mask / .hero-grid-overlay 的
+   兄弟节点（同样居中、同宽），从而被约束在取景窗区域内，绝不会飞出屏幕或铺满全屏。
+   ★ 绝不可把散点塞进 .hero-mask 内部——.hero-mask 自身带异形窗蒙版
+     （mask-composite:exclude），子元素会被同一蒙版裁到黑幕上、窗口内反被抠空。 */
+.hero-mask-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 71%;              /* 与 .hero-grid-overlay 同宽，使散点坐标框与取景窗对齐 */
+  aspect-ratio: 764 / 542; /* = 散点 svg 的 viewBox 比例，避免 letterbox 错位 */
+  pointer-events: none;
+  z-index: 4;              /* 压网格(z3)/黑幕(z2)之上、Menu(z7)之下 */
+}
+/* 单点光晕容器：圆心居中、藏在标记本体之下 */
+.effect-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: -1;
+}
+/* 呼吸光晕环（用户指定尺寸，限死 20px，避免变成黑洞）：扩张 + 淡出 */
+.pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse-out 2.5s infinite cubic-bezier(0.2, 0.8, 0.4, 1);
+  opacity: 0;
+}
+.pulse-ring:nth-child(2) {
+  animation-delay: 1.25s;
+}
+@keyframes pulse-out {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
 }

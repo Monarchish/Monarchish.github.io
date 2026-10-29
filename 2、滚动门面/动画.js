@@ -15,8 +15,8 @@
     const heroMask = document.querySelector(".hero-mask");
     const heroGridOverlay = document.querySelector(".hero-grid-overlay");
     const bgFineGrid = document.querySelector(".bg-fine-grid");
-    const marker1 = document.querySelector(".marker-1");
-    const marker2 = document.querySelector(".marker-2");
+    const marker1 = document.querySelector(".hotspot-marker");
+    const marker2 = document.querySelector(".specialist-marker");
     const progressBar = document.querySelector(".hero-scroll-progress-bar");
 
     if (!hero || !heroContent || !heroImgElement) return;
@@ -321,5 +321,28 @@
     });
   }
 
-  window.SupportFutureScroll = { init: initScroll };
+    window.SupportFutureScroll = { init: initScroll };
+
+    /* ===== v25：散点雷达随机漂移（纯新增，独立于门面逻辑；gsap 由加载器保证已就绪） =====
+       仅给 .drift-point 加无限 yoyo 漂移 + 透明度随机跳动，不影响任何网格/蒙版/Lenis 行为。 */
+    if (window.gsap) {
+      const driftDots = document.querySelectorAll('.drift-point');
+      driftDots.forEach(function (dot) {
+        gsap.to(dot, {
+          x: 'random(-8, 8)',
+          y: 'random(-8, 8)',
+          duration: 'random(2, 4)',
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut'
+        });
+        gsap.to(dot, {
+          opacity: 'random(0.2, 0.8)',
+          duration: 'random(1, 2.5)',
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut'
+        });
+      });
+    }
 })();
