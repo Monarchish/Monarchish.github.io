@@ -124,37 +124,45 @@
   opacity: 0;
 }
 
-/* 最底层细网格：铺满全屏、压在图片之上黑幕之下，所以只有窗口洞里看得见。
-   间距 15px ≈ 大网格格子 67px 的 1/4，用来把大格子再细分成 16 宫格，
-   亮度 0.03 —— 几乎察觉不到，但撑起了原站那种空间深度。 */
-.bg-fine-grid {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  /* 严格 4×4 等分（16 宫格）：大网格当前格距 80px（SVG 83 单位 × scale1.2），
-     80 / 4 = 20px —— 每个大格正好被切成 4×4 共 16 个小格。 */
-  background-size: 20px 20px;
-  opacity: 0;
-}
+/* ===== 战术网格（2026-10-29 按原站底层逻辑重做：粗细两种网格合并成一层）=====
+   原站的做法是「同一个 div 用多重 background 一次画完粗/细两种线，再用异形轮廓 mask 裁边」。
+   合并成一层的好处：粗细网格共用同一个 background 原点（元素左上角），
+   5vw ÷ 1.25vw = 严格 4 等分，每个大格必然被切成 4×4 = 16 个小格，物理上不可能错位。
+   （之前的做法是「SVG 异形网格 scale1.2」+「另一个全屏 div 铺细网格」，
+     两者坐标系不同 —— 一个从 SVG 左上角、一个从视口 0,0 起铺，所以怎么调都"5不5，4不4"。）
 
-/* 战术网格：原站扒下来的原版 SVG 素材（网格线 + 像素阶梯异形边缘一次成型），
-   这里只负责容器定位——SVG 本身一行未改。
-   尺寸跟着 .hero-grid-overlay（55% 居中）走，正好落在聚焦窗口那块区域；
-   显隐仍由门面动画控制 .hero-grid-overlay 的 opacity，动画逻辑没动。 */
-.tactical-grid-wrapper {
+   ⚠ 只改样式：显隐仍由门面动画控制 .hero-grid-overlay 的 opacity，
+     Lenis / ScrollTrigger / 蒙版 scale 逻辑一行未动。
+   - 间距用 vw：粗 5vw、细 1.25vw（1600 视口下 = 80px / 20px），
+     与 mask 一起随视口缩放，任何窗口宽度都保持 4 等分；
+   - 元素向外扩到 118.3%：让素材里 83 单位的阶梯步距正好落在 80px 上
+     （118.3 × 0.55vw ÷ 1080 × 83 ≈ 5vw），阶梯每一级都和粗网格线同尺；
+   - mask 用的是素材的「外轮廓」那一条子路径（不含内部的 82×82 小方块）：
+     作为 mask 时只有轮廓内的区域可见；若把带 evenodd 的完整路径当 mask，
+     可见区就只剩那 1 单位宽的细线本身，网格线反而全被裁掉了。
+*/
+.tactical-grid {
   position: absolute;
-  inset: 0;
+  inset: -9.15%;            /* → 宽 118.3%，撑满聚焦窗口并让阶梯步距对齐 80px */
   pointer-events: none;
   z-index: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /* 放大 1.2 倍：原尺寸（视口 55%）比聚焦窗口小一圈，撑不满蒙版；
-     放大后正好贴住窗口边缘，像素阶梯的锯齿也能完整露出来。 */
-  transform: scale(1.2);
+  background-image:
+    /* 1. 粗网格：横 + 纵 */
+    linear-gradient(to right, rgba(255, 255, 255, 0.38) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.38) 1px, transparent 1px),
+    /* 2. 细网格：横 + 纵 */
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 5vw 5vw, 5vw 5vw, 1.25vw 1.25vw, 1.25vw 1.25vw;
+  background-repeat: repeat;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1080 748'%3E%3Cpath fill='%23fff' d='M582 83H830V0H914V83H997V249H1080V416H997V498H1080V582H997V665H831V748H747V665H665V748H498V665H250V748H166V665H0V498H83V333H0V166H83V83H332V0H582V83Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1080 748'%3E%3Cpath fill='%23fff' d='M582 83H830V0H914V83H997V249H1080V416H997V498H1080V582H997V665H831V748H747V665H665V748H498V665H250V748H166V665H0V498H83V333H0V166H83V83H332V0H582V83Z'/%3E%3C/svg%3E");
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 .hero .marker {
