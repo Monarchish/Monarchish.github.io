@@ -148,11 +148,14 @@
           y: -ease(self.progress) * contentMoveDistance,
         });
 
-        /* 图片位移分段（2026-10-29 同步）：与蒙版节奏对齐为 0.4 / 0.7，
-           让「收缩-停留-散开」期间画面整体凝固，不再各自错拍。 */
+        /* 图片位移分段（2026-10-29 同步）：与蒙版节奏同为 0.1 / 0.4 / 0.7，
+           前 10% 连位移一起冻结，画面真的「完全保持原样」；
+           让「保持-收缩-停留-散开」期间画面整体凝固，不再各自错拍。 */
         let heroImgProgress;
-        if (self.progress < 0.4) {
-          heroImgProgress = ease(self.progress / 0.4) * 0.65;
+        if (self.progress < 0.1) {
+          heroImgProgress = 0;
+        } else if (self.progress < 0.4) {
+          heroImgProgress = ease((self.progress - 0.1) / 0.3) * 0.65;
         } else if (self.progress < 0.7) {
           heroImgProgress = 0.65;
         } else {
@@ -167,8 +170,9 @@
         let heroImgSaturation;
         let heroImgOverlayOpacity;
 
-        /* 蒙版节奏（2026-10-29 用户定稿）—— 等价于 timeline 的三段：
-             1) 收缩 duration .4  ：progress 0    → 0.4   黑幕从 FULL 收到 FOCUS
+        /* 蒙版节奏（2026-10-29 用户定稿）—— 等价于 timeline 的四段：
+             0) 保持 duration .1  ：progress 0    → 0.1   窗口维持 FULL，画面原样（先看完整地图）
+             1) 收缩 duration .3  ：progress 0.1  → 0.4   黑幕从 FULL 收到 FOCUS
              2) 停留 duration .3  ：progress 0.4  → 0.7   数值冻结，形成明显停顿
              3) 散开 duration .3  ：progress 0.7  → 1     从 FOCUS 放回 FULL
            聚焦档不再收缩到 1（窗口太小、中心地图看不全），放大到 FOCUS：
@@ -179,9 +183,14 @@
              Lenis 初始化 / ScrollTrigger 配置 / 其他动画一律未动。 */
         const FOCUS = Math.min(1.2, FULL * 0.7);
 
-        if (self.progress < 0.4) {
-          // 1) 收缩：占前 40% 滚动距离
-          const phaseProgress = ease(self.progress / 0.4);
+        if (self.progress < 0.1) {
+          // 0) 前 10%：完全保持原样——窗口维持在 FULL，用户先看到完整地图
+          heroMaskScale = FULL;
+          heroImgSaturation = 1;
+          heroImgOverlayOpacity = 0.16;
+        } else if (self.progress < 0.4) {
+          // 1) 收缩：0.1 → 0.4（推迟 10% 后才开始，占 30% 滚动距离）
+          const phaseProgress = ease((self.progress - 0.1) / 0.3);
           heroMaskScale = FULL - phaseProgress * (FULL - FOCUS);
           heroImgSaturation = 1 - phaseProgress;
           heroImgOverlayOpacity = 0.16 + phaseProgress * 0.26;
@@ -196,6 +205,15 @@
           heroMaskScale = FOCUS + phaseProgress * (FULL - FOCUS);
           heroImgSaturation = phaseProgress;
           heroImgOverlayOpacity = 0.42 - phaseProgress * 0.26;
+        }
+
+        /* 自检日志：确认 0% → 10% 区间里 scale 恒等于 FULL（蒙版还没开始收缩）。
+           只在开局这段打，过了 10% 就自动静默；验收完可整段删掉。 */
+        if (self.progress <= 0.1) {
+          console.log(
+            "[mask] 前10%保持原样 progress=" + self.progress.toFixed(3) +
+            " scale=" + heroMaskScale.toFixed(2) + " FULL=" + FULL.toFixed(2)
+          );
         }
 
         gsap.set(heroMask, {
