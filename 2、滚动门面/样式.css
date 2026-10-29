@@ -132,41 +132,66 @@
   z-index: 3;
   opacity: 0;
 
-  /* ===== v23：删除了 v22 加的取景框 mask =====
-     原站实测：grid-svg 祖先链上没有任何 mask-image / clip-path（svg 自身
-     overflow:visible、z-index:1），网格整体压在黑幕之上——「画框溢出」。
-     所以这里不做任何裁切；溢出部分直接画在黑幕上（与原站一致）。
-     层级关系（不变）：黑幕 .hero-mask z2 < 网格 z3 < 红点标记 z4 < 文案 z5，
-     网格永远不会盖住文字和标记；.hero 自身 overflow:hidden 保证不漏到简介区。 */
+  /* ===== v24：本容器只装粗线 SVG（细线已拆去 .bg-fine-grid） =====
+     层级：细线 .bg-fine-grid z1 < 黑幕 .hero-mask z2 < 本层 z3 < 红点 z4 < 文案 z5。
+     ⇒ 细线被黑幕裁在窗口内、粗线（含阶梯外框）溢出到黑幕上，正是原站的
+        「内细外粗」双层观感。
+
+     ★ 定位终极规律（原站 inversa 实测验证，2026-10-29）：画面正中 = 第 5 排第 7 列粗格正中心。
+       依据：粗格 83 用户单位、缝宽 1、线心在 0.5+83k；第 n 列格心 = 42 + 83(n-1)。
+       第 7 列格心 = 42+83×6 = 540 = viewBox 横向正中；第 5 排格心 = 42+83×4 = 374 = 纵向正中。
+       原站实测：网格中心 (793.5,501) vs 画面中心 (792.5,500)，仅差 1px（作者取整）。
+       本站容器等比铺满 ⇒ 容器中心天然就是第 7 列/第 5 排格心（实测 col 7.000/row 5.000），
+       且与视口无关。所以【禁止】加 520px/360px 之类的绝对像素偏移：
+       会把锚点推离格心 30+px，换视口又漂。 */
 }
 
-/* ===== 战术网格 v23（2026-10-29）=====
-   分两层，各自负责一件事：
-   1) .tactical-grid-fine —— CSS 渐变画 20px 细线，inset:0 铺满整个容器（雷达底纹感），
-      不跟着异形轮廓裁切；
-   2) .tactical-grid-svg  —— 原版素材那条 path（evenodd）直接渲染粗线 + 阶梯外框，
-      线条是 path 自身的 1 单位细缝，闭合不可能断。
-   细线的 background-size 用 cqw（容器宽百分比）：83/4 ÷ 1080 = 1.9213%，
-   与粗线共用同一套等比关系 ⇒ 每个大格必然 4×4。20px 只是老浏览器兜底。
-   显隐仍由 .hero-grid-overlay 的 opacity 动画控制，动画逻辑一行未动。
-   v23 起网格不做任何裁切（原站同款「画框溢出」，见 .hero-grid-overlay 注释）。
+/* ===== 战术网格 v24（2026-10-29 拆层）=====
+   粗细两层彻底分开，各在各的层级：
+   1) .bg-fine-grid —— 细线层（CSS 渐变画 1px 线）。z-index 1，在黑幕
+      .hero-mask（z2）之下：黑幕的窗口洞是唯一透出区，细网格因此
+      天然只在取景框内部可见，且边缘完全贴合阶梯窗轮廓
+      （比任何矩形 clip 更准）。淡入淡出由动画 JS 里的 bgFineGrid
+      钩子自动同步（JS 未动）。
+   2) .hero-grid-overlay（内含 .tactical-grid-svg）—— 粗线 + 阶梯外框，
+      z-index 3，在黑幕之上：出框部分直接画在黑幕上（画框溢出，v23）。
+   ★ 两层同宽（69%）、同心（left/top 50% + translate -50%）：原站实测
+     raster（细）与 grid-svg（粗）rect 完全相同（1076×745 同位同尺寸），
+     同宽同心才能保持「每 4 根细线精确压在 1 根粗线上」的对齐。
+   ★ 色值为原站 inversa.com 计算样式实抓（2026-10-29）：
+     粗线 fill = rgba(244,243,232,0.30)（grid-svg path 的 currentcolor，
+     奶油白 #f4f3e8 × 30%）；细线 = rgba(244,243,232,0.05)（div.raster
+     的 linear-gradient），均非纯白。 */
 
-   ★ 定位终极规律（原站 inversa 实测验证，2026-10-29）：画面正中 = 第 5 排第 7 列粗格正中心。
-     依据：粗格 83 用户单位、缝宽 1、线心在 0.5+83k；第 n 列格心 = 42 + 83(n-1)。
-     第 7 列格心 = 42+83×6 = 540 = viewBox 横向正中；第 5 排格心 = 42+83×4 = 374 = 纵向正中。
-     原站实测：网格中心 (793.5,501) vs 画面中心 (792.5,500)，仅差 1px（作者取整）。
-     本站网格 inset:0 等比铺满容器 ⇒ 容器中心天然就是第 7 列/第 5 排格心
-     （本地实测 col 7.000 / row 5.000，零偏差），且与视口大小无关——
-     所以这里【禁止】再加 520px/360px 之类的绝对像素偏移：
-     那会把锚点推离格心 30+px，而且换了视口宽度就又漂了。 */
-.tactical-grid-fine {
+/* 细线层：黑幕之下、只在窗口内可见。
+   定位与 .hero-grid-overlay 完全一致（居中 69%、1080/748 比例、cqw 定格），
+   网格线位置与 v23 逐像素相同（tile 原点同在容器左上、同 cqw 间距），
+   对齐关系不受拆层影响。手机档宽 103.4% 见媒体查询。 */
+.bg-fine-grid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 69%;
+  aspect-ratio: 1080 / 748;
+  container-type: inline-size;
+  will-change: opacity;
+  z-index: 1; /* 黑幕 z2 之下：窗口外被黑幕盖住 */
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 细线本体。★ 必须单独一层：容器单位 cqw 只对「后代的样式」生效，
+   写在做 container-type 的那个元素自己的 background-size 上会回退到视口宽
+   （1.9213% × 1600 = 30.74px 的错格，实测踩过）。内层 inset:0 也保证
+   图案原点与粗线容器同为左上角，每 4 根细线精确压在 1 根粗线上。 */
+.bg-fine-grid-lines {
   position: absolute;
   inset: 0;
-  z-index: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+    linear-gradient(to right, rgba(244, 243, 232, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(244, 243, 232, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;          /* 兜底：不支持容器单位的浏览器 */
   background-size: 1.9213cqw 1.9213cqw;/* 精确＝83/4 用户单位，任何视口都对得齐 */
 }
@@ -459,6 +484,12 @@
   .hero-grid-overlay {
     /* 手机档窗口 = 75%(mask-size) × FOCUS(1.3) = 内容宽 97.5%；
        同样按原站比例放大 1.0607 ⇒ 103.4%，保持等量画框溢出 */
+    width: 103.4%;
+  }
+
+  /* 细线层与粗线层同宽（见主规则注释）：手机档一起改成 103.4%，
+     保证每 4 根细线仍精确压在粗线上；出窗部分被黑幕盖住（z1 < z2）。 */
+  .bg-fine-grid {
     width: 103.4%;
   }
 
