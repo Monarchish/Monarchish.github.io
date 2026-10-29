@@ -14,6 +14,7 @@
     const heroImgSecond = document.querySelector(".hero-img img.img2");
     const heroMask = document.querySelector(".hero-mask");
     const heroGridOverlay = document.querySelector(".hero-grid-overlay");
+    const bgFineGrid = document.querySelector(".bg-fine-grid");
     const marker1 = document.querySelector(".marker-1");
     const marker2 = document.querySelector(".marker-2");
     const progressBar = document.querySelector(".hero-scroll-progress-bar");
@@ -236,15 +237,23 @@
           });
         }
 
+        /* 出场时序（2026-10-29 用户定稿）—— 四阶段错峰，做出呼吸感：
+             阶段1：蒙版收缩期（0.1→0.4）画面里什么都不要有
+             阶段2：蒙版刚聚焦（0.42→0.46）大网格 + 底层细网格 先淡入
+             阶段3：再延迟一点（0.52→0.56）红点 SF-01 淡入
+             阶段4：最后（0.62→0.66）SF-02 淡入
+           收尾统一在 0.7 之后（蒙版开始散开时）依次淡出。
+           ⚠ 只改 opacity 的分段点，蒙版收缩/停留/散开的 scale 逻辑一行未动；
+             Lenis 与 ScrollTrigger 配置同样未动。 */
         let heroGridOpacity;
-        if (self.progress <= 0.475) {
+        if (self.progress <= 0.42) {
           heroGridOpacity = 0;
-        } else if (self.progress <= 0.5) {
-          heroGridOpacity = ease((self.progress - 0.475) / 0.025);
-        } else if (self.progress <= 0.75) {
+        } else if (self.progress <= 0.46) {
+          heroGridOpacity = ease((self.progress - 0.42) / 0.04);
+        } else if (self.progress <= 0.7) {
           heroGridOpacity = 1;
-        } else if (self.progress <= 0.775) {
-          heroGridOpacity = 1 - ease((self.progress - 0.75) / 0.025);
+        } else if (self.progress <= 0.75) {
+          heroGridOpacity = 1 - ease((self.progress - 0.7) / 0.05);
         } else {
           heroGridOpacity = 0;
         }
@@ -252,16 +261,21 @@
         gsap.set(heroGridOverlay, {
           opacity: heroGridOpacity,
         });
+        if (bgFineGrid) {
+          gsap.set(bgFineGrid, {
+            opacity: heroGridOpacity,
+          });
+        }
 
         let marker1Opacity;
-        if (self.progress <= 0.5) {
+        if (self.progress <= 0.52) {
           marker1Opacity = 0;
-        } else if (self.progress <= 0.525) {
-          marker1Opacity = ease((self.progress - 0.5) / 0.025);
+        } else if (self.progress <= 0.56) {
+          marker1Opacity = ease((self.progress - 0.52) / 0.04);
         } else if (self.progress <= 0.7) {
           marker1Opacity = 1;
-        } else if (self.progress <= 0.75) {
-          marker1Opacity = 1 - ease((self.progress - 0.7) / 0.05);
+        } else if (self.progress <= 0.74) {
+          marker1Opacity = 1 - ease((self.progress - 0.7) / 0.04);
         } else {
           marker1Opacity = 0;
         }
@@ -271,14 +285,14 @@
         });
 
         let marker2Opacity;
-        if (self.progress <= 0.55) {
+        if (self.progress <= 0.62) {
           marker2Opacity = 0;
-        } else if (self.progress <= 0.575) {
-          marker2Opacity = ease((self.progress - 0.55) / 0.025);
+        } else if (self.progress <= 0.66) {
+          marker2Opacity = ease((self.progress - 0.62) / 0.04);
         } else if (self.progress <= 0.7) {
           marker2Opacity = 1;
-        } else if (self.progress <= 0.75) {
-          marker2Opacity = 1 - ease((self.progress - 0.7) / 0.05);
+        } else if (self.progress <= 0.74) {
+          marker2Opacity = 1 - ease((self.progress - 0.7) / 0.04);
         } else {
           marker2Opacity = 0;
         }

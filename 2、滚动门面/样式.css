@@ -124,6 +124,20 @@
   opacity: 0;
 }
 
+/* 最底层细网格：铺满全屏、压在图片之上黑幕之下，所以只有窗口洞里看得见。
+   间距 15px ≈ 大网格格子 67px 的 1/4，用来把大格子再细分成 16 宫格，
+   亮度 0.03 —— 几乎察觉不到，但撑起了原站那种空间深度。 */
+.bg-fine-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 15px 15px;
+  opacity: 0;
+}
+
 /* 战术网格：原站扒下来的原版 SVG 素材（网格线 + 像素阶梯异形边缘一次成型），
    这里只负责容器定位——SVG 本身一行未改。
    尺寸跟着 .hero-grid-overlay（55% 居中）走，正好落在聚焦窗口那块区域；
@@ -136,6 +150,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  /* 放大 1.2 倍：原尺寸（视口 55%）比聚焦窗口小一圈，撑不满蒙版；
+     放大后正好贴住窗口边缘，像素阶梯的锯齿也能完整露出来。 */
+  transform: scale(1.2);
 }
 
 .hero .marker {
