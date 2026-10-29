@@ -590,6 +590,19 @@ html, body { overscroll-behavior: none; }
   z-index: 4;              /* 压网格(z3)/黑幕(z2)之上、Menu(z7)之下 */
 }
 
+/* ===== v31：初始隐藏（防闪现） =====
+   页面刚加载、动画 JS 还没接管的那一瞬间，散点/圆盘会以默认可见状态闪现在原始地图上。
+   这里把它们的初始态钉死为隐藏；动画 JS 每帧都会用 gsap.set 写 inline 的
+   opacity + visibility，inline 优先级高于本规则，滚动到阈值后照常浮现，时序不受影响。
+   （.hotspot-marker / .specialist-marker 是历史类名，一并写上防回归。） */
+.hotspots-svg,
+.hud-marker,
+.hotspot-marker,
+.specialist-marker {
+  opacity: 0;
+  visibility: hidden;
+}
+
 /* 散点层：严格铺满 wrapper（100% × 100%），overflow 由父级裁剪，坐标绝不外溢 */
 .hotspots-svg {
   position: absolute;
