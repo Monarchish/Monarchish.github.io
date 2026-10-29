@@ -628,25 +628,23 @@ html, body { overscroll-behavior: none; }
   z-index: 5;
 }
 
-/* 1. 巨大的半透明雷达光波（缓慢扩散 + 停留 + 消散，ease-in-out 不生硬） */
+/* 1. 雷达光波（v32：每盘只有一个波纹，3.5s 一个周期，散完彻底隐身再从头冒出） */
 .radar-wave {
   position: absolute;
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  animation: radar-pulse 4s infinite ease-in-out;
+  animation: radar-pulse 3.5s infinite ease-out;
+  will-change: transform, opacity;
 }
-/* 两个波纹错开半周期（2s），保证任一时刻都有波在动、循环无断档 */
 .hotspot .radar-wave    { background: rgba(241, 102, 64, 0.35); }
-.hotspot .radar-wave:nth-child(2) { animation-delay: 2s; }
-/* 绿色波纹比红色小一圈（120px），整体再错开 2s 产生交错感 */
+/* 绿色波纹比红色小一圈（120px），整体错开 2s 与红盘形成交错感 */
 .specialist .radar-wave {
   background: rgba(235, 252, 114, 0.25);
   width: 120px;
   height: 120px;
   animation-delay: 2s;
 }
-.specialist .radar-wave:nth-child(2) { animation-delay: 4s; }
 
 /* 2. 中心小实心点（v30：8px→14px，明显比 r=3 的散点大一圈） */
 .center-dot {
@@ -675,10 +673,20 @@ html, body { overscroll-behavior: none; }
 .hotspot .hud-label    { background: #f16640; color: #fff; }
 .specialist .hud-label { background: #ebfc72; color: #000; }
 
-/* 波纹节奏（原站同款，v30）：从中心点 scale(0) 刚冒出来 → 扩到位后停留 → 末尾消散
-   （保留了上一轮定稿的 50% 停留帧；只要"从 0 扩散不要停留"的话删掉 50% 那行即可） */
+/* 波纹节奏（v32 定稿）：从中心冒头 → 75% 扩到最大开始快速消散 → 100% 彻底隐身（visibility 双保险），
+   一整圈走完才重新开始，第一圈绝不与第二圈重叠、终点绝不残留。 */
 @keyframes radar-pulse {
-  0%   { transform: scale(0);   opacity: 1; }
-  50%  { transform: scale(1.2); opacity: 0.2; }
-  100% { transform: scale(1.2); opacity: 0; }
+  0% {
+    transform: scale(0);
+    opacity: 0.8;
+  }
+  75% {
+    transform: scale(1.2);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+    visibility: hidden;
+  }
 }
