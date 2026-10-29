@@ -148,13 +148,15 @@
           y: -ease(self.progress) * contentMoveDistance,
         });
 
+        /* 图片位移分段（2026-10-29 同步）：与蒙版节奏对齐为 0.4 / 0.7，
+           让「收缩-停留-散开」期间画面整体凝固，不再各自错拍。 */
         let heroImgProgress;
-        if (self.progress < 0.45) {
-          heroImgProgress = ease(self.progress / 0.45) * 0.65;
-        } else if (self.progress < 0.75) {
+        if (self.progress < 0.4) {
+          heroImgProgress = ease(self.progress / 0.4) * 0.65;
+        } else if (self.progress < 0.7) {
           heroImgProgress = 0.65;
         } else {
-          heroImgProgress = 0.65 + ease((self.progress - 0.75) / 0.25) * 0.35;
+          heroImgProgress = 0.65 + ease((self.progress - 0.7) / 0.3) * 0.35;
         }
 
         gsap.set(heroImg, {
@@ -170,11 +172,12 @@
              2) 停留 duration .3  ：progress 0.4  → 0.7   数值冻结，形成明显停顿
              3) 散开 duration .3  ：progress 0.7  → 1     从 FOCUS 放回 FULL
            聚焦档不再收缩到 1（窗口太小、中心地图看不全），放大到 FOCUS：
-           1.4 倍窗口 ≈ 视口宽的 70%，地图能完整展示；同时兜底不超过 FULL 的 70%，
+           1.2 倍窗口 ≈ 视口宽的 60%，四周留出更宽的黑边、取景框悬浮感更强
+           （1.4 时几乎撑满全屏，用户要求再缩约 15%）；同时兜底不超过 FULL 的 70%，
            保证任何视口下「收缩 → 停留 → 散开」都成立。
            ⚠ 本次只改这一个 if-else 块里的分段与 scale 数值，
              Lenis 初始化 / ScrollTrigger 配置 / 其他动画一律未动。 */
-        const FOCUS = Math.min(1.4, FULL * 0.7);
+        const FOCUS = Math.min(1.2, FULL * 0.7);
 
         if (self.progress < 0.4) {
           // 1) 收缩：占前 40% 滚动距离
