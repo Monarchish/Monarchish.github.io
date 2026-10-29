@@ -165,28 +165,34 @@
         let heroImgSaturation;
         let heroImgOverlayOpacity;
 
-        if (self.progress <= 0.4) {
-          heroMaskScale = FULL;
-          heroImgSaturation = 1;
-          heroImgOverlayOpacity = 0.16;
-        } else if (self.progress <= 0.5) {
-          const phaseProgress = ease((self.progress - 0.4) / 0.1);
-          heroMaskScale = FULL - phaseProgress * (FULL - 1);
+        /* 蒙版节奏（2026-10-29 用户定稿）—— 等价于 timeline 的三段：
+             1) 收缩 duration .4  ：progress 0    → 0.4   黑幕从 FULL 收到 FOCUS
+             2) 停留 duration .3  ：progress 0.4  → 0.7   数值冻结，形成明显停顿
+             3) 散开 duration .3  ：progress 0.7  → 1     从 FOCUS 放回 FULL
+           聚焦档不再收缩到 1（窗口太小、中心地图看不全），放大到 FOCUS：
+           1.4 倍窗口 ≈ 视口宽的 70%，地图能完整展示；同时兜底不超过 FULL 的 70%，
+           保证任何视口下「收缩 → 停留 → 散开」都成立。
+           ⚠ 本次只改这一个 if-else 块里的分段与 scale 数值，
+             Lenis 初始化 / ScrollTrigger 配置 / 其他动画一律未动。 */
+        const FOCUS = Math.min(1.4, FULL * 0.7);
+
+        if (self.progress < 0.4) {
+          // 1) 收缩：占前 40% 滚动距离
+          const phaseProgress = ease(self.progress / 0.4);
+          heroMaskScale = FULL - phaseProgress * (FULL - FOCUS);
           heroImgSaturation = 1 - phaseProgress;
           heroImgOverlayOpacity = 0.16 + phaseProgress * 0.26;
-        } else if (self.progress <= 0.75) {
-          heroMaskScale = 1;
+        } else if (self.progress < 0.7) {
+          // 2) 停留：占中间 30%，数值不变保持冻结
+          heroMaskScale = FOCUS;
           heroImgSaturation = 0;
           heroImgOverlayOpacity = 0.42;
-        } else if (self.progress <= 0.85) {
-          const phaseProgress = ease((self.progress - 0.75) / 0.1);
-          heroMaskScale = 1 + phaseProgress * (FULL - 1);
+        } else {
+          // 3) 散开：占最后 30%
+          const phaseProgress = ease((self.progress - 0.7) / 0.3);
+          heroMaskScale = FOCUS + phaseProgress * (FULL - FOCUS);
           heroImgSaturation = phaseProgress;
           heroImgOverlayOpacity = 0.42 - phaseProgress * 0.26;
-        } else {
-          heroMaskScale = FULL;
-          heroImgSaturation = 1;
-          heroImgOverlayOpacity = 0.16;
         }
 
         gsap.set(heroMask, {
