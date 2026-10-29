@@ -115,13 +115,27 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 55%;
+  /* 网格容器的高度：以前靠里面那张 <img> 的内在高度撑着，
+     换成纯 div 之后父级会塌成 0 高、网格整片消失。
+     这里按原版素材 viewBox 1080×748 的比例直接定高。 */
+  aspect-ratio: 1080 / 748;
   will-change: opacity;
   z-index: 3;
   opacity: 0;
 }
 
-.hero-grid-overlay img {
-  opacity: 0.25;
+/* 战术网格：原站扒下来的原版 SVG 素材（网格线 + 像素阶梯异形边缘一次成型），
+   这里只负责容器定位——SVG 本身一行未改。
+   尺寸跟着 .hero-grid-overlay（55% 居中）走，正好落在聚焦窗口那块区域；
+   显隐仍由门面动画控制 .hero-grid-overlay 的 opacity，动画逻辑没动。 */
+.tactical-grid-wrapper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .hero .marker {
