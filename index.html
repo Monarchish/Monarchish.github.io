@@ -48,7 +48,7 @@
           href="0、公共库/字体/jetbrains-mono-400.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=27" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=28" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
@@ -225,12 +225,13 @@
             </svg>
         </div>
 
-        <!-- ===== v25：散点雷达 + 发光标记（纯新增，约束在 .hero-mask-wrapper 内） =====
-             放进 .hero-mask-wrapper：该层与 .hero-mask / .hero-grid-overlay 同级、同样居中同宽，
-             故散点/HUD 被锁在取景窗区域内，不再飞出屏幕。
+        <!-- ===== v28：散点雷达 + 战术圆盘（约束在 .hero-mask-wrapper 内） =====
+             放进 .hero-mask-wrapper：该层是 .hero-mask / .hero-grid-overlay 的兄弟节点，
+             尺寸严格等于"聚焦窗口"（65% × 1030/701），且套了同一张 蒙版窗.svg 做形状裁切，
+             所以散点绝不会跑到取景窗外的纯黑背景上。
              ★ 不塞进 .hero-mask 内部——.hero-mask 自身带异形窗蒙版（mask-composite:exclude），
                子元素会被同一蒙版裁到黑幕上、窗口内反被抠空。
-             标记淡入时序仍由 动画.js 的 ScrollTrigger 分段驱动（红 0.52→0.56 / 绿 0.62→0.66），未改动。 -->
+             淡入时序由 动画.js 的 ScrollTrigger 分段驱动（散点 0.40 / 红 0.45 / 绿 0.50），未改动蒙版逻辑。 -->
         <div class="hero-mask-wrapper">
             <!-- 散落雷达点（36 个真实坐标，原样贴入） -->
             <svg class="hotspots-svg" viewBox="0 0 764 542" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index: 4;">
@@ -272,18 +273,20 @@
                 <circle cx="593" cy="20" r="3" fill="#D4FF00" class="drift-point" />
             </svg>
 
-            <!-- HOTSPOT 居中偏下 -->
-            <div class="hotspot-marker" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; z-index: 5; display: flex; align-items: center; justify-content: center; color: #FF4D24;">
-                <div class="effect-pulse"><div class="pulse-ring"></div><div class="pulse-ring"></div></div>
-                <div style="width: 8px; height: 8px; background: #FF4D24; border-radius: 50%;"></div>
-                <div style="position: absolute; left: 40px; background: #FF4D24; color: #fff; padding: 2px 8px; font-size: 10px; font-weight: 700; white-space: nowrap;">HOTSPOT</div>
+            <!-- 红色战术圆盘：正中心 -->
+            <div class="hud-marker hotspot" style="top: 50%; left: 50%;">
+                <div class="radar-wave"></div>
+                <div class="radar-wave" style="animation-delay: 1.5s;"></div>
+                <div class="center-dot"></div>
+                <div class="hud-label">HOTSPOT</div>
             </div>
 
-            <!-- FIELD SPECIALIST 偏右上 -->
-            <div class="specialist-marker" style="position: absolute; top: 35%; left: 65%; transform: translate(-50%, -50%); width: 80px; height: 80px; z-index: 5; display: flex; align-items: center; justify-content: center; color: #D4FF00;">
-                <div class="effect-pulse"><div class="pulse-ring"></div><div class="pulse-ring"></div></div>
-                <div style="width: 8px; height: 8px; background: #D4FF00; border-radius: 50%;"></div>
-                <div style="position: absolute; left: 40px; background: #D4FF00; color: #000; padding: 2px 8px; font-size: 10px; font-weight: 700; white-space: nowrap;">FIELD SPECIALIST</div>
+            <!-- 绿色战术圆盘：右上角 -->
+            <div class="hud-marker specialist" style="top: 35%; left: 65%;">
+                <div class="radar-wave"></div>
+                <div class="radar-wave" style="animation-delay: 1.5s;"></div>
+                <div class="center-dot"></div>
+                <div class="hud-label">FIELD SPECIALIST</div>
             </div>
         </div>
 
@@ -703,7 +706,7 @@
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
                 reveal: { global: "SupportFutureReveal", urls: ["1、开屏动画/动画.js?v=6"] },
-                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=14"] }
+                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=15"] }
             };
 
             /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */

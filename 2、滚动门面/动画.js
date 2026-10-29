@@ -15,8 +15,8 @@
     const heroMask = document.querySelector(".hero-mask");
     const heroGridOverlay = document.querySelector(".hero-grid-overlay");
     const bgFineGrid = document.querySelector(".bg-fine-grid");
-    const marker1 = document.querySelector(".hotspot-marker");
-    const marker2 = document.querySelector(".specialist-marker");
+    const marker1 = document.querySelector(".hud-marker.hotspot");
+    const marker2 = document.querySelector(".hud-marker.specialist");
     const hotspotsSvg = document.querySelector(".hotspots-svg");
     const progressBar = document.querySelector(".hero-scroll-progress-bar");
 
@@ -269,14 +269,14 @@
           });
         }
 
-        /* ===== HUD 严格时序（2026-10-29 终极版，用户定稿）=====
-           0–0.38   全部隐藏（散点/红点/绿点 opacity 0 + visibility hidden，绝不出现在黑幕外）
-           0.38–0.45 外围散点 SVG 淡入
-           0.45–0.52 HOTSPOT 红点淡入
-           0.52–0.60 SPECIALIST 绿点淡入
-           0.60–0.70 全部保持显示（蒙版冻结期）
-           0.70–0.75 全部迅速淡出，黑幕散开时屏幕干净
-           ⚠ 只改 HUD 的 opacity/visibility；蒙版 scale 分段、Lenis、ScrollTrigger 一行未动。 */
+        /* ===== HUD 时序（2026-10-29 v28 定稿，用户指令）=====
+           progress < 0.40   全部隐藏（网格出现是原逻辑，此时 HUD 一律 opacity 0 + visibility hidden）
+           0.40–0.45         外围散点 SVG 淡入
+           0.45–0.50         红色 HOTSPOT 圆盘淡入
+           0.50–0.55         绿色 FIELD SPECIALIST 圆盘淡入
+           0.55–0.70         全部保持显示（蒙版冻结期）
+           0.70–0.75         随网格一起淡出，黑幕散开时屏幕干净
+           ⚠ 只改 HUD 的 opacity/visibility 分段；蒙版 scale 分段、Lenis、ScrollTrigger 一行未动。 */
         const hudFade = (p, inStart, inEnd) => {
           if (p < inStart) return 0;
           if (p < inEnd) return ease((p - inStart) / (inEnd - inStart));
@@ -284,9 +284,9 @@
           if (p <= 0.75) return 1 - ease((p - 0.7) / 0.05);
           return 0;
         };
-        const svgOp = hudFade(self.progress, 0.38, 0.45);
-        const hotspotOp = hudFade(self.progress, 0.45, 0.52);
-        const specialistOp = hudFade(self.progress, 0.52, 0.6);
+        const svgOp = hudFade(self.progress, 0.4, 0.45);
+        const hotspotOp = hudFade(self.progress, 0.45, 0.5);
+        const specialistOp = hudFade(self.progress, 0.5, 0.55);
         if (hotspotsSvg) {
           gsap.set(hotspotsSvg, { opacity: svgOp, visibility: svgOp > 0.001 ? "visible" : "hidden" });
         }
