@@ -635,11 +635,11 @@ html, body { overscroll-behavior: none; }
 }
 .specialist .radar-wave:nth-child(2) { animation-delay: 4s; }
 
-/* 2. 中心小实心点 */
+/* 2. 中心小实心点（v30：8px→14px，明显比 r=3 的散点大一圈） */
 .center-dot {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   z-index: 2;
 }
@@ -662,9 +662,10 @@ html, body { overscroll-behavior: none; }
 .hotspot .hud-label    { background: #f16640; color: #fff; }
 .specialist .hud-label { background: #ebfc72; color: #000; }
 
-/* 波纹节奏（原站同款）：扩散 → 50% 扩到位后停留 → 末尾消散 */
+/* 波纹节奏（原站同款，v30）：从中心点 scale(0) 刚冒出来 → 扩到位后停留 → 末尾消散
+   （保留了上一轮定稿的 50% 停留帧；只要"从 0 扩散不要停留"的话删掉 50% 那行即可） */
 @keyframes radar-pulse {
-  0%   { transform: scale(0.8); opacity: 0.6; }
+  0%   { transform: scale(0);   opacity: 1; }
   50%  { transform: scale(1.2); opacity: 0.2; }
   100% { transform: scale(1.2); opacity: 0; }
 }
