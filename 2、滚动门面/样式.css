@@ -585,23 +585,24 @@ html, body { overscroll-behavior: none; }
   pointer-events: none;
   z-index: -1;
 }
-/* 呼吸光晕环（用户指定尺寸，限死 20px，避免变成黑洞）：扩张 + 淡出 */
+/* 呼吸光晕环（用户定稿：40px 基准、1.5px 描边、margin 居中、scale 0.3→2.2、ease-out） */
 .pulse-ring {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 20px;
-  height: 20px;
-  border: 1px solid currentColor;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  margin-left: -20px;
+  border: 1.5px solid currentColor;
   border-radius: 50%;
-  transform: translate(-50%, -50%);
-  animation: pulse-out 2.5s infinite cubic-bezier(0.2, 0.8, 0.4, 1);
-  opacity: 0;
+  box-shadow: 0 0 8px currentColor;
+  animation: pulse-out 2.4s ease-out infinite;
 }
 .pulse-ring:nth-child(2) {
-  animation-delay: 1.25s;
+  animation-delay: 1.2s;
 }
 @keyframes pulse-out {
-  0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-  100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+  0%   { transform: scale(0.3); opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0; }
 }

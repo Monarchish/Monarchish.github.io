@@ -17,6 +17,7 @@
     const bgFineGrid = document.querySelector(".bg-fine-grid");
     const marker1 = document.querySelector(".hotspot-marker");
     const marker2 = document.querySelector(".specialist-marker");
+    const hotspotsSvg = document.querySelector(".hotspots-svg");
     const progressBar = document.querySelector(".hero-scroll-progress-bar");
 
     if (!hero || !heroContent || !heroImgElement) return;
@@ -42,7 +43,8 @@
     // Match source start state before first scrub tick
     gsap.set(heroMask, { scale: FULL, autoAlpha: 1 });
     gsap.set(heroGridOverlay, { opacity: 0 });
-    gsap.set([marker1, marker2], { opacity: 0 });
+    gsap.set([marker1, marker2], { opacity: 0, visibility: "hidden" });
+    if (hotspotsSvg) gsap.set(hotspotsSvg, { opacity: 0, visibility: "hidden" });
 
     /* ============================================================
        文案「动态输入」效果（参考 inversa 的 BaseTitle scrambleText）：
@@ -267,39 +269,29 @@
           });
         }
 
-        let marker1Opacity;
-        if (self.progress <= 0.52) {
-          marker1Opacity = 0;
-        } else if (self.progress <= 0.56) {
-          marker1Opacity = ease((self.progress - 0.52) / 0.04);
-        } else if (self.progress <= 0.7) {
-          marker1Opacity = 1;
-        } else if (self.progress <= 0.74) {
-          marker1Opacity = 1 - ease((self.progress - 0.7) / 0.04);
-        } else {
-          marker1Opacity = 0;
+        /* ===== HUD 严格时序（2026-10-29 终极版，用户定稿）=====
+           0–0.38   全部隐藏（散点/红点/绿点 opacity 0 + visibility hidden，绝不出现在黑幕外）
+           0.38–0.45 外围散点 SVG 淡入
+           0.45–0.52 HOTSPOT 红点淡入
+           0.52–0.60 SPECIALIST 绿点淡入
+           0.60–0.70 全部保持显示（蒙版冻结期）
+           0.70–0.75 全部迅速淡出，黑幕散开时屏幕干净
+           ⚠ 只改 HUD 的 opacity/visibility；蒙版 scale 分段、Lenis、ScrollTrigger 一行未动。 */
+        const hudFade = (p, inStart, inEnd) => {
+          if (p < inStart) return 0;
+          if (p < inEnd) return ease((p - inStart) / (inEnd - inStart));
+          if (p <= 0.7) return 1;
+          if (p <= 0.75) return 1 - ease((p - 0.7) / 0.05);
+          return 0;
+        };
+        const svgOp = hudFade(self.progress, 0.38, 0.45);
+        const hotspotOp = hudFade(self.progress, 0.45, 0.52);
+        const specialistOp = hudFade(self.progress, 0.52, 0.6);
+        if (hotspotsSvg) {
+          gsap.set(hotspotsSvg, { opacity: svgOp, visibility: svgOp > 0.001 ? "visible" : "hidden" });
         }
-
-        gsap.set(marker1, {
-          opacity: marker1Opacity,
-        });
-
-        let marker2Opacity;
-        if (self.progress <= 0.62) {
-          marker2Opacity = 0;
-        } else if (self.progress <= 0.66) {
-          marker2Opacity = ease((self.progress - 0.62) / 0.04);
-        } else if (self.progress <= 0.7) {
-          marker2Opacity = 1;
-        } else if (self.progress <= 0.74) {
-          marker2Opacity = 1 - ease((self.progress - 0.7) / 0.04);
-        } else {
-          marker2Opacity = 0;
-        }
-
-        gsap.set(marker2, {
-          opacity: marker2Opacity,
-        });
+        gsap.set(marker1, { opacity: hotspotOp, visibility: hotspotOp > 0.001 ? "visible" : "hidden" });
+        gsap.set(marker2, { opacity: specialistOp, visibility: specialistOp > 0.001 ? "visible" : "hidden" });
       },
     });
 
@@ -337,7 +329,7 @@
           ease: 'sine.inOut'
         });
         gsap.to(dot, {
-          opacity: 'random(0.2, 0.8)',
+          opacity: 'random(0.7, 1)',
           duration: 'random(1, 2.5)',
           repeat: -1,
           yoyo: true,
