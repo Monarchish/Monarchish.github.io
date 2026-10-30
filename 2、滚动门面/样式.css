@@ -334,30 +334,68 @@
   align-items: center;
 }
 
-/* ===== v50：三段门面文字（用户给的版式，独立绝对定位）=====
-   三块都挂在 .hero 下（.desc-block 绝对定位 → 相对 section.hero 的 100vh 视口定位），
-   跟滚动行程容器解耦，所以不会跟着 .hero-content 的位移一起跑。
-   显隐不写在这里：全部交给 动画.js 按 progress 硬切（0.55 / 0.65 / 0.75）。
-   ⚠ 右侧 4vw 留给滚动指示器，block 的宽度/右偏移都没压到它。 */
-.desc-block {
+/* ===== v51：大标题 + 三段门面文字（v50 的散点绝对定位已回档重写）=====
+   1) 大标题复刻 inversa 首屏：左下角两行大字 + 下方黄色乱码重排 CTA（href 暂空）。
+   2) 三段文字回归文档流：统一装进 .hero-text-wrapper（右下角，避开 4vw 进度条），
+      竖排 gap 2rem；块自身初始 opacity 0 + translateY(30px)，滑入由 JS 驱动。 */
+.hero-headline {
   position: absolute;
-  width: 40vw;
-  max-width: 480px;
-  opacity: 0;
-  visibility: hidden;
+  left: 4vw;
+  bottom: 10vh;
   z-index: 10;
   pointer-events: none;
-  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55);
 }
 
-/* 段落1：偏中上，左侧留足空间 */
-.block-1 { top: 25%; right: 20vw; }
+.hero-headline h1 {
+  margin: 0 0 1.4rem;
+  color: #f4f3e8;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 4.4vw, 4.6rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+}
 
-/* 段落2：偏左下 */
-.block-2 { bottom: 35%; left: 8vw; }
+.hero-headline .hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  pointer-events: auto;
+  background-color: #ebfc72;
+  color: #13140e;
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  padding: 0.85em 1.5em;
+  border-radius: 3px;
+  text-decoration: none;
+  cursor: pointer;
+}
 
-/* 段落3：正下方居中 */
-.block-3 { bottom: 18vh; left: 35vw; }
+.hero-headline .hero-cta-arrow {
+  font-family: "DM Sans", sans-serif;
+}
+
+.hero-text-wrapper {
+  position: absolute;
+  bottom: 15vh;
+  right: 12vw; /* 离右边的进度条（4vw）足够远 */
+  width: 35vw;
+  max-width: 450px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* 段间距 */
+}
+
+.desc-block {
+  opacity: 0;
+  transform: translateY(30px); /* 初始状态：向下偏移 30px，为向上滑入做准备 */
+  visibility: hidden;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55);
+}
 
 .desc-block .sub-title {
   color: var(--color-yellow, #ebfc72);
@@ -394,15 +432,24 @@
   margin: 0;
 }
 
-/* 手机端：40vw 太窄，改成 78vw 并重新排位，避开右侧 12px 指示器 */
+/* 手机端：右下容器改为 74vw 宽、靠右 8vw；大标题缩字号上移防挤 */
 @media (max-width: 768px) {
-  .desc-block {
-    width: 78vw;
-    max-width: none;
+  .hero-headline {
+    bottom: auto;
+    top: 12vh;
+    left: 6vw;
   }
-  .block-1 { top: 20%; right: 10vw; }
-  .block-2 { bottom: 32%; left: 8vw; }
-  .block-3 { bottom: 16vh; left: 8vw; }
+  .hero-headline h1 {
+    font-size: clamp(1.9rem, 8vw, 2.6rem);
+    margin-bottom: 1.1rem;
+  }
+  .hero-text-wrapper {
+    bottom: 12vh;
+    right: 8vw;
+    width: 74vw;
+    max-width: none;
+    gap: 1.4rem;
+  }
   .desc-block .sub-title {
     font-size: 0.95rem;
     letter-spacing: 0.08em;

@@ -48,7 +48,7 @@
           href="0、公共库/字体/jetbrains-mono-400.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=49" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=50" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
@@ -292,21 +292,31 @@
              高度必须保持 400vh —— 门面总滚动长度、蒙版三段节奏全靠它，删了整体就错位。 -->
         <div class="hero-content"></div>
 
-        <!-- 三段门面文字（v50）：各自绝对定位在门面上，按滚动进度依次出场
-             （0.55 / 0.65 / 0.75），显隐与呼吸由 动画.js 的 ScrollTrigger onUpdate 驱动。 -->
-        <div class="desc-block block-1">
-            <h3 class="sub-title"><span class="cursor-dot"></span>RAW FRAGMENTS</h3>
-            <p class="desc-text">Joy, struggle, and everyday moments are distilled into a living archive. This is not just data. It is the unfiltered footprint of a human.</p>
+        <!-- 大标题（v51，复刻 inversa 首屏）：左下角两行标题 + 下方乱码重排的黄色 CTA。
+             超链接保留但 href 暂时空着（跳转目标未定）。 -->
+        <div class="hero-headline">
+            <h1>Time forgets.<br />I document.</h1>
+            <a class="hero-cta" href="#" onclick="return false;">
+                <span class="hero-cta-label">EXPLORE MORE</span>
+                <span class="hero-cta-arrow" aria-hidden="true">&#8594;</span>
+            </a>
         </div>
 
-        <div class="desc-block block-2">
-            <h3 class="sub-title"><span class="cursor-dot"></span>SYSTEMATIC ORDER</h3>
-            <p class="desc-text">Complex tasks are converted into precise workflows. By delegating repetitive operations to AI, cognitive capacity is restored. Focus on judgment and strategy.</p>
-        </div>
-
-        <div class="desc-block block-3">
-            <h3 class="sub-title"><span class="cursor-dot"></span>CONTINUOUS EVOLUTION</h3>
-            <p class="desc-text">A lifelong system that learns and adapts. Bridging past experiences with future potential, it evolves into a cognitive companion, day by day.</p>
+        <!-- 三段门面文字（v51 重写）：回归正常文档流，统一装进右下角容器里竖排，
+             避开右侧 4vw 的进度条；按滚动进度依次从下滑入（0.55 / 0.62 / 0.69）。 -->
+        <div class="hero-text-wrapper">
+            <div class="desc-block">
+                <h3 class="sub-title"><span class="cursor-dot"></span>RAW FRAGMENTS</h3>
+                <p class="desc-text">Joy, struggle, and everyday moments are distilled into a living archive. This is not just data. It is the unfiltered footprint of a human.</p>
+            </div>
+            <div class="desc-block">
+                <h3 class="sub-title"><span class="cursor-dot"></span>SYSTEMATIC ORDER</h3>
+                <p class="desc-text">Complex tasks are converted into precise workflows. By delegating repetitive operations to AI, cognitive capacity is restored. Focus on judgment and strategy.</p>
+            </div>
+            <div class="desc-block">
+                <h3 class="sub-title"><span class="cursor-dot"></span>CONTINUOUS EVOLUTION</h3>
+                <p class="desc-text">A lifelong system that learns and adapts. Bridging past experiences with future potential, it evolves into a cognitive companion, day by day.</p>
+            </div>
         </div>
 
         <div class="scroll-indicator hero-scroll-progress-bar">
@@ -703,7 +713,7 @@
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
                 reveal: { global: "SupportFutureReveal", urls: ["1、开屏动画/动画.js?v=6"] },
-                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=22"] }
+                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=23"] }
             };
 
             /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */
