@@ -628,31 +628,66 @@ html, body { overscroll-behavior: none; }
   z-index: 5;
 }
 
-/* 1. 雷达光波（v36：红大黄小、红快黄慢的错落感；translate 绝对居中绝不偏移）
+/* 1. 雷达光波（v38：双波重叠——单元素动画废弃，改用 ::before/::after 伪元素
+   生成两道错峰波纹，不增加任何 HTML 节点，也绝无残留：
+   第二波在第一波跑到一半时出发，两波相位差恒定半个周期，接力重叠。
+   ★ 波纹带延迟出发，伪元素 base 态必须 opacity:0 + scale(0)，
+     否则等待期内会以完整尺寸静止闪现。
    ★ keyframes 每帧必须带 translate(-50%,-50%)——动画会整体覆盖 transform，
      若帧里只有 scale()，波纹会锚死容器中心向右下偏移半个身位。 */
 .radar-wave {
   position: absolute;
   top: 50%;
   left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: none !important;
+}
+
+/* 双波共用的基础样式：延迟等待期保持隐身 */
+.radar-wave::before,
+.radar-wave::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%) scale(0);
   border-radius: 50%;
-  pointer-events: none;
+  opacity: 0;
+  animation: radar-pulse 3s infinite ease-out;
   will-change: transform, opacity;
 }
-/* 红色波纹：大一点（200px），快一点（1.8s） */
-.hotspot .radar-wave {
+
+/* 第一波：立即出发 */
+.radar-wave::before {
+  animation-delay: 0s;
+}
+
+/* 第二波：延迟半周期（1.5s）出发，与第一波形成双波重叠 */
+.radar-wave::after {
+  animation-delay: 1.5s;
+}
+
+/* 红色波纹（Professional）：大（200px） */
+.hotspot .radar-wave::before,
+.hotspot .radar-wave::after {
   width: 200px;
   height: 200px;
   background: rgba(241, 102, 64, 0.35);
-  animation: radar-pulse 1.8s infinite ease-out;
 }
-/* 绿色波纹：小一点（140px），慢一点（2.6s），与红波自然错开 */
-.specialist .radar-wave {
+
+/* 绿色波纹（Personal）：小（140px）、慢一档（3.5s）营造错落感 */
+.specialist .radar-wave::before,
+.specialist .radar-wave::after {
   width: 140px;
   height: 140px;
   background: rgba(235, 252, 114, 0.25);
-  animation: radar-pulse 2.6s infinite ease-out;
+  animation-duration: 3.5s;
+}
+
+/* 绿波第二道同步按 3.5s 周期延迟半周出发 */
+.specialist .radar-wave::after {
+  animation-delay: 1.75s;
 }
 
 /* 2. 中心实心点（v36：全局 10px !important，移动端同步强制，只比散点 6px 大一点） */
@@ -682,12 +717,12 @@ html, body { overscroll-behavior: none; }
 .hotspot .hud-label    { background: #f16640; color: #fff; }
 .specialist .hud-label { background: #ebfc72; color: #000; }
 
-/* 波纹节奏（v36 用户定稿）：scale 最大到 1（不再 1.2），75% 扩到位后快速消散。
+/* 波纹节奏（v38）：scale 最大到 1，75% 扩到位后快速消散。
    ★ 每帧带 translate(-50%,-50%) 保持绝对居中（见上方 .radar-wave 注释）。 */
 @keyframes radar-pulse {
   0% {
     transform: translate(-50%, -50%) scale(0);
-    opacity: 0.9;
+    opacity: 0.8;
   }
   75% {
     transform: translate(-50%, -50%) scale(1);
@@ -700,10 +735,10 @@ html, body { overscroll-behavior: none; }
   }
 }
 
-/* ===== v36：移动端适配（≤768px，用户定稿） =====
+/* ===== v38：移动端适配（≤768px） =====
    定位统一 translate(-50%,-50%) 居中锚定，绝无 margin/裸偏移。
-   注：①标签 left 用 calc(50% + 25px)——裸 25px 相对容器左缘会落到圆心左边；
-      ②绿盘(70%)标签在点右侧会超出取景窗被 overflow 裁掉，翻到点左侧。 */
+   注：标签 left 必须写 calc(50% + Npx)——裸 Npx 相对 300px 容器左缘，
+   会落到圆心左边（v29/v37 实测踩过的坑）。 */
 @media (max-width: 768px) {
   /* 强制居中定位，红黄点拉开距离 */
   .hotspot {
@@ -712,8 +747,9 @@ html, body { overscroll-behavior: none; }
     transform: translate(-50%, -50%) !important;
   }
   .specialist {
-    top: 38% !important;
-    left: 70% !important;
+    /* v38：黄点（Personal）从 70% 推到 82%，彻底靠右 */
+    top: 35% !important;
+    left: 82% !important;
     transform: translate(-50%, -50%) !important;
   }
   /* 移动端中心点与散点（6px）同尺寸；电脑端保持 10px 不变 */
@@ -728,9 +764,11 @@ html, body { overscroll-behavior: none; }
     left: calc(50% + 25px) !important;
     white-space: nowrap;
   }
+  /* v38：强制 Personal 标签始终在黄点右侧（从圆心向右拉开 20px） */
   .specialist .hud-label {
-    left: auto !important;
-    right: calc(50% + 25px) !important;
+    left: calc(50% + 20px) !important;
+    right: auto !important;
     transform: translateY(-50%);
+    white-space: nowrap !important;
   }
 }
