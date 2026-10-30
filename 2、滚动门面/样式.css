@@ -613,6 +613,19 @@ html, body { overscroll-behavior: none; }
   pointer-events: none;
 }
 
+/* ===== v41：散点闪烁修复（移动端滑屏 GPU 重绘） =====
+   强制提升为 GPU 独立合成层，避免滚动重绘时整片散点闪黑/闪没。
+   ★ JS 的 gsap 会给 .drift-point 写 inline transform（漂移），
+     inline 会盖掉这里的 translateZ(0)——无妨：gsap 的 transform +
+     这里的 will-change 同样保证独立层；backface-visibility 防背面重绘闪烁。 */
+.hotspots-svg,
+.drift-point {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 /* ===== 战术圆盘（对齐导师原站：巨大半透明圆盘 + 中心实心点 + 远距离悬浮标签） ====
    容器 300×300 给足光晕空间；opacity 由 动画.js 的分段控制淡入淡出。 */
 .hud-marker {
@@ -760,6 +773,11 @@ html, body { overscroll-behavior: none; }
      只有 65% 宽，散点/圆盘被压在窗口中央一小块、82% 的黄点标签必然被裁。 */
   .hero-mask-wrapper {
     width: 97.5%;
+  }
+  /* v41：手机端散点固定半透明常亮（author !important 压过 gsap inline opacity），
+     滑屏时只做位移不做透明度变化，消除 GPU 重绘闪烁。 */
+  .drift-point {
+    opacity: 0.6 !important;
   }
   /* 强制居中定位，红黄点拉开距离 */
   .hotspot {
