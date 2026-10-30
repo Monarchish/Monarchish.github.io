@@ -285,8 +285,17 @@
           return 0;
         };
         const svgOp = hudFade(self.progress, 0.4, 0.45);
-        const hotspotOp = hudFade(self.progress, 0.45, 0.5);
-        const specialistOp = hudFade(self.progress, 0.5, 0.55);
+        /* v44：镭射点入场改瞬间出现（用户指令，禁止过渡渐变）——
+           progress > 0.4 直接 opacity 1 + visible；< 0.4 直接 0 + hidden。
+           退场仍保留 0.70–0.75 与网格同步淡出（黑幕散开时屏幕干净）。 */
+        const markerOp = (p) => {
+          if (p < 0.4) return 0;
+          if (p <= 0.7) return 1;
+          if (p <= 0.75) return 1 - ease((p - 0.7) / 0.05);
+          return 0;
+        };
+        const hotspotOp = markerOp(self.progress);
+        const specialistOp = markerOp(self.progress);
         if (hotspotsSvg) {
           gsap.set(hotspotsSvg, { opacity: svgOp, visibility: svgOp > 0.001 ? "visible" : "hidden" });
         }
@@ -316,25 +325,34 @@
     window.SupportFutureScroll = { init: initScroll };
 
     /* ===== v25：散点雷达随机漂移（纯新增，独立于门面逻辑；gsap 由加载器保证已就绪） =====
-       仅给 .drift-point 加无限 yoyo 漂移 + 透明度随机跳动，不影响任何网格/蒙版/Lenis 行为。 */
+       v44 修复：本文件是动态注入的，若在散点 DOM 解析完成前执行，
+       querySelectorAll('.drift-point') 会拿到空集合、补间一次都不会建（散点不动）。
+       现改为等 DOM 就绪再启动（readyState 已过 loading 则立即执行）。 */
     if (window.gsap) {
-      const driftDots = document.querySelectorAll('.drift-point');
-      driftDots.forEach(function (dot) {
-        gsap.to(dot, {
-          x: 'random(-8, 8)',
-          y: 'random(-8, 8)',
-          duration: 'random(2, 4)',
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut'
+      const startDrift = function () {
+        const driftDots = document.querySelectorAll('.drift-point');
+        driftDots.forEach(function (dot) {
+          gsap.to(dot, {
+            x: 'random(-8, 8)',
+            y: 'random(-8, 8)',
+            duration: 'random(2, 4)',
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+          });
+          gsap.to(dot, {
+            opacity: 'random(0.7, 1)',
+            duration: 'random(1, 2.5)',
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+          });
         });
-        gsap.to(dot, {
-          opacity: 'random(0.7, 1)',
-          duration: 'random(1, 2.5)',
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut'
-        });
-      });
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startDrift);
+      } else {
+        startDrift();
+      }
     }
 })();

@@ -334,19 +334,18 @@
   align-items: center;
 }
 
-/* ===== v43：右侧滚动指示器（用户定稿：更大、更靠左、折角向内、进度从上往下） =====
+/* ===== v44：右侧滚动指示器（用户定稿终版：贴右缘、更紧凑、进度线变暗） =====
    结构保持单节点 .hero-scroll-progress-bar + 伪元素（HTML/JS 零改动）：
-   ::before 画四角向内折的瞄准折线，::after 画黄色进度线。
-   JS 只写 --progress 变量（即用户示例中的 --scroll-progress，变量名以本站实际为准），
-   ::after 用 translateX(-50%) scaleY(var(--progress)) 消费，transform-origin: top
-   ⇒ 从顶部往下生长。容器本体保留 1px 中央轨道线（奶油白 50%，沿用原站观感）。 */
+   ::before 画四角向内折的瞄准折线（6×6 短线、贴近中线），::after 画黄色进度线
+   （上下留 15px 缝、opacity 0.7 柔和、scaleY 从顶部往下生长）。
+   JS 只写 --progress 变量，::after 消费之。容器本体保留 1px 中央轨道线。 */
 .hero-scroll-progress-bar {
   position: absolute;
   top: 50%;
-  right: 8rem; /* 距右侧更远，往左靠 */
+  right: 3.5vw; /* 贴近屏幕边缘但留有余地 */
   transform: translateY(-50%);
-  width: 40px;  /* 宽度加大 */
-  height: 220px; /* 高度拉长 */
+  width: 24px;   /* 整体收窄，四角贴近中线 */
+  height: 180px;
   pointer-events: none;
   --progress: 0;
   z-index: 6;
@@ -357,45 +356,45 @@
   background-repeat: no-repeat;
 }
 
-/* 四角瞄准折线（向内收拢）：多重背景渐变逐字照抄用户方案
-   左上/左下取左缘竖线，右上/右下取右缘竖线；横线取上缘/下缘 */
+/* 四角瞄准折线（向内收拢、紧凑）：多重背景渐变 */
 .hero-scroll-progress-bar::before {
   content: "";
   position: absolute;
   inset: 0;
   background-image:
     /* 左上角 */
-    linear-gradient(to right, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
     /* 右上角 */
-    linear-gradient(to left, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to left, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
     /* 左下角 */
-    linear-gradient(to right, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to top, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to top, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
     /* 右下角 */
-    linear-gradient(to left, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to top, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+    linear-gradient(to left, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to top, rgba(255, 255, 255, 0.6) 1px, transparent 1px);
   background-position:
     0 0, 0 0,
     100% 0, 100% 0,
     0 100%, 0 100%,
     100% 100%, 100% 100%;
-  background-size: 10px 10px; /* 折角线条长度 */
+  background-size: 6px 6px; /* 折角线很短，显得紧凑 */
   background-repeat: no-repeat;
   pointer-events: none;
 }
 
-/* 进度线：黄色（#ebfc72，与 HUD 圆点同色），正中、上下各留 10px 缝，
+/* 进度线：黄色变暗（opacity 0.7），正中、上下各留 15px 缝，
    从顶部往下生长（scaleY + origin top，性能友好） */
 .hero-scroll-progress-bar::after {
   content: "";
   position: absolute;
-  top: 10px;
-  bottom: 10px;
+  top: 15px;
+  bottom: 15px;
   left: 50%;
   width: 1px;
   background-color: var(--color-yellow, #ebfc72);
+  opacity: 0.7;
   transform: translateX(-50%) scaleY(var(--progress));
   transform-origin: top;
   will-change: transform;
@@ -562,9 +561,9 @@
   }
 
   .hero-scroll-progress-bar {
-    /* v43：手机端等比收拢（宽保持 40px，右距/高度缩短，折角与缝保持不变） */
+    /* v44：手机端等比收拢（3.5vw≈13px 与桌面同律，高度缩短） */
     right: 12px;
-    height: 140px;
+    height: 120px;
   }
 }
 
@@ -659,14 +658,19 @@ html, body { overscroll-behavior: none; }
   pointer-events: none;
 }
 
-/* ===== v41：散点闪烁修复（移动端滑屏 GPU 重绘） =====
-   强制提升为 GPU 独立合成层，避免滚动重绘时整片散点闪黑/闪没。
-   ★ JS 的 gsap 会给 .drift-point 写 inline transform（漂移），
-     inline 会盖掉这里的 translateZ(0)——无妨：gsap 的 transform +
-     这里的 will-change 同样保证独立层；backface-visibility 防背面重绘闪烁。 */
-.hotspots-svg,
-.drift-point {
+/* ===== v41：散点闪烁修复（移动端滑屏 GPU 重绘）；v44 修正 =====
+   ★ v44 关键修正：GSAP 对 SVG 子元素写的是 transform **属性**（非 inline style），
+     而样式表里的 CSS transform 优先级高于 SVG 展示属性——
+     v41 给 .drift-point 写的 translateZ(0) 把散点漂移彻底锁死了（实测 x 纹丝不动）。
+     现散点只留 will-change + backface-visibility（同样能提升合成层），
+     translateZ(0) 保留在 .hotspots-svg 根上（根元素无 gsap transform，无冲突）。 */
+.hotspots-svg {
   transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.drift-point {
   will-change: transform, opacity;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
