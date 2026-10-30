@@ -634,7 +634,7 @@ html, body { overscroll-behavior: none; }
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  animation: radar-pulse 3.5s infinite ease-out;
+  animation: radar-pulse 2.2s infinite ease-out; /* v34：3.5s→2.2s，扩散更急促，雷达扫描的紧迫感 */
   will-change: transform, opacity;
 }
 .hotspot .radar-wave    { background: rgba(241, 102, 64, 0.35); }
@@ -646,11 +646,11 @@ html, body { overscroll-behavior: none; }
   animation-delay: 2s;
 }
 
-/* 2. 中心小实心点（v30：8px→14px，明显比 r=3 的散点大一圈） */
+/* 2. 中心实心点（v34：10px——只比 r=3 的散点（约 6px）大一点点，对齐原站） */
 .center-dot {
   position: absolute;
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   z-index: 2;
 }
@@ -691,33 +691,37 @@ html, body { overscroll-behavior: none; }
   }
 }
 
-/* ===== v33：移动端适配（≤768px） =====
-   手机上 wrapper 只有屏宽 65%（约 240px），300px 圆盘 + 200px 波纹会互相压住、
-   绿盘(78%)的标签还会被 wrapper 的 overflow:hidden 裁掉。
-   统一缩一档：红波纹 200→120、绿 120→80（保持"小一圈"），容器/标签同步缩小。 */
+/* ===== v34：移动端适配（≤768px，用户定稿数值） =====
+   手机上 wrapper 只有屏宽 65%（约 240px），大圆盘/长标签会互相压住或被
+   overflow:hidden 裁掉。逐项：绿盘推远到 25%/75%；波纹缩到 100px；
+   标签 10px + 距离 25px + nowrap 防撑破。
+   注：①标签 left 用 calc(50% + 25px)——裸 25px 是相对容器左缘，会落到圆心左边；
+      ②绿标签翻到点的左侧，否则 75% 位置的标签右缘超出取景窗被裁（就是
+        「标签撑破布局」的元凶）。 */
 @media (max-width: 768px) {
   .hud-marker {
     width: 180px;
     height: 180px;
   }
-  .radar-wave {
-    width: 120px;
-    height: 120px;
+  /* 绿点推到右上更远处，与红点彻底错开 */
+  .hud-marker.specialist {
+    top: 25% !important;
+    left: 75% !important;
   }
-  .specialist .radar-wave {
-    width: 80px;
-    height: 80px;
+  /* 缩小波纹范围，防止占满屏幕 */
+  .radar-wave {
+    width: 100px !important;
+    height: 100px !important;
   }
   .hud-label {
-    left: calc(50% + 26px);
-    padding: 3px 8px;
-    font-size: 10px;
+    font-size: 10px !important;
+    padding: 3px 6px !important;
+    left: calc(50% + 25px) !important; /* 缩短标签和点的距离 */
+    white-space: nowrap;
   }
-  /* 手机上 wrapper 只有约 240px 宽，绿盘(78%)标签若还在点右侧会被
-     overflow:hidden 裁掉——翻到点的左侧即可完整显示 */
   .specialist .hud-label {
-    left: auto;
-    right: calc(50% + 26px);
+    left: auto !important;
+    right: calc(50% + 25px) !important;
     transform: translateY(-50%);
   }
 }
