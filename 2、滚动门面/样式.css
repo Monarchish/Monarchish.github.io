@@ -716,6 +716,11 @@ html, body { overscroll-behavior: none; }
     left: 70% !important;
     transform: translate(-50%, -50%) !important;
   }
+  /* 移动端中心点与散点（6px）同尺寸；电脑端保持 10px 不变 */
+  .center-dot {
+    width: 6px !important;
+    height: 6px !important;
+  }
   /* 手机端标签缩小 */
   .hud-label {
     font-size: 10px !important;
