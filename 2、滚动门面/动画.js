@@ -20,25 +20,6 @@
     const hotspotsSvg = document.querySelector(".hotspots-svg");
     const progressBar = document.querySelector(".hero-scroll-progress-bar");
 
-    /* v51：三段门面文字（.hero-text-wrapper .desc-block，正常文档流竖排）。
-       按滚动进度依次从下滑入（0.55 / 0.62 / 0.69）；状态用 descStates 记录，
-       只在跨阈值那一刻触发一次滑入/归位——每帧重复 to() 会叠出几十个补间。 */
-    const descBlocks = gsap.utils.toArray(".hero-text-wrapper .desc-block");
-    const descStates = descBlocks.map(() => false);
-    const descThresholds = [0.55, 0.62, 0.69];
-
-    /* v51：大标题左下角 CTA（复刻 inversa 的 EXPLORE ORIGIN 黄色按钮）：
-       文字周期性乱码重排后落定。href 暂空（用户后续再定跳转）。 */
-    const ctaLabel = document.querySelector(".hero-cta-label");
-    if (ctaLabel && window.ScrambleTextPlugin) {
-      gsap.to(ctaLabel, {
-        duration: 1.4,
-        scrambleText: { text: ctaLabel.textContent, speed: 0.4 },
-        repeat: -1,
-        repeatDelay: 2.8,
-      });
-    }
-
     if (!hero || !heroContent || !heroImgElement) return;
 
     const heroContentHeight = heroContent.offsetHeight;
@@ -300,28 +281,6 @@
         }
         gsap.set(marker1, { opacity: redOn ? 1 : 0, visibility: redOn ? "visible" : "hidden" });
         gsap.set(marker2, { opacity: yellowOn ? 1 : 0, visibility: yellowOn ? "visible" : "hidden" });
-
-        /* ===== v51：三段说明文字依次从下滑入（progress 0.55 / 0.62 / 0.69）=====
-           跨阈值的那一帧才动：进入 → 0.8s power2.out 滑上来（y 30→0 + 淡入）；
-           退回阈值以下 → 杀掉补间瞬间归零。窗口内不重复触发。 */
-        for (let i = 0; i < descBlocks.length; i++) {
-          const el = descBlocks[i];
-          const active = self.progress >= descThresholds[i];
-          if (active === descStates[i]) continue;
-          descStates[i] = active;
-          if (active) {
-            gsap.to(el, {
-              opacity: 1,
-              y: 0,
-              visibility: "visible",
-              duration: 0.8,
-              ease: "power2.out",
-            });
-          } else {
-            gsap.killTweensOf(el);
-            gsap.set(el, { opacity: 0, y: 30, visibility: "hidden" });
-          }
-        }
       },
     });
 

@@ -48,7 +48,7 @@
           href="0、公共库/字体/jetbrains-mono-400.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=50" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=48" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
@@ -288,34 +288,29 @@
             </div>
         </div>
 
-        <!-- 滚动行程容器（v50）：只负责撑出 400vh 滚动距离，屏幕里不渲染任何东西。
-             高度必须保持 400vh —— 门面总滚动长度、蒙版三段节奏全靠它，删了整体就错位。 -->
-        <div class="hero-content"></div>
-
-        <!-- 大标题（v51，复刻 inversa 首屏）：左下角两行标题 + 下方乱码重排的黄色 CTA。
-             超链接保留但 href 暂时空着（跳转目标未定）。 -->
-        <div class="hero-headline">
-            <h1>Flesh dies.<br />Code lives.</h1>
-            <a class="hero-cta" href="#" onclick="return false;">
-                <span class="hero-cta-label">EXPLORE MORE</span>
-                <span class="hero-cta-arrow" aria-hidden="true">&#8594;</span>
-            </a>
-        </div>
-
-        <!-- 三段门面文字（v51 重写）：回归正常文档流，统一装进右下角容器里竖排，
-             避开右侧 4vw 的进度条；按滚动进度依次从下滑入（0.55 / 0.62 / 0.69）。 -->
-        <div class="hero-text-wrapper">
-            <div class="desc-block">
-                <h3 class="sub-title"><span class="cursor-dot"></span>RAW FRAGMENTS</h3>
-                <p class="desc-text">Joy, struggle, and everyday moments are distilled into a living archive. This is not just data. It is the unfiltered footprint of a human.</p>
+        <div class="hero-content">
+            <div class="hero-content-block">
+                <div class="hero-content-copy">
+                    <h1>支援未来</h1>
+                </div>
             </div>
-            <div class="desc-block">
-                <h3 class="sub-title"><span class="cursor-dot"></span>SYSTEMATIC ORDER</h3>
-                <p class="desc-text">Complex tasks are converted into precise workflows. By delegating repetitive operations to AI, cognitive capacity is restored. Focus on judgment and strategy.</p>
+            <div class="hero-content-block">
+                <div class="hero-content-copy">
+                    <h2>不是堆功能，是门面</h2>
+                    <p>开场一屏，滚动一程，介绍几段。想看的东西往后放，这里只留最干净的骨架。</p>
+                </div>
             </div>
-            <div class="desc-block">
-                <h3 class="sub-title"><span class="cursor-dot"></span>CONTINUOUS EVOLUTION</h3>
-                <p class="desc-text">A lifelong system that learns and adapts. Bridging past experiences with future potential, it evolves into a cognitive companion, day by day.</p>
+            <div class="hero-content-block">
+                <div class="hero-content-copy">
+                    <h2>简单，直接</h2>
+                    <p>没有目录、没有搜索、没有多余的界面。往下滚就是全部内容，手机电脑同一个链接。</p>
+                </div>
+            </div>
+            <div class="hero-content-block">
+                <div class="hero-content-copy">
+                    <h2>往下滚，跟着走</h2>
+                    <p>往下滚，文案跟着走。门面结束之后，就是站点简介。</p>
+                </div>
             </div>
         </div>
 
@@ -713,7 +708,7 @@
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
                 reveal: { global: "SupportFutureReveal", urls: ["1、开屏动画/动画.js?v=6"] },
-                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=23"] }
+                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=21"] }
             };
 
             /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */
