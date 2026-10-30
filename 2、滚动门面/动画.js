@@ -250,13 +250,12 @@
            ⚠ 蒙版收缩/退场的 progress 分段与总长度一行未动；Lenis、
              ScrollTrigger 同样未动。 */
         let heroGridOpacity;
-        if (self.progress < 0.42) {
+        if (self.progress < 0.48) {
           heroGridOpacity = 0;
-        } else if (self.progress <= 0.7) {
+        } else if (self.progress < 0.7) {
           heroGridOpacity = 1;
-        } else if (self.progress <= 0.75) {
-          heroGridOpacity = 1 - ease((self.progress - 0.7) / 0.05);
         } else {
+          /* ≥0.70 与黑幕一起退场：瞬间隐藏，不再单独淡出 */
           heroGridOpacity = 0;
         }
 
@@ -271,10 +270,12 @@
           });
         }
 
-        /* HUD 硬切：瞬间 opacity 1 + visible / 0 + hidden，禁用一切过渡 */
-        const dotsOn = self.progress >= 0.5 && self.progress <= 0.7;   // 散点
-        const redOn = self.progress >= 0.58 && self.progress <= 0.7;   // 红镭射
-        const yellowOn = self.progress >= 0.66 && self.progress <= 0.7; // 黄镭射
+        /* HUD 硬切：瞬间 opacity 1 + visible / 0 + hidden，禁用一切过渡
+           ≥0.70 统一退场：网格、散点、镭射点全部瞬间隐藏，跟黑幕一起消失 */
+        const hudGone = self.progress >= 0.7;                              // 退场总闸
+        const dotsOn = !hudGone && self.progress >= 0.54;                  // 散点：0.54 出
+        const redOn = !hudGone && self.progress >= 0.58;                   // 红镭射：0.58 出
+        const yellowOn = !hudGone && self.progress >= 0.62;                // 黄镭射：0.62 出
         if (hotspotsSvg) {
           gsap.set(hotspotsSvg, { opacity: dotsOn ? 1 : 0, visibility: dotsOn ? "visible" : "hidden" });
         }
