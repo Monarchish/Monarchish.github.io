@@ -239,19 +239,17 @@
           });
         }
 
-        /* 出场时序（2026-10-29 用户定稿）—— 四阶段错峰，做出呼吸感：
-             阶段1：蒙版收缩期（0.1→0.4）画面里什么都不要有
-             阶段2：蒙版刚聚焦（0.42→0.46）大网格 + 底层细网格 先淡入
-             阶段3：再延迟一点（0.52→0.56）红点 SF-01 淡入
-             阶段4：最后（0.62→0.66）SF-02 淡入
-           收尾统一在 0.7 之后（蒙版开始散开时）依次淡出。
-           ⚠ 只改 opacity 的分段点，蒙版收缩/停留/散开的 scale 逻辑一行未动；
-             Lenis 与 ScrollTrigger 配置同样未动。 */
+        /* 出场时序（2026-10-30 v45 用户定稿）—— 全部硬切，无任何淡入淡出：
+             p < 0.3        网格、散点、红黄镭射全部隐藏
+             0.3 ≤ p < 0.4  只显示网格（散点、镭射保持隐藏）
+             0.4 ≤ p < 0.45 瞬间显示散点 + 红镭射（黄镭射保持隐藏）
+             p ≥ 0.45       瞬间显示黄镭射
+             p > 0.7        网格淡出收尾（沿用原 0.70–0.75），HUD 全部瞬间隐藏
+           ⚠ 全部 gsap.set 瞬时设置 opacity 1/0 + visible/hidden，零 duration；
+             蒙版 scale 分段、Lenis、ScrollTrigger 一行未动。 */
         let heroGridOpacity;
-        if (self.progress <= 0.42) {
+        if (self.progress < 0.3) {
           heroGridOpacity = 0;
-        } else if (self.progress <= 0.46) {
-          heroGridOpacity = ease((self.progress - 0.42) / 0.04);
         } else if (self.progress <= 0.7) {
           heroGridOpacity = 1;
         } else if (self.progress <= 0.75) {
@@ -269,38 +267,14 @@
           });
         }
 
-        /* ===== HUD 时序（2026-10-29 v28 定稿，用户指令）=====
-           progress < 0.40   全部隐藏（网格出现是原逻辑，此时 HUD 一律 opacity 0 + visibility hidden）
-           0.40–0.45         外围散点 SVG 淡入
-           0.45–0.50         红色 HOTSPOT 圆盘淡入
-           0.50–0.55         绿色 FIELD SPECIALIST 圆盘淡入
-           0.55–0.70         全部保持显示（蒙版冻结期）
-           0.70–0.75         随网格一起淡出，黑幕散开时屏幕干净
-           ⚠ 只改 HUD 的 opacity/visibility 分段；蒙版 scale 分段、Lenis、ScrollTrigger 一行未动。 */
-        const hudFade = (p, inStart, inEnd) => {
-          if (p < inStart) return 0;
-          if (p < inEnd) return ease((p - inStart) / (inEnd - inStart));
-          if (p <= 0.7) return 1;
-          if (p <= 0.75) return 1 - ease((p - 0.7) / 0.05);
-          return 0;
-        };
-        const svgOp = hudFade(self.progress, 0.4, 0.45);
-        /* v44：镭射点入场改瞬间出现（用户指令，禁止过渡渐变）——
-           progress > 0.4 直接 opacity 1 + visible；< 0.4 直接 0 + hidden。
-           退场仍保留 0.70–0.75 与网格同步淡出（黑幕散开时屏幕干净）。 */
-        const markerOp = (p) => {
-          if (p < 0.4) return 0;
-          if (p <= 0.7) return 1;
-          if (p <= 0.75) return 1 - ease((p - 0.7) / 0.05);
-          return 0;
-        };
-        const hotspotOp = markerOp(self.progress);
-        const specialistOp = markerOp(self.progress);
+        /* HUD 硬切：瞬间 opacity 1 + visible / 0 + hidden，禁用一切过渡 */
+        const hudOn1 = self.progress >= 0.4 && self.progress <= 0.7; // 散点 + 红镭射
+        const hudOn2 = self.progress >= 0.45 && self.progress <= 0.7; // 黄镭射
         if (hotspotsSvg) {
-          gsap.set(hotspotsSvg, { opacity: svgOp, visibility: svgOp > 0.001 ? "visible" : "hidden" });
+          gsap.set(hotspotsSvg, { opacity: hudOn1 ? 1 : 0, visibility: hudOn1 ? "visible" : "hidden" });
         }
-        gsap.set(marker1, { opacity: hotspotOp, visibility: hotspotOp > 0.001 ? "visible" : "hidden" });
-        gsap.set(marker2, { opacity: specialistOp, visibility: specialistOp > 0.001 ? "visible" : "hidden" });
+        gsap.set(marker1, { opacity: hudOn1 ? 1 : 0, visibility: hudOn1 ? "visible" : "hidden" });
+        gsap.set(marker2, { opacity: hudOn2 ? 1 : 0, visibility: hudOn2 ? "visible" : "hidden" });
       },
     });
 

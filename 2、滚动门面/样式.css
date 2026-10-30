@@ -334,70 +334,69 @@
   align-items: center;
 }
 
-/* ===== v44：右侧滚动指示器（用户定稿终版：贴右缘、更紧凑、进度线变暗） =====
-   结构保持单节点 .hero-scroll-progress-bar + 伪元素（HTML/JS 零改动）：
-   ::before 画四角向内折的瞄准折线（6×6 短线、贴近中线），::after 画黄色进度线
-   （上下留 15px 缝、opacity 0.7 柔和、scaleY 从顶部往下生长）。
-   JS 只写 --progress 变量，::after 消费之。容器本体保留 1px 中央轨道线。 */
-.hero-scroll-progress-bar {
+/* ===== v45：右侧滚动指示器（用户定稿终版：拉长 45vh、折角 8px 向内、竖排 SCROLL） =====
+   HTML 结构：.scroll-indicator > .corners + .progress-line + .scroll-text。
+   容器同时挂 .hero-scroll-progress-bar（JS 只写 --progress 变量，零改动兼容，
+   CSS 里消费 var(--progress)——即用户示例中的 --scroll-progress，以本站实际变量名为准）。 */
+.scroll-indicator {
   position: absolute;
+  right: 4vw;
   top: 50%;
-  right: 3.5vw; /* 贴近屏幕边缘但留有余地 */
   transform: translateY(-50%);
-  width: 24px;   /* 整体收窄，四角贴近中线 */
-  height: 180px;
+  height: 45vh;
+  width: 20px;
   pointer-events: none;
-  --progress: 0;
+  display: flex;
+  justify-content: center;
   z-index: 6;
-  /* 中央轨道线：1px 细线（居中） */
-  background-image: linear-gradient(to right, rgba(244, 243, 232, 0.5) 1px, transparent 1px);
-  background-size: 1px 100%;
-  background-position: 50% 0;
-  background-repeat: no-repeat;
 }
 
-/* 四角瞄准折线（向内收拢、紧凑）：多重背景渐变 */
-.hero-scroll-progress-bar::before {
-  content: "";
+/* 四个角的折线：向内收拢、8×8 紧凑 */
+.scroll-indicator .corners {
   position: absolute;
   inset: 0;
   background-image:
-    /* 左上角 */
-    linear-gradient(to right, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-    /* 右上角 */
-    linear-gradient(to left, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-    /* 左下角 */
-    linear-gradient(to right, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-    linear-gradient(to top, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-    /* 右下角 */
-    linear-gradient(to left, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-    linear-gradient(to top, rgba(255, 255, 255, 0.6) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to left, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to top, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to left, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to top, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
   background-position:
     0 0, 0 0,
     100% 0, 100% 0,
     0 100%, 0 100%,
     100% 100%, 100% 100%;
-  background-size: 6px 6px; /* 折角线很短，显得紧凑 */
+  background-size: 8px 8px;
   background-repeat: no-repeat;
-  pointer-events: none;
 }
 
-/* 进度线：黄色变暗（opacity 0.7），正中、上下各留 15px 缝，
-   从顶部往下生长（scaleY + origin top，性能友好） */
-.hero-scroll-progress-bar::after {
-  content: "";
+/* 中间行动条：1px 黄线，从顶部往下生长（scaleY，性能友好） */
+.scroll-indicator .progress-line {
   position: absolute;
-  top: 15px;
-  bottom: 15px;
+  top: 12px;
+  bottom: 12px;
   left: 50%;
   width: 1px;
   background-color: var(--color-yellow, #ebfc72);
-  opacity: 0.7;
-  transform: translateX(-50%) scaleY(var(--progress));
+  transform: translateX(-50%) scaleY(var(--progress, 0));
   transform-origin: top;
   will-change: transform;
+}
+
+/* 竖排 SCROLL 文字：贴中线垂直居中 */
+.scroll-indicator .scroll-text {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.8);
+  writing-mode: vertical-rl;
+  font-family: "JetBrains Mono", "DM Sans", monospace;
+  pointer-events: none;
 }
 
 /* 右上角 Menu（参考 inversa 的 menu-button）：替代原底部「跳过动画 · 进入手册」，
@@ -560,10 +559,10 @@
     width: 75%;
   }
 
-  .hero-scroll-progress-bar {
-    /* v44：手机端等比收拢（3.5vw≈13px 与桌面同律，高度缩短） */
+  .scroll-indicator {
+    /* v45：手机端收拢（4vw≈15px 与桌面同律，高度按屏缩短） */
     right: 12px;
-    height: 120px;
+    height: 32vh;
   }
 }
 
