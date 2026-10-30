@@ -690,6 +690,21 @@ html, body { overscroll-behavior: none; }
   animation-delay: 1.75s;
 }
 
+/* ===== v40：黄波改单道波纹（红色双波交错保持不变） =====
+   ::after 彻底关闭；::before 单循环 3s——动画 100% 时 opacity:0 +
+   visibility:hidden，循环回 0% 时上一波已完全消散，形成
+   「一道波慢悠悠扩散完 → 消失 → 再从中心重新出发」的节奏。 */
+.specialist .radar-wave::after {
+  display: none !important;
+}
+
+.specialist .radar-wave::before {
+  width: 140px;
+  height: 140px;
+  animation-duration: 3s;
+  animation-delay: 0s;
+}
+
 /* 2. 中心实心点（v36：全局 10px !important，移动端同步强制，只比散点 6px 大一点） */
 .center-dot {
   position: absolute;
