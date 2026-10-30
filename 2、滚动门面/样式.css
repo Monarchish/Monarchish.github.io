@@ -628,22 +628,29 @@ html, body { overscroll-behavior: none; }
   z-index: 5;
 }
 
-/* 1. 雷达光波（v32：每盘只有一个波纹，3.5s 一个周期，散完彻底隐身再从头冒出） */
+/* 1. 雷达光波（v35：双波重叠——wave-1/wave-2 错开半周期，第一波没完第二波出发）
+   定位 top/left 50% + 负 margin，保证与中心点严格同心（margin = 宽高的一半）。 */
 .radar-wave {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -100px;
+  margin-left: -100px; /* 宽高 200px 的一半，确保同心 */
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  animation: radar-pulse 2.2s infinite ease-out; /* v34：3.5s→2.2s，扩散更急促，雷达扫描的紧迫感 */
+  pointer-events: none;
   will-change: transform, opacity;
 }
 .hotspot .radar-wave    { background: rgba(241, 102, 64, 0.35); }
-/* 绿色波纹比红色小一圈（120px），整体错开 2s 与红盘形成交错感 */
-.specialist .radar-wave {
-  background: rgba(235, 252, 114, 0.25);
-  width: 120px;
-  height: 120px;
-  animation-delay: 2s;
+.specialist .radar-wave { background: rgba(235, 252, 114, 0.25); }
+/* 频率 1.8s；wave-2 错开半周期 0.9s，形成连续双波 */
+.wave-1 {
+  animation: radar-pulse 1.8s infinite ease-out;
+}
+.wave-2 {
+  animation: radar-pulse 1.8s infinite ease-out;
+  animation-delay: 0.9s;
 }
 
 /* 2. 中心实心点（v34：10px——只比 r=3 的散点（约 6px）大一点点，对齐原站） */
@@ -673,16 +680,16 @@ html, body { overscroll-behavior: none; }
 .hotspot .hud-label    { background: #f16640; color: #fff; }
 .specialist .hud-label { background: #ebfc72; color: #000; }
 
-/* 波纹节奏（v32 定稿）：从中心冒头 → 75% 扩到最大开始快速消散 → 100% 彻底隐身（visibility 双保险），
-   一整圈走完才重新开始，第一圈绝不与第二圈重叠、终点绝不残留。 */
+/* 波纹节奏（v35 用户定稿）：频率 1.8s，70% 扩到最大开始快速消散，终点彻底隐身（双保险）。
+   双波由 wave-1/wave-2 错开 0.9s 实现，两波连续接力。 */
 @keyframes radar-pulse {
   0% {
     transform: scale(0);
-    opacity: 0.8;
+    opacity: 0.9;
   }
-  75% {
+  70% {
     transform: scale(1.2);
-    opacity: 0.15;
+    opacity: 0.2;
   }
   100% {
     transform: scale(1.2);
@@ -691,37 +698,32 @@ html, body { overscroll-behavior: none; }
   }
 }
 
-/* ===== v34：移动端适配（≤768px，用户定稿数值） =====
-   手机上 wrapper 只有屏宽 65%（约 240px），大圆盘/长标签会互相压住或被
-   overflow:hidden 裁掉。逐项：绿盘推远到 25%/75%；波纹缩到 100px；
-   标签 10px + 距离 25px + nowrap 防撑破。
-   注：①标签 left 用 calc(50% + 25px)——裸 25px 是相对容器左缘，会落到圆心左边；
-      ②绿标签翻到点的左侧，否则 75% 位置的标签右缘超出取景窗被裁（就是
-        「标签撑破布局」的元凶）。 */
+/* ===== v35：移动端适配（≤768px，用户定稿数值） =====
+   注：①标签 left 用 calc(50% + 15px)——裸 15px 是相对容器左缘，会落到圆心左边；
+      ②绿盘移到 55% 后标签在点右侧放得下，不再需要翻左。 */
 @media (max-width: 768px) {
   .hud-marker {
     width: 180px;
     height: 180px;
   }
-  /* 绿点推到右上更远处，与红点彻底错开 */
+  /* 绿点推到偏左上，避开中间文字，绝不与红点重叠 */
+  .specialist-marker,
   .hud-marker.specialist {
-    top: 25% !important;
-    left: 75% !important;
+    top: 15% !important;
+    left: 55% !important;
   }
-  /* 缩小波纹范围，防止占满屏幕 */
-  .radar-wave {
-    width: 100px !important;
-    height: 100px !important;
-  }
+  /* 手机端标签极度缩小 */
   .hud-label {
-    font-size: 10px !important;
-    padding: 3px 6px !important;
-    left: calc(50% + 25px) !important; /* 缩短标签和点的距离 */
+    font-size: 9px !important;
+    padding: 2px 4px !important;
+    left: calc(50% + 15px) !important; /* 缩短标签和点的距离 */
     white-space: nowrap;
   }
-  .specialist .hud-label {
-    left: auto !important;
-    right: calc(50% + 25px) !important;
-    transform: translateY(-50%);
+  /* 缩小雷达圈（margin 同步 = 宽高一半，保持同心） */
+  .radar-wave {
+    width: 120px !important;
+    height: 120px !important;
+    margin-top: -60px !important;
+    margin-left: -60px !important;
   }
 }
