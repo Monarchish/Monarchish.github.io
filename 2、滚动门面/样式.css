@@ -372,6 +372,17 @@
   background-repeat: no-repeat;
 }
 
+/* 背景总轨：黯淡底线，表示总长度（v48 新增） */
+.scroll-indicator .track-line {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5px; /* 线条宽度 */
+  background-color: rgba(255, 255, 255, 0.2); /* 黯淡的底线 */
+}
+
 /* 中间行动条：2px 黄线，从顶部往下生长（scaleY，性能友好） */
 .scroll-indicator .progress-line {
   position: absolute;

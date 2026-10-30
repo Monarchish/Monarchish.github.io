@@ -239,17 +239,18 @@
           });
         }
 
-        /* 出场时序（2026-10-30 v47 用户定稿）—— 阈值拉开「滚一下出一样」，
+        /* 出场时序（2026-10-30 v48 用户定稿）—— 再延后、间隔拉大，
            全部独立 if + 硬切（超过阈值即保持显示），零渐变：
-             p < 0.40   HUD 全部隐藏（黑幕收缩中）
-             p ≥ 0.40   只瞬间显示网格
-             p ≥ 0.48   瞬间显示散点 + 红镭射
-             p ≥ 0.56   瞬间显示黄镭射
+             p < 0.42   网格隐藏（等左下角标记牌文字出现之后再亮）
+             p ≥ 0.42   只瞬间显示网格
+             p ≥ 0.50   瞬间显示散点
+             p ≥ 0.58   瞬间显示红镭射
+             p ≥ 0.66   瞬间显示黄镭射
              p > 0.7    HUD 瞬间全隐；网格保留原 0.70–0.75 淡出收尾
-           ⚠ 蒙版退场的 progress 分段（0.1 收缩 / 0.4 停 / 0.7 散开）与总长度
-             一行未动；Lenis、ScrollTrigger 同样未动。 */
+           ⚠ 蒙版收缩/退场的 progress 分段与总长度一行未动；Lenis、
+             ScrollTrigger 同样未动。 */
         let heroGridOpacity;
-        if (self.progress < 0.4) {
+        if (self.progress < 0.42) {
           heroGridOpacity = 0;
         } else if (self.progress <= 0.7) {
           heroGridOpacity = 1;
@@ -261,21 +262,24 @@
 
         gsap.set(heroGridOverlay, {
           opacity: heroGridOpacity,
+          visibility: heroGridOpacity > 0.001 ? "visible" : "hidden",
         });
         if (bgFineGrid) {
           gsap.set(bgFineGrid, {
             opacity: heroGridOpacity,
+            visibility: heroGridOpacity > 0.001 ? "visible" : "hidden",
           });
         }
 
         /* HUD 硬切：瞬间 opacity 1 + visible / 0 + hidden，禁用一切过渡 */
-        const hudOn1 = self.progress >= 0.48 && self.progress <= 0.7; // 散点 + 红镭射
-        const hudOn2 = self.progress >= 0.56 && self.progress <= 0.7; // 黄镭射
+        const dotsOn = self.progress >= 0.5 && self.progress <= 0.7;   // 散点
+        const redOn = self.progress >= 0.58 && self.progress <= 0.7;   // 红镭射
+        const yellowOn = self.progress >= 0.66 && self.progress <= 0.7; // 黄镭射
         if (hotspotsSvg) {
-          gsap.set(hotspotsSvg, { opacity: hudOn1 ? 1 : 0, visibility: hudOn1 ? "visible" : "hidden" });
+          gsap.set(hotspotsSvg, { opacity: dotsOn ? 1 : 0, visibility: dotsOn ? "visible" : "hidden" });
         }
-        gsap.set(marker1, { opacity: hudOn1 ? 1 : 0, visibility: hudOn1 ? "visible" : "hidden" });
-        gsap.set(marker2, { opacity: hudOn2 ? 1 : 0, visibility: hudOn2 ? "visible" : "hidden" });
+        gsap.set(marker1, { opacity: redOn ? 1 : 0, visibility: redOn ? "visible" : "hidden" });
+        gsap.set(marker2, { opacity: yellowOn ? 1 : 0, visibility: yellowOn ? "visible" : "hidden" });
       },
     });
 
