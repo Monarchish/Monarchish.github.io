@@ -343,11 +343,9 @@
   right: 4vw;
   top: 50%;
   transform: translateY(-50%);
-  height: 32vh; /* 稍微短一点，不要那么长 */
-  width: 24px;  /* 稍微宽一点 */
+  height: 35vh; /* 长度适中 */
+  width: 36px;  /* 加宽容器，给左右折角留出空间 */
   pointer-events: none;
-  display: flex;
-  justify-content: center;
   z-index: 6;
 }
 
@@ -356,24 +354,25 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to left, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to right, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to top, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to left, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
-    linear-gradient(to top, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to left, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to top, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to left, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to top, rgba(255, 255, 255, 0.6) 1px, transparent 1px);
   background-position:
     0 0, 0 0,
     100% 0, 100% 0,
     0 100%, 0 100%,
     100% 100%, 100% 100%;
-  background-size: 12px 12px; /* 折角间距加宽（v46：8px → 12px） */
+  /* 8px：36px 宽容器下左右折角之间留出 20px 空隙，绝不粘在一起 */
+  background-size: 8px 8px;
   background-repeat: no-repeat;
 }
 
-/* 中间行动条：1px 黄线，从顶部往下生长（scaleY，性能友好） */
+/* 中间行动条：2px 黄线，从顶部往下生长（scaleY，性能友好） */
 .scroll-indicator .progress-line {
   position: absolute;
   top: 12px;
