@@ -20,6 +20,20 @@
     const hotspotsSvg = document.querySelector(".hotspots-svg");
     const progressBar = document.querySelector(".hero-scroll-progress-bar");
 
+    /* v50：三段门面文字（.desc-block.block-1/2/3），各自独立绝对定位，
+       按滚动进度依次出场 + 呼吸；状态用 track 记录，只在跨阈值那一刻切一次，
+       避免每帧重设 opacity 把呼吸补间打断。 */
+    const descBlockEls = [
+      document.querySelector(".desc-block.block-1"),
+      document.querySelector(".desc-block.block-2"),
+      document.querySelector(".desc-block.block-3"),
+    ];
+    const descTracks = [
+      { from: 0.55, to: 0.65, on: false },  // 段落1
+      { from: 0.65, to: 0.75, on: false },  // 段落2
+      { from: 0.75, to: 1.01, on: false },  // 段落3（一直到门面结束）
+    ];
+
     if (!hero || !heroContent || !heroImgElement) return;
 
     const heroContentHeight = heroContent.offsetHeight;
@@ -281,6 +295,32 @@
         }
         gsap.set(marker1, { opacity: redOn ? 1 : 0, visibility: redOn ? "visible" : "hidden" });
         gsap.set(marker2, { opacity: yellowOn ? 1 : 0, visibility: yellowOn ? "visible" : "hidden" });
+
+        /* ===== v50：三段说明文字出场（progress 0.55 / 0.65 / 0.75）=====
+           跨阈值的那一帧才动：显示 → 瞬间 opacity 1 + visible，再起呼吸补间；
+           离开窗口 → 杀掉补间、瞬间归零隐藏。窗口内不再重复 set，
+           否则每帧重置 opacity 会把呼吸压死。 */
+        for (let i = 0; i < descTracks.length; i++) {
+          const el = descBlockEls[i];
+          const tr = descTracks[i];
+          if (!el || !tr) continue;
+          const active = self.progress >= tr.from && self.progress < tr.to;
+          if (active === tr.on) continue;
+          tr.on = active;
+          if (active) {
+            gsap.set(el, { opacity: 1, visibility: "visible" });
+            gsap.to(el, {
+              opacity: 0.5,
+              duration: 2,
+              repeat: -1,
+              yoyo: true,
+              ease: "sine.inOut",
+            });
+          } else {
+            gsap.killTweensOf(el);
+            gsap.set(el, { opacity: 0, visibility: "hidden" });
+          }
+        }
       },
     });
 

@@ -334,6 +334,86 @@
   align-items: center;
 }
 
+/* ===== v50：三段门面文字（用户给的版式，独立绝对定位）=====
+   三块都挂在 .hero 下（.desc-block 绝对定位 → 相对 section.hero 的 100vh 视口定位），
+   跟滚动行程容器解耦，所以不会跟着 .hero-content 的位移一起跑。
+   显隐不写在这里：全部交给 动画.js 按 progress 硬切（0.55 / 0.65 / 0.75）。
+   ⚠ 右侧 4vw 留给滚动指示器，block 的宽度/右偏移都没压到它。 */
+.desc-block {
+  position: absolute;
+  width: 40vw;
+  max-width: 480px;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 10;
+  pointer-events: none;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55);
+}
+
+/* 段落1：偏中上，左侧留足空间 */
+.block-1 { top: 25%; right: 20vw; }
+
+/* 段落2：偏左下 */
+.block-2 { bottom: 35%; left: 8vw; }
+
+/* 段落3：正下方居中 */
+.block-3 { bottom: 18vh; left: 35vw; }
+
+.desc-block .sub-title {
+  color: var(--color-yellow, #ebfc72);
+  font-family: "DM Sans", "Noto Sans SC", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  margin: 0 0 1rem;
+}
+
+.desc-block .cursor-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-yellow, #ebfc72);
+  margin-right: 10px;
+  flex: 0 0 auto;
+  animation: desc-blink 1s step-start infinite;
+}
+
+@keyframes desc-blink {
+  50% { opacity: 0; }
+}
+
+.desc-block .desc-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-family: "DM Sans", "Noto Sans SC", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 手机端：40vw 太窄，改成 78vw 并重新排位，避开右侧 12px 指示器 */
+@media (max-width: 768px) {
+  .desc-block {
+    width: 78vw;
+    max-width: none;
+  }
+  .block-1 { top: 20%; right: 10vw; }
+  .block-2 { bottom: 32%; left: 8vw; }
+  .block-3 { bottom: 16vh; left: 8vw; }
+  .desc-block .sub-title {
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.7rem;
+  }
+  .desc-block .desc-text {
+    font-size: 1.02rem;
+    line-height: 1.45;
+  }
+}
+
 /* ===== v45：右侧滚动指示器（用户定稿终版：拉长 45vh、折角 8px 向内、竖排 SCROLL） =====
    HTML 结构：.scroll-indicator > .corners + .progress-line + .scroll-text。
    容器同时挂 .hero-scroll-progress-bar（JS 只写 --progress 变量，零改动兼容，
