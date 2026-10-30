@@ -62,15 +62,68 @@
       });
     };
     measureScramble();
+    /* v55：乱码粒度改为「逐单词」——
+       原来 ScrambleTextPlugin 是逐字符乱抖（J_o_x s_t_r_u…），现在按空格切词，
+       整词作为一个乱码块，按顺序一个个极快落定。含空格的文本走新逻辑，
+       不含空格的中文标题（h1「支援未来」）仍走插件原路，行为不变。
+       ⚠ 只换了“乱码怎么抖”，触发时机 / 位移 / 滑入逻辑一行未动。 */
+    const SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&@*+=?/<>";
+    const scrambleToken = (word) => {
+      let out = "";
+      for (let i = 0; i < word.length; i++) {
+        const ch = word.charAt(i);
+        out += /[A-Za-z0-9]/.test(ch)
+          ? SCRAMBLE_GLYPHS.charAt((Math.random() * SCRAMBLE_GLYPHS.length) | 0)
+          : ch;
+      }
+      return out;
+    };
+    const runWordScramble = (el, text, duration) => {
+      const parts = text.split(/(\s+)/); // 单词 / 空白交替，空白原样保留（不破坏换行分词）
+      const wordPos = [];
+      for (let i = 0; i < parts.length; i++) {
+        if (!/^\s+$/.test(parts[i])) wordPos.push(i);
+      }
+      const total = wordPos.length;
+      if (!total) {
+        el.textContent = text;
+        return;
+      }
+      const state = { p: 0 };
+      const render = () => {
+        const settled = Math.floor(state.p * total);
+        let out = "";
+        for (let i = 0; i < parts.length; i++) {
+          if (/^\s+$/.test(parts[i])) {
+            out += parts[i];
+          } else {
+            out += wordPos.indexOf(i) < settled ? parts[i] : scrambleToken(parts[i]);
+          }
+        }
+        el.textContent = out;
+      };
+      gsap.fromTo(state, { p: 0 }, {
+        p: 1,
+        duration: duration,
+        ease: "none",
+        onUpdate: render,
+        onComplete: () => { el.textContent = text; },
+      });
+    };
     const runScramble = (movedUp, vh) => {
-      if (!window.ScrambleTextPlugin) return;
       scrambleItems.forEach((it) => {
         if (it.done || it.top - movedUp >= vh * 0.9) return;
         it.done = true;
-        gsap.to(it.el, {
-          duration: 2,
-          scrambleText: { text: it.text, speed: 0.5 },
-        });
+        if (/\s/.test(it.text)) {
+          runWordScramble(it.el, it.text, 1.1);   // 逐单词落定，整体 1.1s 内完成
+        } else if (window.ScrambleTextPlugin) {
+          gsap.to(it.el, {
+            duration: 2,
+            scrambleText: { text: it.text, speed: 0.5 },
+          });
+        } else {
+          it.el.textContent = it.text;
+        }
       });
     };
 

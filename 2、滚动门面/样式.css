@@ -334,6 +334,30 @@
   align-items: center;
 }
 
+/* ===== v55：三段小标题（RAW FRAGMENTS / SYSTEMATIC ORDER / CONTINUOUS EVOLUTION）=====
+   同色系黄字 + 标题前 1s 闪一次的方点（伪元素，不占 HTML 结构，乱码 JS 只改
+   textContent、不会吞掉 ::before）。.sub-title 的类名同时挂上，方便以后单独调。 */
+.hero-content .hero-content-block h2 {
+  color: var(--color-yellow, #ebfc72);
+  display: flex;
+  align-items: center;
+}
+
+.hero-content .hero-content-block h2::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-yellow, #ebfc72);
+  margin-right: 12px;
+  flex: 0 0 auto;
+  animation: blink-square 1s step-start infinite;
+}
+
+@keyframes blink-square {
+  50% { opacity: 0; }
+}
+
 /* ===== v45：右侧滚动指示器（用户定稿终版：拉长 45vh、折角 8px 向内、竖排 SCROLL） =====
    HTML 结构：.scroll-indicator > .corners + .progress-line + .scroll-text。
    容器同时挂 .hero-scroll-progress-bar（JS 只写 --progress 变量，零改动兼容，
