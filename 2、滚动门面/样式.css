@@ -682,11 +682,42 @@ html, body { overscroll-behavior: none; }
   }
   75% {
     transform: scale(1.2);
-    opacity: 0.2;
+    opacity: 0.15;
   }
   100% {
     transform: scale(1.2);
     opacity: 0;
     visibility: hidden;
+  }
+}
+
+/* ===== v33：移动端适配（≤768px） =====
+   手机上 wrapper 只有屏宽 65%（约 240px），300px 圆盘 + 200px 波纹会互相压住、
+   绿盘(78%)的标签还会被 wrapper 的 overflow:hidden 裁掉。
+   统一缩一档：红波纹 200→120、绿 120→80（保持"小一圈"），容器/标签同步缩小。 */
+@media (max-width: 768px) {
+  .hud-marker {
+    width: 180px;
+    height: 180px;
+  }
+  .radar-wave {
+    width: 120px;
+    height: 120px;
+  }
+  .specialist .radar-wave {
+    width: 80px;
+    height: 80px;
+  }
+  .hud-label {
+    left: calc(50% + 26px);
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+  /* 手机上 wrapper 只有约 240px 宽，绿盘(78%)标签若还在点右侧会被
+     overflow:hidden 裁掉——翻到点的左侧即可完整显示 */
+  .specialist .hud-label {
+    left: auto;
+    right: calc(50% + 26px);
+    transform: translateY(-50%);
   }
 }
