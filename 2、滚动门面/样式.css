@@ -343,8 +343,8 @@
   right: 4vw;
   top: 50%;
   transform: translateY(-50%);
-  height: 45vh;
-  width: 20px;
+  height: 32vh; /* 稍微短一点，不要那么长 */
+  width: 24px;  /* 稍微宽一点 */
   pointer-events: none;
   display: flex;
   justify-content: center;
@@ -369,7 +369,7 @@
     100% 0, 100% 0,
     0 100%, 0 100%,
     100% 100%, 100% 100%;
-  background-size: 8px 8px;
+  background-size: 12px 12px; /* 折角间距加宽（v46：8px → 12px） */
   background-repeat: no-repeat;
 }
 
@@ -379,24 +379,11 @@
   top: 12px;
   bottom: 12px;
   left: 50%;
-  width: 1px;
+  width: 2px; /* 进度条加宽到 2px（v46） */
   background-color: var(--color-yellow, #ebfc72);
   transform: translateX(-50%) scaleY(var(--progress, 0));
   transform-origin: top;
   will-change: transform;
-}
-
-/* 竖排 SCROLL 文字：贴中线垂直居中 */
-.scroll-indicator .scroll-text {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.8);
-  writing-mode: vertical-rl;
-  font-family: "JetBrains Mono", "DM Sans", monospace;
-  pointer-events: none;
 }
 
 /* 右上角 Menu（参考 inversa 的 menu-button）：替代原底部「跳过动画 · 进入手册」，
@@ -560,9 +547,8 @@
   }
 
   .scroll-indicator {
-    /* v45：手机端收拢（4vw≈15px 与桌面同律，高度按屏缩短） */
+    /* v46：手机端仅右距收拢（高度已统一 32vh） */
     right: 12px;
-    height: 32vh;
   }
 }
 

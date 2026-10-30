@@ -239,16 +239,17 @@
           });
         }
 
-        /* 出场时序（2026-10-30 v45 用户定稿）—— 全部硬切，无任何淡入淡出：
-             p < 0.3        网格、散点、红黄镭射全部隐藏
-             0.3 ≤ p < 0.4  只显示网格（散点、镭射保持隐藏）
-             0.4 ≤ p < 0.45 瞬间显示散点 + 红镭射（黄镭射保持隐藏）
-             p ≥ 0.45       瞬间显示黄镭射
-             p > 0.7        网格淡出收尾（沿用原 0.70–0.75），HUD 全部瞬间隐藏
-           ⚠ 全部 gsap.set 瞬时设置 opacity 1/0 + visible/hidden，零 duration；
-             蒙版 scale 分段、Lenis、ScrollTrigger 一行未动。 */
+        /* 出场时序（2026-10-30 v46 用户定稿）—— HUD 必须等黑幕到位（p=0.4
+           蒙版收缩停住）才开始出场，全部硬切无渐变：
+             p < 0.4        HUD 全部隐藏（网格、散点、红黄镭射）
+             p ≥ 0.40       网格瞬间显示（硬切）
+             p ≥ 0.42       散点 + 红镭射瞬间显示（紧接着网格）
+             p ≥ 0.45       黄镭射瞬间显示（最后）
+             p > 0.7        HUD 瞬间全隐；网格保留原 0.70–0.75 淡出收尾
+           ⚠ 全部 gsap.set 瞬时设置，零 duration；蒙版 scale 分段、Lenis、
+             ScrollTrigger 一行未动。 */
         let heroGridOpacity;
-        if (self.progress < 0.3) {
+        if (self.progress < 0.4) {
           heroGridOpacity = 0;
         } else if (self.progress <= 0.7) {
           heroGridOpacity = 1;
@@ -268,7 +269,7 @@
         }
 
         /* HUD 硬切：瞬间 opacity 1 + visible / 0 + hidden，禁用一切过渡 */
-        const hudOn1 = self.progress >= 0.4 && self.progress <= 0.7; // 散点 + 红镭射
+        const hudOn1 = self.progress >= 0.42 && self.progress <= 0.7; // 散点 + 红镭射
         const hudOn2 = self.progress >= 0.45 && self.progress <= 0.7; // 黄镭射
         if (hotspotsSvg) {
           gsap.set(hotspotsSvg, { opacity: hudOn1 ? 1 : 0, visibility: hudOn1 ? "visible" : "hidden" });
