@@ -489,11 +489,11 @@
   }
 
   /* 细线层与粗线层同宽（见主规则注释）：手机档一起改成 103.4%，
-     保证每 4 根细线仍精确压在粗线上；出窗部分被黑幕盖住（z1 < z2）。 */
+     保证每 4 根细线仍精确压在粗线上；出窗部分被黑幕盖住（z1 < z2）。
+     （v38 注：这里曾误写 .hero-mask-wrapper{width:103.4%}——它排在本文件
+     主规则 65% 之前，被级联覆盖从未生效，属死代码，已移至文末 768px 块
+     按真实取景窗宽度 97.5% 修正。） */
   .bg-fine-grid {
-    width: 103.4%;
-  }
-  .hero-mask-wrapper {
     width: 103.4%;
   }
 
@@ -740,6 +740,12 @@ html, body { overscroll-behavior: none; }
    注：标签 left 必须写 calc(50% + Npx)——裸 Npx 相对 300px 容器左缘，
    会落到圆心左边（v29/v37 实测踩过的坑）。 */
 @media (max-width: 768px) {
+  /* v38 修正：wrapper 宽度 = 手机档真实取景窗（蒙版 75% × FOCUS 1.3 = 97.5%）。
+     此前媒体查询里的宽度规则排在主规则 65% 之前被级联覆盖，wrapper 实际
+     只有 65% 宽，散点/圆盘被压在窗口中央一小块、82% 的黄点标签必然被裁。 */
+  .hero-mask-wrapper {
+    width: 97.5%;
+  }
   /* 强制居中定位，红黄点拉开距离 */
   .hotspot {
     top: 52% !important;
@@ -764,10 +770,16 @@ html, body { overscroll-behavior: none; }
     left: calc(50% + 25px) !important;
     white-space: nowrap;
   }
-  /* v38：强制 Personal 标签始终在黄点右侧（从圆心向右拉开 20px） */
+  /* v38：强制 Personal 标签始终在黄点右侧。
+   ★ 物理约束：黄点所在行（wrapper 高 35%）的阶梯蒙版右缘只有 95.9% 宽
+     （375 屏 ≈ 355px），黄点 cx=305 → 标签可用空间仅 ~48px。
+     原字号(10px+12px 内边距=53px 宽)必被阶梯缺口裁掉尾字母，
+     缩到 9px/4px 内边距/3px 偏移（宽≈45px，右缘≈353px）才完整。 */
   .specialist .hud-label {
-    left: calc(50% + 20px) !important;
+    left: calc(50% + 3px) !important;
     right: auto !important;
+    font-size: 9px !important;
+    padding: 2px 4px !important;
     transform: translateY(-50%);
     white-space: nowrap !important;
   }
