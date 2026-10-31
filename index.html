@@ -52,10 +52,10 @@
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
-    <link rel="stylesheet" href="3、站点简介/样式.css?v=15" />
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=16" />
     <link rel="stylesheet" href="4、页脚/样式.css?v=4" />
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
-    <script src="3、站点简介/动画.js?v=3" defer></script>
+    <script src="3、站点简介/动画.js?v=4" defer></script>
     <script src="4、页脚/动画.js?v=2" defer></script>
 
     <style>
@@ -362,8 +362,9 @@
     <div class="site-shell" id="siteShell">
 
         <section class="home-intro" aria-label="站点简介">
-            <p class="intro-kicker">ABOUT</p>
-            <h2 class="intro-statement" data-sway="0.4">支援未来，是给自己的一屏。<br>要用的东西，都在它该在的地方。</h2>
+            <!-- 主页大字：JS 会按 <br> 拆成两行再逐行滑入（3、站点简介/动画.js 第 ③ 段）。
+                 换行位置就用这个 <br> 控制，不要靠自动折行。 -->
+            <h2 class="about-title">This space is where<br>memories, systems, and evolution meet.</h2>
             <div class="intro-values">
                 <div class="value-block">
                     <div class="value-content">
