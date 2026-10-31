@@ -888,14 +888,25 @@ html, body { overscroll-behavior: none; }
 }
 
 /* ===================== 首屏左下角大标题 + EXPLORE 按钮 =====================
-   本次只做两件事：换文字、换颜色。
-   位置(第 1 块 align-items:flex-end + 4rem 内边距 = 左下角)、滑入、乱码落定
-   全部沿用上面的原版规则与 2、滚动门面/动画.js（该文件一行未改）。
-   选择器带 :nth-child(1) 限定，只作用于首屏第 1 块，三段文案不受影响。 */
+   2026-10-31 v56：位置改为原站参数 left:4vw / bottom:8vh。
+   原来靠「第 1 块 align-items:flex-end + 4rem 内边距」近似落在左下，
+   内边距是 rem 单位、不随视口变，和原站不是一个东西；现在第 1 块
+   直接 position:relative，文案绝对定位到左下角，两条参数就是原站那两条。
+   只作用于第 1 块（:nth-child(1)），三段文案的排版一行未动。 */
+.hero-content .hero-content-block:nth-child(1) {
+  position: relative;
+}
+
 .hero-content .hero-content-block:nth-child(1) .hero-content-copy {
-  /* 原版 35% 是给「支援未来」四个字用的；英文整句在 5.5vw 下需要更宽才不会
-     被折成三四行。只放宽第 1 块，第 2/3/4 块的 35% 原样不动。 */
-  width: 100%;
+  position: absolute;
+  left: 4vw;
+  bottom: 8vh;
+  /* 原版 35% 是给「支援未来」四个字用的；英文整句在 5.5vw 下需要接近整行宽
+     才不会折成三行（实测 62vw 会把 fingers. 挤到第二行去）。
+     绝对定位后由 max-width 控宽，仍然只影响第 1 块。 */
+  width: auto;
+  max-width: 90vw;
+  gap: 0;
 }
 
 .hero-content .hero-content-block:nth-child(1) h1 {
@@ -904,13 +915,9 @@ html, body { overscroll-behavior: none; }
   line-height: 1.1;
   letter-spacing: -0.03em;
   color: #f4f3e8;            /* 原站奶白 */
-  /* 乱码落定时 textContent 里的换行要真的断行；<br> 与之并存靠下面一条收掉，
-     避免首帧出现两个换行（中间空一行） */
-  white-space: pre-line;
-}
-
-.hero-content .hero-content-block:nth-child(1) h1 br {
-  display: none;
+  /* v56：大标题不再走乱码，<br> 就是最终断行，不再需要 pre-line 兜底 */
+  white-space: normal;
+  will-change: transform, opacity;
 }
 
 .hero-explore-btn {
@@ -933,6 +940,37 @@ html, body { overscroll-behavior: none; }
 
 .hero-explore-btn:hover {
   transform: scale(1.02);
+}
+
+/* 三段正文的逐词显现：单词用 span 包起来（JS 里拆），
+   inline-block 才能吃到 transform；初始透明度由 JS 设，noscript 下仍可读 */
+.hero-content .hero-content-block p .word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* 手机竖屏：4vw/5.5vw 在 390 宽上只有 21px，标语会小到看不清，
+   这里单独抬高字号并把左右留白收一点；桌面参数不受影响 */
+@media (max-width: 800px) {
+  .hero-content .hero-content-block:nth-child(1) .hero-content-copy {
+    left: 6vw;
+    right: 6vw;
+    bottom: 12vh;
+    width: auto;
+    max-width: none;
+  }
+
+  .hero-content .hero-content-block:nth-child(1) h1 {
+    /* 9vw 时第一行正好顶到右边缘（实测差 2px），收到 8.2vw 留出呼吸位 */
+    font-size: 8.2vw;
+    line-height: 1.12;
+  }
+
+  .hero-explore-btn {
+    margin-top: 1.5rem;
+    padding: 0.85rem 1.35rem;
+    font-size: 0.75rem;
+  }
 }
 
 /* 三段正文：原版继承 .hero 的纯白 #fff，按用户要求改成奶白 #f4f3e8（只改颜色） */

@@ -47,27 +47,19 @@
     if (hotspotsSvg) gsap.set(hotspotsSvg, { opacity: 0, visibility: "hidden" });
 
     /* ============================================================
-       文案「动态输入」效果（参考 inversa 的 BaseTitle scrambleText）：
-       滑动后字不是直接出现，而是一串乱码逐字落定为正文。
-       每段文案只演一次（inversa 的 scrollTrigger 也是播一次不回放）。
+       文案入场（2026-10-31 v56 用户定稿，三段分别定制）：
+       ① 首屏大标题 h1：彻底不参与乱码，只有一次「从下往上滑入 + 淡入」；
+       ② 三段小标题 h2（RAW FRAGMENTS…）：仍是逐词乱码，但字符每 130ms
+          才刷新一次（原来是逐帧刷新，快到肉眼看不清）；
+       ③ 三段正文 p：按空格拆成单词 <span>，逐个从 opacity 0 / y 12 弹回原位，
+          永远不出现乱码。
+       触发时机沿用原逻辑：内容上移后进入视口下缘 90% 线的那一段开始播，每段一次。
+       ⚠ 只替换「文字怎么出现」，触发条件、位移、蒙版、散点、网格一行未动。
        ============================================================ */
-    const scrambleItems = [];
-    heroContent.querySelectorAll("h1, h2, p").forEach((el) => {
-      scrambleItems.push({ el, text: el.textContent, top: 0, done: false });
-    });
-    const measureScramble = () => {
-      const base = heroContent.getBoundingClientRect().top;
-      scrambleItems.forEach((it) => {
-        it.top = it.el.getBoundingClientRect().top - base; // 相对 hero-content 的布局偏移
-      });
-    };
-    measureScramble();
-    /* v55：乱码粒度改为「逐单词」——
-       原来 ScrambleTextPlugin 是逐字符乱抖（J_o_x s_t_r_u…），现在按空格切词，
-       整词作为一个乱码块，按顺序一个个极快落定。含空格的文本走新逻辑，
-       不含空格的中文标题（h1「支援未来」）仍走插件原路，行为不变。
-       ⚠ 只换了“乱码怎么抖”，触发时机 / 位移 / 滑入逻辑一行未动。 */
     const SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&@*+=?/<>";
+    const TICK_MS = 130;   // 乱码刷新频率：100~150ms 一跳，肉眼可见
+    const PER_WORD_TICKS = 3; // 每个词先乱跳 3 拍（≈390ms）再落定
+
     const scrambleToken = (word) => {
       let out = "";
       for (let i = 0; i < word.length; i++) {
@@ -78,8 +70,52 @@
       }
       return out;
     };
-    const runWordScramble = (el, text, duration) => {
-      const parts = text.split(/(\s+)/); // 单词 / 空白交替，空白原样保留（不破坏换行分词）
+
+    /* 首屏大标题：从乱码名单里摘出去，单独做滑入 */
+    const heroTitleEl = heroContent.querySelector(".hero-content-block:nth-child(1) h1");
+
+    /* 正文拆词：单词各包一个 span，词间空格的文本节点原样保留，
+       这样宽度/换行与原来完全一致，只是每个词可以单独动 */
+    const splitWords = (el) => {
+      const text = el.textContent.replace(/\s+/g, " ").trim();
+      const words = text ? text.split(" ") : [];
+      el.textContent = "";
+      const spans = [];
+      words.forEach((w, i) => {
+        const s = document.createElement("span");
+        s.className = "word";
+        s.textContent = w;
+        el.appendChild(s);
+        spans.push(s);
+        if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+      });
+      return spans;
+    };
+
+    const scrambleItems = [];
+    heroContent.querySelectorAll("h1, h2, p").forEach((el) => {
+      if (el === heroTitleEl) return;             // 大标题不参与乱码
+      if (el.tagName === "P") {
+        const words = splitWords(el);
+        gsap.set(words, { opacity: 0, y: 12 });   // 初始隐身，等触发时逐个弹
+        scrambleItems.push({ el, words, top: 0, done: false });
+      } else {
+        scrambleItems.push({ el, text: el.textContent, top: 0, done: false });
+      }
+    });
+
+    const measureScramble = () => {
+      const base = heroContent.getBoundingClientRect().top;
+      scrambleItems.forEach((it) => {
+        it.top = it.el.getBoundingClientRect().top - base; // 相对 hero-content 的布局偏移
+      });
+    };
+    measureScramble();
+
+    /* ② 小标题乱码：定时器每 TICK_MS 才重画一次，字符肉眼可见地跳；
+       每 PER_WORD_TICKS 拍落定一个词，落完即收 */
+    const runTitleScramble = (el, text) => {
+      const parts = text.split(/(\s+)/); // 单词 / 空白交替，空白原样保留
       const wordPos = [];
       for (let i = 0; i < parts.length; i++) {
         if (!/^\s+$/.test(parts[i])) wordPos.push(i);
@@ -89,9 +125,7 @@
         el.textContent = text;
         return;
       }
-      const state = { p: 0 };
-      const render = () => {
-        const settled = Math.floor(state.p * total);
+      const render = (settled) => {
         let out = "";
         for (let i = 0; i < parts.length; i++) {
           if (/^\s+$/.test(parts[i])) {
@@ -102,30 +136,59 @@
         }
         el.textContent = out;
       };
-      gsap.fromTo(state, { p: 0 }, {
-        p: 1,
-        duration: duration,
-        ease: "none",
-        onUpdate: render,
-        onComplete: () => { el.textContent = text; },
+      let ticks = 0;
+      render(0);
+      const timer = setInterval(() => {
+        ticks++;
+        const settled = Math.floor(ticks / PER_WORD_TICKS);
+        if (settled >= total) {
+          clearInterval(timer);
+          el.textContent = text; // 收尾写回原文，杜绝残留乱码
+          return;
+        }
+        render(settled);
+      }, TICK_MS);
+    };
+
+    /* ③ 正文：单词依次淡入 + 轻微上移，没有任何乱码 */
+    const runWordReveal = (words) => {
+      gsap.to(words, {
+        opacity: 1,
+        y: 0,
+        duration: 0.55,
+        ease: "power2.out",
+        stagger: 0.055,
       });
     };
+
     const runScramble = (movedUp, vh) => {
       scrambleItems.forEach((it) => {
         if (it.done || it.top - movedUp >= vh * 0.9) return;
         it.done = true;
-        if (/\s/.test(it.text)) {
-          runWordScramble(it.el, it.text, 1.1);   // 逐单词落定，整体 1.1s 内完成
-        } else if (window.ScrambleTextPlugin) {
-          gsap.to(it.el, {
-            duration: 2,
-            scrambleText: { text: it.text, speed: 0.5 },
-          });
+        if (it.words) {
+          runWordReveal(it.words);
         } else {
-          it.el.textContent = it.text;
+          runTitleScramble(it.el, it.text);
         }
       });
     };
+
+    /* ① 大标题入场：y 100 → 0 + 淡入，一次，无乱码（用户指定参数） */
+    if (heroTitleEl) {
+      gsap.fromTo(
+        heroTitleEl,
+        { y: 100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.15, clearProps: "transform,opacity" }
+      );
+      const heroBtn = heroContent.querySelector(".hero-content-block:nth-child(1) .hero-explore-btn");
+      if (heroBtn) {
+        gsap.fromTo(
+          heroBtn,
+          { y: 24, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, ease: "power2.out", delay: 0.55, clearProps: "transform,opacity" }
+        );
+      }
+    }
 
     /* ============================================================
        鼠标跟随圆环（参考 inversa 的 Cursor 组件）：
