@@ -56,7 +56,7 @@
        触发时机沿用原逻辑：内容上移后进入视口下缘 90% 线的那一段开始播，每段一次。
        ⚠ 只替换「文字怎么出现」，触发条件、位移、蒙版、散点、网格一行未动。
        ============================================================ */
-    const SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&@*+=?/<>";
+    const SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 只允许 26 个字母，不出现符号
     const TICK_MS = 130;   // 乱码刷新频率：100~150ms 一跳，肉眼可见
     const PER_WORD_TICKS = 3; // 每个词先乱跳 3 拍（≈390ms）再落定
 
@@ -64,7 +64,7 @@
       let out = "";
       for (let i = 0; i < word.length; i++) {
         const ch = word.charAt(i);
-        out += /[A-Za-z0-9]/.test(ch)
+        out += /[A-Za-z]/.test(ch)
           ? SCRAMBLE_GLYPHS.charAt((Math.random() * SCRAMBLE_GLYPHS.length) | 0)
           : ch;
       }
@@ -97,7 +97,7 @@
       if (el === heroTitleEl) return;             // 大标题不参与乱码
       if (el.tagName === "P") {
         const words = splitWords(el);
-        gsap.set(words, { opacity: 0, y: 12 });   // 初始隐身，等触发时逐个弹
+        gsap.set(words, { opacity: 0 });          // 初始隐身，等触发时逐个淡入
         scrambleItems.push({ el, words, top: 0, done: false });
       } else {
         scrambleItems.push({ el, text: el.textContent, top: 0, done: false });
@@ -150,14 +150,13 @@
       }, TICK_MS);
     };
 
-    /* ③ 正文：单词依次淡入 + 轻微上移，没有任何乱码 */
+    /* ③ 正文：单词依次淡入，只动 opacity，不做任何位移（用户定稿：不要从下往上） */
     const runWordReveal = (words) => {
       gsap.to(words, {
         opacity: 1,
-        y: 0,
-        duration: 0.55,
-        ease: "power2.out",
-        stagger: 0.055,
+        duration: 0.5,
+        ease: "power1.out",
+        stagger: 0.05,
       });
     };
 

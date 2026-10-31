@@ -888,88 +888,114 @@ html, body { overscroll-behavior: none; }
 }
 
 /* ===================== 首屏左下角大标题 + EXPLORE 按钮 =====================
-   2026-10-31 v56：位置改为原站参数 left:4vw / bottom:8vh。
-   原来靠「第 1 块 align-items:flex-end + 4rem 内边距」近似落在左下，
-   内边距是 rem 单位、不随视口变，和原站不是一个东西；现在第 1 块
-   直接 position:relative，文案绝对定位到左下角，两条参数就是原站那两条。
-   只作用于第 1 块（:nth-child(1)），三段文案的排版一行未动。 */
+   2026-10-31 v57：按 inversa.com 的真实 CSS 逐条换算，不再用「近似值」。
+   原站 :root 是 --size:1600，html{font-size:calc(100vw/1600*10)}，
+   也就是 1rem = 0.625vw；下面所有 vw 都由原站 rem 值直接换算而来：
+
+     原站 .slide:first-child .content   left:1.6rem  bottom:1.6rem  width:71rem
+     → 本文件 .hero-content-copy        left:1vw     bottom:1vw     width:44.375vw
+     原站 .heading  8rem / 400 / .9 / -.03em / margin-bottom 1.6rem
+     → 本文件 h1    5vw  / 400 / .9 / -.03em / margin-bottom 1vw
+     原站 .base-button  高 4.5rem / 内边距 0 2rem / 字号 1.4rem / 300 / 圆角 .4rem
+     → 本文件 .hero-explore-btn  高 2.8125vw / 内边距 0 1.25vw / .875vw / 400*
+     原站 clip-path 斜角 1.5rem，transition: clip-path .25s ease-out
+     → 本文件 .9375vw 斜角，同一条 transition（hover 时斜角从左下跳到左上）
+
+   * 原站按钮字重是 300（JetBrainsMono-Light），本站自托管的是 JetBrainsMono 400，
+     只有这一处差一档；字族已与原文一致（JetBrains Mono → 字体在 0、公共库/字体/）。
+   只作用于第 1 块（:nth-child(1)），三段文案的排版不受影响。 */
 .hero-content .hero-content-block:nth-child(1) {
   position: relative;
 }
 
 .hero-content .hero-content-block:nth-child(1) .hero-content-copy {
   position: absolute;
-  left: 4vw;
-  bottom: 8vh;
-  /* 原版 35% 是给「支援未来」四个字用的；英文整句在 5.5vw 下需要接近整行宽
-     才不会折成三行（实测 62vw 会把 fingers. 挤到第二行去）。
-     绝对定位后由 max-width 控宽，仍然只影响第 1 块。 */
-  width: auto;
-  max-width: 90vw;
+  left: 1vw;
+  bottom: 1vw;
+  width: 44.375vw;          /* 71rem：原站标题框宽度，也是它两行的断行依据 */
+  max-width: none;
   gap: 0;
 }
 
 .hero-content .hero-content-block:nth-child(1) h1 {
-  font-size: 5.5vw;          /* 用户定稿：比原站实测 5vw 更大一号 */
-  font-weight: 500;
-  line-height: 1.1;
+  font-size: 5vw;           /* 8rem */
+  font-weight: 400;
+  line-height: 0.9;
   letter-spacing: -0.03em;
-  color: #f4f3e8;            /* 原站奶白 */
-  /* v56：大标题不再走乱码，<br> 就是最终断行，不再需要 pre-line 兜底 */
+  color: #f4f3e8;           /* --color-creme */
+  margin: 0 0 1vw;          /* margin-bottom 1.6rem */
   white-space: normal;
   will-change: transform, opacity;
 }
 
 .hero-explore-btn {
-  align-self: flex-start;    /* flex 列里不被拉满宽 */
+  align-self: flex-start;   /* flex 列里不被拉满宽 */
   display: inline-flex;
   align-items: center;
-  margin-top: 2rem;
-  padding: 1rem 1.75rem;
-  background-color: #ebfc72; /* 用户指定：亮黄绿 */
-  color: #000;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  margin: 0;
+  height: 2.8125vw;         /* 4.5rem */
+  padding: 0 1.25vw;        /* 0 2rem */
+  border-radius: 0.25vw;    /* .4rem */
+  background-color: #ebfc72;
+  color: #13140e;
+  font-family: "JetBrains Mono", "DM Mono", monospace;
+  font-size: 0.875vw;       /* 1.4rem */
+  font-weight: 400;         /* 原站 300，本站只托管了 400 */
+  line-height: 1.28;
   text-transform: uppercase;
   text-decoration: none;
-  /* 右下角斜切（inversa 的 base-button 同款） */
-  clip-path: polygon(0 0, 100% 0, 100% 75%, 92% 100%, 0 100%);
-  transition: transform 0.3s ease;
+  /* 右下角斜切 1.5rem，与原文同一个 polygon（末位 0 0 回原点，保证闭合） */
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 0.9375vw), calc(100% - 0.9375vw) 100%, 0 100%, 0 0);
+  transition: clip-path 0.25s ease-out;
 }
 
-.hero-explore-btn:hover {
-  transform: scale(1.02);
+/* 原站原样：hover 时斜角从「右下」滑到「左上」（clip-path 位移，0.25s ease-out） */
+@media (hover: hover) {
+  .hero-explore-btn:hover {
+    clip-path: polygon(0.9375vw 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0.9375vw);
+  }
 }
 
 /* 三段正文的逐词显现：单词用 span 包起来（JS 里拆），
-   inline-block 才能吃到 transform；初始透明度由 JS 设，noscript 下仍可读 */
+   inline-block 便于单独控制透明度；初始状态由 JS 设置，noscript 下仍可读 */
 .hero-content .hero-content-block p .word {
   display: inline-block;
-  will-change: transform, opacity;
+  will-change: opacity;
 }
 
-/* 手机竖屏：4vw/5.5vw 在 390 宽上只有 21px，标语会小到看不清，
-   这里单独抬高字号并把左右留白收一点；桌面参数不受影响 */
+/* 手机竖屏（本站统一 800px 档）：照原站 max-width:600 那套 rem 值换算
+   1rem = 2.6667vw，即 .content left/bottom 1.2rem=3.2vw、标题 4.6rem=12.27vw；
+   标题字号再压一档，避免 390 宽上把 "the future." 挤到第三行 */
 @media (max-width: 800px) {
   .hero-content .hero-content-block:nth-child(1) .hero-content-copy {
-    left: 6vw;
-    right: 6vw;
-    bottom: 12vh;
+    left: 3.2vw;
+    right: 3.2vw;
+    bottom: 3.2vw;
     width: auto;
     max-width: none;
   }
 
   .hero-content .hero-content-block:nth-child(1) h1 {
-    /* 9vw 时第一行正好顶到右边缘（实测差 2px），收到 8.2vw 留出呼吸位 */
-    font-size: 8.2vw;
-    line-height: 1.12;
+    font-size: 8.6vw;
+    line-height: 1;
+    letter-spacing: -0.0217em;
+    margin-bottom: 3.2vw;
   }
 
   .hero-explore-btn {
-    margin-top: 1.5rem;
-    padding: 0.85rem 1.35rem;
-    font-size: 0.75rem;
+    /* 原站手机档按钮高 12vw，那是配 12.27vw 标题的比例；
+       本档标题为了不折三行已压到 8.6vw，按钮按同比例收到 8.4vw */
+    height: 8.4vw;
+    padding: 0 4vw;
+    border-radius: 1vw;
+    font-size: 2.9vw;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3.2vw), calc(100% - 3.2vw) 100%, 0 100%, 0 0);
+  }
+
+  @media (hover: hover) {
+    .hero-explore-btn:hover {
+      clip-path: polygon(3.2vw 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 3.2vw);
+    }
   }
 }
 
