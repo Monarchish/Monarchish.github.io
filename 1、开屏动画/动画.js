@@ -1,5 +1,11 @@
 /* Ported from ti-landing-page-reveal-004/script.js — no Club SplitText */
 (function () {
+  /* ===== 调试总开关 =====
+     true  = 跳过开场动画：开场层直接收掉、立刻 resolve（调用方随即解锁滚动）。
+     false = 正常播放开场动画。
+     ★ 只加这一个短路分支，下面原有时间轴一行未改。 */
+  var SKIP_PRELOADER = true;
+
   function splitLines(root) {
     root.querySelectorAll("p").forEach((p) => {
       if (p.querySelector(".line-mask")) return;
@@ -48,6 +54,15 @@
   function bootReveal(gsap, CustomEase) {
     const root = document.getElementById("reveal-root");
     if (!root) return Promise.resolve();
+
+    /* 调试开关打开：开场层收掉，直接返回已完成的 Promise。
+       原有的 markReady / 滚动解锁 / startSite 由调用方（index.html 的 done）照常执行。 */
+    if (SKIP_PRELOADER) {
+      root.style.display = "none";
+      root.setAttribute("aria-hidden", "true");
+      document.documentElement.classList.remove("play-reveal");
+      return Promise.resolve();
+    }
 
     gsap.registerPlugin(CustomEase);
     CustomEase.create("hop", "0.9, 0, 0.1, 1");

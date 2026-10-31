@@ -886,3 +886,51 @@ html, body { overscroll-behavior: none; }
     white-space: nowrap !important;
   }
 }
+
+/* ===================== 首屏左下角大标题 + EXPLORE 按钮 =====================
+   本次只做两件事：换文字、换颜色。
+   位置(第 1 块 align-items:flex-end + 4rem 内边距 = 左下角)、滑入、乱码落定
+   全部沿用上面的原版规则与 2、滚动门面/动画.js（该文件一行未改）。
+   选择器带 :nth-child(1) 限定，只作用于首屏第 1 块，三段文案不受影响。 */
+.hero-content .hero-content-block:nth-child(1) .hero-content-copy {
+  /* 原版 35% 是给「支援未来」四个字用的；英文整句在 5.5vw 下需要更宽才不会
+     被折成三四行。只放宽第 1 块，第 2/3/4 块的 35% 原样不动。 */
+  width: 100%;
+}
+
+.hero-content .hero-content-block:nth-child(1) h1 {
+  font-size: 5.5vw;          /* 用户定稿：比原站实测 5vw 更大一号 */
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #f4f3e8;            /* 原站奶白 */
+  /* 乱码落定时 textContent 里的换行要真的断行；<br> 与之并存靠下面一条收掉，
+     避免首帧出现两个换行（中间空一行） */
+  white-space: pre-line;
+}
+
+.hero-content .hero-content-block:nth-child(1) h1 br {
+  display: none;
+}
+
+.hero-explore-btn {
+  align-self: flex-start;    /* flex 列里不被拉满宽 */
+  display: inline-flex;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 1rem 1.75rem;
+  background-color: #ebfc72; /* 用户指定：亮黄绿 */
+  color: #000;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  /* 右下角斜切（inversa 的 base-button 同款） */
+  clip-path: polygon(0 0, 100% 0, 100% 75%, 92% 100%, 0 100%);
+  transition: transform 0.3s ease;
+}
+
+.hero-explore-btn:hover {
+  transform: scale(1.02);
+}

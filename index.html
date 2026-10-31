@@ -48,7 +48,7 @@
           href="0、公共库/字体/jetbrains-mono-400.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=51" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=52" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
@@ -291,7 +291,13 @@
         <div class="hero-content">
             <div class="hero-content-block">
                 <div class="hero-content-copy">
-                    <h1>支援未来</h1>
+                    <!-- 只换了文字：位置/滑入/乱码落定全部沿用门面原版脚本（2、滚动门面/动画.js 未改一行）。
+                         ⚠ 换行写法有讲究：<br> 后面必须紧跟一个真实换行、且下一行顶格不留缩进——
+                         乱码动画落定时会重写 textContent（<br> 会被丢掉、换行符会保留），
+                         两者靠 CSS 的 white-space: pre-line 对齐成同一个断行结果。 -->
+                    <h1>Time slips through our fingers.<br>
+I reinforce.</h1>
+                    <a href="#" class="hero-explore-btn">EXPLORE ORIGIN</a>
                 </div>
             </div>
             <div class="hero-content-block">
@@ -707,7 +713,7 @@
                     ]
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
-                reveal: { global: "SupportFutureReveal", urls: ["1、开屏动画/动画.js?v=6"] },
+                reveal: { global: "SupportFutureReveal", urls: ["1、开屏动画/动画.js?v=7"] },
                 hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=24"] }
             };
 
