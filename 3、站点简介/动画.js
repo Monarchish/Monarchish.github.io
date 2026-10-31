@@ -98,27 +98,31 @@
 
     /* CSS 过渡兜底：同样的位移/缓动，用 IntersectionObserver 触发 */
     function playWithCss() {
+        var vh = window.innerHeight;
         lines.forEach(function (l, i) {
-            l.classList.add("about-line-js");
             l.style.transitionDelay = (i * 0.12) + "s";
+            l.classList.add("about-line-js");
         });
-        if (!("IntersectionObserver" in window)) {
-            lines.forEach(function (l) { l.classList.add("is-in"); });
-            return;
+        if ("IntersectionObserver" in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    en.target.classList.toggle("is-in", en.isIntersecting);
+                });
+            }, { rootMargin: "0px 0px -15% 0px" });
+            lines.forEach(function (l) { io.observe(l); });
         }
-        var io = new IntersectionObserver(function (entries) {
-            entries.forEach(function (en) {
-                en.target.classList.toggle("is-in", en.isIntersecting);
-            });
-        }, { rootMargin: "0px 0px -15% 0px" });
-        lines.forEach(function (l) { io.observe(l); });
+        /* 已经在视口里（直达简介 / 刷新停在半页）：不再等观察器回调，立刻补一次，
+           否则文字会停在 opacity:0 的状态上——宁可省掉动画，也不能让字看不见 */
+        lines.forEach(function (l) {
+            if (l.getBoundingClientRect().top < vh * 0.85) l.classList.add("is-in");
+        });
     }
 
     /* gsap / ScrollTrigger 是页面底部异步装载的：这里轮询等待，超时就兜底 */
     var t0 = Date.now();
     (function waitLibs() {
         if (window.gsap && window.ScrollTrigger) { playWithGsap(); return; }
-        if (Date.now() - t0 > 8000) { playWithCss(); return; }
+        if (Date.now() - t0 > 4000) { playWithCss(); return; }
         setTimeout(waitLibs, 120);
     })();
 })();
