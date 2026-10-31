@@ -450,4 +450,32 @@
         startDrift();
       }
     }
+
+    /* ===== v61：EXPLORE ORIGIN 按钮「悬停乱码重组」（照 inversa 原站 BaseButton 复刻） =====
+       inversa 的按钮组件里只有这一行逻辑（源码 C4U18hWZ.js → BaseButton）：
+         onMouseenter: () => gsap.to(titleRef, { scrambleText: { text: "Explore Origin", speed: 1 } })
+       也就是「鼠标一进入按钮，就把这段文字在自己身上重乱一遍再重组」，没有别的动画。
+       这里用同一条调用、同样的默认参数，所以观感与原站一致：
+         · 时长不写 → gsap 默认 0.5s；
+         · 字符集不写 → 插件默认 upperCase（26 个大写字母，和门面 h2 的乱码集合同一套）；
+         · speed 1 → 插件内部换算成每 50ms 换一批随机字符；
+         · 字符从左往右逐个落定，最后写回原文，不会留残字。
+       等宽字体 + 字符数不变（EXPLORE ORIGIN 恒为 14 个字符），所以乱跳时按钮宽度不会抖。
+       ★ 只加悬停行为：clip-path 斜角、入场滑入、排版一律不动。 */
+    const bindExploreScramble = function () {
+      if (!window.gsap) return;
+      const btn = document.querySelector('.hero-explore-btn');
+      if (!btn) return;
+      const label = btn.querySelector('.hero-explore-label') || btn;
+      const text = label.textContent;
+      if (!text) return;
+      btn.addEventListener('mouseenter', function () {
+        gsap.to(label, { scrambleText: { text: text, speed: 1 } });
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindExploreScramble);
+    } else {
+      bindExploreScramble();
+    }
 })();
