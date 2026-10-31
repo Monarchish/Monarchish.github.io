@@ -1,17 +1,5 @@
 /* Ported from ti-landing-page-reveal-004/script.js — no Club SplitText */
 (function () {
-  /* ============================================================
-     开屏动画（Loader / Preloader）总开关 —— 调试期唯一开关点
-     ============================================================
-     true  = 关掉开屏：不演开场、不等点「进入」，站点直接露脸
-     false = 打开开屏：原来的完整揭幕流程（点「进入」→ 舞台拉开 → 进站）
-
-     只在这一处改。index.html 那边不用动：boot() 拿到 resolve 后会照常
-     markReady()（去掉 play-reveal、解除滚动锁），所以关掉开屏不会把站点
-     关在门外，也不会影响门面/Lenis/蒙版/散点的初始化时序。
-     2026-10-31 起暂时置 true，等所有区块调完再改回 false。 */
-  var SKIP_PRELOADER = true;
-
   function splitLines(root) {
     root.querySelectorAll("p").forEach((p) => {
       if (p.querySelector(".line-mask")) return;
@@ -60,16 +48,6 @@
   function bootReveal(gsap, CustomEase) {
     const root = document.getElementById("reveal-root");
     if (!root) return Promise.resolve();
-
-    /* 调试开关（见文件顶部 SKIP_PRELOADER）：直接把开场层收掉并立刻 resolve。
-       index.html 的 boot() 拿到 resolve 会走 done() → markReady()，
-       于是 play-reveal（滚动锁 + 站点隐藏）同步解除，站点秒开。 */
-    if (SKIP_PRELOADER) {
-      root.style.display = "none";
-      root.classList.add("is-done");
-      document.documentElement.classList.add("no-reveal");
-      return Promise.resolve();
-    }
 
     gsap.registerPlugin(CustomEase);
     CustomEase.create("hop", "0.9, 0, 0.1, 1");
