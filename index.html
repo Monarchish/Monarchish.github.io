@@ -7,6 +7,7 @@
        2、滚动门面/   滑屏介绍（样式 + 动画 + 主图/蒙版窗/方格网）
        3、站点简介/   门面之后的几段总介绍（文案在 index.html 搜 home-intro）
        4、页脚/       页脚（占位，待设计；文案在 index.html 搜 site-footer）
+       5、左下角大标题/ 首屏左下角大字 + EXPLORE 按钮（样式 + 出场动画）
        0、公共库/     gsap 等动画库与字体（开屏和门面共用）
      原来的目录 / SOP 正文 / 侧栏 / 内容门锁整块已移除（git 历史可回溯）。
 
@@ -54,9 +55,12 @@
     <!-- 站点简介与页脚 -->
     <link rel="stylesheet" href="3、站点简介/样式.css?v=15" />
     <link rel="stylesheet" href="4、页脚/样式.css?v=4" />
+    <!-- 首屏左下角大标题 + EXPLORE（独立区块，样式/动画各一个文件） -->
+    <link rel="stylesheet" href="5、左下角大标题/样式.css?v=1" />
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
     <script src="3、站点简介/动画.js?v=3" defer></script>
     <script src="4、页脚/动画.js?v=2" defer></script>
+    <script src="5、左下角大标题/动画.js?v=1" defer></script>
 
     <style>
         /* 站点正文字体：自托管（原先只预载了 CDN 文件却从没写 @font-face，
@@ -288,11 +292,26 @@
             </div>
         </div>
 
+        <!-- ===== 首屏左下角大标题（区块：5、左下角大标题） =====
+             放在 .hero 直下、.hero-content 之外，有两个必须的原因：
+               1) 定位基准 = .hero（position:relative / 100vh / pin），
+                  bottom:8vh、left:4vw 才是相对屏幕；放进 .hero-content（400vh）
+                  会锚到 400vh 的底部，跑出屏幕。
+               2) 门面脚本会给 .hero-content 里所有 h1/h2/p 做 scrambleText 乱码，
+                  标题放进去会被逐词乱抖、并重写 textContent 把 .line 结构冲掉。 -->
+        <div class="hero-title-container">
+            <h1 class="hero-title">
+                <span class="line">Time slips through our fingers.</span><br>
+                <span class="line">I reinforce.</span>
+            </h1>
+            <a href="#" class="explore-btn">EXPLORE ORIGIN</a>
+        </div>
+
         <div class="hero-content">
             <div class="hero-content-block">
-                <div class="hero-content-copy">
-                    <h1>支援未来</h1>
-                </div>
+                <!-- 首屏文案已整块让给左下角大标题（原「支援未来」h1 移到这里之外），
+                     这一块保留 100vh 占位，否则 hero-content 变矮、四屏位移与 pin 对不上 -->
+                <div class="hero-content-copy"></div>
             </div>
             <div class="hero-content-block">
                 <div class="hero-content-copy">
@@ -460,6 +479,9 @@
             function markReady() {
                 document.body.classList.add("is-ready");
                 html.classList.remove("play-reveal");
+                /* 站点正式露脸的信号：各区块的入场动画都等这一下再起
+                   （开屏没演时它也一定会执行，所以订阅方不会被饿死） */
+                try { document.dispatchEvent(new CustomEvent("site:ready")); } catch (e) { /* 老浏览器忽略 */ }
             }
 
             /* 门面大图「就绪才显示」：decode 完成前保持透明（CSS 里有配套规则），
@@ -707,7 +729,7 @@
                     ]
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
-                reveal: { global: "SupportFutureReveal", urls: ["1、开屏动画/动画.js?v=6"] },
+                reveal: { global: "SupportFutureReveal", urls: ["1、开屏动画/动画.js?v=7"] },
                 hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=24"] }
             };
 

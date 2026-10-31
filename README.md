@@ -32,6 +32,10 @@ Monarchish.github.io/
 ├── 4、页脚/                 ← 页脚（占位，待设计）
 │   └── 样式.css             ← 文案在 index.html 搜 site-footer
 │
+├── 5、左下角大标题/         ← 首屏左下角大字 + EXPLORE 按钮
+│   ├── 样式.css             ← 字号 / 颜色 / 按钮切角（搜 “特异性说明”）
+│   └── 动画.js              ← 逐行滑入动画；顶部两个开关（EXIT_ON_SCROLL / START_DELAY）
+│
 └── 0、公共库/               ← gsap / ScrollTrigger / CustomEase /
     │                          ScrambleText / lenis（开屏和门面共用，自托管不吃 CDN）
     └── 字体/                ← 简介与页脚用的两个 woff2
@@ -49,3 +53,15 @@ Monarchish.github.io/
 ## 调试开关（网址后面加参数）
 
 `?hero=0` 直达简介 · `?reveal=0` 跳过开屏 · `?jump=1` 直接跳到简介 · `?seen=0` 重看完整入场
+
+## 开屏动画总开关（改代码，不加参数）
+
+`1、开屏动画/动画.js` 顶部：
+
+```js
+var SKIP_PRELOADER = true;   // true = 不演开屏，刷新直接进站（调试期用这个）
+                             // false = 恢复完整开场揭幕（上线前记得改回 false）
+```
+
+全站只有这一处控制开屏。改成 `true` 时 index.html 不用同步改：开场层会被
+立刻收掉，滚动锁与站点隐藏状态照常解除。
