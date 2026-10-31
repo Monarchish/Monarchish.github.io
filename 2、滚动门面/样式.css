@@ -934,3 +934,8 @@ html, body { overscroll-behavior: none; }
 .hero-explore-btn:hover {
   transform: scale(1.02);
 }
+
+/* 三段正文：原版继承 .hero 的纯白 #fff，按用户要求改成奶白 #f4f3e8（只改颜色） */
+.hero-content .hero-content-block p {
+  color: #f4f3e8;
+}
