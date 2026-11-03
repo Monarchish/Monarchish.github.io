@@ -53,10 +53,10 @@
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
-    <link rel="stylesheet" href="3、站点简介/样式.css?v=16" />
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=17" />
     <link rel="stylesheet" href="4、页脚/样式.css?v=4" />
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
-    <script src="3、站点简介/动画.js?v=4" defer></script>
+    <script src="3、站点简介/动画.js?v=5" defer></script>
     <script src="4、页脚/动画.js?v=2" defer></script>
 
     <style>
@@ -368,38 +368,11 @@
     <div class="site-shell" id="siteShell">
 
         <section class="home-intro" aria-label="站点简介">
-            <!-- 主页大字：JS 会按 <br> 拆成两行再逐行滑入（3、站点简介/动画.js 第 ③ 段）。
-                 换行位置就用这个 <br> 控制，不要靠自动折行。 -->
+            <!-- 主页大字：JS 会按 <br> 拆成两行再逐行滑入（3、站点简介/动画.js）。
+                 换行位置就用这个 <br> 控制，不要靠自动折行。
+                 （2026-11-03 大扫除：旧版的三块中文占位残页，
+                   连同其容器、素材图与 SVG 蒙版已整体移除。） -->
             <h2 class="about-title">This space is where<br>memories, systems, and evolution meet.</h2>
-            <div class="intro-values">
-                <div class="value-block">
-                    <div class="value-content">
-                        <h3 class="value-title">这是什么</h3>
-                        <p class="value-text">一个给自己看的个人门户。这里曾经放着一整套操作手册，现在只留下最想要的骨架：开屏、门面、几段介绍。</p>
-                    </div>
-                    <div class="value-asset">
-                        <img src="3、站点简介/素材/values-economics.jpg" alt="" loading="lazy" />
-                    </div>
-                </div>
-                <div class="value-block">
-                    <div class="value-content">
-                        <h3 class="value-title">现在有什么</h3>
-                        <p class="value-text">进场一段开场动画，往下滚一整屏的地图介绍，然后就是这里——简单、直接，没有多余的东西。</p>
-                    </div>
-                    <div class="value-asset">
-                        <img src="3、站点简介/素材/values-ecology.jpg" alt="" loading="lazy" />
-                    </div>
-                </div>
-                <div class="value-block">
-                    <div class="value-content">
-                        <h3 class="value-title">接下来</h3>
-                        <p class="value-text">页脚和更多板块在设计中。想往这里放什么，随时说，改文案只需要动这个文件。</p>
-                    </div>
-                    <div class="value-asset">
-                        <img src="3、站点简介/素材/values-efficiency.jpg" alt="" loading="lazy" />
-                    </div>
-                </div>
-            </div>
         </section>
 
         <footer class="site-footer">
