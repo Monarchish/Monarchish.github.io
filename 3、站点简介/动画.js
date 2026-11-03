@@ -127,117 +127,142 @@
     })();
 })();
 
-/* ===================== 2026-11-03 图片旁文字/按钮：入场 + 悬停乱码（重做版） =====================
-   上一版把 hover 绑定写在 bindGsap() 里面，只要 gsap / ScrollTrigger 有一个没取到
-   （线上偶发），标题和按钮的鼠标交互就整体不存在——这是"悬停动画看不到"的根因。
-   现在三层彻底解耦：
-     ① 拆词：DOM 一就绪就做，不依赖任何库
-     ② 悬停乱码：立即无条件绑定，用自带定时器（每 80ms 一拍，肉眼能看清字符在跳）
-     ③ 入场：有 gsap 走 gsap（标题乱码落定 + 正文逐词滑入）；
-        没有就走 CSS 过渡 + IntersectionObserver，文字绝不会停在看不见的状态
-   上面 ①②③ 三段（鼠标晃动 / 图片视差 / 主页大字）一行未改。
+/* ===================== 2026-11-03 重写：照抄门面母本（不发明新代码） =====================
+   本段所有乱码/拆词/逐词逻辑逐行取自 2、滚动门面/动画.js 的 v56「文案入场」段：
+     · SCRAMBLE_GLYPHS：只有 26 个大写字母，绝不出现符号或问号；
+     · TICK_MS=130 / PER_WORD_TICKS=3：每 130ms 刷新一拍，每 3 拍落定一个词；
+     · runTitleScramble：标题原地乱码落定（按词落定，收尾写回原文，杜绝残留）；
+     · splitWords + runWordReveal：正文按空格拆词，逐个 opacity 淡入
+       （duration .5 / power1.out / stagger .05，只有 opacity，没有位移）。
+   触发器（ScrollTrigger/IntersectionObserver）沿用本文件原有的接管方式，动画本身是母本。
 
-   原站核对结论（2026-11-03 无头浏览器实测）：
-     · 原站标题 hover 没有乱码，只有 is-blinker 闪烁方块；
-     · 原站按钮 hover 只有 clip-path 斜角位移，背景色/尺寸都不变。
-     标题与按钮的「悬停乱码」「底色变白」「文字右移」是按用户要求额外加的。 */
+   悬停规则（用户指令）：
+     · 标题：只乱码一次——dataset.scrambled 标记 + 首次执行后移除监听；
+     · 三个 .value-btn 按钮和门面的 EXPLORE 大按钮走同一套交互（大按钮由
+       2、滚动门面/动画.js 的 bindExploreScramble 自己绑定，本文件不碰那个模块）。 */
 (function initValueTextAnim() {
     var blocks = [].slice.call(document.querySelectorAll(".value-block"));
     if (!blocks.length) return;
 
-    var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&";
-    var TIMING = {
-        enter: { step: 45, ticks: 12 },   /* 入场：快，约 0.55s 落定（"瞬间乱码落定"） */
-        hover: { step: 80, ticks: 14 }    /* 悬停：慢，一拍 80ms，一次约 1.1s */
+    /* ======== ↓↓ 以下常量与函数照抄 2、滚动门面/动画.js v56 段 ↓↓ ======== */
+    var SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 只允许 26 个字母，不出现符号
+    var TICK_MS = 130;        // 乱码刷新频率：100~150ms 一跳，肉眼可见
+    var PER_WORD_TICKS = 3;   // 每个词先乱跳 3 拍（≈390ms）再落定
+
+    var scrambleToken = function (word) {
+        var out = "";
+        for (var i = 0; i < word.length; i++) {
+            var ch = word.charAt(i);
+            out += /[A-Za-z]/.test(ch)
+                ? SCRAMBLE_GLYPHS.charAt((Math.random() * SCRAMBLE_GLYPHS.length) | 0)
+                : ch;
+        }
+        return out;
     };
 
-    /* 逐拍乱码：字符数恒定（等宽字体不会抖），从左往右依次落定 */
-    function scramble(el, text, conf) {
-        if (!el) return;
-        if (typeof text !== "string" || !text) {
-            text = el.getAttribute("data-text") || el.textContent || "";
+    /* 正文拆词：单词各包一个 span，词间空格的文本节点原样保留，
+       这样宽度/换行与原来完全一致，只是每个词可以单独动 */
+    var splitWords = function (el) {
+        var text = el.textContent.replace(/\s+/g, " ").trim();
+        var words = text ? text.split(" ") : [];
+        el.textContent = "";
+        var spans = [];
+        words.forEach(function (w, i) {
+            var s = document.createElement("span");
+            s.className = "word";
+            s.textContent = w;
+            el.appendChild(s);
+            spans.push(s);
+            if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+        });
+        return spans;
+    };
+
+    /* 小标题乱码：定时器每 TICK_MS 才重画一次，字符肉眼可见地跳；
+       每 PER_WORD_TICKS 拍落定一个词，落完即收 */
+    var runTitleScramble = function (el, text) {
+        var parts = text.split(/(\s+)/); // 单词 / 空白交替，空白原样保留
+        var wordPos = [];
+        for (var i = 0; i < parts.length; i++) {
+            if (!/^\s+$/.test(parts[i])) wordPos.push(i);
         }
-        if (!text) return;
-        if (el.__scrambleTimer) { clearInterval(el.__scrambleTimer); el.__scrambleTimer = null; }
-        var n = conf.ticks, i = 0;
-        el.textContent = text;                       /* 先复位，避免上一轮残留 */
-        el.__scrambleTimer = setInterval(function () {
-            i++;
-            if (i >= n) {                            /* 落定：还原原文 */
-                clearInterval(el.__scrambleTimer);
-                el.__scrambleTimer = null;
-                el.textContent = text;
-                return;
-            }
-            var settled = Math.round(text.length * i / n);
+        var total = wordPos.length;
+        if (!total) { el.textContent = text; return; }
+        var render = function (settled) {
             var out = "";
-            for (var k = 0; k < text.length; k++) {
-                var ch = text.charAt(k);
-                out += (k < settled || !/[A-Za-z0-9]/.test(ch))
-                    ? ch
-                    : GLYPHS.charAt((Math.random() * GLYPHS.length) | 0);
+            for (var i = 0; i < parts.length; i++) {
+                if (/^\s+$/.test(parts[i])) {
+                    out += parts[i];
+                } else {
+                    out += wordPos.indexOf(i) < settled ? parts[i] : scrambleToken(parts[i]);
+                }
             }
             el.textContent = out;
-        }, conf.step);
-    }
+        };
+        var ticks = 0;
+        render(0);
+        var timer = setInterval(function () {
+            ticks++;
+            var settled = Math.floor(ticks / PER_WORD_TICKS);
+            if (settled >= total) {
+                clearInterval(timer);
+                el.textContent = text; // 收尾写回原文，杜绝残留乱码
+                return;
+            }
+            render(settled);
+        }, TICK_MS);
+    };
 
-    /* ---- ① 拆词：只包 span，词间空格仍是文本节点，换行与宽度和原来一致 ---- */
+    /* 正文：单词依次淡入，只动 opacity，不做任何位移（门面用户定稿：不要从下往上） */
+    var runWordReveal = function (words) {
+        gsap.to(words, {
+            opacity: 1,
+            duration: 0.5,
+            ease: "power1.out",
+            stagger: 0.05,
+        });
+    };
+    /* ======== ↑↑ 母本抄写结束 ↑↑ ======== */
+
+    /* ---- 组装：标题原文 / 正文拆词 / 按钮标签 ---- */
     var items = blocks.map(function (block) {
         var title = block.querySelector(".value-title");
         var text = block.querySelector(".value-text");
         var btn = block.querySelector(".value-btn");
         var label = btn ? btn.querySelector(".value-btn-label") : null;
-
-        if (title && !title.getAttribute("data-text")) title.setAttribute("data-text", title.textContent);
-        if (label && !label.getAttribute("data-text")) label.setAttribute("data-text", label.textContent);
-
-        var words = [];
-        if (text) {
-            var raw = text.textContent.replace(/\s+/g, " ").trim();
-            text.textContent = "";
-            var arr = raw ? raw.split(" ") : [];
-            arr.forEach(function (w, i) {
-                var s = document.createElement("span");
-                s.className = "word";
-                s.textContent = w;
-                text.appendChild(s);
-                words.push(s);
-                if (i < arr.length - 1) text.appendChild(document.createTextNode(" "));
-            });
-        }
-
+        var words = text ? splitWords(text) : [];
         return {
             block: block,
-            text: text,
             title: title,
-            titleText: title ? (title.getAttribute("data-text") || "") : "",
+            titleText: title ? title.textContent : "",
+            text: text,
             words: words,
             btn: btn,
             label: label,
-            labelText: label ? (label.getAttribute("data-text") || "") : "",
+            labelText: label ? label.textContent : "",
             done: false
         };
     });
 
-    /* ---- ② 悬停乱码：立即绑定，不等任何库 ---- */
+    /* ---- 悬停：标题只乱码一次（dataset 标记 + 移除监听），按钮每次进入都乱 ---- */
     items.forEach(function (it) {
         if (it.title) {
-            it.title.addEventListener("mouseenter", function () {
-                scramble(it.title, it.titleText, TIMING.hover);
-            });
+            var handler = function () {
+                if (it.title.dataset.scrambled) return;   // 第二次放上去不再乱码
+                it.title.dataset.scrambled = "1";
+                it.title.removeEventListener("mouseenter", handler);
+                runTitleScramble(it.title, it.titleText);
+            };
+            it.title.addEventListener("mouseenter", handler);
         }
         if (it.btn && it.label) {
             it.btn.addEventListener("mouseenter", function () {
-                scramble(it.label, it.labelText, TIMING.hover);
+                runTitleScramble(it.label, it.labelText);
             });
-            /* 触屏没有 hover：按住时也给一次反馈 */
-            it.btn.addEventListener("touchstart", function () {
-                scramble(it.label, it.labelText, TIMING.hover);
-            }, { passive: true });
         }
     });
 
-    /* ---- ③ 入场 ---- */
+    /* ---- 入场：标题原地乱码落定 + 正文逐词淡入（均为母本函数） ---- */
     function inView(el) {
         return el.getBoundingClientRect().top < window.innerHeight * 0.78;
     }
@@ -245,15 +270,12 @@
     function play(it) {
         if (it.done) return;
         it.done = true;
-        if (it.title) scramble(it.title, it.titleText, TIMING.enter);   /* 标题：乱码落定 */
+        if (it.title) runTitleScramble(it.title, it.titleText);
         if (!it.words.length) return;
         if (window.gsap) {
-            gsap.to(it.words, {                                          /* 正文：逐词上滑 + 淡入 */
-                opacity: 1, y: 0, duration: 0.75, ease: "power3.out",
-                stagger: 0.035, overwrite: true
-            });
+            runWordReveal(it.words);
         } else if (it.text) {
-            it.text.classList.add("is-in");                              /* CSS 兜底 */
+            it.text.classList.add("is-in");   /* CSS 兜底：同样只有 opacity */
         }
     }
 
@@ -287,7 +309,7 @@
     function hideWords() {
         items.forEach(function (it) {
             if (!it.words.length) return;
-            if (window.gsap) gsap.set(it.words, { opacity: 0, y: 22 });
+            if (window.gsap) gsap.set(it.words, { opacity: 0 });   /* 只隐身，不位移 */
             else if (it.text) it.text.classList.add("word-anim");
         });
     }
@@ -310,7 +332,7 @@
         hideWords();
         items.forEach(function (it) {
             it.words.forEach(function (w, i) {
-                w.style.transitionDelay = (i * 0.028).toFixed(3) + "s";
+                w.style.transitionDelay = (i * 0.05).toFixed(3) + "s";   /* 与母本 stagger 同拍 */
             });
         });
         items.forEach(arm);
