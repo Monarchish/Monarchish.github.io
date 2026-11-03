@@ -8,6 +8,9 @@
   position: fixed;
   inset: 0;
   z-index: 10000;
+  /* 2026-11-03：开屏动画彻底禁用——整层永久隐藏（黑屏 + S 标志即此层），
+     任何参数（含 ?reveal=1）都不再显示。要恢复开屏，删掉下面这行即可。 */
+  display: none !important;
 }
 
 .reveal-root.is-done {
