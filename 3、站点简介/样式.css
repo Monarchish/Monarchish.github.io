@@ -188,11 +188,14 @@
     max-width: none;
     box-sizing: border-box;
     background: transparent !important;   /* 2026-11-03：去掉黑色大方块，彻底融入米白底 */
-    padding: clamp(28px, 3vw, 56px) clamp(28px, 3.5vw, 64px);
+    /* 2026-11-03 定稿：文字块在 50% 区域正中间（垂直+水平），文字内部保持左对齐 */
+    padding: clamp(28px, 3vw, 56px) 10%;
     margin: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: center;   /* 垂直居中 */
+    align-items: center;       /* 水平居中：标题/正文落在半区正中 */
+    text-align: left;          /* 文字内部保持左对齐 */
     align-self: center;
     color: var(--vi-body);
 }
