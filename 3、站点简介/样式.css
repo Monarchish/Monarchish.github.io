@@ -151,3 +151,74 @@
     .value-block + .value-block { margin-top: 65px; }
     .about-title { padding-top: 84px; padding-bottom: 56px; }
 }
+
+/* ===================== 2026-11-03 新增：图片旁的文字与按钮 =====================
+   全部为「新增」规则，上方任何图片/排版规则一行未改。
+   尺寸取自 inversa 原站实测（1600 视口，1rem = 0.625vw）：
+     .title  margin-bottom 20px → 1.25vw   （原站 20px，覆盖旧 clamp 值以便 1:1）
+     .text   font-size 20px / line-height 25px / font-kerning:none
+     .base-button 高 45px、内边距 0 20px、圆角 4px、右下斜切 15px、字号 14px
+   原站按钮是深色 #13140e，按用户要求统一改为开屏同款黄色 #ebfc72。 */
+.value-content .value-title {
+    margin-bottom: clamp(16px, 1.25vw, 20px);   /* 原站 20px */
+    text-transform: uppercase;                  /* 原站 ECONOMICS 全大写 */
+    letter-spacing: 0.02em;
+}
+.value-text {
+    font-kerning: none;
+}
+/* 逐词动画：单词各包一个 span（JS 注入），inline-block 才能单独位移 */
+.value-text .word {
+    display: inline-block;
+    will-change: transform, opacity;
+}
+
+/* ===== 进入按钮（原站 .base-button 1:1，仅换色） ===== */
+.value-btn {
+    display: inline-flex;
+    align-items: center;
+    margin: clamp(18px, 1.4375vw, 23px) 0 0;   /* 原站 margin-top 23px */
+    height: clamp(38px, 2.8125vw, 45px);        /* 原站 45px */
+    padding: 0 clamp(16px, 1.25vw, 20px);       /* 原站 0 20px */
+    border-radius: 0.25vw;                      /* 原站 4px */
+    background-color: #ebfc72;                  /* 用户指定：开屏同款黄 */
+    color: #13140e;
+    font-family: "JetBrains Mono", "DM Mono", monospace;
+    font-size: clamp(12px, 0.875vw, 14px);      /* 原站 14px */
+    font-weight: 400;
+    line-height: 1.28;
+    letter-spacing: normal;
+    text-transform: uppercase;
+    text-decoration: none;
+    /* 原站同一个 polygon：右下角斜切 15px（末位回到原点保证闭合） */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 0.9375vw), calc(100% - 0.9375vw) 100%, 0 100%, 0 0);
+    transition: clip-path 0.25s ease-out;
+}
+/* 原站实测 hover：斜角从「右下」滑到「左上」，0.25s ease-out；背景色与尺寸都不变 */
+@media (hover: hover) {
+    .value-btn:hover {
+        clip-path: polygon(0.9375vw 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0.9375vw);
+    }
+}
+/* 乱码时字符数不变就不会抖；inline-block 是它的前提 */
+.value-btn-label {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+/* 移动端：按钮尺寸照原站手机档比例收一档 */
+@media (max-width: 900px) {
+    .value-btn {
+        height: 8.4vw;
+        padding: 0 4vw;
+        border-radius: 1vw;
+        font-size: 2.9vw;
+        margin-top: 4vw;
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3.2vw), calc(100% - 3.2vw) 100%, 0 100%, 0 0);
+    }
+    @media (hover: hover) {
+        .value-btn:hover {
+            clip-path: polygon(3.2vw 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 3.2vw);
+        }
+    }
+}
