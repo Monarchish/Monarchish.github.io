@@ -138,8 +138,11 @@
 
    悬停规则（用户指令）：
      · 标题：只乱码一次——dataset.scrambled 标记 + 首次执行后移除监听；
-     · 三个 .value-btn 按钮和门面的 EXPLORE 大按钮走同一套交互（大按钮由
-       2、滚动门面/动画.js 的 bindExploreScramble 自己绑定，本文件不碰那个模块）。 */
+     · 三个 .value-btn 按钮的悬停乱码照抄门面左下角 EXPLORE 大按钮
+       （2、滚动门面/动画.js v61 bindExploreScramble）：
+         gsap.to(label, { scrambleText: { text: text, speed: 1 } })
+       —— 0.5s、speed 1（每 50ms 换一批字符）、从左往右逐个落定，
+       与开屏左下角按钮的节奏一字不差。库未就绪时退回 runTitleScramble 兜底。 */
 (function initValueTextAnim() {
     var blocks = [].slice.call(document.querySelectorAll(".value-block"));
     if (!blocks.length) return;
@@ -257,7 +260,13 @@
         }
         if (it.btn && it.label) {
             it.btn.addEventListener("mouseenter", function () {
-                runTitleScramble(it.label, it.labelText);
+                if (window.gsap) {
+                    /* 照抄 2、滚动门面/动画.js v61 bindExploreScramble 的原调用，
+                       不换时长、不换参数——节奏与开屏左下角 EXPLORE 按钮完全一致 */
+                    gsap.to(it.label, { scrambleText: { text: it.labelText, speed: 1 } });
+                } else {
+                    runTitleScramble(it.label, it.labelText);   /* 库没到时的兜底 */
+                }
             });
         }
     });
