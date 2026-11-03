@@ -157,16 +157,16 @@
    ① 文字容器 .value-content 背景强制 #13140e（全段唯一一块深底），标题/正文全部白色；
       标题不再用黄色。图片侧 .value-asset 一行未动。
    ② 按钮：逐条照抄 2、滚动门面/样式.css 的 .hero-explore-btn（v57 原站换算版）——
-      高 2.8125vw / 内边距 0 1.25vw / 圆角 0.25vw / 黄底 #ebfc72 深字 / JetBrains Mono
+      高 2.8125vw / 内边距 0 1.25vw / 圆角 0.25vw / 黑底 #13140e 白字 / JetBrains Mono
       / 字号 0.875vw / 右下 0.9375vw 斜切 / transition clip-path .25s ease-out；
       hover = 母本的斜角跳到左上 + 用户点名的变白 + 文字右移 5px。
    ③ 正文逐词动画改为门面同款：单词只动 opacity（duration .5 / power1.out / stagger .05），
       不再从下往上位移。 */
 
 .home-intro {
-    --vi-title: #f4f3e8;   /* 白（本站标准白，门面深底文字同色） */
-    --vi-body: #f4f3e8;
-    --vi-panel: #13140e;   /* 文字底：深墨黑 */
+    --vi-title: #13140e;   /* 撤掉深底后，文字必须回到深墨色，否则白字压米白底看不见 */
+    --vi-body: #13140e;
+    --vi-panel: transparent;   /* 文字底：完全透明，彻底融入页面米白底 */
 }
 
 /* ===== 每一行：左右各一半、文字垂直居中、块间 15vh（上一版已定，原样保留） ===== */
@@ -187,7 +187,7 @@
     width: 50%;
     max-width: none;
     box-sizing: border-box;
-    background: var(--vi-panel);          /* 深底（用户指令） */
+    background: transparent !important;   /* 2026-11-03：去掉黑色大方块，彻底融入米白底 */
     padding: clamp(28px, 3vw, 56px) clamp(28px, 3.5vw, 64px);
     margin: 0;
     display: flex;
@@ -262,8 +262,8 @@
     height: 2.8125vw;         /* 4.5rem */
     padding: 0 1.25vw;        /* 0 2rem */
     border-radius: 0.25vw;    /* .4rem */
-    background-color: #ebfc72;
-    color: #13140e;
+    background-color: #13140e;   /* 2026-11-03：黄底 → 纯黑 */
+    color: #ffffff;              /* 文字 → 纯白 */
     font-family: "JetBrains Mono", "DM Mono", monospace;
     font-size: 0.875vw;       /* 1.4rem */
     font-weight: 400;
@@ -280,6 +280,7 @@
     .value-btn:hover {
         clip-path: polygon(0.9375vw 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0.9375vw);
         background-color: #ffffff;
+        color: #13140e;   /* 底色变白时文字必须转深，否则白字压白底看不见 */
     }
     .value-btn:hover .value-btn-label {
         transform: translateX(5px);
