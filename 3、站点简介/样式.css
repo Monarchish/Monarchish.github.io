@@ -277,13 +277,9 @@
 
 /* 母本原样：hover 时斜角从「右下」滑到「左上」；用户另要求变白 + 文字右移 */
 @media (hover: hover) {
+    /* 母本原样：hover 只动斜切角位置，底色文字恒定不变（2026-11-03 定稿：黑底白字） */
     .value-btn:hover {
         clip-path: polygon(0.9375vw 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0.9375vw);
-        background-color: #ffffff;
-        color: #13140e;   /* 底色变白时文字必须转深，否则白字压白底看不见 */
-    }
-    .value-btn:hover .value-btn-label {
-        transform: translateX(5px);
     }
 }
 .value-btn-label {
