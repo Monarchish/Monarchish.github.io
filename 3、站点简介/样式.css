@@ -188,14 +188,15 @@
     max-width: none;
     box-sizing: border-box;
     background: transparent !important;   /* 2026-11-03：去掉黑色大方块，彻底融入米白底 */
-    /* 2026-11-03 定稿：文字块在 50% 区域正中间（垂直+水平），文字内部保持左对齐 */
+    /* 2026-11-03 定稿：统一左缩进 15%，标题/正文/按钮贴同一条左边缘 */
     padding: clamp(28px, 3vw, 56px) 10%;
+    padding-left: 15% !important;
     margin: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;   /* 垂直居中 */
-    align-items: center;       /* 水平居中：标题/正文落在半区正中 */
-    text-align: left;          /* 文字内部保持左对齐 */
+    justify-content: center;      /* 垂直居中 */
+    align-items: flex-start !important;  /* 强制子元素靠左：三条左边缘严格对齐 */
+    text-align: left;             /* 文字内部保持左对齐 */
     align-self: center;
     color: var(--vi-body);
 }
@@ -216,14 +217,17 @@
     color: var(--vi-title);               /* 白 */
     text-transform: uppercase;
     margin: 0 0 1.5rem;
+    margin-left: 0 !important;
+    padding: 0 !important;
     display: flex;
     align-items: center;
+    gap: 12px;                            /* 小方块与文字的间距（替代旧 margin-right） */
 }
 /* 标题前的小方块（导师站 is-blinker 同款），跟文字同色（白） */
 .value-block .value-content .value-title::before {
     width: 0.28em;
     height: 0.28em;
-    margin-right: 0.5em;
+    margin-right: 0;                      /* 间距交给父级 gap，不再额外撑开 */
     background: currentcolor;
     flex: 0 0 auto;
 }
@@ -239,6 +243,9 @@
     color: var(--vi-body);                /* 白 */
     max-width: 500px;
     margin: 0;
+    margin-left: 0 !important;
+    padding: 0 !important;
+    text-align: left;
     font-kerning: normal;
 }
 
@@ -278,6 +285,12 @@
     transition: clip-path 0.25s ease-out, background-color 0.3s ease;
 }
 
+/* 用户定稿：按钮与标题/正文贴同一条左边缘（只动对齐，颜色/尺寸一律不碰） */
+.value-block .value-content .value-btn {
+    align-self: flex-start !important;
+    margin-left: 0 !important;
+}
+
 /* 母本原样：hover 时斜角从「右下」滑到「左上」；用户另要求变白 + 文字右移 */
 @media (hover: hover) {
     /* 母本原样：hover 只动斜切角位置，底色文字恒定不变（2026-11-03 定稿：黑底白字） */
@@ -299,6 +312,7 @@
     .value-block .value-content {
         width: 100%;
         padding: clamp(22px, 6vw, 32px) 6vw;
+        padding-left: 6vw !important;   /* 竖排全宽时 15% 缩进过大，回到 6vw */
         margin: 0;
     }
     .value-block .value-content .value-title { font-size: clamp(1.65rem, 7vw, 2.2rem); margin-bottom: 1rem; }
