@@ -127,61 +127,70 @@
     })();
 })();
 
-/* ===================== 2026-11-03 新增：图片旁文字/按钮的入场与悬停 =====================
-   全部为「新增」逻辑，上方 ①鼠标晃动 ②图片视差 ③主页大字 三段一行未改。
-   对应 inversa 原站的 .block 段落：
-     · 大标题（ECONOMICS…）：ScrollTrigger 进视口时「原地乱码落定」
-       —— 用门面同款 ScrambleTextPlugin；插件没就位时用自带的逐拍乱码兜底。
-     · 正文：按空格拆词，逐词「向上滑入 + 淡入」（Stagger 0.035s）。
-     · 按钮：clip-path 斜角 hover 与配色由 CSS 负责，这里只加「悬停乱码一次」。
+/* ===================== 2026-11-03 图片旁文字/按钮：入场 + 悬停乱码（重做版） =====================
+   上一版把 hover 绑定写在 bindGsap() 里面，只要 gsap / ScrollTrigger 有一个没取到
+   （线上偶发），标题和按钮的鼠标交互就整体不存在——这是"悬停动画看不到"的根因。
+   现在三层彻底解耦：
+     ① 拆词：DOM 一就绪就做，不依赖任何库
+     ② 悬停乱码：立即无条件绑定，用自带定时器（每 80ms 一拍，肉眼能看清字符在跳）
+     ③ 入场：有 gsap 走 gsap（标题乱码落定 + 正文逐词滑入）；
+        没有就走 CSS 过渡 + IntersectionObserver，文字绝不会停在看不见的状态
+   上面 ①②③ 三段（鼠标晃动 / 图片视差 / 主页大字）一行未改。
+
    原站核对结论（2026-11-03 无头浏览器实测）：
-     · 原站标题 hover 没有乱码（只有 is-blinker 闪烁方块）；
-     · 原站按钮 hover 只有 clip-path 斜角位移，背景色/尺寸不变。
-     标题与按钮的「悬停乱码」是本页按用户要求额外加的，故此处独立成段。 */
+     · 原站标题 hover 没有乱码，只有 is-blinker 闪烁方块；
+     · 原站按钮 hover 只有 clip-path 斜角位移，背景色/尺寸都不变。
+     标题与按钮的「悬停乱码」「底色变白」「文字右移」是按用户要求额外加的。 */
 (function initValueTextAnim() {
     var blocks = [].slice.call(document.querySelectorAll(".value-block"));
     if (!blocks.length) return;
 
-    var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&";
+    var TIMING = {
+        enter: { step: 45, ticks: 12 },   /* 入场：快，约 0.55s 落定（"瞬间乱码落定"） */
+        hover: { step: 80, ticks: 14 }    /* 悬停：慢，一拍 80ms，一次约 1.1s */
+    };
 
-    /* 兜底乱码：不依赖插件，逐拍把字母换成随机大写（字符数不变，宽度不抖） */
-    function tickScramble(el, text, ticks) {
-        if (el.__scrambling) return;
-        el.__scrambling = true;
-        var parts = text.split("");
-        var n = ticks || 12;
-        var i = 0;
-        var timer = setInterval(function () {
+    /* 逐拍乱码：字符数恒定（等宽字体不会抖），从左往右依次落定 */
+    function scramble(el, text, conf) {
+        if (!el) return;
+        if (typeof text !== "string" || !text) {
+            text = el.getAttribute("data-text") || el.textContent || "";
+        }
+        if (!text) return;
+        if (el.__scrambleTimer) { clearInterval(el.__scrambleTimer); el.__scrambleTimer = null; }
+        var n = conf.ticks, i = 0;
+        el.textContent = text;                       /* 先复位，避免上一轮残留 */
+        el.__scrambleTimer = setInterval(function () {
             i++;
+            if (i >= n) {                            /* 落定：还原原文 */
+                clearInterval(el.__scrambleTimer);
+                el.__scrambleTimer = null;
+                el.textContent = text;
+                return;
+            }
+            var settled = Math.round(text.length * i / n);
             var out = "";
-            for (var k = 0; k < parts.length; k++) {
-                var ch = parts[k];
-                /* 已落定的字符 = 按位置推进；空格/标点原样保留 */
-                var settled = k / parts.length < i / n;
-                out += settled ? ch : (/[A-Za-z]/.test(ch)
-                    ? GLYPHS.charAt((Math.random() * GLYPHS.length) | 0)
-                    : ch);
+            for (var k = 0; k < text.length; k++) {
+                var ch = text.charAt(k);
+                out += (k < settled || !/[A-Za-z0-9]/.test(ch))
+                    ? ch
+                    : GLYPHS.charAt((Math.random() * GLYPHS.length) | 0);
             }
             el.textContent = out;
-            if (i >= n) { clearInterval(timer); el.textContent = text; el.__scrambling = false; }
-        }, 45);
+        }, conf.step);
     }
 
-    function scramble(el, text) {
-        if (!el) return;
-        if (window.gsap && window.ScrambleTextPlugin) {
-            gsap.to(el, { duration: 0.9, scrambleText: { text: text, speed: 0.6 } });
-        } else {
-            tickScramble(el, text);
-        }
-    }
-
-    /* ---- 正文拆词：只包 span，词间空格仍用文本节点，宽度/换行与原来一致 ---- */
-    var items = [];
-    blocks.forEach(function (block) {
+    /* ---- ① 拆词：只包 span，词间空格仍是文本节点，换行与宽度和原来一致 ---- */
+    var items = blocks.map(function (block) {
         var title = block.querySelector(".value-title");
         var text = block.querySelector(".value-text");
-        var btnLabel = block.querySelector(".value-btn-label");
+        var btn = block.querySelector(".value-btn");
+        var label = btn ? btn.querySelector(".value-btn-label") : null;
+
+        if (title && !title.getAttribute("data-text")) title.setAttribute("data-text", title.textContent);
+        if (label && !label.getAttribute("data-text")) label.setAttribute("data-text", label.textContent);
+
         var words = [];
         if (text) {
             var raw = text.textContent.replace(/\s+/g, " ").trim();
@@ -196,57 +205,114 @@
                 if (i < arr.length - 1) text.appendChild(document.createTextNode(" "));
             });
         }
-        items.push({ block: block, title: title, titleText: title ? title.textContent : "", words: words, btnLabel: btnLabel, btnText: btnLabel ? btnLabel.textContent : "", played: false });
+
+        return {
+            block: block,
+            text: text,
+            title: title,
+            titleText: title ? (title.getAttribute("data-text") || "") : "",
+            words: words,
+            btn: btn,
+            label: label,
+            labelText: label ? (label.getAttribute("data-text") || "") : "",
+            done: false
+        };
     });
 
-    /* ---- 有 gsap 才做隐身+滑入；没有就保持原样可读 ---- */
-    function bindGsap() {
-        gsap.registerPlugin(ScrollTrigger);
-        items.forEach(function (it) {
-            if (it.words.length) {
-                gsap.set(it.words, { opacity: 0, y: 24 });
-            }
-            ScrollTrigger.create({
-                trigger: it.block,
-                start: "top 70%",
-                once: true,
-                onEnter: function () {
-                    it.played = true;
-                    if (it.title) scramble(it.title, it.titleText);
-                    if (it.words.length) {
-                        gsap.to(it.words, {
-                            opacity: 1,
-                            y: 0,
-                            duration: 0.7,
-                            ease: "power3.out",
-                            stagger: 0.035
-                        });
-                    }
-                }
+    /* ---- ② 悬停乱码：立即绑定，不等任何库 ---- */
+    items.forEach(function (it) {
+        if (it.title) {
+            it.title.addEventListener("mouseenter", function () {
+                scramble(it.title, it.titleText, TIMING.hover);
             });
+        }
+        if (it.btn && it.label) {
+            it.btn.addEventListener("mouseenter", function () {
+                scramble(it.label, it.labelText, TIMING.hover);
+            });
+            /* 触屏没有 hover：按住时也给一次反馈 */
+            it.btn.addEventListener("touchstart", function () {
+                scramble(it.label, it.labelText, TIMING.hover);
+            }, { passive: true });
+        }
+    });
 
-            /* 悬停：大标题 / 按钮文字各乱码一次（原站没有，按用户要求新增） */
-            if (it.title) {
-                it.title.addEventListener("mouseenter", function () { scramble(it.title, it.titleText); });
-            }
-            if (it.btnLabel) {
-                it.btnLabel.parentElement.addEventListener("mouseenter", function () {
-                    scramble(it.btnLabel, it.btnText);
-                });
-            }
-        });
-        ScrollTrigger.refresh();
-        /* 门面 pin 会改页面高度，load 后补一次量测（与主页大字同款处理） */
-        var reflow = function () { ScrollTrigger.refresh(); };
-        if (document.readyState === "complete") setTimeout(reflow, 400);
-        else window.addEventListener("load", function () { setTimeout(reflow, 400); });
+    /* ---- ③ 入场 ---- */
+    function inView(el) {
+        return el.getBoundingClientRect().top < window.innerHeight * 0.78;
     }
 
-    /* gsap 在页面底部异步装载：轮询等待，超时就保持静态可读（不做任何隐藏） */
+    function play(it) {
+        if (it.done) return;
+        it.done = true;
+        if (it.title) scramble(it.title, it.titleText, TIMING.enter);   /* 标题：乱码落定 */
+        if (!it.words.length) return;
+        if (window.gsap) {
+            gsap.to(it.words, {                                          /* 正文：逐词上滑 + 淡入 */
+                opacity: 1, y: 0, duration: 0.75, ease: "power3.out",
+                stagger: 0.035, overwrite: true
+            });
+        } else if (it.text) {
+            it.text.classList.add("is-in");                              /* CSS 兜底 */
+        }
+    }
+
+    function arm(it) {
+        /* 已经在视口里（直达简介 / 刷新停在半页）：直接演，不等滚动 */
+        if (inView(it.block)) { setTimeout(function () { play(it); }, 80); return; }
+        if (window.ScrollTrigger && window.gsap) {
+            ScrollTrigger.create({
+                trigger: it.block,
+                start: "top 78%",
+                once: true,
+                onEnter: function () { play(it); }
+            });
+            return;
+        }
+        if ("IntersectionObserver" in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    if (en.isIntersecting) { play(it); io.disconnect(); }
+                });
+            }, { rootMargin: "0px 0px -22% 0px" });
+            io.observe(it.block);
+            return;
+        }
+        var onScroll = function () {
+            if (inView(it.block)) { play(it); window.removeEventListener("scroll", onScroll); }
+        };
+        window.addEventListener("scroll", onScroll, { passive: true });
+    }
+
+    function hideWords() {
+        items.forEach(function (it) {
+            if (!it.words.length) return;
+            if (window.gsap) gsap.set(it.words, { opacity: 0, y: 22 });
+            else if (it.text) it.text.classList.add("word-anim");
+        });
+    }
+
     var t0 = Date.now();
-    (function waitLibs() {
-        if (window.gsap && window.ScrollTrigger) { bindGsap(); return; }
-        if (Date.now() - t0 > 4000) return;
-        setTimeout(waitLibs, 120);
+    (function boot() {
+        if (window.gsap && window.ScrollTrigger) {
+            gsap.registerPlugin(ScrollTrigger);
+            hideWords();
+            items.forEach(arm);
+            ScrollTrigger.refresh();
+            /* 门面 pin 会改页面高度，load 后补一次量测（与主页大字同款处理） */
+            var reflow = function () { ScrollTrigger.refresh(); };
+            if (document.readyState === "complete") setTimeout(reflow, 400);
+            else window.addEventListener("load", function () { setTimeout(reflow, 400); });
+            return;
+        }
+        /* 库是页面底部异步取回来的：等，但不等死 */
+        if (Date.now() - t0 < 4000) { setTimeout(boot, 120); return; }
+        hideWords();
+        items.forEach(function (it) {
+            it.words.forEach(function (w, i) {
+                w.style.transitionDelay = (i * 0.028).toFixed(3) + "s";
+            });
+        });
+        items.forEach(arm);
     })();
 })();
