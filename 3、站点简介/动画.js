@@ -260,9 +260,13 @@
         }
         if (it.btn && it.label) {
             it.btn.addEventListener("mouseenter", function () {
-                if (window.gsap) {
+                if (window.gsap && window.ScrambleTextPlugin) {
                     /* 照抄 2、滚动门面/动画.js v61 bindExploreScramble 的原调用，
-                       不换时长、不换参数——节奏与开屏左下角 EXPLORE 按钮完全一致 */
+                       不换时长、不换参数——节奏与开屏左下角 EXPLORE 按钮完全一致。
+                       ★ 插件文件虽已加载但全站从未 registerPlugin（诊断实测：门面
+                         按钮同样不乱码，控制台报 Invalid property scrambleText）。
+                         registerPlugin 幂等，这里注册一次，门面 EXPLORE 按钮也一起复活。 */
+                    gsap.registerPlugin(ScrambleTextPlugin);
                     gsap.to(it.label, { scrambleText: { text: it.labelText, speed: 1 } });
                 } else {
                     runTitleScramble(it.label, it.labelText);   /* 库没到时的兜底 */
@@ -327,6 +331,9 @@
     (function boot() {
         if (window.gsap && window.ScrollTrigger) {
             gsap.registerPlugin(ScrollTrigger);
+            /* ScrambleText 插件文件异步加载，谁先就位谁注册（幂等）；
+               越早注册，门面 EXPLORE 按钮的悬停乱码也越早恢复正常 */
+            if (window.ScrambleTextPlugin) gsap.registerPlugin(ScrambleTextPlugin);
             hideWords();
             items.forEach(arm);
             ScrollTrigger.refresh();
