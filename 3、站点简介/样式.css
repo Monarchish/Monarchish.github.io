@@ -152,69 +152,99 @@
     .about-title { padding-top: 84px; padding-bottom: 56px; }
 }
 
-/* ===================== 2026-11-03 二次调整：放大 / 加粗 / 交互重做 =====================
-   ⚠ 作用域只到 .value-content 里的文字与按钮；.value-asset（图片容器、蒙版、比例、
-     视差）一行未改，2、滚动门面/ 也未动。
+/* ===================== 2026-11-03 三次调整：透明底 + 无衬线 + 严格 50/50 =====================
+   本次按用户指令重写：文字容器彻底透明（删掉上一版的深色板子）、字体改回全站无衬线
+   （DM Sans）、左右严格各占一半、文字垂直居中、块间距 15vh。
+   ⚠ .value-asset（图片容器/蒙版/比例/视差）依旧一行未改，图片位置完全不动。
 
-   ◆ 为什么要给文字栏一块深底：
-     #ebfc72（亮黄标题）和 #f4f3e8（米白正文）压在页面米白底 #f4f3e8 上几乎同色，
-     直接写上去等于看不见。所以文字栏给一块和图片同色的深底 #13140e，
-     黄标题 + 米白正文才有对比。想回到米白底（不要深色块）改两行即可：
-       --vi-panel: transparent;   --vi-title: #13140e;
+   ◆ 颜色走两个变量，一处切换：
+     默认（A 方案，对齐导师站原片）：标题/正文都是深墨 #13140e，压奶白底最清楚。
+     B 方案（用户要求的亮黄/奶白）：把下面两行换成
+        --vi-title: #ebfc72;  --vi-body: #f4f3e8;
+     注意：#f4f3e8 正文压 #f4f3e8 底是同色（对比度 1:1，等于看不见），
+     要用 B 方案必须同时给 .intro-values 换深底，否则正文会消失。 */
 
-   ◆ 尺寸：全部改成随视口缩放的 vw + clamp 下限，最小屏也不会退回 15px 那种小字。
-   ◆ 字重：本站自托管了 JetBrains Mono 500（index.html 里新增的 @font-face），
-     所以 500 是真的 500，不是回退到 400。 */
-
-.value-block .value-content {
-    --vi-panel: #13140e;
-    --vi-title: #ebfc72;
-    --vi-body: #f4f3e8;
-
-    width: min(480px, 42vw);          /* 栏宽：480px 上限，窄屏按 42vw 收，绝不压到图片 */
-    max-width: 480px;
-    box-sizing: border-box;
-    padding: clamp(20px, 2.1vw, 34px) clamp(22px, 2.4vw, 40px);
-    background: var(--vi-panel);
-    border-radius: 0.35vw;
-    color: var(--vi-body);
-    align-self: center;               /* 与图片垂直居中对齐（父级已是 align-items:center） */
+.home-intro {
+    --vi-title: #13140e;
+    --vi-body: #13140e;
 }
 
-/* ===== 标题：亮黄大字 + 闪烁小方块 ===== */
+/* ===== 每一行：左右各一半、文字垂直居中、块间 15vh ===== */
+.value-block {
+    display: flex;
+    align-items: center;          /* 文字垂直居中，不贴顶不贴底 */
+    width: 100%;
+    margin: 0 0 15vh;
+}
+.value-block + .value-block { margin: clamp(72px, 7.2vw, 115px) 0 15vh; }
+.value-block:nth-child(even) { flex-direction: row-reverse; }
+
+/* 图片侧：宽度仍由原来的 flex:0 0 50% 控制，这里只声明一次 50%，不动其它 */
+.value-asset { width: 50%; }
+
+/* ===== 文字侧：透明 + 无内边距板子 + 垂直居中 ===== */
+.value-block .value-content {
+    width: 50%;
+    max-width: none;
+    box-sizing: border-box;
+    padding: 0 clamp(24px, 5vw, 96px);   /* 左右留白，让文字有呼吸感 */
+    margin: 0;                            /* 清掉旧版把文字推到一侧的 margin */
+    background: transparent;              /* 彻底去掉深色板子 */
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    color: var(--vi-body);
+}
+/* 清掉旧版把文字推到一侧的那两组 margin（它们选择器权重更高，必须同名同权重地盖回来） */
+.value-block:nth-child(odd) .value-content,
+.value-block:nth-child(even) .value-content {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* ===== 标题：全站无衬线、500、亮黄 ===== */
 .value-block .value-content .value-title {
-    font-family: "JetBrains Mono", "DM Mono", "Noto Sans SC", monospace;
-    font-size: clamp(1.5rem, 1.8vw, 2.5rem);   /* 24px → 40px，原来最大只有 20px */
-    font-weight: 500;                          /* 真 500（自托管了 500 字重） */
-    line-height: 1.15;
-    letter-spacing: 0.01em;
+    font-family: inherit;                 /* 用回 DM Sans，不再用等宽字体 */
+    font-size: clamp(2rem, 2.5vw, 3rem);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
     color: var(--vi-title);
     text-transform: uppercase;
-    margin: 0 0 clamp(14px, 1.5vw, 24px);
+    margin: 0 0 1.5rem;
+    display: flex;
+    align-items: center;
 }
-/* 方块跟着字号放大，不再永远是 4px 的一个点 */
+/* 标题前的小方块（导师站 is-blinker 同款）：跟着文字颜色走 */
 .value-block .value-content .value-title::before {
-    width: clamp(5px, 0.42vw, 8px);
-    height: clamp(5px, 0.42vw, 8px);
-    margin-right: clamp(10px, 0.85vw, 15px);
+    width: 0.28em;
+    height: 0.28em;
+    margin-right: 0.5em;
+    background: currentcolor;
+    flex: 0 0 auto;
 }
 
-/* ===== 正文：米白、500、行高放宽 ===== */
-.value-block .value-content .value-text {
-    font-size: clamp(1.15rem, 1.4vw, 1.6rem);   /* 18.4px → 25.6px（比改动前整体大一档） */
-    font-weight: 500;
-    line-height: 1.5;                            /* 字号放大后 1.25 会挤成一团 */
-    color: var(--vi-body);
-    font-kerning: none;
+/* ===== 正文：无衬线、400、行高 1.6、最宽 500 ===== */
+.value-block .value-content .value-text,
+.value-block .value-content .value-desc {
+    font-family: inherit;
+    font-size: clamp(1.1rem, 1.3vw, 1.5rem);
+    font-weight: 400;
+    line-height: 1.6;
     letter-spacing: 0;
+    color: var(--vi-body);
+    max-width: 500px;
     margin: 0;
+    font-kerning: normal;
 }
 /* 逐词动画：每个词包一个 span（JS 注入），inline-block 才能单独位移 */
 .value-text .word {
     display: inline-block;
     will-change: transform, opacity;
 }
-/* gsap 不可用时的 CSS 兜底：父级加 .word-anim 先隐身，滚到再加 .is-in 依次落定 */
+/* gsap 不可用时的 CSS 兜底 */
 .value-text.word-anim .word {
     opacity: 0;
     transform: translateY(22px);
@@ -226,68 +256,56 @@
     transform: none;
 }
 
-/* ===== 进入按钮：整体放大一档 ===== */
+/* ===== 进入按钮（黄色、斜切角；hover 变白 + 文字右移） ===== */
 .value-block .value-btn {
     display: inline-flex;
     align-items: center;
-    margin: clamp(20px, 1.9vw, 30px) 0 0;
-    height: clamp(3rem, 3.5vw, 4rem);            /* 48px → 64px（原来 45px） */
+    align-self: flex-start;
+    margin: clamp(24px, 2.2vw, 34px) 0 0;
+    height: clamp(3rem, 3.5vw, 4rem);
     padding: 0 clamp(22px, 2vw, 34px);
-    border-radius: 0.3vw;
-    background-color: #ebfc72;                    /* 开屏同款黄 */
+    border-radius: 0.2rem;
+    background-color: #ebfc72;
     color: #13140e;
-    font-family: "JetBrains Mono", "DM Mono", monospace;
-    font-size: clamp(0.8rem, 1.05vw, 1.05rem);    /* 12.8px → 16.8px（原来 14px） */
+    font-family: inherit;
+    font-size: clamp(0.8rem, 1vw, 1rem);
     font-weight: 500;
     line-height: 1.2;
     letter-spacing: 0.02em;
     text-transform: uppercase;
     text-decoration: none;
-    /* 右下 15px 斜切（随视口缩放），末位回到原点保证闭合 */
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - clamp(10px, 0.9375vw, 16px)), calc(100% - clamp(10px, 0.9375vw, 16px)) 100%, 0 100%, 0 0);
-    /* 按要求改成 all 0.3s：底色、斜角、文字位移共用同一条曲线 */
     transition: all 0.3s ease;
     will-change: background-color, clip-path;
 }
-/* hover：① 斜角从右下跳到左上（原站效果）② 底色变白（更明显）③ 文字右移 */
 @media (hover: hover) {
     .value-block .value-btn:hover {
         background-color: #ffffff;
         clip-path: polygon(clamp(10px, 0.9375vw, 16px) 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 clamp(10px, 0.9375vw, 16px));
-        box-shadow: 0 10px 30px rgba(235, 252, 114, 0.28);
+        box-shadow: 0 10px 30px rgba(19, 20, 14, 0.12);
     }
     .value-block .value-btn:hover .value-btn-label {
         transform: translateX(5px);
     }
 }
-/* 乱码时字符数不变就不会抖；inline-block 是它的前提 */
 .value-btn-label {
     display: inline-block;
     white-space: nowrap;
     transition: transform 0.3s ease;
 }
 
-/* ===== 移动端：竖排时文字块占满一行 ===== */
+/* ===== 移动端：图上文下 ===== */
 @media (max-width: 900px) {
+    .value-block, .value-block:nth-child(even) { flex-direction: column; margin-bottom: 12vh; }
+    /* 竖排时把图片宽度还给原来的移动端规则（50% 只适用于左右并排的桌面版） */
+    .value-block .value-asset { width: min(351px, 88vw); }
     .value-block .value-content {
         width: 100%;
-        max-width: none;
-        padding: clamp(18px, 4.4vw, 26px) clamp(18px, 4.6vw, 28px);
-        border-radius: 1.6vw;
+        padding: 0 6vw;
+        margin: 0;
     }
-    .value-block .value-content .value-title {
-        font-size: clamp(1.35rem, 5.6vw, 2rem);
-        margin-bottom: 14px;
-    }
-    .value-block .value-content .value-text {
-        font-size: clamp(1rem, 4.2vw, 1.25rem);
-        line-height: 1.62;
-    }
-    .value-block .value-btn {
-        height: clamp(48px, 13vw, 56px);
-        padding: 0 5vw;
-        font-size: clamp(13px, 3.6vw, 15px);
-        margin-top: 4vw;
-        border-radius: 1vw;
-    }
+    .value-block .value-content .value-title { font-size: clamp(1.65rem, 7vw, 2.2rem); margin-bottom: 1rem; }
+    .value-block .value-content .value-text,
+    .value-block .value-content .value-desc { font-size: clamp(1rem, 4.2vw, 1.2rem); }
+    .value-block .value-btn { height: clamp(48px, 13vw, 56px); padding: 0 6vw; }
 }
