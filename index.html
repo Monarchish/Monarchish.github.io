@@ -11,11 +11,12 @@
      原来的目录 / SOP 正文 / 侧栏 / 内容门锁整块已移除（git 历史可回溯）。
 
      调试开关（加在网址后面）：
-       ?hero=0    直达简介（不演开场与门面）
+       ?hero=0    直达简介（不演门面）
        ?hero=1    强制演门面
-       ?reveal=0  只演门面，跳过开屏动画
        ?seen=0    清掉"回访"标记，重新看一遍完整入场
        ?jump=1    进站直接跳到简介
+     ※ 开屏动画已于 2026-11-03 彻底禁用（?reveal=0/1 不再有任何作用），
+       刷新即直达门面第一屏，无黑屏、无 S 标志。
      ============================================================ -->
 <html lang="zh-CN">
 <head>
@@ -124,7 +125,12 @@
             /* 门面默认显示；带任何"直达"参数就跳过，老链接、老习惯、同事收藏的 URL 全都照旧 */
             var direct = query.get("jump") === "1" || query.get("intro") === "0";
             var useHero = heroParam === "1" || (heroParam !== "0" && !direct);
-            var useReveal = useHero && query.get("reveal") !== "0";
+            /* 开屏动画已彻底禁用（2026-11-03）：无论什么参数都不再播放。
+               useReveal 恒为 false → html 立刻拿到 no-reveal，下面的 CSS
+               在首帧就把开场层（黑幕 + S 标志）display:none 掉——
+               之前"黑屏卡几帧、中间出个 S"就是开场层在动画库加载完成前
+               短暂可见造成的。门面照常播放，不受影响。 */
+            var useReveal = false;
 
             window.__animMode = useHero;
             window.__revealMode = useReveal;
@@ -652,8 +658,8 @@
             if (!animMode) return;
 
             /* ============ 取库：两条链同时进行 ============
-               开场只要 gsap + CustomEase + 开屏脚本，这链一到位就开演（尽量贴近原版时序）；
-               门面要的 ScrollTrigger / lenis / 门面脚本走另一条链同时取，等开场演完正好就位。
+               开屏已禁用（2026-11-03）：开场专用的 CustomEase / 开屏脚本不再下载；
+               这里只取门面要的 ScrollTrigger / lenis / 门面脚本。
                某一步挂了也不会卡住：跳过它，最后按"缺库"退回直接看目录。
 
                加固（2026-09-30）：之前只从一个 CDN 取，网络抖一下或代理拦一下就
@@ -675,15 +681,6 @@
                         "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/gsap.min.js",
                         "https://unpkg.com/gsap@" + GSAP_VER + "/dist/gsap.min.js",
                         "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/gsap.min.js"
-                    ]
-                },
-                customEase: {
-                    global: "CustomEase",
-                    urls: [
-                        "0、公共库/CustomEase.min.js?v=3",
-                        "https://cdn.jsdelivr.net/npm/gsap@" + GSAP_VER + "/dist/CustomEase.min.js",
-                        "https://unpkg.com/gsap@" + GSAP_VER + "/dist/CustomEase.min.js",
-                        "https://cdnjs.cloudflare.com/ajax/libs/gsap/" + GSAP_VER + "/CustomEase.min.js"
                     ]
                 },
                 scrollTrigger: {
@@ -713,7 +710,6 @@
                     ]
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
-                reveal: { global: "SupportFutureReveal", urls: ["1、开屏动画/动画.js?v=7"] },
                 hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=27"] }
             };
 
@@ -771,13 +767,11 @@
                 return attempt();
             }
 
-            /* 六路并行取库：彼此没有依赖——开屏脚本 / 门面脚本加载时只定义全局函数，
-               真正需要 gsap 是在 boot() 里才发生的，所以可以同时取。
-               并行之后最坏耗时从"三个库相加"变成"取其中最长的一个"，
-               慢网络下能早得多开演（之前串行是线上开屏被砍的帮凶之一）。 */
+            /* 并行取库（gsap / ScrollTrigger / lenis / ScrambleText / 门面脚本）：
+               彼此没有依赖——门面脚本加载时只定义全局函数，
+               真正需要 gsap 是在 startSite/armHero 里才发生的，所以可以同时取。
+               并行之后最坏耗时从"几个库相加"变成"取其中最长的一个"。 */
             var gsapReady = ensureLib(LIBS.gsap);
-            var easeReady = ensureLib(LIBS.customEase);
-            var revealScriptReady = ensureLib(LIBS.reveal);
             var stReady = ensureLib(LIBS.scrollTrigger);
             var lenisReady = ensureLib(LIBS.lenis);
             /* ScrambleText 是 gsap 插件：必须等 gsap 核心就位后再加载，
@@ -787,21 +781,15 @@
             });
             var heroScriptReady = ensureLib(LIBS.hero);
 
-            var revealChain = Promise.all([gsapReady, easeReady, revealScriptReady])
-                .then(function (rs) {
-                    if (rs[2]) return true;
-                    /* 连 gsap 都没取到，等开屏脚本也没用，别白等 */
-                    if (!window.gsap) return false;
-                    /* 开屏脚本是"看不到开场动画"的唯一命门：它没就位时再守 4 秒，
-                       线上实测它有时被中断一下、几秒后才真正执行完 */
-                    return waitGlobal(LIBS.reveal.global, 4000);
-                });
+            /* 开屏已禁用（2026-11-03）：不再等待任何开屏资源（CustomEase /
+               开屏动画.js 已不再下载），boot 立刻执行——它会走"不演开屏"
+               分支：收开场层、解锁站点、照常启动门面。 */
+            var revealChain = Promise.resolve();
 
             var heroChain = Promise.all([gsapReady, stReady, lenisReady, scrambleReady, heroScriptReady]);
 
-            /* 开演：取库链路一结束就开演——取到就播开屏（然后停在开屏等你点「进入」），
-               全都取不到才优雅降级进目录。判定权完全交给链路自己，因为
-               loadOne 本来就带超时，链路一定会结束，不会挂死。 */
+            /* 开演：开屏已禁用，boot 立即执行（走"不演开屏"分支进站点）。
+               loadOne 本来就带超时，门面链路一定会结束，不会挂死。 */
             revealChain.then(function () { boot(); });
 
             /* 极端兜底：万一链路意外挂死，最多 22 秒就放行进站，不让人一直看黑屏。
