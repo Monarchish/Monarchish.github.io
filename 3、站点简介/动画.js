@@ -236,6 +236,7 @@
         var words = text ? splitWords(text) : [];
         return {
             block: block,
+            content: block.querySelector(".value-content") || block,  /* 触发器挂在文字容器上 */
             title: title,
             titleText: title ? title.textContent : "",
             text: text,
@@ -247,17 +248,11 @@
         };
     });
 
-    /* ---- 悬停：标题只乱码一次（dataset 标记 + 移除监听），按钮每次进入都乱 ---- */
+    /* ---- 悬停（2026-11-03 用户定稿）：
+       标题：悬停乱码已全部删除——鼠标放上去零动画。标题的乱码只在
+             「初次滚到本块」时演一次（play 里的 runTitleScramble），之后永久静止。
+       按钮：悬停乱码保留（上一轮按开屏左下角母本 1:1 复刻，用户已验收）。 ---- */
     items.forEach(function (it) {
-        if (it.title) {
-            var handler = function () {
-                if (it.title.dataset.scrambled) return;   // 第二次放上去不再乱码
-                it.title.dataset.scrambled = "1";
-                it.title.removeEventListener("mouseenter", handler);
-                runTitleScramble(it.title, it.titleText);
-            };
-            it.title.addEventListener("mouseenter", handler);
-        }
         if (it.btn && it.label) {
             it.btn.addEventListener("mouseenter", function () {
                 if (window.gsap && window.ScrambleTextPlugin) {
@@ -281,10 +276,11 @@
        就永远不会创建 → 动画静默不播（实测 stCount 只有门面自己的 1 个）。
        新版：页面加载「立即」做三件事，一个库都不等——
          ① 已在视口内的块立刻演；
-         ② IntersectionObserver 挂主触发（rootMargin -22% ≈ top 78% 线）；
-         ③ scroll 监听兜底。gsap 只负责「怎么演」，不负责「何时演」。 */
+         ② IntersectionObserver 挂主触发（rootMargin -20% ≈ top 80% 线）；
+         ③ scroll 监听兜底。gsap 只负责「怎么演」，不负责「何时演」。
+       用户定稿：触发器绑 .value-content、start top 80%、once 只演一次。 */
     function inView(el) {
-        return el.getBoundingClientRect().top < window.innerHeight * 0.78;
+        return el.getBoundingClientRect().top < window.innerHeight * 0.8;
     }
 
     function play(it) {
@@ -301,18 +297,18 @@
 
     function arm(it) {
         /* 已经在视口里（直达简介 / 刷新停在半页）：直接演，不等滚动 */
-        if (inView(it.block)) { setTimeout(function () { play(it); }, 80); return; }
+        if (inView(it.content)) { setTimeout(function () { play(it); }, 80); return; }
         if ("IntersectionObserver" in window) {
             var io = new IntersectionObserver(function (entries) {
                 entries.forEach(function (en) {
                     if (en.isIntersecting) { play(it); io.disconnect(); }
                 });
-            }, { rootMargin: "0px 0px -22% 0px" });
-            io.observe(it.block);
+            }, { rootMargin: "0px 0px -20% 0px" });
+            io.observe(it.content);
         }
         /* scroll 兜底：IO 都不可用的老浏览器也能演（done 防重入） */
         var onScroll = function () {
-            if (inView(it.block)) { play(it); window.removeEventListener("scroll", onScroll); }
+            if (inView(it.content)) { play(it); window.removeEventListener("scroll", onScroll); }
         };
         window.addEventListener("scroll", onScroll, { passive: true });
     }
@@ -345,8 +341,8 @@
             items.forEach(function (it) {
                 if (!it.done) {
                     ScrollTrigger.create({
-                        trigger: it.block,
-                        start: "top 78%",
+                        trigger: it.content,
+                        start: "top 80%",
                         once: true,
                         onEnter: function () { play(it); }
                     });
