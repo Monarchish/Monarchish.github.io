@@ -53,10 +53,10 @@
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
-    <link rel="stylesheet" href="3、站点简介/样式.css?v=19" />
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=20" />
     <link rel="stylesheet" href="4、页脚/样式.css?v=4" />
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
-    <script src="3、站点简介/动画.js?v=7" defer></script>
+    <script src="3、站点简介/动画.js?v=8" defer></script>
     <script src="4、页脚/动画.js?v=2" defer></script>
 
     <style>
@@ -75,6 +75,16 @@
             font-weight: 400;
             font-display: swap;
             src: url("0、公共库/字体/jetbrains-mono-400.woff2") format("woff2");
+        }
+        /* 500 字重（2026-11-03 新增）：简介区大标题要用 500 才够分量。
+           之前只装了 400，写 font-weight:500 浏览器仍取 400 那一面（500 不触发合成加粗），
+           所以加了这一条，页面上才是真的 500。 */
+        @font-face {
+            font-family: "JetBrains Mono";
+            font-style: normal;
+            font-weight: 500;
+            font-display: swap;
+            src: url("0、公共库/字体/jetbrains-mono-500.woff2") format("woff2");
         }
 
         /* 掩膜开窗：照 handbook 入口里的内联块，只把图指到 2、滚动门面/ */
