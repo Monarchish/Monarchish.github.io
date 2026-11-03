@@ -275,7 +275,14 @@
         }
     });
 
-    /* ---- 入场：标题原地乱码落定 + 正文逐词淡入（均为母本函数） ---- */
+    /* ---- 触发：与库加载时序彻底解耦（2026-11-03 重构）----
+       旧版要先等 gsap/ScrollTrigger 就绪（最多 4s）才挂触发器，而线上
+       GitHub Pages 单请求可能 6s+ 超时，一旦超时走降级分支，ScrollTrigger
+       就永远不会创建 → 动画静默不播（实测 stCount 只有门面自己的 1 个）。
+       新版：页面加载「立即」做三件事，一个库都不等——
+         ① 已在视口内的块立刻演；
+         ② IntersectionObserver 挂主触发（rootMargin -22% ≈ top 78% 线）；
+         ③ scroll 监听兜底。gsap 只负责「怎么演」，不负责「何时演」。 */
     function inView(el) {
         return el.getBoundingClientRect().top < window.innerHeight * 0.78;
     }
@@ -295,15 +302,6 @@
     function arm(it) {
         /* 已经在视口里（直达简介 / 刷新停在半页）：直接演，不等滚动 */
         if (inView(it.block)) { setTimeout(function () { play(it); }, 80); return; }
-        if (window.ScrollTrigger && window.gsap) {
-            ScrollTrigger.create({
-                trigger: it.block,
-                start: "top 78%",
-                once: true,
-                onEnter: function () { play(it); }
-            });
-            return;
-        }
         if ("IntersectionObserver" in window) {
             var io = new IntersectionObserver(function (entries) {
                 entries.forEach(function (en) {
@@ -311,8 +309,8 @@
                 });
             }, { rootMargin: "0px 0px -22% 0px" });
             io.observe(it.block);
-            return;
         }
+        /* scroll 兜底：IO 都不可用的老浏览器也能演（done 防重入） */
         var onScroll = function () {
             if (inView(it.block)) { play(it); window.removeEventListener("scroll", onScroll); }
         };
@@ -323,19 +321,37 @@
         items.forEach(function (it) {
             if (!it.words.length) return;
             if (window.gsap) gsap.set(it.words, { opacity: 0 });   /* 只隐身，不位移 */
-            else if (it.text) it.text.classList.add("word-anim");
+            else if (it.text) {
+                it.text.classList.add("word-anim");
+                /* CSS 兜底的逐词错峰：与母本 stagger 0.05 同拍 */
+                it.words.forEach(function (w, i) {
+                    w.style.transitionDelay = (i * 0.05).toFixed(3) + "s";
+                });
+            }
         });
     }
 
+    /* 立即隐身 + 立即挂触发器：不等任何库 */
+    hideWords();
+    items.forEach(arm);
+
+    /* 库是页面底部异步取回来的：就绪后补挂 ScrollTrigger 作为第二保险
+       （IO 先触发也无妨，done 会拦住重复播放），并做 pin 布局校正 */
     var t0 = Date.now();
-    (function boot() {
+    (function waitLibs() {
         if (window.gsap && window.ScrollTrigger) {
             gsap.registerPlugin(ScrollTrigger);
-            /* ScrambleText 插件文件异步加载，谁先就位谁注册（幂等）；
-               越早注册，门面 EXPLORE 按钮的悬停乱码也越早恢复正常 */
             if (window.ScrambleTextPlugin) gsap.registerPlugin(ScrambleTextPlugin);
-            hideWords();
-            items.forEach(arm);
+            items.forEach(function (it) {
+                if (!it.done) {
+                    ScrollTrigger.create({
+                        trigger: it.block,
+                        start: "top 78%",
+                        once: true,
+                        onEnter: function () { play(it); }
+                    });
+                }
+            });
             ScrollTrigger.refresh();
             /* 门面 pin 会改页面高度，load 后补一次量测（与主页大字同款处理） */
             var reflow = function () { ScrollTrigger.refresh(); };
@@ -343,14 +359,7 @@
             else window.addEventListener("load", function () { setTimeout(reflow, 400); });
             return;
         }
-        /* 库是页面底部异步取回来的：等，但不等死 */
-        if (Date.now() - t0 < 4000) { setTimeout(boot, 120); return; }
-        hideWords();
-        items.forEach(function (it) {
-            it.words.forEach(function (w, i) {
-                w.style.transitionDelay = (i * 0.05).toFixed(3) + "s";   /* 与母本 stagger 同拍 */
-            });
-        });
-        items.forEach(arm);
+        /* 等，但不等死：IO 主触发不依赖这里，超时只是少一层保险 */
+        if (Date.now() - t0 < 8000) { setTimeout(waitLibs, 150); }
     })();
 })();
