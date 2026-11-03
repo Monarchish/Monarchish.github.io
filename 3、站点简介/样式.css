@@ -152,27 +152,27 @@
     .about-title { padding-top: 84px; padding-bottom: 56px; }
 }
 
-/* ===================== 2026-11-03 三次调整：透明底 + 无衬线 + 严格 50/50 =====================
-   本次按用户指令重写：文字容器彻底透明（删掉上一版的深色板子）、字体改回全站无衬线
-   （DM Sans）、左右严格各占一半、文字垂直居中、块间距 15vh。
-   ⚠ .value-asset（图片容器/蒙版/比例/视差）依旧一行未改，图片位置完全不动。
-
-   ◆ 颜色走两个变量，一处切换：
-     默认（A 方案，对齐导师站原片）：标题/正文都是深墨 #13140e，压奶白底最清楚。
-     B 方案（用户要求的亮黄/奶白）：把下面两行换成
-        --vi-title: #ebfc72;  --vi-body: #f4f3e8;
-     注意：#f4f3e8 正文压 #f4f3e8 底是同色（对比度 1:1，等于看不见），
-     要用 B 方案必须同时给 .intro-values 换深底，否则正文会消失。 */
+/* ===================== 2026-11-03 四次调整：深底白字 + 按钮照抄门面母本 =====================
+   按用户指令执行，不发明新代码：
+   ① 文字容器 .value-content 背景强制 #13140e（全段唯一一块深底），标题/正文全部白色；
+      标题不再用黄色。图片侧 .value-asset 一行未动。
+   ② 按钮：逐条照抄 2、滚动门面/样式.css 的 .hero-explore-btn（v57 原站换算版）——
+      高 2.8125vw / 内边距 0 1.25vw / 圆角 0.25vw / 黄底 #ebfc72 深字 / JetBrains Mono
+      / 字号 0.875vw / 右下 0.9375vw 斜切 / transition clip-path .25s ease-out；
+      hover = 母本的斜角跳到左上 + 用户点名的变白 + 文字右移 5px。
+   ③ 正文逐词动画改为门面同款：单词只动 opacity（duration .5 / power1.out / stagger .05），
+      不再从下往上位移。 */
 
 .home-intro {
-    --vi-title: #13140e;
-    --vi-body: #13140e;
+    --vi-title: #f4f3e8;   /* 白（本站标准白，门面深底文字同色） */
+    --vi-body: #f4f3e8;
+    --vi-panel: #13140e;   /* 文字底：深墨黑 */
 }
 
-/* ===== 每一行：左右各一半、文字垂直居中、块间 15vh ===== */
+/* ===== 每一行：左右各一半、文字垂直居中、块间 15vh（上一版已定，原样保留） ===== */
 .value-block {
     display: flex;
-    align-items: center;          /* 文字垂直居中，不贴顶不贴底 */
+    align-items: center;
     width: 100%;
     margin: 0 0 15vh;
 }
@@ -182,42 +182,41 @@
 /* 图片侧：宽度仍由原来的 flex:0 0 50% 控制，这里只声明一次 50%，不动其它 */
 .value-asset { width: 50%; }
 
-/* ===== 文字侧：透明 + 无内边距板子 + 垂直居中 ===== */
+/* ===== 文字侧：深底 #13140e（唯一一块），垂直居中 ===== */
 .value-block .value-content {
     width: 50%;
     max-width: none;
     box-sizing: border-box;
-    padding: 0 clamp(24px, 5vw, 96px);   /* 左右留白，让文字有呼吸感 */
-    margin: 0;                            /* 清掉旧版把文字推到一侧的 margin */
-    background: transparent;              /* 彻底去掉深色板子 */
-    border-radius: 0;
+    background: var(--vi-panel);          /* 深底（用户指令） */
+    padding: clamp(28px, 3vw, 56px) clamp(28px, 3.5vw, 64px);
+    margin: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-self: center;
     color: var(--vi-body);
 }
-/* 清掉旧版把文字推到一侧的那两组 margin（它们选择器权重更高，必须同名同权重地盖回来） */
+/* 清掉旧版把文字推到一侧的那两组 margin（同名同权重地盖回来） */
 .value-block:nth-child(odd) .value-content,
 .value-block:nth-child(even) .value-content {
     margin-left: 0;
     margin-right: 0;
 }
 
-/* ===== 标题：全站无衬线、500、亮黄 ===== */
+/* ===== 标题：全站无衬线、500、白色 ===== */
 .value-block .value-content .value-title {
-    font-family: inherit;                 /* 用回 DM Sans，不再用等宽字体 */
+    font-family: inherit;                 /* DM Sans，不用等宽字体 */
     font-size: clamp(2rem, 2.5vw, 3rem);
     font-weight: 500;
     line-height: 1.12;
     letter-spacing: -0.02em;
-    color: var(--vi-title);
+    color: var(--vi-title);               /* 白 */
     text-transform: uppercase;
     margin: 0 0 1.5rem;
     display: flex;
     align-items: center;
 }
-/* 标题前的小方块（导师站 is-blinker 同款）：跟着文字颜色走 */
+/* 标题前的小方块（导师站 is-blinker 同款），跟文字同色（白） */
 .value-block .value-content .value-title::before {
     width: 0.28em;
     height: 0.28em;
@@ -226,7 +225,7 @@
     flex: 0 0 auto;
 }
 
-/* ===== 正文：无衬线、400、行高 1.6、最宽 500 ===== */
+/* ===== 正文：无衬线、400、行高 1.6、最宽 500、白色 ===== */
 .value-block .value-content .value-text,
 .value-block .value-content .value-desc {
     font-family: inherit;
@@ -234,57 +233,55 @@
     font-weight: 400;
     line-height: 1.6;
     letter-spacing: 0;
-    color: var(--vi-body);
+    color: var(--vi-body);                /* 白 */
     max-width: 500px;
     margin: 0;
     font-kerning: normal;
 }
-/* 逐词动画：每个词包一个 span（JS 注入），inline-block 才能单独位移 */
+
+/* ===== 正文逐词（门面母本同款）：单词只动 opacity，不做位移 ===== */
 .value-text .word {
     display: inline-block;
-    will-change: transform, opacity;
+    will-change: opacity;
 }
-/* gsap 不可用时的 CSS 兜底 */
+/* gsap 不可用时的 CSS 兜底：同样只有 opacity */
 .value-text.word-anim .word {
     opacity: 0;
-    transform: translateY(22px);
-    transition: opacity 0.6s cubic-bezier(0.215, 0.61, 0.355, 1),
-                transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
+    transition: opacity 0.5s ease-out;
 }
 .value-text.word-anim.is-in .word {
     opacity: 1;
-    transform: none;
 }
 
-/* ===== 进入按钮（黄色、斜切角；hover 变白 + 文字右移） ===== */
-.value-block .value-btn {
+/* ===== 按钮：逐条照抄 2、滚动门面/样式.css .hero-explore-btn（v57 原站换算版） ===== */
+.value-btn {
+    align-self: flex-start;   /* flex 列里不被拉满宽（母本同款） */
     display: inline-flex;
     align-items: center;
-    align-self: flex-start;
-    margin: clamp(24px, 2.2vw, 34px) 0 0;
-    height: clamp(3rem, 3.5vw, 4rem);
-    padding: 0 clamp(22px, 2vw, 34px);
-    border-radius: 0.2rem;
+    margin: clamp(20px, 1.8vw, 30px) 0 0;   /* 母本所在布局有 gap，这里补一个上间距 */
+    height: 2.8125vw;         /* 4.5rem */
+    padding: 0 1.25vw;        /* 0 2rem */
+    border-radius: 0.25vw;    /* .4rem */
     background-color: #ebfc72;
     color: #13140e;
-    font-family: inherit;
-    font-size: clamp(0.8rem, 1vw, 1rem);
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: 0.02em;
+    font-family: "JetBrains Mono", "DM Mono", monospace;
+    font-size: 0.875vw;       /* 1.4rem */
+    font-weight: 400;
+    line-height: 1.28;
     text-transform: uppercase;
     text-decoration: none;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - clamp(10px, 0.9375vw, 16px)), calc(100% - clamp(10px, 0.9375vw, 16px)) 100%, 0 100%, 0 0);
-    transition: all 0.3s ease;
-    will-change: background-color, clip-path;
+    /* 右下角斜切 1.5rem，与母本同一个 polygon（末位 0 0 回原点，保证闭合） */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 0.9375vw), calc(100% - 0.9375vw) 100%, 0 100%, 0 0);
+    transition: clip-path 0.25s ease-out, background-color 0.3s ease;
 }
+
+/* 母本原样：hover 时斜角从「右下」滑到「左上」；用户另要求变白 + 文字右移 */
 @media (hover: hover) {
-    .value-block .value-btn:hover {
+    .value-btn:hover {
+        clip-path: polygon(0.9375vw 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0.9375vw);
         background-color: #ffffff;
-        clip-path: polygon(clamp(10px, 0.9375vw, 16px) 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 clamp(10px, 0.9375vw, 16px));
-        box-shadow: 0 10px 30px rgba(19, 20, 14, 0.12);
     }
-    .value-block .value-btn:hover .value-btn-label {
+    .value-btn:hover .value-btn-label {
         transform: translateX(5px);
     }
 }
@@ -294,18 +291,29 @@
     transition: transform 0.3s ease;
 }
 
-/* ===== 移动端：图上文下 ===== */
+/* ===== 移动端：图上文下；按钮照门面 800px 档比例 ===== */
 @media (max-width: 900px) {
     .value-block, .value-block:nth-child(even) { flex-direction: column; margin-bottom: 12vh; }
-    /* 竖排时把图片宽度还给原来的移动端规则（50% 只适用于左右并排的桌面版） */
+    /* 竖排时把图片宽度还给移动端规则（50% 只适用于左右并排的桌面版） */
     .value-block .value-asset { width: min(351px, 88vw); }
     .value-block .value-content {
         width: 100%;
-        padding: 0 6vw;
+        padding: clamp(22px, 6vw, 32px) 6vw;
         margin: 0;
     }
     .value-block .value-content .value-title { font-size: clamp(1.65rem, 7vw, 2.2rem); margin-bottom: 1rem; }
     .value-block .value-content .value-text,
     .value-block .value-content .value-desc { font-size: clamp(1rem, 4.2vw, 1.2rem); }
-    .value-block .value-btn { height: clamp(48px, 13vw, 56px); padding: 0 6vw; }
+    .value-block .value-btn {
+        height: clamp(48px, 13vw, 56px);
+        padding: 0 6vw;
+        border-radius: 1vw;
+        font-size: clamp(12px, 3.4vw, 15px);
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3.2vw), calc(100% - 3.2vw) 100%, 0 100%, 0 0);
+    }
+    @media (hover: hover) {
+        .value-block .value-btn:hover {
+            clip-path: polygon(3.2vw 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 3.2vw);
+        }
+    }
 }
