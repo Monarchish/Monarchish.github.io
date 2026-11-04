@@ -11,14 +11,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 8vh max(1.6rem, 4vw);
+    /* 2026-11-04：左右内边距归零，姓名大字才能顶到屏幕两边；底栏自己带 padding，不受影响 */
+    padding: 8vh 0;
+    overflow-x: clip; /* 字号按墨迹宽度算会有 1~2px 溢出余量，横向裁掉，避免出现横向滚动条 */
 }
+/* 页脚大字：SHIJUNCHEN，一行、左右顶满屏宽。
+   这里 17vw 只是 JS 还没跑（或字体晚到）时的兜底值：
+   4、页脚/动画.js 的 fitStatement() 会按「真实字形的墨迹宽度」精确算出字号，
+   只改 font-size，绝不用 scaleX 拉伸 —— 字形比例与字距都不会变形。 */
 .footer-statement {
-    font-size: clamp(44px, 7.5vw, 112px);
+    font-size: 17vw;
     font-weight: 600;
-    line-height: 1.18;
+    line-height: 1.02;
     letter-spacing: 0.01em;
     text-align: center;
+    white-space: nowrap;
+    width: 100%;
     margin: 0;
     will-change: transform;
 }
@@ -54,6 +62,7 @@
     color: #75726a;
 }
 @media (max-width: 640px) {
-    .footer-statement { font-size: clamp(34px, 10vw, 52px); }
+    /* 手机上也保持「一行顶满」，字号由 fitStatement() 按屏宽算；17vw 只是兜底 */
+    .footer-statement { font-size: 17vw; }
     .footer-bar { flex-direction: column; align-items: flex-start; gap: 4px; }
 }
