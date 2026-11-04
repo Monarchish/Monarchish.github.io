@@ -188,9 +188,14 @@
     max-width: none;
     box-sizing: border-box;
     background: transparent !important;   /* 2026-11-03：去掉黑色大方块，彻底融入米白底 */
-    /* 2026-11-03 定稿：统一左缩进 15%，标题/正文/按钮贴同一条左边缘 */
+    /* 2026-11-04 定稿：图文间距左右镜像对称。
+       实测（块宽 1058 @1090 视口）：文字在右（图在左）时图片→文字 = 158.7px = 15% 块宽；
+       文字在左（图在右）时原来只有 106.4px = 10% 块宽，看着偏挤、且文字整体偏右。
+       改法：文字在左 → 左 10% / 右 15%；文字在右 → 左 15% / 右 10%（见下方 even 规则）。
+       两者内宽都是 25%，换行完全不变，只是整体左移 5% 块宽，图片那侧留白与另一侧一致。 */
     padding: clamp(28px, 3vw, 56px) 10%;
-    padding-left: 15% !important;
+    padding-left: 10% !important;
+    padding-right: 15% !important;
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -205,6 +210,11 @@
 .value-block:nth-child(even) .value-content {
     margin-left: 0;
     margin-right: 0;
+}
+/* 文字在右（偶数组：图在左，如 ECOLOGY）——保持用户确认过的 15% 左缩进原样 */
+.value-block:nth-child(even) .value-content {
+    padding-left: 15% !important;
+    padding-right: 10% !important;
 }
 
 /* ===== 标题：全站无衬线、500、白色 ===== */
@@ -309,10 +319,14 @@
     .value-block, .value-block:nth-child(even) { flex-direction: column; margin-bottom: 12vh; }
     /* 竖排时把图片宽度还给移动端规则（50% 只适用于左右并排的桌面版） */
     .value-block .value-asset { width: min(351px, 88vw); }
-    .value-block .value-content {
+    /* 选择器要带上 odd/even 才盖得住桌面版的 10%/15% 分侧内边距（那两条权重更高） */
+    .value-block .value-content,
+    .value-block:nth-child(odd) .value-content,
+    .value-block:nth-child(even) .value-content {
         width: 100%;
         padding: clamp(22px, 6vw, 32px) 6vw;
-        padding-left: 6vw !important;   /* 竖排全宽时 15% 缩进过大，回到 6vw */
+        padding-left: 6vw !important;   /* 竖排全宽时 15%/10% 缩进都不合适，统一回到 6vw */
+        padding-right: 6vw !important;
         margin: 0;
     }
     .value-block .value-content .value-title { font-size: clamp(1.65rem, 7vw, 2.2rem); margin-bottom: 1rem; }
