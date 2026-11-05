@@ -62,12 +62,12 @@ mark { background: #e7e2c2; color: var(--ink); }
   border-right: 1px solid var(--line);
 }
 
-.rail-top { padding: 22px 16px 0; }
+.rail-top { padding: 22px 16px 10px; }
 
 .brand {
   display: flex;
   align-items: baseline;
-  gap: 9px;
+  gap: 7px;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -243,16 +243,16 @@ mark { background: #e7e2c2; color: var(--ink); }
 
 .crumb {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 7px;
   min-width: 0;
-  font-size: 11.5px;
-  color: var(--ink3);
+  font-size: 13px;
+  color: var(--ink2);
   white-space: nowrap;
   overflow: hidden;
 }
 .crumb b { font-weight: 500; color: var(--ink); }
-.crumb .sep { opacity: 0.45; }
+.crumb .sep { opacity: 0.4; line-height: 1; }
 
 .spacer { flex: 1; }
 

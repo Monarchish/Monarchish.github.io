@@ -44,14 +44,6 @@
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
-  const hl = (t, q) => {
-    const s = String(t == null ? "" : t);
-    if (!q) return esc(s);
-    const i = s.toLowerCase().indexOf(q.toLowerCase());
-    if (i < 0) return esc(s);
-    return esc(s.slice(0, i)) + "<mark>" + esc(s.slice(i, i + q.length)) + "</mark>" + esc(s.slice(i + q.length));
-  };
-
   const ckey = (fid, n) => fid + ":" + n;
   const stepDone = (fid, s) => (store.checks[ckey(fid, s.n)] || []).filter(Boolean).length;
   const rawCount = (f) => f.steps.reduce((a, s) => a + ((s.raw && s.raw.length) || 0), 0);
@@ -114,26 +106,20 @@
 
   function renderRail() {
     renderTree();
-    $("#railMeta").textContent = `${FLOWS.length} 条流程 · ${VIS_STEPS} 步`;
   }
 
   /* ---------------------------------------------------------------- 顶栏 */
   function renderTop() {
     const f = curFlow();
     const d = domainById(f.domain);
-    let c = `<b>${esc(d.name)}</b><span class="sep">/</span><span>${esc(f.code)}</span>`;
-    if (S.view === "flow" && S.mode === "detail") c += `<span class="sep">/</span><b>第 ${num(S.step)} 步</b>`;
+    /* 路径式层级：域 / 流程 / 当前步骤 */
+    let c = `<span>${esc(d.name)}</span><span class="sep">/</span><b>${esc(f.title)}</b>`;
+    if (S.view === "flow" && S.mode === "detail") c += `<span class="sep">/</span><b>${esc(curStep().title)}</b>`;
     if (S.view === "docs") c = `<b>单据索引</b>`;
     if (S.view === "terms") c = `<b>口径</b>`;
     if (S.view === "audit") c = `<b>完备度自检</b>`;
     if (S.view === "manifesto") c = `<b>纲要</b>`;
     $("#crumb").innerHTML = c;
-
-    const st = flowStat(f);
-    $("#tbStat").textContent = S.view === "flow"
-      ? `${f.steps.length} 步 · ${f.ops} 条操作${st.total ? ` · 已核 ${st.done}/${st.total}` : ""}`
-      : "";
-    $("#runBtn").textContent = S.view === "flow" && S.mode === "detail" ? "执行模式" : "回到流程";
   }
 
   /* ---------------------------------------------------------------- 零件 */
@@ -433,58 +419,6 @@
     });
   }
 
-  /* ---------------------------------------------------------------- 搜索 */
-  function search(q) {
-    const res = [];
-    DB.flows.forEach((f) => {
-      if (!FLOWS.includes(f)) return;
-      if ((f.title + f.code).toLowerCase().includes(q)) {
-        res.push({ type: "流程", t: f.title, c: f.code, go: () => openFlow(f.id, 1, "detail") });
-      }
-      f.steps.forEach((s) => {
-        const hay = [s.title, s.summary, s.actions.join(" "), s.systems.join(" "), s.checks.join(" "),
-          s.pitfalls.join(" "), (s.raw || []).join(" "),
-          s.outputs.map((o) => o.name + " " + o.rule).join(" "),
-          s.exceptions.map((e) => e.when + " " + e.then).join(" ")
-        ].join(" ").toLowerCase();
-        if (hay.includes(q)) {
-          res.push({ type: "步骤", t: s.title, c: f.title + " · " + num(s.n), go: () => openFlow(f.id, s.n, "detail") });
-        }
-      });
-      (f.faq || []).forEach((x) => {
-        if ((x.q + " " + x.a.join(" ")).toLowerCase().includes(q)) {
-          res.push({ type: "FAQ", t: x.q, c: f.code, go: () => openFlow(f.id, 1, "detail") });
-        }
-      });
-    });
-    return res.slice(0, 24);
-  }
-
-  function renderSearch() {
-    const panel = $("#sp");
-    const q = S.q.trim().toLowerCase();
-    if (!q) { panel.classList.remove("show"); panel.innerHTML = ""; return; }
-    const res = search(q);
-    if (!res.length) {
-      panel.innerHTML = `<div class="sp-empty">没有匹配。试试「开票」「捆包号」「配款」「准入」。</div>`;
-      panel.classList.add("show");
-      return;
-    }
-    const groups = {};
-    res.forEach((r, i) => { (groups[r.type] = groups[r.type] || []).push(Object.assign({}, r, { i })); });
-    let html = "";
-    Object.keys(groups).forEach((g) => {
-      html += `<div class="sp-g"><div class="sp-gh">${g}</div>`;
-      groups[g].forEach((r) => {
-        html += `<button class="sp-row" data-res="${r.i}"><div class="sp-t">${hl(r.t, q)}</div><div class="sp-c">${esc(r.c)}</div></button>`;
-      });
-      html += `</div>`;
-    });
-    panel.innerHTML = html;
-    panel.classList.add("show");
-    window.__res = res;
-  }
-
   /* ---------------------------------------------------------------- 导航 */
   function openFlow(fid, step, mode) {
     const f = flowById(fid);
@@ -492,15 +426,10 @@
     store.lastFlow = fid; store.lastStep = step || 1;
     S.view = "flow"; S.flowId = fid; S.step = step || 1; S.mode = mode || "detail";
     save();
-    closeSearch();
     $("#rail").classList.remove("open");
     render();
     $("#view").scrollTop = 0;
     revealTree();
-  }
-
-  function closeSearch() {
-    S.q = ""; $("#q").value = ""; $("#sp").classList.remove("show");
   }
 
   /* ---------------------------------------------------------------- 执行 */
@@ -697,21 +626,7 @@
     const runStepBtn = t.closest("[data-run-step]");
     if (runStepBtn) { openRun(Number(runStepBtn.dataset.runStep)); return; }
 
-    if (t.closest("#runBtn")) {
-      if (S.view === "flow" && S.mode === "detail") openRun(S.step);
-      else { S.view = "flow"; S.mode = "detail"; render(); }
-      return;
-    }
-
     if (t.closest("#menuBtn")) { $("#rail").classList.toggle("open"); return; }
-
-    const resBtn = t.closest("[data-res]");
-    if (resBtn && window.__res) {
-      const r = window.__res[Number(resBtn.dataset.res)];
-      if (r) r.go();
-      return;
-    }
-    if (!t.closest(".search") && !t.closest("#sp")) closeSearch();
 
     if (t.closest("[data-run-close]")) { closeRun(); return; }
     if (t.closest("[data-run-list]")) { closeRun(); S.mode = "list"; S.view = "flow"; render(); return; }
@@ -741,7 +656,6 @@
   });
 
   document.addEventListener("input", (e) => {
-    if (e.target.id === "q") { S.q = e.target.value; renderSearch(); return; }
     if (e.target.id === "targetInput") { store.target[S.flowId] = e.target.value; save(); }
   });
 
@@ -749,10 +663,8 @@
     const inInput = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
     if (e.key === "Escape") {
       if (S.run) { closeRun(); return; }
-      if (S.q) { closeSearch(); return; }
       $("#rail").classList.remove("open");
     }
-    if (e.key === "/" && !inInput) { e.preventDefault(); $("#q").focus(); return; }
     if (!S.run) return;
     if (!inInput && (e.key === "ArrowDown" || e.key === "ArrowRight")) {
       e.preventDefault();
