@@ -6,6 +6,9 @@
 (function () {
   "use strict";
 
+  /* 流程头显示开关（2026-11-05 作者要求先隐藏）：代码/字段/常见问题 */
+  const HEAD = { code: false, facts: false, faq: false };
+
   const DB = window.SOP_DATA;
   const META = DB.meta;
   const $ = (s, r) => (r || document).querySelector(s);
@@ -177,16 +180,16 @@
     const f = curFlow();
     return `<div class="page">
       <div class="fhead">
-        <div class="fcode"><b>${esc(f.code)}</b><span>${esc(f.version)}</span><span>·</span><span>${esc(domainById(f.domain).name)}</span></div>
+        ${HEAD.code ? `<div class="fcode"><b>${esc(f.code)}</b><span>${esc(f.version)}</span><span>·</span><span>${esc(domainById(f.domain).name)}</span></div>` : ""}
         <h1>${esc(f.title)}</h1>
 
-        <dl class="facts">
+        ${HEAD.facts ? `<dl class="facts">
           <div class="fact"><dt>什么时候走</dt><dd>${f.trigger.length ? esc(f.trigger.join(" · ")) : TODO("原文没有写触发条件")}</dd></div>
           <div class="fact"><dt>手上要有</dt><dd>${f.inputs.length
             ? f.inputs.map((x) => `<span class="ph">${esc(x)}</span>`).join("")
             : TODO("原文没有写前置输入")}</dd></div>
           <div class="fact"><dt>做到算完</dt><dd><em>${esc(f.done)}</em></dd></div>
-        </dl>
+        </dl>` : ""}
 
         <div class="metarow">
           <span>系统 <em>${f.systems.length ? esc(f.systems.join("、")) : "—"}</em></span>
@@ -195,7 +198,7 @@
           <span>更新 <em>${esc(f.updated)}</em></span>
         </div>
 
-        ${faqBlock(f)}
+        ${HEAD.faq ? faqBlock(f) : ""}
       </div>
 
       ${S.mode === "detail" ? renderStepBar(f) + renderDetail(f, curStep()) : renderList(f)}

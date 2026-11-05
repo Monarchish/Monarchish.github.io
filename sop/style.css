@@ -307,6 +307,7 @@ h1 {
   line-height: 1.28;
   letter-spacing: -0.015em;
 }
+h1:first-child { margin-top: 0; }
 
 .fen {
   margin-top: 5px;
