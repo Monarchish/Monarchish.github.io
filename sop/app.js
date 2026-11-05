@@ -24,7 +24,8 @@
   try { store = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { store = {}; }
   store.checks = store.checks || {};
   store.target = store.target || {};
-  store.closed = store.closed || {};
+  /* 目录只保留一个展开的分组（跨区块同理）；openDom 为空串表示全部收起 */
+  delete store.closed;
   store.stepClosed = store.stepClosed || {};
 
   const S = { view: "flow", flowId: FLOWS[0].id, step: 1, mode: "detail", q: "", run: false, runStep: 1 };
@@ -33,6 +34,8 @@
 
   const flowById = (id) => FLOWS.find((f) => f.id === id);
   const curFlow = () => flowById(S.flowId) || FLOWS[0];
+  /* 跨区块只允许一个分组展开：没存过就跟着当前流程走 */
+  const openDom = () => (store.openDom === undefined ? curFlow().domain : store.openDom);
   const curStep = () => curFlow().steps.find((s) => s.n === S.step) || curFlow().steps[0];
   const domainById = (id) => DB.domains.find((d) => d.id === id) || { name: id, en: "" };
   const num = (n) => String(n).padStart(2, "0");
@@ -72,7 +75,7 @@
     DOMAINS.forEach((d) => {
       const flows = FLOWS.filter((f) => f.domain === d.id);
       if (!flows.length) return;
-      const open = store.closed[d.id] !== true;
+      const open = d.id === openDom();
       html += `<div class="tnode${open ? " open" : ""}">
         <button class="trow lv1" data-toggle-dom="${d.id}">
           <span class="car"></span><span class="nm">${esc(d.name)}</span>
@@ -484,7 +487,11 @@
 
   /* ---------------------------------------------------------------- 导航 */
   function openFlow(fid, step, mode) {
+    const f = flowById(fid);
+    if (f) store.openDom = f.domain;
+    store.lastFlow = fid; store.lastStep = step || 1;
     S.view = "flow"; S.flowId = fid; S.step = step || 1; S.mode = mode || "detail";
+    save();
     closeSearch();
     $("#rail").classList.remove("open");
     render();
@@ -612,7 +619,7 @@
     const domBtn = t.closest("[data-toggle-dom]");
     if (domBtn) {
       const id = domBtn.dataset.toggleDom;
-      store.closed[id] = store.closed[id] !== true;
+      store.openDom = openDom() === id ? "" : id;
       save(); renderTree();
       return;
     }
@@ -759,5 +766,11 @@
   });
 
   /* ---------------------------------------------------------------- 启动 */
+  /* 回到上次所在的流程，目录展开的分组与主区始终对得上 */
+  if (store.lastFlow && flowById(store.lastFlow)) {
+    const f = flowById(store.lastFlow);
+    S.flowId = f.id;
+    S.step = Math.min(Math.max(1, Number(store.lastStep) || 1), f.steps.length);
+  }
   render();
 })();
