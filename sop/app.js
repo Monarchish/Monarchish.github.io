@@ -11,6 +11,12 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
+  /* 目前只上「采购 / 销售」；其余域（准入、财务、其他）先不上站 */
+  const HIDDEN_DOM = { OTH: true, ADM: true, FIN: true };
+  const DOMAINS = DB.domains.filter((d) => !HIDDEN_DOM[d.id]);
+  const FLOWS = DB.flows.filter((f) => !HIDDEN_DOM[f.domain]);
+  const VIS_STEPS = FLOWS.reduce((a, f) => a + f.steps.length, 0);
+
   const KIND = { action: "", check: "检查点", branch: "分支点" };
 
   const KEY = "sop-steel-v1";
@@ -19,13 +25,14 @@
   store.checks = store.checks || {};
   store.target = store.target || {};
   store.closed = store.closed || {};
+  store.stepClosed = store.stepClosed || {};
 
-  const S = { view: "flow", flowId: DB.flows[0].id, step: 1, mode: "detail", q: "", run: false, runStep: 1 };
+  const S = { view: "flow", flowId: FLOWS[0].id, step: 1, mode: "detail", q: "", run: false, runStep: 1 };
 
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} };
 
-  const flowById = (id) => DB.flows.find((f) => f.id === id);
-  const curFlow = () => flowById(S.flowId) || DB.flows[0];
+  const flowById = (id) => FLOWS.find((f) => f.id === id);
+  const curFlow = () => flowById(S.flowId) || FLOWS[0];
   const curStep = () => curFlow().steps.find((s) => s.n === S.step) || curFlow().steps[0];
   const domainById = (id) => DB.domains.find((d) => d.id === id) || { name: id, en: "" };
   const num = (n) => String(n).padStart(2, "0");
@@ -55,37 +62,56 @@
   const TODO = (t) => `<span class="todo">${esc(t || "原文未写 · 待补")}</span>`;
 
   /* ---------------------------------------------------------------- 左栏 */
+  /* 排法照 OTL 目录面板：域 → 流程 → 步骤，三层缩进，当前流程才展开步骤 */
   function renderTree() {
     const tree = $("#tree");
     const keep = tree.scrollTop;
+    const cur = curFlow();
     let html = "";
-    DB.domains.forEach((d) => {
-      const flows = DB.flows.filter((f) => f.domain === d.id);
+
+    DOMAINS.forEach((d) => {
+      const flows = FLOWS.filter((f) => f.domain === d.id);
       if (!flows.length) return;
-      const closed = store.closed[d.id] === undefined ? d.id === "OTH" : !!store.closed[d.id];
-      html += `<div class="dom ${closed ? "closed" : ""}">
-        <button class="dom-h" data-toggle-dom="${d.id}"><span>${esc(d.name)}</span><em>${flows.length}</em></button>`;
+      const open = store.closed[d.id] !== true;
+      html += `<div class="tnode${open ? " open" : ""}">
+        <button class="trow lv1" data-toggle-dom="${d.id}">
+          <span class="car"></span><span class="nm">${esc(d.name)}</span><span class="ct">${flows.length}</span>
+        </button>
+        <div class="tkids">`;
+
       flows.forEach((f) => {
+        const isCur = f.id === cur.id;
+        const stepsOpen = isCur && store.stepClosed[f.id] !== true;
         const st = flowStat(f);
         const all = st.total && st.done === st.total;
-        html += `<button class="flow-i ${f.id === S.flowId ? "on" : ""}" data-flow="${f.id}">
-          <span class="n">${esc(f.code.split("-").pop())}</span>
-          <span class="t">${esc(f.title)}</span>
-          ${all ? `<span class="ok">✓</span>` : ""}
-        </button>`;
+        html += `<div class="tnode${stepsOpen ? " open" : ""}">
+          <button class="trow lv2${isCur ? " on" : ""}" data-flow="${f.id}">
+            <span class="car" data-toggle-steps="${f.id}"></span>
+            <span class="nm">${esc(f.title)}</span>${all ? `<span class="ct">✓</span>` : ""}
+          </button>`;
+        if (stepsOpen) {
+          html += `<div class="tkids">` + f.steps.map((s) => `<button class="trow lv3${s.n === S.step ? " on" : ""}" data-goto="${f.id}:${s.n}">
+            <span class="car hide"></span><span class="no">${num(s.n)}</span><span class="nm">${esc(s.title)}</span>
+          </button>`).join("") + `</div>`;
+        }
+        html += `</div>`;
       });
-      html += `</div>`;
+
+      html += `</div></div>`;
     });
+
     tree.innerHTML = html;
     tree.scrollTop = keep;
   }
 
+  function revealTree() {
+    const el = $("#tree .trow.on");
+    if (el) el.scrollIntoView({ block: "nearest" });
+  }
+
   function renderRail() {
     renderTree();
-    $("#railMeta").textContent = `${META.stats.flows} 条流程 · ${META.stats.steps} 步`;
-    $("#nvDocs").textContent = DB.documents.length;
-    $("#nvTerms").textContent = DB.terms.length;
-    $$(".nv").forEach((b) => b.classList.toggle("on", b.dataset.view === S.view));
+    $("#railMeta").textContent = `${FLOWS.length} 条流程 · ${VIS_STEPS} 步`;
   }
 
   /* ---------------------------------------------------------------- 顶栏 */
@@ -408,6 +434,7 @@
   function search(q) {
     const res = [];
     DB.flows.forEach((f) => {
+      if (!FLOWS.includes(f)) return;
       if ((f.title + f.code).toLowerCase().includes(q)) {
         res.push({ type: "流程", t: f.title, c: f.code, go: () => openFlow(f.id, 1, "detail") });
       }
@@ -426,12 +453,6 @@
           res.push({ type: "FAQ", t: x.q, c: f.code, go: () => openFlow(f.id, 1, "detail") });
         }
       });
-    });
-    DB.documents.forEach((d) => {
-      if ((d.name + d.use).toLowerCase().includes(q)) res.push({ type: "单据", t: d.name, c: d.template, go: () => { S.view = "docs"; render(); } });
-    });
-    DB.terms.forEach((t) => {
-      if ((t.term + t.def + t.rule).toLowerCase().includes(q)) res.push({ type: "口径", t: t.term, c: t.def.slice(0, 26), go: () => { S.view = "terms"; render(); } });
     });
     return res.slice(0, 24);
   }
@@ -468,6 +489,7 @@
     $("#rail").classList.remove("open");
     render();
     $("#view").scrollTop = 0;
+    revealTree();
   }
 
   function closeSearch() {
@@ -590,14 +612,32 @@
     const domBtn = t.closest("[data-toggle-dom]");
     if (domBtn) {
       const id = domBtn.dataset.toggleDom;
-      const closed = store.closed[id] === undefined ? id === "OTH" : !!store.closed[id];
-      store.closed[id] = !closed;
+      store.closed[id] = store.closed[id] !== true;
       save(); renderTree();
       return;
     }
 
+    const stepToggle = t.closest("[data-toggle-steps]");
+    if (stepToggle) {
+      const id = stepToggle.dataset.toggleSteps;
+      if (id === S.flowId) {
+        store.stepClosed[id] = store.stepClosed[id] !== true;
+        save(); renderTree();
+      } else {
+        delete store.stepClosed[id];
+        save();
+        openFlow(id, 1, "detail");
+      }
+      return;
+    }
+
     const flowBtn = t.closest("[data-flow]");
-    if (flowBtn) { openFlow(flowBtn.dataset.flow, 1, "detail"); return; }
+    if (flowBtn) {
+      delete store.stepClosed[flowBtn.dataset.flow];
+      save();
+      openFlow(flowBtn.dataset.flow, 1, "detail");
+      return;
+    }
 
     if (t.closest("[data-list]")) {
       S.mode = S.mode === "list" ? "detail" : "list";
