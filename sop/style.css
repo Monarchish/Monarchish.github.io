@@ -1,12 +1,12 @@
 /* ==========================================================================
    支援未来 · SOP
-   纸：站点米色 #f4f3e8    墨：#13140e    朱：#9c3a1e（只用在线与序号上）
+   纸：白（复刻 OTL 文档底色）    墨：#13140e    朱：#9c3a1e（只用在线与序号上）
    ========================================================================== */
 
 :root {
-  --paper: #f4f3e8;
-  --paper2: #ece9db;
-  --paper3: #e4e1d0;
+  --paper: #ffffff;
+  --paper2: #f7f7f4;
+  --paper3: #eeeee9;
   --ink: #13140e;
   --ink2: #565748;
   --ink3: #8d8e7e;
@@ -1016,24 +1016,29 @@ h1:first-child { margin-top: 0; }
 }
 .acts li.br::before, .run-acts li.br::before { color: var(--mark); opacity: 0.9; }
 
-/* ---- 动词整体：白底描边 + 小圆角（打开（ Open ）等） ---- */
+/* ---- 动词整体：白底描边 + 小圆角 + 等宽字体（复刻 OTL） ---- */
 .acts li .verb, .run-acts li .verb {
   display: inline-block;
-  padding: 1px 9px 2px;
-  margin-right: 6px;
-  border: 1px solid var(--line);
+  padding: 2px 9px 3px;
+  margin-right: 7px;
+  border: 1px solid rgba(19, 20, 14, 0.22);
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.85);
+  background: #ffffff;
+  font-family: var(--mono);
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
-.acts li.br .verb, .run-acts li.br .verb { background: rgba(255, 255, 255, 0.85); }
+.acts li.br .verb, .run-acts li.br .verb { background: #ffffff; }
 
-/* ---- 括号明细（明细：…）另起一行 ---- */
+/* ---- 括号明细（明细：…）：引用块样式，左竖线 + 灰字（复刻 OTL blockquote） ---- */
 .acts li .adetail, .run-acts li .adetail {
   display: block;
-  margin-top: 2px;
-  color: var(--ink2);
+  margin-top: 3px;
+  padding-left: 12px;
+  border-left: 3px solid rgba(19, 20, 14, 0.14);
+  color: var(--ink3);
+  font-size: 13.5px;
 }
 
 /* ---- 截断提示行：不参与编号 ---- */
