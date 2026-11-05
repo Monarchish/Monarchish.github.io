@@ -320,16 +320,14 @@ h1 {
 /* 三行元信息（何时用 / 要有 / 算完） */
 .facts { margin-top: 22px; }
 .fact {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 16px;
-  padding: 8px 0;
+  display: block;
+  padding: 9px 0 10px;
   border-top: 1px solid var(--line2);
   font-size: 13px;
-  line-height: 1.75;
+  line-height: 1.7;
 }
-.fact > dt { font-size: 11.5px; color: var(--ink3); padding-top: 1px; }
-.fact > dd { color: var(--ink2); }
+.fact > dt { font-size: 11px; letter-spacing: 0.06em; color: var(--ink3); line-height: 1.5; }
+.fact > dd { margin-top: 3px; color: var(--ink2); }
 .fact > dd em { font-style: normal; color: var(--ink); }
 .fact .sep { color: var(--ink3); opacity: 0.6; padding: 0 2px; }
 
@@ -992,13 +990,14 @@ h1 {
   .mtbl th:nth-child(3), .mtbl td:nth-child(3) { display: none; }
 }
 
-/* ---- 步骤区：编号悬挂，标题与正文同一左边界 ---- */
-.page { --gutter: 69px; }
-.step-h { position: relative; padding-left: var(--gutter); }
-.step-h .n { position: absolute; left: 0; top: 6px; }
-.sum { margin-left: var(--gutter); }
-.sec { margin-left: var(--gutter); }
-.sfoot { margin-left: var(--gutter); }
+/* ---- 步骤区：全页一条左线，只有操作清单保留编号槽 ---- */
+.step-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 12px; }
+.step-h .n { flex: 0 0 auto; padding-top: 0; }
+.step-h .tm { margin-left: auto; }
+.step-h h2 { flex: 1 0 100%; margin-top: 3px; }
+.sum { margin-left: 0; }
+.sec { margin-left: 0; }
+.sfoot { margin-left: 0; }
 
 /* ---- 单据 / 口径 跳转标签带流程名 ---- */
 .wchip .wf { color: var(--ink3); font-size: 10.5px; margin-right: 6px; }
@@ -1011,10 +1010,7 @@ h1 {
 }
 
 @media (max-width: 860px) {
-  .page { --gutter: 0px; }
-  .step-h { padding-left: 0; }
-  .step-h .n { position: static; padding-top: 4px; }
-  .sum, .sec, .sfoot { margin-left: 0; }
+  .step-h { gap: 0 10px; }
 }
 
 /* ---- 分支点：加重、与上文拉开、编号转朱红 ---- */
