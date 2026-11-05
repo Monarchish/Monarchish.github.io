@@ -123,9 +123,13 @@
   }
 
   /* ---------------------------------------------------------------- 零件 */
+  /* 分支点：旧写法「若（…）」，或直接写成条件（客户同意 / 客户不同意） */
+  const BRANCH = /^(若（|若\(|If\s|如果|客户同意|客户不同意)/;
   const actLi = (a) => a.charAt(0) === "…"
     ? `<li class="more">${esc(a)}</li>`
-    : `<li>${esc(a)}</li>`;
+    : BRANCH.test(a)
+      ? `<li class="br">${esc(a)}</li>`
+      : `<li>${esc(a)}</li>`;
 
   function rawBlock(s) {
     if (!s.raw || !s.raw.length) return "";

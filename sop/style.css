@@ -1017,6 +1017,14 @@ h1 {
   .sum, .sec, .sfoot { margin-left: 0; }
 }
 
+/* ---- 分支点：加重、与上文拉开、编号转朱红 ---- */
+.acts li.br, .run-acts li.br {
+  margin-top: 10px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.acts li.br::before, .run-acts li.br::before { color: var(--mark); opacity: 0.9; }
+
 /* ---- 截断提示行：不参与编号 ---- */
 .acts li.more, .run-acts li.more { color: var(--ink3); font-size: 12.5px; }
 .acts li.more::before, .run-acts li.more::before { content: ""; }
