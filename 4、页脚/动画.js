@@ -109,7 +109,12 @@
 
         var fRect = footer.getBoundingClientRect();
         var inkCenterY = boxTop + inkTopFromBox + inkH / 2;
-        var targetY = fRect.top + footer.clientHeight / 2;
+        /* 手机（窄屏）上底栏换成两行、贴在黑块底部：若仍按整个黑块居中，
+           大字下边距会被底栏吃掉，看着偏下。所以窄屏时把底栏高度从可用高度里扣掉，
+           让大字在「看得见的空地」里居中；桌面底栏只有一行，维持原算法，位置不变。 */
+        var narrow = !!(window.matchMedia && window.matchMedia("(max-width: 640px)").matches);
+        var usableH = footer.clientHeight - (narrow && barWrap ? barWrap.offsetHeight : 0);
+        var targetY = fRect.top + usableH / 2;
         word.style.position = "relative";
         word.style.top = (targetY - inkCenterY).toFixed(1) + "px";
     }

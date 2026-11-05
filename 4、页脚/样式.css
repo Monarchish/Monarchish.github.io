@@ -64,5 +64,12 @@
 @media (max-width: 640px) {
     /* 手机上也保持「一行顶满」，字号由 fitStatement() 按屏宽算；17vw 只是兜底 */
     .footer-statement { font-size: 17vw; }
+    /* 2026-11-04：手机上屏高普遍 800~900，40vh 也还是一片空黑。
+       改成「紧包」——黑块高度只由内容决定：大字上下各留 20px，底部再垫出底栏的位置
+       （手机底栏是两行，实测约 78px），不再给 min-height 撑高度。 */
+    .site-footer {
+        min-height: 0;
+        padding: 20px 0 calc(20px + 78px);
+    }
     .footer-bar { flex-direction: column; align-items: flex-start; gap: 4px; }
 }

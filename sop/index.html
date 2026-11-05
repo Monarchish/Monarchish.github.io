@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>支援未来 · SOP</title>
+<meta name="description" content="作业标准书：从按键脚本到可交付的 SOP">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<aside class="rail" id="rail">
+  <div class="rail-top">
+    <a class="brand" href="../index.html" title="返回主页">施俊臣<span>SOP</span></a>
+    <div class="rail-meta" id="railMeta"></div>
+  </div>
+
+  <label class="search">
+    <input id="q" type="text" placeholder="搜索动作、单据、术语" autocomplete="off" spellcheck="false">
+    <kbd>/</kbd>
+  </label>
+
+  <nav class="tree" id="tree"></nav>
+
+  <div class="rail-nav">
+    <button class="nv" data-view="docs"><span>单据索引</span><i id="nvDocs"></i></button>
+    <button class="nv" data-view="terms"><span>口径</span><i id="nvTerms"></i></button>
+    <button class="nv" data-view="audit"><span>完备度自检</span></button>
+    <button class="nv" data-view="write"><span>写法</span></button>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <button class="menu" id="menuBtn">目录</button>
+    <div class="crumb" id="crumb"></div>
+    <span class="spacer"></span>
+    <span class="stat" id="tbStat"></span>
+    <button class="act" id="runBtn">执行模式</button>
+  </header>
+  <div class="scroll" id="view"></div>
+</main>
+
+<div class="sp" id="sp"></div>
+<div class="run" id="run" hidden></div>
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

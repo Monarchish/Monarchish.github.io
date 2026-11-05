@@ -54,10 +54,10 @@
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
     <link rel="stylesheet" href="3、站点简介/样式.css?v=27" />
-    <link rel="stylesheet" href="4、页脚/样式.css?v=5" />
+    <link rel="stylesheet" href="4、页脚/样式.css?v=7" />
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
     <script src="3、站点简介/动画.js?v=13" defer></script>
-    <script src="4、页脚/动画.js?v=8" defer></script>
+    <script src="4、页脚/动画.js?v=9" defer></script>
 
     <style>
         /* 站点正文字体：自托管（原先只预载了 CDN 文件却从没写 @font-face，
@@ -210,6 +210,8 @@
     </div>
 
     <!-- ===================== 站点主体（门面在前，目录/正文在后） ===================== -->
+    <main>
+
     <div id="site-main">
 
     <!-- 滚动门面（handbook 原版结构）：空心掩膜开窗 + 方格网 + 两个标记 + 4 屏文案 -->
@@ -384,7 +386,7 @@
             <div class="intro-values">
                 <div class="value-block">
                     <div class="value-content">
-                        <h3 class="value-title">DIGITAL LIFE PROJECT</h3>
+                        <h3 class="value-title">DIGITAL LIFE</h3>
                         <p class="value-text">We architect a persistent cognitive system, not a static archive. By logging daily fragments and deploying intelligent agents, we forge a digital entity: defying time, supplying lifelong mental power, and transforming personal legacy into an eternal footprint.</p>
                         <a class="value-btn" href="https://inversa.com/origin" target="_blank" rel="noopener"><span class="value-btn-label">ACCESS DLP</span></a>
                     </div>
@@ -394,9 +396,9 @@
                 </div>
                 <div class="value-block">
                     <div class="value-content">
-                        <h3 class="value-title">THE IMPRINT</h3>
+                        <h3 class="value-title">Thought control</h3>
                         <p class="value-text">Complex tasks are distilled into precise workflows. By delegating repetitive operations to machine intelligence, we enforce a systematic order: minimizing human errors, restoring cognitive capacity for strategy, and reinforcing the future.</p>
-                        <a class="value-btn" href="https://inversa.com/origin" target="_blank" rel="noopener"><span class="value-btn-label">EXPLORE WORKFLOW</span></a>
+                        <a class="value-btn" href="sop/index.html"><span class="value-btn-label">EXPLORE WORKFLOW</span></a>
                     </div>
                     <div class="value-asset">
                         <img src="3、站点简介/素材/values-ecology.jpg" alt="" loading="lazy" />
@@ -404,7 +406,7 @@
                 </div>
                 <div class="value-block">
                     <div class="value-content">
-                        <h3 class="value-title">REINFORCE THE FUTURE</h3>
+                        <h3 class="value-title">To be continued</h3>
                         <p class="value-text">A lifelong system that learns and adapts. Bridging past memories with systematic order, the platform evolves into a cognitive companion: accelerating personal evolution, projecting future potential, and ensuring continuous growth day by day.</p>
                         <a class="value-btn" href="https://inversa.com/origin" target="_blank" rel="noopener"><span class="value-btn-label">START NOW</span></a>
                     </div>
@@ -428,6 +430,8 @@
     </div>
 
     </div>
+
+    </main>
 
     <!-- ===================== 库与动画脚本 =====================
          顺序照 handbook 原版：gsap → ScrollTrigger → CustomEase → lenis → 动画脚本。
