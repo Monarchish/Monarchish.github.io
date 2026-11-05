@@ -431,7 +431,7 @@ h1:first-child { margin-top: 0; }
 .acts li {
   counter-increment: a;
   position: relative;
-  padding: 5px 0 5px 30px;
+  padding: 10px 0 10px 30px;
   font-size: 14.5px;
   line-height: 1.85;
 }
@@ -439,7 +439,7 @@ h1:first-child { margin-top: 0; }
   content: counter(a, decimal-leading-zero);
   position: absolute;
   left: 0;
-  top: 7px;
+  top: 12px;
   font-family: var(--mono);
   font-size: 9.5px;
   color: var(--ink3);
@@ -797,13 +797,13 @@ h1:first-child { margin-top: 0; }
 .run-acts li {
   counter-increment: a;
   position: relative;
-  padding: 7px 0 7px 28px;
+  padding: 9px 0 9px 28px;
   font-size: 15px;
   line-height: 1.8;
 }
 .run-acts li::before {
   content: counter(a, decimal-leading-zero);
-  position: absolute; left: 0; top: 9px;
+  position: absolute; left: 0; top: 12px;
   font-family: var(--mono); font-size: 9.5px; color: var(--ink3);
 }
 
@@ -1016,11 +1016,23 @@ h1:first-child { margin-top: 0; }
 
 /* ---- 分支点：加重、与上文拉开、编号转朱红 ---- */
 .acts li.br, .run-acts li.br {
-  margin-top: 10px;
+  margin-top: 12px;
   font-weight: 500;
   color: var(--ink);
 }
 .acts li.br::before, .run-acts li.br::before { color: var(--mark); opacity: 0.9; }
+
+/* ---- 动词整体：底色 + 加粗（打开（Open）等） ---- */
+.acts li .verb, .run-acts li .verb {
+  display: inline-block;
+  padding: 1px 8px 2px;
+  margin-right: 6px;
+  border-radius: 3px;
+  background: rgba(19, 20, 14, 0.07);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.acts li.br .verb, .run-acts li.br .verb { background: rgba(156, 58, 30, 0.09); }
 
 /* ---- 截断提示行：不参与编号 ---- */
 .acts li.more, .run-acts li.more { color: var(--ink3); font-size: 12.5px; }

@@ -131,11 +131,17 @@
   /* ---------------------------------------------------------------- 零件 */
   /* 分支点：旧写法「若（…）」，或直接写成条件（客户同意 / 客户不同意） */
   const BRANCH = /^(若（|若\(|If\s|如果|客户同意|客户不同意)/;
-  const actLi = (a) => a.charAt(0) === "…"
-    ? `<li class="more">${esc(a)}</li>`
-    : BRANCH.test(a)
-      ? `<li class="br">${esc(a)}</li>`
-      : `<li>${esc(a)}</li>`;
+  /* 动词整体：行首「动词（英文 / 快捷键）」，如 打开（Open）/ 截图（Ctrl+Alt+A） */
+  const VERB = /^([一-龥]{1,4}（[^（）]{1,24}）)/;
+  const actLi = (a) => {
+    if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;
+    if (BRANCH.test(a)) return `<li class="br">${esc(a)}</li>`;
+    const m = a.match(VERB);
+    const body = m
+      ? `<span class="verb">${esc(m[1])}</span>${esc(a.slice(m[1].length).replace(/^\s+/, ""))}`
+      : esc(a);
+    return `<li>${body}</li>`;
+  };
 
   function rawBlock(s) {
     if (!s.raw || !s.raw.length) return "";
