@@ -6,8 +6,8 @@
 (function () {
   "use strict";
 
-  /* 流程头显示开关（2026-11-05 作者要求先隐藏）：代码/字段/常见问题 */
-  const HEAD = { code: false, facts: false, faq: false };
+  /* 流程头显示开关（2026-11-05 作者要求先隐藏）：代码/字段/元信息/常见问题 */
+  const HEAD = { code: false, facts: false, meta: false, faq: false };
 
   const DB = window.SOP_DATA;
   const META = DB.meta;
@@ -191,12 +191,12 @@
           <div class="fact"><dt>做到算完</dt><dd><em>${esc(f.done)}</em></dd></div>
         </dl>` : ""}
 
-        <div class="metarow">
+        ${HEAD.meta ? `<div class="metarow">
           <span>系统 <em>${f.systems.length ? esc(f.systems.join("、")) : "—"}</em></span>
           <span>原文 <em>${f.ops} 条操作 / ${f.steps.length} 步</em></span>
           <span>负责人 <em>${esc(f.owner)}</em></span>
           <span>更新 <em>${esc(f.updated)}</em></span>
-        </div>
+        </div>` : ""}
 
         ${HEAD.faq ? faqBlock(f) : ""}
       </div>
