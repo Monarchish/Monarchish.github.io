@@ -10,7 +10,7 @@
   const HEAD = { code: false, facts: false, meta: false, faq: false };
 
   /* 步骤区显示开关（2026-11-05 作者要求先隐藏）：说明/操作数/工具/产出/自检/异常/坑/原始记录/全部步骤/底部导航 */
-  const STEP = { desc: false, ops: false, tools: false, outputs: false, checks: false, exceptions: false, pitfalls: false, raw: false, list: false, foot: false };
+  const STEP = { n: false, desc: false, ops: false, tools: false, outputs: false, checks: false, exceptions: false, pitfalls: false, raw: false, list: false, foot: false };
 
   const DB = window.SOP_DATA;
   const META = DB.meta;
@@ -224,7 +224,7 @@
   function renderDetail(f, s) {
     return `<article class="step">
       <div class="step-h">
-        <span class="n">第 ${num(s.n)} 步</span>
+        ${STEP.n ? `<span class="n">第 ${num(s.n)} 步</span>` : ""}
         <h2>${esc(s.title)}</h2>
         ${STEP.ops ? `<span class="tm">${s.ops} 条操作</span>` : ""}
       </div>
