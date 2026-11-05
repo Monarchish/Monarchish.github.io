@@ -55,21 +55,17 @@
     line-height: 1.6;
     color: #b9b6a8;
 }
-.footer-bar-right {
-    font-family: "JetBrains Mono", "DM Mono", monospace;
-    font-size: 11px;
-    letter-spacing: 0.22em;
-    color: #75726a;
-}
 @media (max-width: 640px) {
     /* 手机上也保持「一行顶满」，字号由 fitStatement() 按屏宽算；17vw 只是兜底 */
     .footer-statement { font-size: 17vw; }
-    /* 2026-11-04：手机上屏高普遍 800~900，40vh 也还是一片空黑。
-       改成「紧包」——黑块高度只由内容决定：大字上下各留 20px，底部再垫出底栏的位置
-       （手机底栏是两行，实测约 78px），不再给 min-height 撑高度。 */
+    /* 2026-11-04：手机上屏高普遍 800~900，66vh / 40vh 都是一片空黑，改成「紧包」。
+       2026-11-05：大字上下留白从 20px 放大到屏宽的 10%（390 下约 39px、474 下约 47px），
+       跟桌面「留白 ≈ 字高六成」的观感对齐；底栏只剩一行「© 2026 支援未来」后高约 58px，
+       横线因此自然下移，padding-bottom 只负责把这段空间留出来。 */
     .site-footer {
+        --foot-pad: clamp(36px, 10vw, 56px);
         min-height: 0;
-        padding: 20px 0 calc(20px + 78px);
+        padding: var(--foot-pad) 0 calc(var(--foot-pad) + 58px);
     }
     .footer-bar { flex-direction: column; align-items: flex-start; gap: 4px; }
 }
