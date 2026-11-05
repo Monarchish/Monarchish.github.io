@@ -9,6 +9,9 @@
   /* 流程头显示开关（2026-11-05 作者要求先隐藏）：代码/字段/元信息/常见问题 */
   const HEAD = { code: false, facts: false, meta: false, faq: false };
 
+  /* 步骤区显示开关（2026-11-05 作者要求先隐藏）：说明/操作数/工具/产出/自检/异常/坑/原始记录/全部步骤/底部导航 */
+  const STEP = { desc: false, ops: false, tools: false, outputs: false, checks: false, exceptions: false, pitfalls: false, raw: false, list: false, foot: false };
+
   const DB = window.SOP_DATA;
   const META = DB.meta;
   const $ = (s, r) => (r || document).querySelector(s);
@@ -202,7 +205,7 @@
       </div>
 
       ${S.mode === "detail" ? renderStepBar(f) + renderDetail(f, curStep()) : renderList(f)}
-      ${S.mode === "detail" ? renderFoot(f, curStep()) : ""}
+      ${(S.mode === "detail" && STEP.foot) ? renderFoot(f, curStep()) : ""}
     </div>`;
   }
 
@@ -214,7 +217,7 @@
           return `<button class="sb ${s.n === S.step ? "on" : ""} ${doneAll ? "done" : ""}" data-step="${s.n}">${num(s.n)}</button>`;
         }).join("")}
       </div>
-      <button class="tlink sbnote" data-list>全部步骤</button>
+      ${STEP.list ? `<button class="tlink sbnote" data-list>全部步骤</button>` : ""}
     </div>`;
   }
 
@@ -223,34 +226,34 @@
       <div class="step-h">
         <span class="n">第 ${num(s.n)} 步</span>
         <h2>${esc(s.title)}</h2>
-        <span class="tm">${s.ops} 条操作</span>
+        ${STEP.ops ? `<span class="tm">${s.ops} 条操作</span>` : ""}
       </div>
-      <p class="sum">${esc(s.summary)}</p>
+      ${STEP.desc ? `<p class="sum">${esc(s.summary)}</p>` : ""}
 
       <section class="sec">
         <h3>怎么做</h3>
         <ol class="acts">${s.actions.map(actLi).join("")}</ol>
       </section>
 
-      ${s.systems.length ? `<section class="sec">
+      ${(STEP.tools && s.systems.length) ? `<section class="sec">
         <h3>用到什么</h3>
         <div class="tools">${s.systems.map((t) => `<span>${esc(t)}</span>`).join("")}</div>
       </section>` : ""}
 
-      ${s.outputs.length ? `<section class="sec">
+      ${(STEP.outputs && s.outputs.length) ? `<section class="sec">
         <h3>这一步交出什么</h3>
         ${outputsBlock(s)}
       </section>` : ""}
 
-      ${(s.checks.length || s.exceptions.length) ? `<section class="sec">
+      ${STEP.checks ? ((s.checks.length || s.exceptions.length) ? `<section class="sec">
         <h3>做完，自己核这几条</h3>
         ${s.checks.length ? checksBlock(s, f) : TODO("原文只写了出岔子的情形，没写合格线")}
       </section>` : `<section class="sec sec-slim">
         <h3>判定与分支</h3>
         ${TODO("原文没有写判定标准，也没有写异常分支 —— 待补")}
-      </section>`}
+      </section>`) : ""}
 
-      ${s.exceptions.length ? `<section class="sec">
+      ${(STEP.exceptions && s.exceptions.length) ? `<section class="sec">
         <h3>出岔子怎么办</h3>
         <table class="ex">
           <thead><tr><th>如果</th><th>那就</th><th>找谁</th></tr></thead>
@@ -260,12 +263,12 @@
         </table>
       </section>` : ""}
 
-      ${s.pitfalls.length ? `<section class="sec">
+      ${(STEP.pitfalls && s.pitfalls.length) ? `<section class="sec">
         <h3>踩过的坑</h3>
         <ul class="pits">${s.pitfalls.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
       </section>` : ""}
 
-      <section class="sec">${rawBlock(s)}</section>
+      ${STEP.raw ? `<section class="sec">${rawBlock(s)}</section>` : ""}
     </article>`;
   }
 
@@ -593,16 +596,12 @@
 
     const stepBtn = t.closest("[data-step]");
     if (stepBtn) {
-      const same = S.mode === "detail" && S.step === Number(stepBtn.dataset.step);
       S.step = Number(stepBtn.dataset.step);
       if (S.run) { S.runStep = S.step; renderRun(); return; }
       S.mode = "detail";
       render();
-      const bar = $(".stepbar"), v = $("#view");
-      if (bar && !same) {
-        const r = bar.getBoundingClientRect(), vr = v.getBoundingClientRect();
-        v.scrollTop += r.top - vr.top - 6;
-      }
+      /* 切步后回到页面顶部，让「流程标题 + 步骤条」始终可见 */
+      $("#view").scrollTop = 0;
       return;
     }
 
