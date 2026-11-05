@@ -431,19 +431,13 @@ h1:first-child { margin-top: 0; }
 .acts li {
   counter-increment: a;
   position: relative;
-  padding: 10px 0 10px 30px;
+  padding: 10px 0;
   font-size: 14.5px;
   line-height: 1.85;
 }
+/* 暂时隐藏动作序号（2026-11-05 作者要求先去掉看效果） */
 .acts li::before {
-  content: counter(a, decimal-leading-zero);
-  position: absolute;
-  left: 0;
-  top: 12px;
-  font-family: var(--mono);
-  font-size: 9.5px;
-  color: var(--ink3);
-  letter-spacing: 0.06em;
+  content: none;
 }
 
 /* 工具 / 产出物：无卡片，纯行 */
@@ -1022,17 +1016,25 @@ h1:first-child { margin-top: 0; }
 }
 .acts li.br::before, .run-acts li.br::before { color: var(--mark); opacity: 0.9; }
 
-/* ---- 动词整体：底色 + 加粗（打开（Open）等） ---- */
+/* ---- 动词整体：白底描边 + 小圆角（打开（ Open ）等） ---- */
 .acts li .verb, .run-acts li .verb {
   display: inline-block;
-  padding: 1px 8px 2px;
+  padding: 1px 9px 2px;
   margin-right: 6px;
-  border-radius: 3px;
-  background: rgba(19, 20, 14, 0.07);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.85);
   font-weight: 700;
   letter-spacing: 0.01em;
 }
-.acts li.br .verb, .run-acts li.br .verb { background: rgba(156, 58, 30, 0.09); }
+.acts li.br .verb, .run-acts li.br .verb { background: rgba(255, 255, 255, 0.85); }
+
+/* ---- 括号明细（明细：…）另起一行 ---- */
+.acts li .adetail, .run-acts li .adetail {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink2);
+}
 
 /* ---- 截断提示行：不参与编号 ---- */
 .acts li.more, .run-acts li.more { color: var(--ink3); font-size: 12.5px; }

@@ -133,13 +133,20 @@
   const BRANCH = /^(若（|若\(|If\s|如果|客户同意|客户不同意)/;
   /* 动词整体：行首「动词（英文 / 快捷键）」，如 打开（Open）/ 截图（Ctrl+Alt+A） */
   const VERB = /^([一-龥]{1,4}（[^（）]{1,24}）)/;
+  /* 括号内英文两侧各留一个空格：打开（Open）→ 打开（ Open ） */
+  const SPACED = (t) => t.replace(/（([^（）]+)）/, "（ $1 ）");
+  /* 括号明细（明细：…）单独成行 */
+  const DETAIL = /（明细：[^）]*）\s*$/;
   const actLi = (a) => {
     if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;
     if (BRANCH.test(a)) return `<li class="br">${esc(a)}</li>`;
-    const m = a.match(VERB);
+    const dm = a.match(DETAIL);
+    const main = dm ? a.slice(0, dm.index).trimEnd() : a;
+    const det = dm ? `<span class="adetail">${esc(dm[0])}</span>` : "";
+    const m = main.match(VERB);
     const body = m
-      ? `<span class="verb">${esc(m[1])}</span>${esc(a.slice(m[1].length).replace(/^\s+/, ""))}`
-      : esc(a);
+      ? `<span class="verb">${esc(SPACED(m[1]))}</span>${esc(main.slice(m[1].length).replace(/^\s+/, ""))}${det}`
+      : esc(main) + det;
     return `<li>${body}</li>`;
   };
 
