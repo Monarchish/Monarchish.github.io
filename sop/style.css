@@ -833,3 +833,155 @@ h1 {
   .run-bar, .run-body, .run-foot { padding-left: 18px; padding-right: 18px; }
   .run-body { padding-top: 28px; }
 }
+
+/* ============================================================ 思想钢印 · 增补 */
+.brand span { white-space: nowrap; font-size: 8px; letter-spacing: 0.16em; }
+
+/* 原文没写的字段 */
+.todo {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ink3);
+  border-bottom: 1px dashed rgba(19, 20, 14, 0.28);
+  padding-bottom: 1px;
+}
+.fact .todo { font-size: 12.5px; }
+
+/* 前置输入占位符 */
+.ph {
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 13px;
+  color: var(--ink);
+}
+.ph::before { content: "【"; color: var(--ink3); }
+.ph::after { content: "】"; color: var(--ink3); }
+
+/* 流程级 FAQ */
+.faq { margin-top: 16px; border-top: 1px solid var(--line2); }
+.faq summary {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  cursor: pointer;
+  list-style: none;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq .rl {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink3);
+}
+.faq .rn { font-family: var(--mono); font-size: 9px; color: var(--ink3); opacity: 0.8; }
+.faq .rx { margin-left: auto; font-family: var(--mono); font-size: 9px; color: var(--ink3); letter-spacing: 0.1em; }
+.faq .rx::after { content: "展开"; }
+.faq[open] .rx::after { content: "收起"; }
+.faq[open] .rl { color: var(--ink); }
+.faqlist { padding: 2px 0 8px; }
+.faqlist dt {
+  font-size: 13px;
+  color: var(--ink);
+  padding: 10px 0 2px;
+  border-top: 1px solid var(--line2);
+}
+.faqlist dt:first-child { border-top: none; }
+.faqlist dd .rlist { padding: 4px 0 2px; }
+.faqlist dd .rlist li { font-size: 10.5px; padding: 3px 0 3px 26px; }
+.faqlist dd .rhint { padding-left: 26px; }
+
+/* 纲要页 */
+.prose h3 {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 22px 0 4px;
+  letter-spacing: 0.01em;
+}
+.mtbl { width: 100%; border-collapse: collapse; margin: 12px 0 6px; }
+.mtbl th {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  text-align: left;
+  padding: 8px 14px 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mtbl td {
+  padding: 7px 14px 7px 0;
+  border-bottom: 1px solid var(--line2);
+  font-size: 12.5px;
+  line-height: 1.7;
+  vertical-align: top;
+}
+.mtbl .code { font-family: var(--mono); font-size: 11.5px; color: var(--ink); white-space: nowrap; }
+
+.hist { margin-top: 46px; padding-top: 26px; border-top: 1px solid var(--line); }
+.hist-h {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-bottom: 18px;
+}
+.hist-row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line2);
+}
+.hist-row:first-of-type { border-top: 1px solid var(--line); }
+.hd { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.06em; color: var(--ink3); padding-top: 3px; }
+.ht { font-size: 14px; color: var(--ink); font-weight: 500; }
+.hq { font-size: 13px; line-height: 1.85; color: var(--ink2); margin-top: 5px; }
+.hs { font-size: 12px; line-height: 1.8; color: var(--ink3); margin-top: 3px; }
+.hs::before { content: "→ "; }
+
+@media (max-width: 860px) {
+  .hist-row { grid-template-columns: 1fr; gap: 4px; }
+  .hd { padding-top: 0; }
+  .mtbl th:nth-child(3), .mtbl td:nth-child(3) { display: none; }
+}
+
+/* ---- 步骤区：编号悬挂，标题与正文同一左边界 ---- */
+.page { --gutter: 69px; }
+.step-h { position: relative; padding-left: var(--gutter); }
+.step-h .n { position: absolute; left: 0; top: 6px; }
+.sum { margin-left: var(--gutter); }
+.sec { margin-left: var(--gutter); }
+.sfoot { margin-left: var(--gutter); }
+
+/* ---- 单据 / 口径 跳转标签带流程名 ---- */
+.wchip .wf { color: var(--ink3); font-size: 10.5px; margin-right: 6px; }
+.wchip .wf::after { content: " ·"; }
+
+/* ---- 目录底部渐隐，避免半行被切断 ---- */
+.tree {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 22px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 22px), transparent 100%);
+}
+
+@media (max-width: 860px) {
+  .page { --gutter: 0px; }
+  .step-h { padding-left: 0; }
+  .step-h .n { position: static; padding-top: 4px; }
+  .sum, .sec, .sfoot { margin-left: 0; }
+}
+
+/* ---- 截断提示行：不参与编号 ---- */
+.acts li.more, .run-acts li.more { color: var(--ink3); font-size: 12.5px; }
+.acts li.more::before, .run-acts li.more::before { content: ""; }
+.run-acts li.more::before { display: none; }
+
+/* ---- 代码清单不编号 ---- */
+.rlist.codelist { padding-left: 0; }
+.rlist.codelist li { padding-left: 6px; font-size: 10.5px; line-height: 1.75; color: var(--ink2); }
+.rlist.codelist li::before { display: none; }
+.acts li.more, .run-acts li.more { counter-increment: none; }
+.sec-slim > h3 { border-bottom: none; margin-bottom: 6px; padding-bottom: 0; }
+.sec-slim { margin-top: 26px; }
