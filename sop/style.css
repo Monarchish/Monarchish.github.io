@@ -15,7 +15,7 @@
   --mark: #9c3a1e;
   --sans: "DM Sans", "HarmonyOS Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
-  --rail: 33.333vw;
+  --rail: 20vw;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,7 +62,7 @@ mark { background: #e7e2c2; color: var(--ink); }
   border-right: 1px solid var(--line);
 }
 
-.rail-top { padding: 28px 24px 0; }
+.rail-top { padding: 22px 16px 0; }
 
 .brand {
   display: flex;
@@ -96,8 +96,8 @@ mark { background: #e7e2c2; color: var(--ink); }
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 18px 14px 6px;
-  padding: 6px 11px;
+  margin: 15px 12px 6px;
+  padding: 5px 9px;
   background: rgba(19, 20, 14, 0.03);
   border: 1px solid transparent;
 }
@@ -108,7 +108,7 @@ mark { background: #e7e2c2; color: var(--ink); }
   border: none;
   background: none;
   outline: none;
-  font-size: 13.5px;
+  font-size: 12.5px;
   color: var(--ink);
 }
 .search input::placeholder { color: var(--ink3); }
@@ -137,10 +137,10 @@ mark { background: #e7e2c2; color: var(--ink); }
 .trow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   width: 100%;
-  padding: 5px 20px 5px 18px;
-  font-size: 15px;
+  padding: 4px 14px 4px 12px;
+  font-size: 14.5px;
   line-height: 1.45;
   color: var(--ink2);
   cursor: pointer;
@@ -155,38 +155,30 @@ mark { background: #e7e2c2; color: var(--ink); }
   white-space: nowrap;
 }
 
-/* 一级：域 —— 当分组标签用，小字灰，靠缩进拉层级 */
+/* 一级：域 —— 分组标题，字比流程大，不加分隔线 */
 .trow.lv1 {
-  padding: 24px 20px 5px 17px;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.03em;
-  color: var(--ink2);
+  padding: 20px 14px 6px 12px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ink);
 }
-.trow.lv1:hover { background: none; color: var(--ink2); }
+.trow.lv1:hover { background: none; color: var(--ink); }
 .tree > .tnode + .tnode > .trow.lv1 {
-  margin-top: 8px;
-  padding-top: 15px;
-  border-top: 1px solid var(--line2);
+  margin-top: 14px;
 }
-.trow.lv1 .car::before { border-left-width: 3.5px; border-top-width: 3px; border-bottom-width: 3px; opacity: 0.5; }
-.trow.lv1 .ct {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.04em;
-  color: var(--ink3);
-  opacity: 0.55;
-}
+.trow.lv1 { gap: 9px; }
+.trow.lv1 .car::before { border-left-width: 4.5px; border-top-width: 4px; border-bottom-width: 4px; opacity: 0.55; }
 
 /* 二级：流程 */
-.trow.lv2 { padding-left: 32px; font-size: 15px; color: var(--ink); }
+.trow.lv2 { padding-left: 26px; font-size: 14.5px; color: var(--ink); }
 
 /* 三级：步骤 */
 .trow.lv3 {
-  padding-left: 58px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  font-size: 14px;
+  padding-left: 46px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 13.5px;
   color: var(--ink3);
 }
 .trow.lv3 .no {

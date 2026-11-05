@@ -75,7 +75,7 @@
       const open = store.closed[d.id] !== true;
       html += `<div class="tnode${open ? " open" : ""}">
         <button class="trow lv1" data-toggle-dom="${d.id}">
-          <span class="car"></span><span class="nm">${esc(d.name)}</span><span class="ct">${flows.length}</span>
+          <span class="car"></span><span class="nm">${esc(d.name)}</span>
         </button>
         <div class="tkids">`;
 
