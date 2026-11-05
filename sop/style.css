@@ -1034,7 +1034,7 @@ h1:first-child { margin-top: 0; }
 /* ---- 括号明细（明细：…）：引用块样式，左竖线 + 灰字（复刻 OTL blockquote） ---- */
 .acts li .adetail, .run-acts li .adetail {
   display: block;
-  margin-top: 3px;
+  margin-top: 6px;
   padding-left: 12px;
   border-left: 3px solid rgba(19, 20, 14, 0.14);
   color: var(--ink3);
