@@ -157,10 +157,10 @@ mark { background: #e7e2c2; color: var(--ink); }
 
 /* 一级：域 —— 当分组标签用，小字灰，靠缩进拉层级 */
 .trow.lv1 {
-  padding: 26px 20px 6px 17px;
-  font-size: 12px;
+  padding: 24px 20px 5px 17px;
+  font-size: 14px;
   font-weight: 400;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.03em;
   color: var(--ink2);
 }
 .trow.lv1:hover { background: none; color: var(--ink2); }
@@ -179,7 +179,7 @@ mark { background: #e7e2c2; color: var(--ink); }
 }
 
 /* 二级：流程 */
-.trow.lv2 { padding-left: 32px; font-size: 15px; }
+.trow.lv2 { padding-left: 32px; font-size: 15px; color: var(--ink); }
 
 /* 三级：步骤 */
 .trow.lv3 {
