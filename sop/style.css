@@ -5,8 +5,8 @@
 
 :root {
   --paper: #ffffff;
-  --paper2: #f7f7f4;
-  --paper3: #eeeee9;
+  --paper2: #ffffff;
+  --paper3: #f2f2f2;
   --ink: #13140e;
   --ink2: #565748;
   --ink3: #8d8e7e;
@@ -15,6 +15,8 @@
   --mark: #9c3a1e;
   --sans: "DM Sans", "HarmonyOS Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  /* 动作字：英文等宽 + 中文黑体，复刻 OTL 文档的打字机观感 */
+  --type: "Consolas", "Cascadia Mono", "Menlo", "DejaVu Sans Mono", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", monospace;
   --rail: 20vw;
 }
 
@@ -431,9 +433,11 @@ h1:first-child { margin-top: 0; }
 .acts li {
   counter-increment: a;
   position: relative;
-  padding: 10px 0;
+  padding: 11px 0;
+  font-family: var(--type);
   font-size: 14.5px;
-  line-height: 1.85;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
 }
 /* 暂时隐藏动作序号（2026-11-05 作者要求先去掉看效果） */
 .acts li::before {
@@ -1019,26 +1023,28 @@ h1:first-child { margin-top: 0; }
 /* ---- 动词整体：白底描边 + 小圆角 + 等宽字体（复刻 OTL） ---- */
 .acts li .verb, .run-acts li .verb {
   display: inline-block;
-  padding: 2px 9px 3px;
-  margin-right: 7px;
-  border: 1px solid rgba(19, 20, 14, 0.22);
-  border-radius: 4px;
+  padding: 0 6px 1px;
+  margin-right: 6px;
+  border: 1px solid rgba(19, 20, 14, 0.16);
+  border-radius: 3px;
   background: #ffffff;
-  font-family: var(--mono);
-  font-size: 13px;
+  font-family: var(--type);
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.01em;
+  line-height: 1.55;
 }
 .acts li.br .verb, .run-acts li.br .verb { background: #ffffff; }
 
 /* ---- 括号明细（明细：…）：引用块样式，左竖线 + 灰字（复刻 OTL blockquote） ---- */
 .acts li .adetail, .run-acts li .adetail {
   display: block;
-  margin-top: 6px;
-  padding-left: 12px;
-  border-left: 3px solid rgba(19, 20, 14, 0.14);
-  color: var(--ink3);
-  font-size: 13.5px;
+  margin-top: 5px;
+  padding-left: 11px;
+  border-left: 2px solid rgba(19, 20, 14, 0.12);
+  color: #9d9d98;
+  font-size: 14px;
+  letter-spacing: 0.02em;
 }
 
 /* ---- 截断提示行：不参与编号 ---- */
