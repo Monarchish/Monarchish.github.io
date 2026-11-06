@@ -44,8 +44,9 @@
   /* 内容块（照 OTL）：浅蓝底 + 深蓝细边；祈使句动词用灰底 */
   --vp-c-note-bg: #edf3fe;
   --vp-c-note-border: #b7cdec;
-  --vp-c-verb-bg: #e8eaee;
-  --vp-c-verb-text: #2b3038;
+  --vp-c-verb-bg: #f5f7f9;
+  --vp-c-verb-text: #0b1015;
+  --vp-c-verb-border: #cbd0d9;
   --vp-c-loop-bg: #dde8fb;
 }
 
@@ -504,15 +505,16 @@ a { color: var(--vp-c-brand-1); }
 /* 祈使句开头：按 OTL 的行内代码样式 —— 等宽字、浅灰底、整块加粗 */
 .acts li .verb, .run-acts li .verb {
   display: inline-block;
-  padding: 2px 6px;
+  padding: 1px 6px;
   margin-right: 6px;
+  border: 1px solid var(--vp-c-verb-border);
   border-radius: 4px;
   background: var(--vp-c-verb-bg);
   color: var(--vp-c-verb-text);
   font-family: var(--vp-font-family-mono);
   font-size: 13.5px;
   font-weight: 600;
-  line-height: 21px;
+  line-height: 18px;
   white-space: nowrap;
 }
 
