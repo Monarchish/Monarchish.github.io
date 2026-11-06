@@ -24,7 +24,7 @@ window.SOP_DATA = {
       "domain": "DAY",
       "code": "SOP-DAY-001",
       "title": "让步单",
-      "h1": "每日任务",
+      "h1": "让步单",
       "raw_title": "销售 · 让步单",
       "version": "v2.0",
       "owner": "施俊臣",

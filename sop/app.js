@@ -257,7 +257,6 @@
   function renderDetail(f, s) {
     return `<article class="step" id="${stepId(s.n)}" data-sn="${s.n}">
       <div class="step-h">
-        <span class="sn">${num(s.n)}</span>
         <h2>${esc(s.title)}</h2>
         ${STEP.ops ? `<span class="tm">${s.ops} 条操作</span>` : ""}
       </div>
