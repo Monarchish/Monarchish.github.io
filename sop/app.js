@@ -68,12 +68,14 @@
     const tree = $("#tree");
     const keep = tree.scrollTop;
     const cur = curFlow();
+    const q = (S.q || "").trim().toLowerCase();
+    const hit = (f) => !q || f.title.toLowerCase().indexOf(q) > -1 || f.steps.some((s) => s.title.toLowerCase().indexOf(q) > -1);
     let html = "";
 
     DOMAINS.forEach((d) => {
-      const flows = FLOWS.filter((f) => f.domain === d.id);
+      const flows = FLOWS.filter((f) => f.domain === d.id && hit(f));
       if (!flows.length) return;
-      const open = d.id === openDom();
+      const open = q ? true : d.id === openDom();
       html += `<div class="tnode${open ? " open" : ""}">
         <button class="trow lv1" data-toggle-dom="${d.id}">
           <span class="car"></span><span class="nm">${esc(d.name)}</span>
@@ -126,6 +128,10 @@
     if (S.view === "audit") c = `<b>完备度自检</b>`;
     if (S.view === "manifesto") c = `<b>纲要</b>`;
     $("#crumb").innerHTML = c;
+
+    /* 顶栏导航高亮当前域 */
+    const cur = f.domain;
+    $$("[data-dom-jump]").forEach((b) => b.classList.toggle("on", b.dataset.domJump === cur));
   }
 
   /* ---------------------------------------------------------------- 零件 */
@@ -198,6 +204,7 @@
       <div class="fhead">
         ${HEAD.code ? `<div class="fcode"><b>${esc(f.code)}</b><span>${esc(f.version)}</span><span>·</span><span>${esc(domainById(f.domain).name)}</span></div>` : ""}
         <h1>${esc(f.title)}</h1>
+        ${f.done ? `<p class="lead">${esc(f.done)}</p>` : ""}
 
         ${HEAD.facts ? `<dl class="facts">
           <div class="fact"><dt>什么时候走</dt><dd>${f.trigger.length ? esc(f.trigger.join(" · ")) : TODO("原文没有写触发条件")}</dd></div>
@@ -227,7 +234,7 @@
       <div class="sbwrap">
         ${f.steps.map((s) => {
           const doneAll = s.checks.length && stepDone(f.id, s) === s.checks.length;
-          return `<button class="sb ${s.n === S.step ? "on" : ""} ${doneAll ? "done" : ""}" data-step="${s.n}">${num(s.n)}</button>`;
+          return `<button class="sb ${s.n === S.step ? "on" : ""} ${doneAll ? "done" : ""}" data-step="${s.n}"><span class="no">${num(s.n)}</span>${esc(s.title)}</button>`;
         }).join("")}
       </div>
       ${STEP.list ? `<button class="tlink sbnote" data-list>全部步骤</button>` : ""}
@@ -430,6 +437,19 @@
     view.scrollTop = top;
     renderRail();
     renderTop();
+    renderOutline();
+  }
+
+  /* 右栏「页面导航」：当前流程的步骤 */
+  function renderOutline() {
+    const el = $("#outline");
+    if (!el) return;
+    if (S.view !== "flow") { el.innerHTML = ""; return; }
+    const f = curFlow();
+    el.innerHTML = `<div class="outline-title">页面导航</div>
+      <nav class="outline-list">
+        ${f.steps.map((s) => `<button class="outline-link${s.n === S.step && S.mode === "detail" ? " on" : ""}" data-step="${s.n}"><span class="idx">${num(s.n)}</span>${esc(s.title)}</button>`).join("")}
+      </nav>`;
   }
 
   function syncProgress() {
@@ -449,7 +469,7 @@
     store.lastFlow = fid; store.lastStep = step || 1;
     S.view = "flow"; S.flowId = fid; S.step = step || 1; S.mode = mode || "detail";
     save();
-    $("#rail").classList.remove("open");
+    document.body.classList.remove("nav-open");
     render();
     $("#view").scrollTop = 0;
     revealTree();
@@ -631,7 +651,7 @@
       S.view = viewBtn.dataset.view;
       render();
       $("#view").scrollTop = 0;
-      $("#rail").classList.remove("open");
+      document.body.classList.remove("nav-open");
       return;
     }
 
@@ -645,7 +665,14 @@
     const runStepBtn = t.closest("[data-run-step]");
     if (runStepBtn) { openRun(Number(runStepBtn.dataset.runStep)); return; }
 
-    if (t.closest("#menuBtn")) { $("#rail").classList.toggle("open"); return; }
+    if (t.closest("#menuBtn")) { document.body.classList.toggle("nav-open"); return; }
+
+    const domJump = t.closest("[data-dom-jump]");
+    if (domJump) {
+      const first = FLOWS.find((f) => f.domain === domJump.dataset.domJump);
+      if (first) { openFlow(first.id, 1, "detail"); document.body.classList.remove("nav-open"); }
+      return;
+    }
 
     if (t.closest("[data-run-close]")) { closeRun(); return; }
     if (t.closest("[data-run-list]")) { closeRun(); S.mode = "list"; S.view = "flow"; render(); return; }
@@ -675,14 +702,29 @@
   });
 
   document.addEventListener("input", (e) => {
-    if (e.target.id === "targetInput") { store.target[S.flowId] = e.target.value; save(); }
+    if (e.target.id === "targetInput") { store.target[S.flowId] = e.target.value; save(); return; }
+    if (e.target.id === "q") { S.q = e.target.value; renderTree(); }
   });
+
+  document.addEventListener("scroll", () => {}, true);
+
+  /* 顶栏分隔线：内容滚动后出现 */
+  $("#view").addEventListener("scroll", () => {
+    $("#nav").classList.toggle("scrolled", $("#view").scrollTop > 4);
+  }, { passive: true });
 
   document.addEventListener("keydown", (e) => {
     const inInput = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      const q = $("#q");
+      if (q) { e.preventDefault(); q.focus(); q.select(); }
+      return;
+    }
     if (e.key === "Escape") {
       if (S.run) { closeRun(); return; }
-      $("#rail").classList.remove("open");
+      document.body.classList.remove("nav-open");
+      const q = $("#q");
+      if (document.activeElement === q) { q.value = ""; S.q = ""; renderTree(); q.blur(); }
     }
     if (!S.run) return;
     if (!inInput && (e.key === "ArrowDown" || e.key === "ArrowRight")) {
