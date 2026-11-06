@@ -245,7 +245,6 @@
       ${STEP.desc ? `<p class="sum">${esc(s.summary)}</p>` : ""}
 
       <section class="sec">
-        <h3>怎么做</h3>
         <ol class="acts">${s.actions.map(actLi).join("")}</ol>
       </section>
 

@@ -459,8 +459,8 @@ a { color: var(--vp-c-brand-1); }
 .sec h3 { font-size: 18px; font-weight: 600; margin: 28px 0 10px; }
 .sec-slim h3 { border: none; }
 
-/* 动作清单 */
-.acts { list-style: none; counter-reset: none; margin: 8px 0 0; }
+/* 动作清单（标题下直接接动作，不再有「怎么做」小标） */
+.acts { list-style: none; counter-reset: none; margin: 18px 0 0; }
 .acts li {
   position: relative;
   padding: 7px 0;
