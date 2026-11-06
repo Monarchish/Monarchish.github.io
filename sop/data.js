@@ -11,7 +11,7 @@ window.SOP_DATA = {
     "stats": {
       "flows": 3,
       "steps": 10,
-      "ops": 106,
+      "ops": 111,
       "with_checks": 0,
       "with_exc": 0,
       "with_out": 0,
@@ -249,7 +249,7 @@ window.SOP_DATA = {
         "C9"
       ],
       "en": "",
-      "ops": 56,
+      "ops": 61,
       "steps": [
         {
           "n": 1,
@@ -283,7 +283,7 @@ window.SOP_DATA = {
           "title": "台账编辑",
           "summary": "",
           "code": false,
-          "ops": 12,
+          "ops": 14,
           "kind": "action",
           "actions": [
             "打开（Open）【云仓库存】",
@@ -299,7 +299,6 @@ window.SOP_DATA = {
             "筛选（Filter）[ 台账 · 入库日期（V） ]（空白）",
             "日期（Ctrl + ;）[ 台账 · 入库日期（V） ]",
             "填充（Ctrl + D）[ 台账 · 入库日期（V） ]",
-            "⚠核对：[ （BW） ] 列的数据应与 [ 客户（AG） ] 相同，不同的台账则需要修改",
             "保存（Ctrl + S）[ 台账 ]"
           ],
           "systems": [
@@ -317,23 +316,19 @@ window.SOP_DATA = {
           "title": "告知客户",
           "summary": "",
           "code": false,
-          "ops": 8,
+          "ops": 10,
           "kind": "action",
           "actions": [
             "打开（Open）【台账】",
             "筛选（Filter）[ 台账 · 客户（AG） ]（对应客户）",
             "筛选（Filter）[ 台账 · 入库日期（V） ]（当天 或 非空白）",
-            "⚠只要当天入库：筛选为 当天",
-            "⚠需要全部库存：筛选为 非空白",
             "筛选（Filter）[ 台账 · 收货款日（W） ]（空白）",
             "复制（Ctrl + C）以下列（逐列复制）",
             "明细：捆包号（S）、吨位（T）、入库日期（V）、期别（Z）、品名（AA）、产地（AB）、牌号（AC）、规格（AD）、仓库（AE）、钢厂资源号（AF）、客户（AG）、期别（AH）、销售金额（AI）、销售合同号（AT）",
             "新建（Ctrl + N）",
             "粘贴（Ctrl + V）",
             "保存（Ctrl + S）",
-            "输入（Type）[ 文件名 ]（命名规则见下）",
-            "⚠只要当天入库：“对应客户名称” + “入库” + “当天日期”",
-            "⚠需要全部库存：“对应客户名称” + “库存” + “当天日期”"
+            "输入（Type）[ 文件名 ]"
           ],
           "systems": [
             "台账"
@@ -349,7 +344,7 @@ window.SOP_DATA = {
           "title": "采购到货单编辑",
           "summary": "",
           "code": false,
-          "ops": 17,
+          "ops": 18,
           "kind": "action",
           "actions": [
             "打开（Open）【台账】",
