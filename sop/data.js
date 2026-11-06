@@ -11,7 +11,7 @@ window.SOP_DATA = {
     "stats": {
       "flows": 3,
       "steps": 10,
-      "ops": 106,
+      "ops": 108,
       "with_checks": 0,
       "with_exc": 0,
       "with_out": 0,
@@ -150,7 +150,7 @@ window.SOP_DATA = {
         "台账"
       ],
       "en": "",
-      "ops": 31,
+      "ops": 33,
       "steps": [
         {
           "n": 1,
@@ -183,7 +183,7 @@ window.SOP_DATA = {
           "title": "台账编辑",
           "summary": "",
           "code": false,
-          "ops": 23,
+          "ops": 25,
           "kind": "action",
           "actions": [
             "打开（Open）【下载文件】",
@@ -208,6 +208,8 @@ window.SOP_DATA = {
             "复制（Ctrl + C）[ 准发毛重（G2） ]",
             "打开（Open）【台账】",
             "粘贴（Ctrl + V）[ 新行 · 毛重（R列） ]",
+            "选择（Select）[ 期别（Z列） 到 （BW列） ]（从 搜索结果行 到 新行）",
+            "填充（Ctrl + D）",
             "保存（Ctrl + S）"
           ],
           "systems": [
