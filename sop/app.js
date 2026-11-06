@@ -224,27 +224,21 @@
         ${HEAD.faq ? faqBlock(f) : ""}
       </div>
 
-      ${S.mode === "detail" ? renderStepBar(f) + renderDetail(f, curStep()) : renderList(f)}
-      ${(S.mode === "detail" && STEP.foot) ? renderFoot(f, curStep()) : ""}
+      ${S.mode === "detail" ? renderAllSteps(f) : renderList(f)}
     </div>`;
   }
 
-  function renderStepBar(f) {
-    return `<div class="stepbar">
-      <div class="sbwrap">
-        ${f.steps.map((s) => {
-          const doneAll = s.checks.length && stepDone(f.id, s) === s.checks.length;
-          return `<button class="sb ${s.n === S.step ? "on" : ""} ${doneAll ? "done" : ""}" data-step="${s.n}"><span class="no">${num(s.n)}</span>${esc(s.title)}</button>`;
-        }).join("")}
-      </div>
-      ${STEP.list ? `<button class="tlink sbnote" data-list>全部步骤</button>` : ""}
-    </div>`;
+  /* 整条流程排成一页：每步一个 <article id="step-NN">，右栏与左栏都按锚点跳转 */
+  function stepId(n) { return "step-" + num(n); }
+
+  function renderAllSteps(f) {
+    return f.steps.map((s) => renderDetail(f, s)).join("");
   }
 
   function renderDetail(f, s) {
-    return `<article class="step">
+    return `<article class="step" id="${stepId(s.n)}" data-sn="${s.n}">
       <div class="step-h">
-        ${STEP.n ? `<span class="n">第 ${num(s.n)} 步</span>` : ""}
+        <span class="sn">${num(s.n)}</span>
         <h2>${esc(s.title)}</h2>
         ${STEP.ops ? `<span class="tm">${s.ops} 条操作</span>` : ""}
       </div>
@@ -440,16 +434,51 @@
     renderOutline();
   }
 
-  /* 右栏「页面导航」：当前流程的步骤 */
+  /* 右栏「页面导航」：当前流程的每一步，点一下滚到对应标题 */
   function renderOutline() {
     const el = $("#outline");
     if (!el) return;
-    if (S.view !== "flow") { el.innerHTML = ""; return; }
+    if (S.view !== "flow" || S.mode !== "detail") { el.innerHTML = ""; return; }
     const f = curFlow();
     el.innerHTML = `<div class="outline-title">页面导航</div>
       <nav class="outline-list">
-        ${f.steps.map((s) => `<button class="outline-link${s.n === S.step && S.mode === "detail" ? " on" : ""}" data-step="${s.n}"><span class="idx">${num(s.n)}</span>${esc(s.title)}</button>`).join("")}
+        ${f.steps.map((s) => `<button class="outline-link${s.n === S.step ? " on" : ""}" data-anchor="${stepId(s.n)}"><span class="idx">${num(s.n)}</span>${esc(s.title)}</button>`).join("")}
       </nav>`;
+  }
+
+  /* 点右栏的 01 / 02：把对应步骤标题滚到视口顶部下方一点（留 28px 呼吸） */
+  function scrollToStep(id, behavior) {
+    const view = $("#view");
+    const el = document.getElementById(id);
+    if (!view || !el) return;
+    const top = el.getBoundingClientRect().top - view.getBoundingClientRect().top + view.scrollTop - 28;
+    view.scrollTo({ top: Math.max(0, top), behavior: behavior || "smooth" });
+  }
+
+  /* 滚到哪一步，哪一步就算「当前」：右栏高亮、左栏跟着亮、面包屑跟着换 */
+  function syncActive(n) {
+    $$("#outline .outline-link").forEach((el) => el.classList.toggle("on", el.dataset.anchor === stepId(n)));
+    $$("#tree .trow.lv3").forEach((el) => el.classList.toggle("on", el.dataset.goto === S.flowId + ":" + n));
+    renderTop();
+  }
+
+  let spyTick = 0;
+  function spyOnScroll() {
+    if (spyTick) return;
+    spyTick = requestAnimationFrame(() => {
+      spyTick = 0;
+      if (S.view !== "flow" || S.mode !== "detail") return;
+      const view = $("#view");
+      const steps = $$(".step", view);
+      if (!steps.length) return;
+      const base = view.getBoundingClientRect().top;
+      let n = Number(steps[0].dataset.sn);
+      for (let i = 0; i < steps.length; i++) {
+        if (steps[i].getBoundingClientRect().top - base <= 96) n = Number(steps[i].dataset.sn);
+        else break;
+      }
+      if (n !== S.step) { S.step = n; syncActive(n); }
+    });
   }
 
   function syncProgress() {
@@ -472,6 +501,7 @@
     document.body.classList.remove("nav-open");
     render();
     $("#view").scrollTop = 0;
+    if (step && step > 1) scrollToStep(stepId(step), "auto");
     revealTree();
   }
 
@@ -624,17 +654,32 @@
       return;
     }
 
+    const anchorBtn = t.closest("[data-anchor]");
+    if (anchorBtn) {
+      const id = anchorBtn.dataset.anchor;
+      const n = Number(id.slice(5));
+      S.step = n;
+      syncActive(n);
+      scrollToStep(id);
+      if (history.replaceState) history.replaceState(null, "", "#" + id);
+      return;
+    }
+
     const rowStep = t.closest("tr[data-step]");
-    if (rowStep) { S.step = Number(rowStep.dataset.step); S.mode = "detail"; render(); $("#view").scrollTop = 0; return; }
+    if (rowStep) {
+      S.step = Number(rowStep.dataset.step); S.mode = "detail";
+      render(); scrollToStep(stepId(S.step), "auto");
+      return;
+    }
 
     const stepBtn = t.closest("[data-step]");
     if (stepBtn) {
       S.step = Number(stepBtn.dataset.step);
       if (S.run) { S.runStep = S.step; renderRun(); return; }
+      if (S.mode === "detail") { syncActive(S.step); scrollToStep(stepId(S.step)); return; }
       S.mode = "detail";
       render();
-      /* 切步后回到页面顶部，让「流程标题 + 步骤条」始终可见 */
-      $("#view").scrollTop = 0;
+      scrollToStep(stepId(S.step), "auto");
       return;
     }
 
@@ -658,7 +703,13 @@
     const gotoBtn = t.closest("[data-goto]");
     if (gotoBtn) {
       const p = gotoBtn.dataset.goto.split(":");
-      openFlow(p[0], Number(p[1]), "detail");
+      const n = Number(p[1]);
+      /* 同一条流程里点步骤：不重绘，直接滚过去；跨流程才切 */
+      if (S.view === "flow" && S.flowId === p[0] && S.mode === "detail") {
+        S.step = n; syncActive(n); scrollToStep(stepId(n));
+        return;
+      }
+      openFlow(p[0], n, "detail");
       return;
     }
 

@@ -21,12 +21,17 @@
   --vp-c-divider: #e2e2e3;
   --vp-c-gutter: #e2e2e3;
 
-  /* 尺寸 */
+  /* 尺寸。--vp-layout-max 是「正文可用区」的最大宽（= 1440 - 两侧各 32 留白），
+     与顶栏同宽，保证 logo、左栏首字、正文首字、右栏末字四条竖线对得齐。 */
   --vp-nav-height: 64px;
   --vp-sidebar-width: 272px;
   --vp-aside-width: 224px;
   --vp-content-width: 688px;
-  --vp-layout-max: 1376px;
+  --vp-layout-max: 1408px;
+  /* 两侧留白：视口比布局宽时对称加宽，任何宽度下都至少留 32px，
+     绝不让左右栏顶着窗口边。--vp-pad 是左右两栏真正用的内缩。 */
+  --vp-gutter: max(0px, calc((100vw - var(--vp-layout-max)) / 2));
+  --vp-pad: calc(var(--vp-gutter) + 32px);
 
   /* 字体 */
   --vp-font-family-base: "Inter Core", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", BlinkMacSystemFont, sans-serif;
@@ -187,11 +192,11 @@ svg { display: block; }
   top: var(--vp-nav-height);
   left: 0;
   bottom: 0;
-  width: var(--vp-sidebar-width);
-  background: var(--vp-c-bg-alt);
+  width: calc(var(--vp-pad) + var(--vp-sidebar-width));
+  background: transparent;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 24px 0 96px;
+  padding: 24px 0 96px var(--vp-pad);
   scrollbar-width: thin;
 }
 
@@ -206,7 +211,7 @@ svg { display: block; }
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 5px 24px 5px 32px;
+  padding: 5px 24px 5px 0;
   font-size: 14px;
   font-weight: 700;
   line-height: 24px;
@@ -222,7 +227,7 @@ svg { display: block; }
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 4px 24px 4px 32px;
+  padding: 4px 24px 4px 0;
   font-size: 14px;
   font-weight: 500;
   line-height: 24px;
@@ -239,7 +244,7 @@ svg { display: block; }
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 3px 24px 3px 56px;
+  padding: 3px 24px 3px 24px;
   font-size: 13px;
   line-height: 22px;
   color: var(--vp-c-text-3);
@@ -292,9 +297,9 @@ svg { display: block; }
 .VPContent {
   display: flex;
   align-items: flex-start;
-  margin-left: var(--vp-sidebar-width);
+  margin-left: calc(var(--vp-pad) + var(--vp-sidebar-width));
   padding-top: var(--vp-nav-height);
-  padding-right: 32px;
+  padding-right: var(--vp-pad);
   height: 100vh;
   overflow: hidden;
 }
@@ -305,12 +310,12 @@ svg { display: block; }
   height: calc(100vh - var(--vp-nav-height));
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 0 64px;
+  padding: 0 48px;
 }
 
 .page {
   max-width: var(--vp-content-width);
-  margin: 0;
+  margin: 0 auto;
   padding: 48px 0 128px;
 }
 .page.wide { max-width: 100%; }
@@ -321,7 +326,7 @@ svg { display: block; }
   width: var(--vp-aside-width);
   height: calc(100vh - var(--vp-nav-height));
   overflow-y: auto;
-  padding: 48px 32px 96px 0;
+  padding: 48px 0 96px 32px;
   flex: 0 0 var(--vp-aside-width);
 }
 
@@ -356,8 +361,16 @@ svg { display: block; }
 }
 .outline-link.on .idx { color: var(--vp-c-brand-1); }
 
-@media (min-width: 1280px) {
+/* 右栏（页面导航）在 1080 以上出现：宽屏笔记本也能一眼看到步骤锚点 */
+@media (min-width: 1080px) {
   .VPDocAside { display: block; }
+}
+
+/* 1080–1279：空间紧，右栏和正文内边距各让一点，保证正文仍有 500px 以上 */
+@media (min-width: 1080px) and (max-width: 1279px) {
+  :root { --vp-aside-width: 184px; }
+  .VPDoc { padding: 0 28px; }
+  .VPDocAside { padding-left: 20px; }
 }
 
 /* ============================================================ 文档排版 */
@@ -410,47 +423,7 @@ a { color: var(--vp-c-brand-1); }
 /* 已关闭的旧块兜底 */
 .fcode, .facts, .metarow, .sum, .sfoot, .raw, .phead { display: none; }
 
-/* ============================================================ 步骤 tabs */
-.stepbar {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin: 28px 0 0;
-  border-bottom: 1px solid var(--vp-c-divider);
-}
-.sbwrap { display: flex; align-items: center; gap: 2px; overflow-x: auto; scrollbar-width: none; }
-.sbwrap::-webkit-scrollbar { display: none; }
-
-.sb {
-  position: relative;
-  padding: 0 12px 10px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 22px;
-  color: var(--vp-c-text-2);
-  white-space: nowrap;
-  transition: color 0.2s;
-}
-.sb:hover { color: var(--vp-c-text-1); }
-.sb.on { color: var(--vp-c-brand-1); }
-.sb.on::after {
-  content: "";
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: -1px;
-  height: 2px;
-  background: var(--vp-c-brand-1);
-  border-radius: 2px 2px 0 0;
-}
-.sb .no {
-  font-family: var(--vp-font-family-mono);
-  font-size: 11px;
-  color: var(--vp-c-text-3);
-  margin-right: 7px;
-}
-.sb.on .no { color: var(--vp-c-brand-1); }
-
+/* ============================================================ 正文里的普通链接 */
 .tlink {
   font-size: 14px;
   color: var(--vp-c-brand-1);
@@ -458,15 +431,28 @@ a { color: var(--vp-c-brand-1); }
 }
 .tlink:hover { text-decoration: underline; }
 
-/* ============================================================ 步骤内容 */
-.step { display: block; }
-.step-h { display: block; }
-.step-h h2 {
-  margin: 40px 0 16px;
-  padding-top: 0;
-  border-top: none;
-  font-size: 22px;
+/* ============================================================ 步骤内容（全流程同一页连续排） */
+.step { display: block; scroll-margin-top: 24px; }
+.step-h {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 52px 0 4px;
+  padding-top: 28px;
+  border-top: 1px solid var(--vp-c-divider);
 }
+.step:first-of-type .step-h { margin-top: 44px; }
+.step-h .sn {
+  flex: 0 0 auto;
+  position: relative;
+  top: -2px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 12.5px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--vp-c-text-3);
+}
+.step-h h2 { margin: 0; padding: 0; border: none; font-size: 22px; line-height: 30px; }
 .step-h .n, .step-h .tm { display: none; }
 
 .sec { margin: 0; }
@@ -580,7 +566,7 @@ table.tbl tr:hover td { background: var(--vp-c-bg-soft); }
 .local-crumb b { font-weight: 500; color: var(--vp-c-text-1); }
 .local-crumb .sep { color: var(--vp-c-text-3); }
 
-@media (max-width: 1279px) {
+@media (max-width: 1079px) {
   .VPDocAside { display: none; }
 }
 
@@ -593,8 +579,11 @@ table.tbl tr:hover td { background: var(--vp-c-bg-soft); }
 
   .VPSidebar {
     top: 0;
+    left: 0;
     width: 280px;
     padding-top: 16px;
+    padding-left: 20px;
+    background: var(--vp-c-bg-alt);
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
     transform: translateX(-100%);
     transition: transform 0.25s ease;
