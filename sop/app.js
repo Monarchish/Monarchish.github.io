@@ -466,6 +466,7 @@
     renderRail();
     renderTop();
     renderOutline();
+    spyCalc();
   }
 
   /* 右栏「页面导航」：当前流程的每一步，点一下滚到对应标题 */
@@ -496,23 +497,36 @@
     renderTop();
   }
 
-  let spyTick = 0;
+  /* 滚动监听：谁滚到视口顶部附近，谁就是「当前」——右栏高亮、左栏与面包屑跟着换。
+     用「时间戳节流 + 尾部补一次」代替 rAF 门闩，避免 rAF 不回调时状态被永久卡死。 */
+  let spyLast = 0, spyTimer = 0;
+  function spyCalc() {
+    if (S.view !== "flow" || S.mode !== "detail") return;
+    const view = $("#view");
+    if (!view) return;
+    const steps = $$(".step", view);
+    if (!steps.length) return;
+    const base = view.getBoundingClientRect().top;
+    /* 判定线放在视口顶部往下 96px：标题刚滑到这条线以上，就算进入该段 */
+    let n = Number(steps[0].dataset.sn);
+    for (let i = 0; i < steps.length; i++) {
+      if (steps[i].getBoundingClientRect().top - base <= 96) n = Number(steps[i].dataset.sn);
+      else break;
+    }
+    /* 已经滚到底：最后一步哪怕顶不到判定线，也算当前 */
+    if (view.scrollTop + view.clientHeight >= view.scrollHeight - 4) {
+      n = Number(steps[steps.length - 1].dataset.sn);
+    }
+    if (n !== S.step) { S.step = n; syncActive(n); }
+  }
   function spyOnScroll() {
-    if (spyTick) return;
-    spyTick = requestAnimationFrame(() => {
-      spyTick = 0;
-      if (S.view !== "flow" || S.mode !== "detail") return;
-      const view = $("#view");
-      const steps = $$(".step", view);
-      if (!steps.length) return;
-      const base = view.getBoundingClientRect().top;
-      let n = Number(steps[0].dataset.sn);
-      for (let i = 0; i < steps.length; i++) {
-        if (steps[i].getBoundingClientRect().top - base <= 96) n = Number(steps[i].dataset.sn);
-        else break;
-      }
-      if (n !== S.step) { S.step = n; syncActive(n); }
-    });
+    const now = performance.now();
+    if (now - spyLast < 48) {
+      if (!spyTimer) spyTimer = setTimeout(() => { spyTimer = 0; spyOnScroll(); }, 60);
+      return;
+    }
+    spyLast = now;
+    spyCalc();
   }
 
   function syncProgress() {
@@ -794,10 +808,14 @@
 
   document.addEventListener("scroll", () => {}, true);
 
-  /* 顶栏分隔线：内容滚动后出现 */
+  /* 顶栏分隔线：内容滚动后出现；滚动时同步右栏高亮 */
   $("#view").addEventListener("scroll", () => {
     $("#nav").classList.toggle("scrolled", $("#view").scrollTop > 4);
+    spyOnScroll();
   }, { passive: true });
+
+  /* 窗口尺寸变化后，段落位置会变，重算一次当前段 */
+  window.addEventListener("resize", () => spyCalc(), { passive: true });
 
   document.addEventListener("keydown", (e) => {
     const inInput = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
