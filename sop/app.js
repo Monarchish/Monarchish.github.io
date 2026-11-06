@@ -146,9 +146,12 @@
 
   /* 括号语法着色：动作串里四类对象各用一种样式（已转义的文本上匹配，<> 不受影响） */
   const TOKEN = /【[^】]*】|〈[^〉]*〉|〔[^〕]*〕|\[[^\]]*\]|“[^”]*”/g;
-  const TCLASS = { "【": "sys", "〈": "menu", "〔": "ext", "[": "field", "“": "quote" };
+  /* 连接词（从 / 到 / 或 / 和）加粗，夹在符号之间才认 */
+  const CONN = /([\s）〉】\]”]|^)(从|到|或|和)(?=[\s〈【\[“])/g;
   const decorate = (t) =>
-    t.replace(TOKEN, (s) => `<span class="tk ${TCLASS[s[0]]}">${s}</span>`);
+    t
+      .replace(CONN, (_, pre, w) => `${pre}<strong class="cn">${w}</strong>`)
+      .replace(TOKEN, (s) => `<span class="tk">${s}</span>`);
 
   const actLi = (a) => {
     if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;

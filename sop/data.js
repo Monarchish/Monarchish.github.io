@@ -51,7 +51,7 @@ window.SOP_DATA = {
             "打开（Open）【宝时达】",
             "进入（Go to）〈全部菜单〉→〈订单管理〉→〈让步接收单〉",
             "截图（Ctrl + Alt + A）",
-            "框选（Drag-select）From [ 让步申请单号 ] to [ 交货月 ]",
+            "框选（Drag-select）从 [ 让步申请单号 ] 到 [ 交货月 ]",
             "（让步申请单号、钢厂订单号、变更原因、变更描述、规格、牌号、品种、制造单元、交货月）",
             "点击（Left Click）〈完成〉"
           ],
@@ -70,7 +70,7 @@ window.SOP_DATA = {
           "ops": 4,
           "kind": "action",
           "actions": [
-            "打开（Open）【QQ】or【微信】",
+            "打开（Open）【QQ】或【微信】",
             "粘贴（Ctrl + V）[ 对话框 ]",
             "输入（Type）[ 输入框 ]“领导这个让步单要吗”",
             "点击（Left Click）〈发送〉"
@@ -93,8 +93,8 @@ window.SOP_DATA = {
             "打开（Open）【宝时达】",
             "进入（Go to）〈全部菜单〉→〈订单管理〉→〈让步接收单〉",
             "点击（Left Click）〈操作 - 让步接收单确认〉",
-            "点击（Left Click）〈同意〉or〈不同意〉",
-            "输入（Type）[ 回复意见 ]“用户同意接受”or“用户不同意接受”",
+            "点击（Left Click）〈同意〉或〈不同意〉",
+            "输入（Type）[ 回复意见 ]“用户同意接受”或“用户不同意接受”",
             "点击（Left Click）〈提交〉"
           ],
           "systems": ["宝时达"],
