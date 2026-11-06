@@ -40,6 +40,13 @@
   --vp-code-bg: rgba(142, 150, 170, 0.14);
   --vp-code-color: #3451b2;
   --vp-code-block-bg: #f6f6f7;
+
+  /* 内容块（照 OTL）：浅蓝底 + 深蓝细边；祈使句动词用灰底 */
+  --vp-c-note-bg: #edf3fe;
+  --vp-c-note-border: #b7cdec;
+  --vp-c-verb-bg: #e7e8eb;
+  --vp-c-verb-text: #24282e;
+  --vp-c-loop-bg: #dde8fb;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -449,8 +456,8 @@ a { color: var(--vp-c-brand-1); }
   display: flex;
   align-items: baseline;
   gap: 10px;
-  margin: 52px 0 4px;
-  padding-top: 28px;
+  margin: 44px 0 4px;
+  padding-top: 24px;
   border-top: 1px solid var(--vp-c-divider);
 }
 .step:first-of-type .step-h { margin-top: 44px; }
@@ -471,41 +478,101 @@ a { color: var(--vp-c-brand-1); }
 .sec h3 { font-size: 18px; font-weight: 600; margin: 28px 0 10px; }
 .sec-slim h3 { border: none; }
 
-/* 动作清单（标题下直接接动作，不再有「怎么做」小标） */
-.acts { list-style: none; counter-reset: none; margin: 18px 0 0; }
+/* 动作清单：整块装进「蓝底 + 深蓝细边」的内容块里（照 OTL 的内容区） */
+.sbody {
+  margin: 16px 0 0;
+  padding: 14px 22px 18px 20px;
+  background: var(--vp-c-note-bg);
+  border: 1px solid var(--vp-c-note-border);
+  border-radius: 8px;
+}
+.acts { list-style: none; counter-reset: none; margin: 0; }
 .acts li {
   position: relative;
-  padding: 7px 0;
-  font-size: 16px;
-  line-height: 28px;
+  padding: 6px 0;
+  font-size: 15.5px;
+  line-height: 26px;
   color: var(--vp-c-text-1);
 }
 .acts li::before { content: none; }
 
-/* 动词：VitePress 行内 code 的观感 */
+/* 动作行：动词一列、内容一列，长句换行也不会顶到左边缘 */
+.acts li.act { display: flex; align-items: baseline; gap: 9px; }
+.acts li.act .txt { flex: 1 1 auto; min-width: 0; }
+.acts li.act .verb { margin-right: 0; }
+
+/* 祈使句开头：动词整体一个灰底色块，加粗，括号内英文两侧留白 */
 .acts li .verb, .run-acts li .verb {
   display: inline-block;
-  padding: 2px 6px;
-  margin-right: 7px;
-  border-radius: 4px;
-  background: var(--vp-code-bg);
-  color: var(--vp-code-color);
-  font-family: var(--vp-font-family-mono);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 22px;
+  padding: 1px 8px;
+  margin-right: 6px;
+  border-radius: 5px;
+  background: var(--vp-c-verb-bg);
+  color: var(--vp-c-verb-text);
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 23px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  vertical-align: 1px;
 }
 
-/* 明细：blockquote */
+/* 明细 / 括号补充：紧贴上一行，缩进一级、字变浅 */
+.acts li.sub {
+  margin: -3px 0 6px 0;
+  padding: 0 0 0 22px;
+  font-size: 14.5px;
+  line-height: 25px;
+  color: #5a6880;
+}
 .acts li .adetail, .run-acts li .adetail {
   display: block;
-  margin: 6px 0 2px;
-  padding-left: 16px;
+  margin: 5px 0 2px;
+  padding-left: 14px;
   border-left: 2px solid var(--vp-c-divider);
   font-size: 15px;
   line-height: 26px;
   color: var(--vp-c-text-2);
 }
+
+/* 序号条目（1、2、） */
+.acts li.num {
+  margin-left: 8px;
+  padding-left: 16px;
+  font-size: 14.5px;
+  line-height: 25px;
+  color: var(--vp-c-text-2);
+}
+
+/* 循环标记：【开始循环】【结束循环】 */
+.acts li.loop { padding: 9px 0 5px; }
+.acts li.loop span {
+  display: inline-block;
+  padding: 0 9px;
+  border-radius: 4px;
+  background: var(--vp-c-loop-bg);
+  color: var(--vp-c-brand-1);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 21px;
+  letter-spacing: 0.06em;
+}
+
+/* 警示行：⚠注意 */
+.acts li.warn {
+  margin: 10px 0 4px;
+  padding: 8px 14px;
+  border-left: 3px solid #e2a33c;
+  border-radius: 0 6px 6px 0;
+  background: #fdf7ea;
+  color: #7a5a10;
+  font-size: 14.5px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+/* 单个按键：Enter */
+.acts li.key .verb { background: var(--vp-c-verb-bg); }
 
 /* 分支：客户同意 / 客户不同意 */
 .acts li.br, .run-acts li.br {
@@ -611,7 +678,10 @@ table.tbl tr:hover td { background: var(--vp-c-bg-soft); }
   h2 { font-size: 21px; line-height: 30px; }
   .step-h h2 { font-size: 20px; }
   .acts li { font-size: 15px; line-height: 26px; }
-  .acts li .verb { font-size: 13px; }
+  .acts li .verb { font-size: 13.5px; }
+  .sbody { padding: 10px 14px 14px 12px; }
+  .acts li.sub { padding-left: 14px; }
+  .acts li.act { gap: 7px; }
 }
 
 /* ============================================================ 执行态 */

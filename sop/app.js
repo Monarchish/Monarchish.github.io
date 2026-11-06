@@ -137,17 +137,30 @@
   const SPACED = (t) => t.replace(/（([^（）]+)）/, "（ $1 ）");
   /* 括号明细（明细：…）单独成行 */
   const DETAIL = /（明细：[^）]*）\s*$/;
+  /* OTL 里另外几类行：循环标记 / 警示 / 纯明细括号 / 序号条目 / 单个按键 */
+  const LOOP = /^【[^】]+】$/;
+  const WARN = /^⚠/;
+  const SUB = /^（.+）$/;
+  const NUM = /^\d+\s*[、.．]/;
+  const ONEKEY = /^(Enter|Return|Esc|Tab|Space|F\d{1,2}|Alt|Ctrl|Shift)$/i;
+
   const actLi = (a) => {
     if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;
+    if (LOOP.test(a)) return `<li class="loop"><span>${esc(a)}</span></li>`;
+    if (WARN.test(a)) return `<li class="warn">${esc(a)}</li>`;
     if (BRANCH.test(a)) return `<li class="br">${esc(a)}</li>`;
+    if (ONEKEY.test(a.trim())) return `<li class="act key"><span class="verb">${esc(a.trim())}</span></li>`;
     const dm = a.match(DETAIL);
     const main = dm ? a.slice(0, dm.index).trimEnd() : a;
     const det = dm ? `<span class="adetail">${esc(dm[0])}</span>` : "";
     const m = main.match(VERB);
-    const body = m
-      ? `<span class="verb">${esc(SPACED(m[1]))}</span>${esc(main.slice(m[1].length).replace(/^\s+/, ""))}${det}`
-      : esc(main) + det;
-    return `<li>${body}</li>`;
+    if (m) {
+      const rest = main.slice(m[1].length).replace(/^\s+/, "");
+      return `<li class="act"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${esc(rest)}${det}</span></li>`;
+    }
+    if (SUB.test(main)) return `<li class="sub">${esc(main)}</li>`;
+    if (NUM.test(main)) return `<li class="num">${esc(main)}</li>`;
+    return `<li>${esc(main)}${det}</li>`;
   };
 
   function rawBlock(s) {
@@ -197,7 +210,7 @@
     return `<div class="page">
       <div class="fhead">
         ${HEAD.code ? `<div class="fcode"><b>${esc(f.code)}</b><span>${esc(f.version)}</span><span>·</span><span>${esc(domainById(f.domain).name)}</span></div>` : ""}
-        <h1>${esc(f.title)}</h1>
+        <h1>${esc(f.h1 || f.title)}</h1>
         ${f.done ? `<p class="lead">${esc(f.done)}</p>` : ""}
 
         ${HEAD.facts ? `<dl class="facts">
@@ -239,7 +252,7 @@
       ${STEP.desc ? `<p class="sum">${esc(s.summary)}</p>` : ""}
 
       <section class="sec">
-        <ol class="acts">${s.actions.map(actLi).join("")}</ol>
+        <div class="sbody"><ol class="acts">${s.actions.map(actLi).join("")}</ol></div>
       </section>
 
       ${(STEP.tools && s.systems.length) ? `<section class="sec">
