@@ -150,10 +150,27 @@
   const TOKEN = /【[^】]*】|〈[^〉]*〉|〔[^〕]*〕|\[[^\]]*\]|“[^”]*”/g;
   /* 连接词（从 / 到 / 或 / 和）加粗，夹在符号之间才认 */
   const CONN = /([\s）〉】\]”]|^)(从|到|或|和)(?=[\s〈【\[“])/g;
-  const decorate = (t) =>
-    t
+  /* 括号与内容之间各留一个空格：【宝时达】→【 宝时达 】，“文字”→“ 文字 ” */
+  const PAD = { "【": "】", "〈": "〉", "〔": "〕", "[": "]", "“": "”" };
+  const spacedToken = (t) => {
+    const close = PAD[t[0]];
+    if (!close) return t;
+    const inner = t.slice(1, -1).trim();
+    return `${t[0]} ${inner} ${close}`;
+  };
+  /* 相邻的两个符号之间也留一个空格：][ → ] [、】或 → 】 或 */
+  const SPACE_OUT = [
+    [/([】〉〕\]”])(?=[【〈〔\[“])/g, "$1 "],
+    [/([】〉〕\]”])(?=[从到或和])/g, "$1 "],
+    [/(从|到|或|和)(?=[【〈〔\[“])/g, "$1 "],
+  ];
+  const decorate = (t) => {
+    let out = t;
+    for (const [re, rep] of SPACE_OUT) out = out.replace(re, rep);
+    return out
       .replace(CONN, (_, pre, w) => `${pre}<strong class="cn">${w}</strong>`)
-      .replace(TOKEN, (s) => `<span class="tk">${s}</span>`);
+      .replace(TOKEN, (s) => `<span class="tk">${spacedToken(s)}</span>`);
+  };
 
   const actLi = (a) => {
     if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;

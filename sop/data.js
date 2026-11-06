@@ -9,7 +9,7 @@ window.SOP_DATA = {
     "owner": "施俊臣",
     "updated": "2026-11-06",
     "source": "《支援未来》OTL 大纲",
-    "stats": { "flows": 1, "steps": 3, "ops": 16, "with_checks": 0, "with_exc": 0, "with_out": 0, "no_trigger": 1 },
+    "stats": { "flows": 1, "steps": 3, "ops": 17, "with_checks": 0, "with_exc": 0, "with_out": 0, "no_trigger": 1 },
     "manifesto": [],
     "history": []
   },
@@ -37,7 +37,7 @@ window.SOP_DATA = {
       "roles": "施俊臣",
       "systems": ["宝时达", "QQ", "微信"],
       "en": "",
-      "ops": 16,
+      "ops": 17,
 
       "steps": [
         {
@@ -87,7 +87,7 @@ window.SOP_DATA = {
           "title": "让步单回复",
           "summary": "",
           "code": false,
-          "ops": 6,
+          "ops": 7,
           "kind": "action",
           "actions": [
             "打开（Open）【宝时达】",
@@ -95,7 +95,8 @@ window.SOP_DATA = {
             "点击（Left Click）〈操作 - 让步接收单确认〉",
             "点击（Left Click）〈同意〉或〈不同意〉",
             "输入（Type）[ 回复意见 ]“用户同意接受”或“用户不同意接受”",
-            "点击（Left Click）〈提交〉"
+            "点击（Left Click）〈提交〉",
+            "点击（Left Click）〈确定〉"
           ],
           "systems": ["宝时达"],
           "outputs": [],
