@@ -172,9 +172,10 @@
       .replace(TOKEN, (s) => `<span class="tk">${spacedToken(s)}</span>`);
   };
 
-  /* 每条动作前可以带一个小铃铛 —— OTL 里用 🔔 标「从这里开始」 */
-  const BELL = `<span class="bell" aria-hidden="true">🔔</span>`;
-  const actLi = (a, first) => {
+  /* 🔔 是 OTL 自带的标记，不属于内容，渲染时一律剔除 */
+  const NOBELL = (t) => t.replace(/🔔/g, "").replace(/^\s+/, "");
+  const actLi = (a) => {
+    a = NOBELL(a);
     if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;
     if (LOOP.test(a)) return `<li class="loop"><span>${esc(a)}</span></li>`;
     if (WARN.test(a)) return `<li class="warn">${esc(a)}</li>`;
@@ -186,7 +187,7 @@
     const m = main.match(VERB);
     if (m) {
       const rest = main.slice(m[1].length).replace(/^\s+/, "");
-      return `<li class="act${first ? " first" : ""}">${first ? BELL : ""}<span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${decorate(esc(rest))}${det}</span></li>`;
+      return `<li class="act"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${decorate(esc(rest))}${det}</span></li>`;
     }
     if (QUOTE.test(main)) return `<li class="quote">${decorate(esc(main))}</li>`;
     if (SUB.test(main)) return `<li class="sub">${decorate(esc(main))}</li>`;
@@ -282,7 +283,7 @@
       ${STEP.desc ? `<p class="sum">${esc(s.summary)}</p>` : ""}
 
       <section class="sec">
-        <div class="sbody"><ol class="acts">${s.actions.map((a, i) => actLi(a, i === 0)).join("")}</ol></div>
+        <div class="sbody"><ol class="acts">${s.actions.map(actLi).join("")}</ol></div>
       </section>
 
       ${(STEP.tools && s.systems.length) ? `<section class="sec">

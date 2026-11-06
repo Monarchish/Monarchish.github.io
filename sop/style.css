@@ -484,7 +484,7 @@ a { color: var(--vp-c-brand-1); }
 /* 动作清单：整块装进「蓝底 + 深蓝细边」的内容块里（照 OTL 的内容区） */
 .sbody {
   margin: 16px 0 0;
-  padding: 14px 22px 18px 40px;
+  padding: 14px 22px 18px 20px;
   background: var(--vp-c-note-bg);
   border: 1px solid var(--vp-c-note-border);
   border-radius: 8px;
@@ -495,7 +495,7 @@ a { color: var(--vp-c-brand-1); }
   padding: 6px 0;
   font-size: 15.5px;
   line-height: 26px;
-  color: var(--vp-c-text-1);
+  color: #080f17; /* OTL 正文近黑 */
 }
 .acts li::before { content: none; }
 
@@ -503,17 +503,6 @@ a { color: var(--vp-c-brand-1); }
 .acts li.act { display: flex; align-items: baseline; gap: 9px; }
 .acts li.act .txt { flex: 1 1 auto; min-width: 0; }
 .acts li.act .verb { margin-right: 0; }
-
-/* 首行铃铛：绝对定位在面板左侧留白里，不把首行的代码块顶歪 */
-.acts li.act .bell {
-  position: absolute;
-  left: -24px;
-  top: 3px;
-  width: 18px;
-  font-size: 13px;
-  line-height: 20px;
-  text-align: center;
-}
 
 /* 祈使句开头：按 OTL 的行内代码样式 —— 等宽字、浅灰底、整块加粗 */
 .acts li .verb, .run-acts li .verb {
@@ -709,7 +698,6 @@ table.tbl tr:hover td { background: var(--vp-c-bg-soft); }
   .acts li { font-size: 15px; line-height: 26px; }
   .acts li .verb { font-size: 14px; }
   .sbody { padding: 10px 14px 14px 12px; }
-  .acts li.act .bell { display: none; }
   .acts li.sub { padding-left: 14px; }
   .acts li.act { gap: 7px; }
 }
