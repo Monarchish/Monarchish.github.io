@@ -219,7 +219,9 @@ svg { display: block; }
 }
 .trow.lv1 .car { order: 2; margin-left: auto; }
 
-#tree > .tnode > .tkids { padding-top: 6px; padding-bottom: 4px; }
+/* 二级（流程列表）随分组展开/收起，箭头同步旋转（点分组标题即收放） */
+#tree > .tnode > .tkids { display: none; padding-top: 6px; padding-bottom: 4px; }
+#tree > .tnode.open > .tkids { display: block; }
 
 .trow.lv2 {
   position: relative;
@@ -330,36 +332,46 @@ svg { display: block; }
   flex: 0 0 var(--vp-aside-width);
 }
 
+/* 严格照 VitePress VPDocAsideOutline：标题 13/32 600，条目 13/32 400，
+   左侧 1px 细线，当前项用 2px 蓝条（marker）标记，不再带 01/02 编号 */
 .outline-title {
-  font-size: 13px;
+  line-height: 32px;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 20px;
   color: var(--vp-c-text-1);
-  margin-bottom: 8px;
-  padding-left: 14px;
+  padding-left: 16px;
+  margin-bottom: 0;
 }
-.outline-list { border-left: 1px solid var(--vp-c-divider); }
+.outline-list {
+  position: relative;
+  border-left: 1px solid var(--vp-c-divider);
+  padding: 0;
+}
 .outline-link {
+  position: relative;
   display: block;
   width: 100%;
-  padding: 2px 0 2px 14px;
-  margin-left: -1px;
-  border-left: 1px solid transparent;
-  font-size: 13px;
-  line-height: 26px;
+  padding: 0 0 0 16px;
+  border: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 32px;
   color: var(--vp-c-text-2);
   text-align: left;
-  transition: color 0.2s, border-color 0.2s;
+  transition: color 0.25s;
 }
 .outline-link:hover { color: var(--vp-c-text-1); }
-.outline-link.on { color: var(--vp-c-brand-1); border-left-color: var(--vp-c-brand-1); }
-.outline-link .idx {
-  font-family: var(--vp-font-family-mono);
-  font-size: 10.5px;
-  color: var(--vp-c-text-3);
-  margin-right: 6px;
+.outline-link.on { color: var(--vp-c-brand-1); }
+.outline-link.on::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 7px;
+  width: 2px;
+  height: 18px;
+  background: var(--vp-c-brand-1);
+  border-radius: 2px;
 }
-.outline-link.on .idx { color: var(--vp-c-brand-1); }
 
 /* 右栏（页面导航）在 1080 以上出现：宽屏笔记本也能一眼看到步骤锚点 */
 @media (min-width: 1080px) {

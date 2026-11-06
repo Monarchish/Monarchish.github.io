@@ -30,7 +30,7 @@
   try { store = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { store = {}; }
   store.checks = store.checks || {};
   store.target = store.target || {};
-  /* 目录只保留一个展开的分组（跨区块同理）；openDom 为空串表示全部收起 */
+  /* 分组折叠状态见下方 domClosed */
   delete store.closed;
   store.stepClosed = store.stepClosed || {};
 
@@ -40,8 +40,9 @@
 
   const flowById = (id) => FLOWS.find((f) => f.id === id);
   const curFlow = () => flowById(S.flowId) || FLOWS[0];
-  /* 跨区块只允许一个分组展开：没存过就跟着当前流程走 */
-  const openDom = () => (store.openDom === undefined ? curFlow().domain : store.openDom);
+  /* 分组（域）折叠：默认全部展开，点一次收起、再点展开；收起状态记在 domClosed 里 */
+  store.domClosed = store.domClosed || {};
+  const domOpen = (id) => store.domClosed[id] !== true;
   const curStep = () => curFlow().steps.find((s) => s.n === S.step) || curFlow().steps[0];
   const domainById = (id) => DB.domains.find((d) => d.id === id) || { name: id, en: "" };
   const num = (n) => String(n).padStart(2, "0");
@@ -75,7 +76,7 @@
     DOMAINS.forEach((d) => {
       const flows = FLOWS.filter((f) => f.domain === d.id && hit(f));
       if (!flows.length) return;
-      const open = q ? true : d.id === openDom();
+      const open = q ? true : domOpen(d.id);
       html += `<div class="tnode${open ? " open" : ""}">
         <button class="trow lv1" data-toggle-dom="${d.id}">
           <span class="car"></span><span class="nm">${esc(d.name)}</span>
@@ -434,7 +435,7 @@
     const f = curFlow();
     el.innerHTML = `<div class="outline-title">页面导航</div>
       <nav class="outline-list">
-        ${f.steps.map((s) => `<button class="outline-link${s.n === S.step ? " on" : ""}" data-anchor="${stepId(s.n)}"><span class="idx">${num(s.n)}</span>${esc(s.title)}</button>`).join("")}
+        ${f.steps.map((s) => `<button class="outline-link${s.n === S.step ? " on" : ""}" data-anchor="${stepId(s.n)}">${esc(s.title)}</button>`).join("")}
       </nav>`;
   }
 
@@ -486,7 +487,7 @@
   /* ---------------------------------------------------------------- 导航 */
   function openFlow(fid, step, mode) {
     const f = flowById(fid);
-    if (f) store.openDom = f.domain;
+    if (f) delete store.domClosed[f.domain];
     store.lastFlow = fid; store.lastStep = step || 1;
     S.view = "flow"; S.flowId = fid; S.step = step || 1; S.mode = mode || "detail";
     save();
@@ -613,7 +614,8 @@
     const domBtn = t.closest("[data-toggle-dom]");
     if (domBtn) {
       const id = domBtn.dataset.toggleDom;
-      store.openDom = openDom() === id ? "" : id;
+      if (store.domClosed[id] === true) delete store.domClosed[id];
+      else store.domClosed[id] = true;
       save(); renderTree();
       return;
     }
