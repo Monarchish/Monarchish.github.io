@@ -525,6 +525,16 @@ a { color: var(--vp-c-brand-1); }
 /* 连接词：从 / 到 / 或 / 和 */
 .acts strong.cn { font-weight: 700; color: inherit; }
 
+/* 明细行：OTL 的引用块 —— 左侧一道浅色竖线，正文灰字 */
+.acts li.quote, .run-acts li.quote {
+  margin: 6px 0 4px;
+  padding: 1px 0 1px 14px;
+  border-left: 3px solid #ccd6e4;
+  font-size: 14.5px;
+  line-height: 25px;
+  color: #767c85;
+}
+
 /* 明细 / 括号补充：紧贴上一行，缩进一级、字变浅 */
 .acts li.sub {
   margin: -3px 0 6px 0;

@@ -141,6 +141,8 @@
   const LOOP = /^【[^】]+】$/;
   const WARN = /^⚠/;
   const SUB = /^（.+）$/;
+  /* 明细行：OTL 的引用块写法「明细：…」，带竖线 */
+  const QUOTE = /^明细[:：]/;
   const NUM = /^\d+\s*[、.．]/;
   const ONEKEY = /^(Enter|Return|Esc|Tab|Space|F\d{1,2}|Alt|Ctrl|Shift)$/i;
 
@@ -167,6 +169,7 @@
       const rest = main.slice(m[1].length).replace(/^\s+/, "");
       return `<li class="act"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${decorate(esc(rest))}${det}</span></li>`;
     }
+    if (QUOTE.test(main)) return `<li class="quote">${decorate(esc(main))}</li>`;
     if (SUB.test(main)) return `<li class="sub">${decorate(esc(main))}</li>`;
     if (NUM.test(main)) return `<li class="num">${esc(main)}</li>`;
     return `<li>${esc(main)}${det}</li>`;
