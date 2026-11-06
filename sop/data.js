@@ -11,7 +11,7 @@ window.SOP_DATA = {
     "stats": {
       "flows": 3,
       "steps": 10,
-      "ops": 108,
+      "ops": 106,
       "with_checks": 0,
       "with_exc": 0,
       "with_out": 0,
@@ -249,28 +249,25 @@ window.SOP_DATA = {
         "C9"
       ],
       "en": "",
-      "ops": 58,
+      "ops": 56,
       "steps": [
         {
           "n": 1,
           "title": "云仓库存下载",
           "summary": "",
           "code": false,
-          "ops": 11,
+          "ops": 9,
           "kind": "action",
           "actions": [
             "打开（Open）【欧冶云仓】",
             "进入（Go to）〈物流管理〉→〈云仓库存〉",
-            "选择（Select）[ 所在仓库 ]（全选）",
-            "选择（Select）[ 1月内 ]（3月内）",
+            "点击（Left Click）[ 所在仓库 ]〈全选〉",
+            "点击（Left Click）〈3月内〉",
             "选择（Select）[ 入库截止日期 ]（当天）",
             "点击（Left Click）〈查询〉",
-            "点击（Left Click）〈全部导出〉（需等待）",
+            "点击（Left Click）〈全部导出（需等待）〉",
             "点击（Left Click）〈数据导出申请〉",
-            "点击（Left Click）〈下载〉",
-            "⚠注意：将导出的 Excel 表格发送至微信群，作为备份",
-            "⚠云仓库存每天仅可下载一次",
-            "⚠下载前需确认点好电子提单，且和大家确认好是否可以下载"
+            "点击（Left Click）〈下载〉"
           ],
           "systems": [
             "欧冶云仓"
