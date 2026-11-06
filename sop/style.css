@@ -514,9 +514,9 @@ a { color: var(--vp-c-brand-1); }
   background: var(--vp-c-verb-bg);
   color: var(--vp-c-verb-text);
   font-family: var(--vp-font-family-code);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 18px;
+  line-height: 19px;
   white-space: nowrap;
 }
 
@@ -681,7 +681,7 @@ table.tbl tr:hover td { background: var(--vp-c-bg-soft); }
   h2 { font-size: 21px; line-height: 30px; }
   .step-h h2 { font-size: 20px; }
   .acts li { font-size: 15px; line-height: 26px; }
-  .acts li .verb { font-size: 13px; }
+  .acts li .verb { font-size: 14px; }
   .sbody { padding: 10px 14px 14px 12px; }
   .acts li.sub { padding-left: 14px; }
   .acts li.act { gap: 7px; }
