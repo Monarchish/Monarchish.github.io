@@ -84,20 +84,13 @@
 
       flows.forEach((f) => {
         const isCur = f.id === cur.id;
-        const stepsOpen = isCur && store.stepClosed[f.id] !== true;
         const st = flowStat(f);
         const all = st.total && st.done === st.total;
-        html += `<div class="tnode${stepsOpen ? " open" : ""}">
+        html += `<div class="tnode">
           <button class="trow lv2${isCur ? " on" : ""}" data-flow="${f.id}">
-            <span class="car" data-toggle-steps="${f.id}"></span>
             <span class="nm">${esc(f.title)}</span>${all ? `<span class="ct">✓</span>` : ""}
-          </button>`;
-        if (stepsOpen) {
-          html += `<div class="tkids">` + f.steps.map((s) => `<button class="trow lv3${s.n === S.step ? " on" : ""}" data-goto="${f.id}:${s.n}">
-            <span class="car hide"></span><span class="no">${num(s.n)}</span><span class="nm">${esc(s.title)}</span>
-          </button>`).join("") + `</div>`;
-        }
-        html += `</div>`;
+          </button>
+        </div>`;
       });
 
       html += `</div></div>`;

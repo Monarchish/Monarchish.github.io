@@ -227,7 +227,7 @@ svg { display: block; }
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 4px 24px 4px 0;
+  padding: 4px 24px 4px 18px;
   font-size: 14px;
   font-weight: 500;
   line-height: 24px;
