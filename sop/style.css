@@ -44,8 +44,8 @@
   /* 内容块（照 OTL）：浅蓝底 + 深蓝细边；祈使句动词用灰底 */
   --vp-c-note-bg: #edf3fe;
   --vp-c-note-border: #b7cdec;
-  --vp-c-verb-bg: #e7e8eb;
-  --vp-c-verb-text: #24282e;
+  --vp-c-verb-bg: #e8eaee;
+  --vp-c-verb-text: #2b3038;
   --vp-c-loop-bg: #dde8fb;
 }
 
@@ -501,20 +501,19 @@ a { color: var(--vp-c-brand-1); }
 .acts li.act .txt { flex: 1 1 auto; min-width: 0; }
 .acts li.act .verb { margin-right: 0; }
 
-/* 祈使句开头：动词整体一个灰底色块，加粗，括号内英文两侧留白 */
+/* 祈使句开头：按 OTL 的行内代码样式 —— 等宽字、浅灰底、不加粗 */
 .acts li .verb, .run-acts li .verb {
   display: inline-block;
-  padding: 1px 8px;
+  padding: 2px 6px;
   margin-right: 6px;
-  border-radius: 5px;
+  border-radius: 4px;
   background: var(--vp-c-verb-bg);
   color: var(--vp-c-verb-text);
-  font-size: 14.5px;
-  font-weight: 600;
-  line-height: 23px;
-  letter-spacing: 0.01em;
+  font-family: var(--vp-font-family-mono);
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 21px;
   white-space: nowrap;
-  vertical-align: 1px;
 }
 
 /* 明细 / 括号补充：紧贴上一行，缩进一级、字变浅 */
