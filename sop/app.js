@@ -144,6 +144,12 @@
   const NUM = /^\d+\s*[、.．]/;
   const ONEKEY = /^(Enter|Return|Esc|Tab|Space|F\d{1,2}|Alt|Ctrl|Shift)$/i;
 
+  /* 括号语法着色：动作串里四类对象各用一种样式（已转义的文本上匹配，<> 不受影响） */
+  const TOKEN = /【[^】]*】|〈[^〉]*〉|〔[^〕]*〕|\[[^\]]*\]|“[^”]*”/g;
+  const TCLASS = { "【": "sys", "〈": "menu", "〔": "ext", "[": "field", "“": "quote" };
+  const decorate = (t) =>
+    t.replace(TOKEN, (s) => `<span class="tk ${TCLASS[s[0]]}">${s}</span>`);
+
   const actLi = (a) => {
     if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;
     if (LOOP.test(a)) return `<li class="loop"><span>${esc(a)}</span></li>`;
@@ -156,9 +162,9 @@
     const m = main.match(VERB);
     if (m) {
       const rest = main.slice(m[1].length).replace(/^\s+/, "");
-      return `<li class="act"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${esc(rest)}${det}</span></li>`;
+      return `<li class="act"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${decorate(esc(rest))}${det}</span></li>`;
     }
-    if (SUB.test(main)) return `<li class="sub">${esc(main)}</li>`;
+    if (SUB.test(main)) return `<li class="sub">${decorate(esc(main))}</li>`;
     if (NUM.test(main)) return `<li class="num">${esc(main)}</li>`;
     return `<li>${esc(main)}${det}</li>`;
   };

@@ -9,7 +9,7 @@ window.SOP_DATA = {
     "owner": "施俊臣",
     "updated": "2026-11-06",
     "source": "《支援未来》OTL 大纲",
-    "stats": { "flows": 1, "steps": 3, "ops": 28, "with_checks": 0, "with_exc": 0, "with_out": 0, "no_trigger": 1 },
+    "stats": { "flows": 1, "steps": 3, "ops": 16, "with_checks": 0, "with_exc": 0, "with_out": 0, "no_trigger": 1 },
     "manifesto": [],
     "history": []
   },
@@ -35,9 +35,9 @@ window.SOP_DATA = {
       "done": "",
       "sla": "—",
       "roles": "施俊臣",
-      "systems": ["宝时达", "台账"],
+      "systems": ["宝时达", "QQ", "微信"],
       "en": "",
-      "ops": 28,
+      "ops": 16,
 
       "steps": [
         {
@@ -50,12 +50,12 @@ window.SOP_DATA = {
           "actions": [
             "打开（Open）【宝时达】",
             "进入（Go to）〈全部菜单〉→〈订单管理〉→〈让步接收单〉",
-            "截图（Ctrl+Alt+A）",
-            "框选（Drag-select） [ 让步申请单号 ] 至 [ 交货月 ]",
-            "（明细：让步申请单号、钢厂订单号、变更原因、变更描述、规格、牌号、品种、制造单元、交货月）",
-            "点击（Click）〈完成〉"
+            "截图（Ctrl + Alt + A）",
+            "框选（Drag-select）From [ 让步申请单号 ] to [ 交货月 ]",
+            "（让步申请单号、钢厂订单号、变更原因、变更描述、规格、牌号、品种、制造单元、交货月）",
+            "点击（Left Click）〈完成〉"
           ],
-          "systems": ["台账", "宝时达"],
+          "systems": ["宝时达"],
           "outputs": [],
           "checks": [],
           "exceptions": [],
@@ -67,17 +67,13 @@ window.SOP_DATA = {
           "title": "让步单咨询",
           "summary": "",
           "code": false,
-          "ops": 8,
+          "ops": 4,
           "kind": "action",
           "actions": [
-            "打开（Open）“宝时达 - 全部菜单 - 订单管理 - 让步接收单”",
-            "截图（Ctrl + Alt + A）“让步接收单” - “让步单内容”",
-            "（钢厂订单号，变更原因，变更描述，规格，牌号，品种，制造单元，交货月）",
-            "打开（Open）“和客户的对话框”",
-            "粘贴（Ctrl + V）“对话框”",
-            "输入（Input）“对话框”",
-            "（“领导，这个让步单要吗”）",
-            "Enter"
+            "打开（Open）【QQ】or【微信】",
+            "粘贴（Ctrl + V）[ 对话框 ]",
+            "输入（Type）[ 输入框 ]“领导这个让步单要吗”",
+            "点击（Left Click）〈发送〉"
           ],
           "systems": ["宝时达", "QQ", "微信"],
           "outputs": [],
@@ -91,16 +87,15 @@ window.SOP_DATA = {
           "title": "让步单回复",
           "summary": "",
           "code": false,
-          "ops": 7,
+          "ops": 6,
           "kind": "action",
           "actions": [
-            "打开（Open）“宝时达 - 全部菜单 - 订单管理 - 让步接收单”",
-            "左键点击（Left Click）“让步接收单” - “操作 - 让步接收单确认”",
-            "输入（Write）“让步接收单” - “回复标记”",
-            "（同意 Or 不同意）",
-            "输入（Write）“让步接收单” - “回复意见”",
-            "（用户同意接受 Or 用户不同意接受）",
-            "左键点击（Left Click）“让步接收单” - “提交”"
+            "打开（Open）【宝时达】",
+            "进入（Go to）〈全部菜单〉→〈订单管理〉→〈让步接收单〉",
+            "点击（Left Click）〈操作 - 让步接收单确认〉",
+            "点击（Left Click）〈同意〉or〈不同意〉",
+            "输入（Type）[ 回复意见 ]“用户同意接受”or“用户不同意接受”",
+            "点击（Left Click）〈提交〉"
           ],
           "systems": ["宝时达"],
           "outputs": [],

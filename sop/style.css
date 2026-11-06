@@ -520,6 +520,26 @@ a { color: var(--vp-c-brand-1); }
   white-space: nowrap;
 }
 
+/* 括号语法：五类对象各自一种观感 —— 系统 / 菜单 / 字段 / 外部资料 / 输入文字 */
+.tk { font-style: normal; white-space: nowrap; }
+.tk.sys { color: #1c3a7d; font-weight: 600; }
+.tk.menu { color: #3451b2; font-weight: 500; }
+.tk.field {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: #e6ecf9;
+  color: #22355e;
+  font-family: var(--vp-font-family-code);
+  font-size: 13.5px;
+}
+.tk.ext {
+  padding: 0 4px;
+  border: 1px dashed #cfa94c;
+  border-radius: 3px;
+  color: #7a5a12;
+}
+.tk.quote { color: #0d7268; }
+
 /* 明细 / 括号补充：紧贴上一行，缩进一级、字变浅 */
 .acts li.sub {
   margin: -3px 0 6px 0;
@@ -719,3 +739,10 @@ table.tbl tr:hover td { background: var(--vp-c-bg-soft); }
   transition: opacity 0.2s, transform 0.2s;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* 窄屏：动词块与正文不再分两列，正文可占满整行 */
+@media (max-width: 599px) {
+  .acts li.act { display: block; }
+  .acts li.act .txt { display: inline; }
+  .acts li.act .verb { margin-right: 8px; }
+}
