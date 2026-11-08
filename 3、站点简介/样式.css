@@ -364,7 +364,7 @@
     text-transform: uppercase;
     color: rgba(19, 20, 14, 0.45);
     align-self: flex-end;                    /* 贴中文行盒底部 */
-    margin: 0 0 0.62em 0;                    /* 再往上提一点，视觉上落到基线上 */
+    margin: 0 0 0.7em 0;                     /* 抬到中文基线：0.62 偏低 ~3px、0.8 偏高 ~3px，取中间 */
     line-height: 1;
     white-space: nowrap;
 }
