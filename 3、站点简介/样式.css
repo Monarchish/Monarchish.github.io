@@ -345,3 +345,56 @@
         }
     }
 }
+
+/* ===================== 2026-11-08：中英双文（初版，先看效果） =====================
+   结构：h3 里 .value-title-cn（中文主标题，继承原字号）+ .value-title-en（小号英文）；
+         正文是两段 .value-text：中文一段 + 英文一段（.value-text-en）。
+   ⚠ 英文小标题必须单独成 span：乱码逻辑是直接写 el.textContent，
+     挂在 h3 上会把两个 span 冲掉（详见 3、站点简介/动画.js 的 items 注释）。 */
+
+/* 标题整行不折：中文 + 小英文必须并排；窄屏另开 wrap（见下方媒体查询） */
+.value-block .value-content .value-title { white-space: nowrap; }
+
+/* 小号英文：等宽、大写、半透明，坐在中文那一行的基线附近 */
+.value-block .value-content .value-title-en {
+    font-family: "JetBrains Mono", "DM Mono", monospace;
+    font-size: clamp(11px, 0.34em, 18px);   /* 相对中文标题，48px → 16px */
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(19, 20, 14, 0.45);
+    align-self: flex-end;                    /* 贴中文行盒底部 */
+    margin: 0 0 0.62em 0;                    /* 再往上提一点，视觉上落到基线上 */
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* 英文正文：跟在中文段下面，字号 ~0.78 倍、行高略紧、灰度降一档 */
+.value-block .value-content .value-text.value-text-en {
+    margin-top: 0.85em;
+    font-size: clamp(0.84rem, 1.02vw, 1.16rem);
+    line-height: 1.55;
+    letter-spacing: 0.004em;
+    color: rgba(19, 20, 14, 0.58);
+}
+
+/* 窄屏：小英文换成浅一档的灰、正文英文再收一点。
+   900~520 之间仍然「中文 + 小英文」并排（实测这段宽度放得下，含最长的 REINFORCE THE FUTURE）；
+   520 以下才允许换行，换行后靠 24px 缩进与中文左边缘对齐（≈ 小方块宽 + gap）。 */
+@media (max-width: 900px) {
+    .value-block .value-content .value-title-en {
+        font-size: clamp(10px, 2.6vw, 13px);
+        letter-spacing: 0.12em;
+    }
+    .value-block .value-content .value-text.value-text-en {
+        font-size: clamp(0.82rem, 3.5vw, 1rem);
+        line-height: 1.58;
+    }
+}
+@media (max-width: 520px) {
+    .value-block .value-content .value-title { white-space: normal; flex-wrap: wrap; }
+    .value-block .value-content .value-title-en {
+        flex-basis: 100%;                    /* 换到第二行，不跟中文抢宽度 */
+        margin: 0.25em 0 0 24px;
+    }
+}

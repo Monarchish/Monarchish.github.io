@@ -216,13 +216,15 @@
         }, TICK_MS);
     };
 
-    /* 正文：单词依次淡入，只动 opacity，不做任何位移（门面用户定稿：不要从下往上） */
+    /* 正文：单词依次淡入，只动 opacity，不做任何位移（门面用户定稿：不要从下往上）
+       2026-11-08：中英双文后一个块里有 60+ 个词（英文按空格拆），仍用 0.05 会拖到 3.2s，
+       所以只把「词多时」的间隔收紧到 0.028s（总时长约 1.8s），单段中文时仍是母本的 0.05。 */
     var runWordReveal = function (words) {
         gsap.to(words, {
             opacity: 1,
             duration: 0.5,
             ease: "power1.out",
-            stagger: 0.05,
+            stagger: words.length > 24 ? 0.028 : 0.05,
         });
     };
     /* ======== ↑↑ 母本抄写结束 ↑↑ ======== */
@@ -230,15 +232,26 @@
     /* ---- 组装：标题原文 / 正文拆词 / 按钮标签 ---- */
     var items = blocks.map(function (block) {
         var title = block.querySelector(".value-title");
+        /* 2026-11-08 中英双文：乱码改挂到「小号英文副标题」上。
+           原因有两条：① scrambleToken 只替换 [A-Za-z]，汉字本来就跳不动；
+           ② runTitleScramble 收尾是直接写 el.textContent —— 挂到 h3 上，
+              里面的 .value-title-cn / .value-title-en 两个 span 会被冲掉，
+              中文大字瞬间变回原字号的一行纯文本。所以只动这个子节点。 */
+        var titleEn = title ? title.querySelector(".value-title-en") : null;
         var text = block.querySelector(".value-text");
         var btn = block.querySelector(".value-btn");
         var label = btn ? btn.querySelector(".value-btn-label") : null;
-        var words = text ? splitWords(text) : [];
+        /* 正文中英两段一起排队：中文整段是 1 个词（无空格），英文按空格拆成几十个词，
+           级联效果自然落在英文上，中文整段淡入，先后顺序与阅读顺序一致 */
+        var words = [];
+        [].slice.call(block.querySelectorAll(".value-text")).forEach(function (t) {
+            words = words.concat(splitWords(t));
+        });
         return {
             block: block,
             content: block.querySelector(".value-content") || block,  /* 触发器挂在文字容器上 */
-            title: title,
-            titleText: title ? title.textContent : "",
+            title: titleEn || title,
+            titleText: titleEn ? titleEn.textContent : (title ? title.textContent : ""),
             text: text,
             words: words,
             btn: btn,
