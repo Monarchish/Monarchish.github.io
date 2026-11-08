@@ -942,6 +942,26 @@ html, body { overscroll-behavior: none; }
   will-change: transform, opacity;
 }
 
+/* 中英混排：中文一行 + 英文一行，各自 display:block，换行点写死在结构里。
+   视觉校准——同样 font-size 下汉字"字面"撑满 em 框，看着比拉丁字母大一号，
+   所以中文只放到 1.04em、行高抬到 1.05（汉字不吃 0.9 的紧行高，会顶到上一行），
+   字距改用 +0.01em：h1 的 -0.03em 是给拉丁字母收边用的，套到汉字上会粘连。 */
+.hero-content .hero-content-block:nth-child(1) h1 .hero-title-cn {
+  display: block;
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "DM Sans", sans-serif;
+  font-size: 1.04em;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.04em;
+}
+
+.hero-content .hero-content-block:nth-child(1) h1 .hero-title-en {
+  display: block;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+
 .hero-explore-btn {
   align-self: flex-start;   /* flex 列里不被拉满宽 */
   display: inline-flex;

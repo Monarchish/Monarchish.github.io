@@ -49,7 +49,7 @@
           href="0、公共库/字体/jetbrains-mono-400.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=60" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=61" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
@@ -309,9 +309,10 @@
         <div class="hero-content">
             <div class="hero-content-block">
                 <div class="hero-content-copy">
-                    <!-- 首屏大标题：不再走乱码，只保留「从下往上滑入 + 淡入」一次
-                         （动画在 2、滚动门面/动画.js 的 initScroll 里，一次性 fromTo） -->
-                    <h1>Reinforce the future.<br>Act now.</h1>
+                    <!-- 首屏大标题：中文一行 + 英文一行。
+                         动画在 2、滚动门面/动画.js 的 initScroll 里对整个 h1 做一次性 fromTo，
+                         所以这里加行内 span 不影响滑入/淡入；两行各自成块，字号行高分别校准。 -->
+                    <h1><span class="hero-title-cn">支援未来</span><span class="hero-title-en">Reinforce the future</span></h1>
                     <!-- 按钮文字包一层 span：悬停乱码重组只改写这一层（不动 <a> 的
                          其它属性），效果照 inversa 原站 BaseButton 的 mouseenter -->
                     <a href="./" class="hero-explore-btn"><span class="hero-explore-label">EXPLORE ORIGIN</span></a>
