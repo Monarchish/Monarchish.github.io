@@ -172,21 +172,15 @@
       });
     };
 
-    /* ① 大标题入场：y 100 → 0 + 淡入，一次，无乱码（用户指定参数） */
+    /* ① 大标题入场：y 100 → 0 + 淡入，一次，无乱码（用户指定参数）
+       2026-11-08：下面那个黄色按钮（EXPLORE ORIGIN）的入场动画按用户要求整段删除——
+       按钮现在从第一帧就静态在位，只保留悬停乱码。 */
     if (heroTitleEl) {
       gsap.fromTo(
         heroTitleEl,
         { y: 100, opacity: 0 },
         { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.15, clearProps: "transform,opacity" }
       );
-      const heroBtn = heroContent.querySelector(".hero-content-block:nth-child(1) .hero-explore-btn");
-      if (heroBtn) {
-        gsap.fromTo(
-          heroBtn,
-          { y: 24, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.7, ease: "power2.out", delay: 0.55, clearProps: "transform,opacity" }
-        );
-      }
     }
 
     /* ============================================================

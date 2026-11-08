@@ -53,10 +53,10 @@
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
-    <link rel="stylesheet" href="3、站点简介/样式.css?v=28" />
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=29" />
     <link rel="stylesheet" href="4、页脚/样式.css?v=8" />
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
-    <script src="3、站点简介/动画.js?v=14" defer></script>
+    <script src="3、站点简介/动画.js?v=15" defer></script>
     <script src="4、页脚/动画.js?v=9" defer></script>
 
     <style>
@@ -315,7 +315,7 @@
                     <h1><span class="hero-title-cn">支援未来</span><span class="hero-title-en">Reinforce the future</span></h1>
                     <!-- 按钮文字包一层 span：悬停乱码重组只改写这一层（不动 <a> 的
                          其它属性），效果照 inversa 原站 BaseButton 的 mouseenter -->
-                    <a href="./" class="hero-explore-btn"><span class="hero-explore-label">EXPLORE ORIGIN</span></a>
+                    <a href="#siteShell" class="hero-explore-btn"><span class="hero-explore-label">EXPLORE ORIGIN</span></a>
                 </div>
             </div>
             <div class="hero-content-block">
@@ -641,6 +641,21 @@
                 });
             }
 
+            /* 「EXPLORE ORIGIN」：2026-11-08 用户要求——不再做入场动画（上面 .hero-explore-btn
+               的 fromTo 已删），点它直接去「右上角 Menu」跳的那个位置：跳过滑屏，落到三段话主页。
+               做法就是借用 Menu 的 click：Menu 的监听里已经处理了「先停 Lenis 再平滑滚到
+               #siteShell」，这里再写一遍容易出现两份逻辑走偏。万一 Menu 不在，
+               就交给 href="#siteShell" 的原生锚点兜底。 */
+            var exploreBtn = document.querySelector(".hero-explore-btn");
+            if (exploreBtn) {
+                exploreBtn.addEventListener("click", function (e) {
+                    var menu = document.querySelector(".hero-menu");
+                    if (!menu) return;              /* 没有 Menu：走原生锚点 */
+                    e.preventDefault();
+                    menu.click();
+                });
+            }
+
             /* ============ 开演 ============ */
             var started = false;
 
@@ -732,7 +747,7 @@
                     ]
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
-                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=27"] }
+                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=28"] }
             };
 
             /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */

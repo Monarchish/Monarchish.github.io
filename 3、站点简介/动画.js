@@ -163,22 +163,77 @@
         return out;
     };
 
-    /* 正文拆词：单词各包一个 span，词间空格的文本节点原样保留，
-       这样宽度/换行与原来完全一致，只是每个词可以单独动 */
+    /* 正文拆词（2026-11-08 第二版）：英文按空格拆词，中文逐字拆。
+       为什么中文要逐字：中文段没有空格，原来按空格拆只有 1 个"词"，
+       整段一次性淡入 —— 看上去就是"中文不跳、只有英文在跳"。
+       现在中文逐字、英文逐词，两边都是「一格一格跳出来」。
+       ① 标点粘在前一个字上（"。" 不会单独成格，行首也不会孤零零挂个逗号）；
+       ② 中文字与字之间插零宽空格（ZWSP）而不是普通空格：
+          行内块之间没有空白时浏览器不给断行机会，整段会变成一条不断行的长条直接溢出；
+          ZWSP 只提供断行点、不占宽度，所以换行与原来逐字排版完全一致。
+       初始的「隐身 + 下沉」直接写成内联样式，不等 gsap——
+       以前写在 hideWords 的 gsap.set 里，库晚到时字早就亮着，动画看起来就"不见了" */
+    var CN_PUNCT = /[，。、；：？！…—·“”‘’（）《》〈〉,.;:?!'"()\[\]{}]/;
+    var WORD_RISE = 14;    /* 每个字/词起来前先下沉的像素，配合 back 缓动就是"跳出来" */
+
     var splitWords = function (el) {
         var text = el.textContent.replace(/\s+/g, " ").trim();
-        var words = text ? text.split(" ") : [];
+        if (!text) { el.textContent = ""; return []; }
+        var spaced = /\s/.test(text);
+        var tokens = [];
+        if (spaced) {
+            tokens = text.split(" ");
+        } else {
+            for (var i = 0; i < text.length; i++) {
+                var ch = text.charAt(i);
+                if (CN_PUNCT.test(ch) && tokens.length) tokens[tokens.length - 1] += ch;
+                else tokens.push(ch);
+            }
+        }
         el.textContent = "";
         var spans = [];
-        words.forEach(function (w, i) {
+        tokens.forEach(function (w, i) {
             var s = document.createElement("span");
             s.className = "word";
             s.textContent = w;
+            s.style.opacity = "0";
+            s.style.transform = "translate3d(0," + WORD_RISE + "px,0)";
             el.appendChild(s);
             spans.push(s);
-            if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+            if (i < tokens.length - 1) {
+                el.appendChild(document.createTextNode(spaced ? " " : "\u200B"));
+            }
         });
         return spans;
+    };
+
+    /* 标题中文：照抄开场「支援未来」那套——字块外面套一层 overflow:hidden 的遮罩，
+       字块自己从 translateY(120%) 抬回 0，两字一组错峰 0.06s。
+       只包一层 span，原文、字号、字距、换行点一概不动。
+       初始位移同样写成内联样式，不依赖 gsap 是否已就位。 */
+    var splitTitleCn = function (el) {
+        if (!el) return [];
+        if (el.querySelector(".cn-mask")) return [].slice.call(el.querySelectorAll(".cn-word"));
+        var raw = el.textContent.trim();
+        if (!raw) return [];
+        var parts;
+        if (/^[\u4e00-\u9fff]{4}$/.test(raw)) parts = [raw.slice(0, 2), raw.slice(2)];  /* 四字：两字一组 */
+        else if (/^[\u4e00-\u9fff]+$/.test(raw)) parts = raw.split("");                 /* 其它字数：一字一组 */
+        else parts = [raw];
+        el.textContent = "";
+        var words = [];
+        parts.forEach(function (p) {
+            var mask = document.createElement("span");
+            mask.className = "cn-mask";
+            var w = document.createElement("span");
+            w.className = "cn-word";
+            w.textContent = p;
+            w.style.transform = "translate3d(0,120%,0)";
+            mask.appendChild(w);
+            el.appendChild(mask);
+            words.push(w);
+        });
+        return words;
     };
 
     /* 小标题乱码：定时器每 TICK_MS 才重画一次，字符肉眼可见地跳；
@@ -216,15 +271,38 @@
         }, TICK_MS);
     };
 
-    /* 正文：单词依次淡入，只动 opacity，不做任何位移（门面用户定稿：不要从下往上）
-       2026-11-08：中英双文后一个块里有 60+ 个词（英文按空格拆），仍用 0.05 会拖到 3.2s，
-       所以只把「词多时」的间隔收紧到 0.028s（总时长约 1.8s），单段中文时仍是母本的 0.05。 */
+    /* 正文：字/词依次「跳出来」——从下沉 14px 回到原位，同时显影。
+       2026-11-08 第二版：用户要求中文和英文都要逐个跳出来（原来只有 opacity，
+       且中文整段算一个词，等于没动）。缓动用 back.out 带一点回弹，才像"跳"。
+       词数多（中英双文一段约 130~160 格）时自动收紧间隔，总时长压在 1.5s 左右，
+       不会拖成三四秒的慢动作。 */
+    var staggerFor = function (n) {
+        return Math.min(0.05, 1.5 / Math.max(n, 1));
+    };
     var runWordReveal = function (words) {
         gsap.to(words, {
             opacity: 1,
+            y: 0,
             duration: 0.5,
-            ease: "power1.out",
-            stagger: words.length > 24 ? 0.028 : 0.05,
+            ease: "back.out(1.6)",
+            stagger: staggerFor(words.length),
+            delay: 0.18,          /* 让标题先抬出来，正文紧跟着起 */
+        });
+    };
+
+    /* 标题中文：遮罩内从下往上抬出（开场「支援未来」同款），两字一组错峰 0.06s。
+       ⚠ 必须先 gsap.set 把 y 归零再动 yPercent：字块初始的内联样式是
+         translate3d(0,120%,0)，gsap 读到的是一段已经换算成 px 的 transform（y=47.6px），
+         只动 yPercent 的话它会一直保留这 47.6px 的残留位移，字块永远抬不回来
+         （实测：yPercent 归 0 了，视觉上却还沉在遮罩下面）。 */
+    var runTitleCnReveal = function (words) {
+        gsap.set(words, { x: 0, y: 0, yPercent: 120 });
+        gsap.to(words, {
+            yPercent: 0,
+            duration: 0.9,
+            ease: "power3.out",
+            stagger: 0.06,
+            delay: 0.05,
         });
     };
     /* ======== ↑↑ 母本抄写结束 ↑↑ ======== */
@@ -238,11 +316,12 @@
               里面的 .value-title-cn / .value-title-en 两个 span 会被冲掉，
               中文大字瞬间变回原字号的一行纯文本。所以只动这个子节点。 */
         var titleEn = title ? title.querySelector(".value-title-en") : null;
+        /* 中文标题：包成遮罩 + 字块，等 play 时从下往上抬出来 */
+        var cnWords = splitTitleCn(title ? title.querySelector(".value-title-cn") : null);
         var text = block.querySelector(".value-text");
         var btn = block.querySelector(".value-btn");
         var label = btn ? btn.querySelector(".value-btn-label") : null;
-        /* 正文中英两段一起排队：中文整段是 1 个词（无空格），英文按空格拆成几十个词，
-           级联效果自然落在英文上，中文整段淡入，先后顺序与阅读顺序一致 */
+        /* 正文中英两段一起排队：中文逐字、英文逐词，先后顺序与阅读顺序一致 */
         var words = [];
         [].slice.call(block.querySelectorAll(".value-text")).forEach(function (t) {
             words = words.concat(splitWords(t));
@@ -252,6 +331,7 @@
             content: block.querySelector(".value-content") || block,  /* 触发器挂在文字容器上 */
             title: titleEn || title,
             titleText: titleEn ? titleEn.textContent : (title ? title.textContent : ""),
+            cnWords: cnWords,
             text: text,
             words: words,
             btn: btn,
@@ -299,12 +379,25 @@
     function play(it) {
         if (it.done) return;
         it.done = true;
+        /* 英文小标题：乱码落定（不动它，还是老样子） */
         if (it.title) runTitleScramble(it.title, it.titleText);
-        if (!it.words.length) return;
         if (window.gsap) {
-            runWordReveal(it.words);
-        } else if (it.text) {
-            it.text.classList.add("is-in");   /* CSS 兜底：同样只有 opacity */
+            /* 中文标题：遮罩内从下往上抬出；正文：字/词逐个跳出来 */
+            if (it.cnWords.length) runTitleCnReveal(it.cnWords);
+            if (it.words.length) runWordReveal(it.words);
+        } else {
+            /* 库没到：同款位移换成 CSS 过渡，绝不把字停在不可见状态 */
+            it.cnWords.forEach(function (w, i) {
+                w.style.transition = "transform .9s cubic-bezier(.215,.61,.355,1) " + (i * 0.06).toFixed(2) + "s";
+                w.style.transform = "translate3d(0,0,0)";
+            });
+            it.words.forEach(function (w, i) {
+                var d = (0.18 + i * 0.012).toFixed(3) + "s";
+                w.style.transition = "opacity .5s ease-out " + d +
+                    ", transform .5s cubic-bezier(.34,1.56,.64,1) " + d;
+                w.style.opacity = "1";
+                w.style.transform = "translate3d(0,0,0)";
+            });
         }
     }
 
@@ -326,23 +419,18 @@
         window.addEventListener("scroll", onScroll, { passive: true });
     }
 
-    function hideWords() {
-        items.forEach(function (it) {
-            if (!it.words.length) return;
-            if (window.gsap) gsap.set(it.words, { opacity: 0 });   /* 只隐身，不位移 */
-            else if (it.text) {
-                it.text.classList.add("word-anim");
-                /* CSS 兜底的逐词错峰：与母本 stagger 0.05 同拍 */
-                it.words.forEach(function (w, i) {
-                    w.style.transitionDelay = (i * 0.05).toFixed(3) + "s";
-                });
-            }
-        });
-    }
-
-    /* 立即隐身 + 立即挂触发器：不等任何库 */
-    hideWords();
+    /* 立即挂触发器：不等任何库。
+       初始的隐身/下沉已经写在 splitWords / splitTitleCn 的内联样式里，
+       不需要再单独 gsap.set 一遍（以前就是这一步依赖 gsap，
+       库晚到 → 字没被藏起来 → 触发时从 1 到 1，动画等于消失）。 */
     items.forEach(arm);
+
+    /* 保险丝：3s 后仍在视口里却没演过的块，强制演一次。
+       触发器本身有三层（已在视口 / IO / scroll），这里只是兜住极端情况，
+       免得任何一个环节被脚本打断时，字永久停在不可见状态。 */
+    setTimeout(function () {
+        items.forEach(function (it) { if (!it.done && inView(it.content)) play(it); });
+    }, 3000);
 
     /* 库是页面底部异步取回来的：就绪后补挂 ScrollTrigger 作为第二保险
        （IO 先触发也无妨，done 会拦住重复播放），并做 pin 布局校正 */

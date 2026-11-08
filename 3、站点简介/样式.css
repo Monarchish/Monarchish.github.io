@@ -398,3 +398,29 @@
         margin: 0.25em 0 0 24px;
     }
 }
+
+/* ===================== 2026-11-08（二）：正文逐个跳出 + 中文标题遮罩上抬 =====================
+   正文的初始状态（opacity:0 + 下沉 14px）现在由 JS 写成内联样式，
+   所以下面这组 .word-anim / .is-in 规则已经不再参与（保留只为兼容旧缓存页面）。
+   ".word" 的 display:inline-block 沿用上面 262 行那条老规则——有它才吃得住 transform；
+   这里不再追加 will-change：一个块里有一百多格，全开图层反而拖慢滚动。 */
+
+/* 中文标题：字块装在遮罩里，遮罩把还沉在下面的字挡住，字块抬回 0 就是「从下往上显形」。
+   ▸ padding + 等量负 margin：给字头/字脚留出不裁掉的余量，布局高度不变；
+   ▸ 父级改成 inline-flex + align-items:flex-end：inline-block 一旦 overflow:hidden，
+     它在行内的基线会变成「底边」，多组并排会整体上飘；交给 flex 对齐，
+     两组字永远齐平，与右侧小英文的相对位置也不受影响。 */
+.value-block .value-content .value-title-cn {
+    display: inline-flex;
+    align-items: flex-end;
+}
+.value-block .value-content .value-title-cn .cn-mask {
+    display: inline-block;
+    overflow: hidden;
+    padding: 0.18em 0 0.14em;
+    margin: -0.18em 0 -0.14em;
+}
+.value-block .value-content .value-title-cn .cn-word {
+    display: block;
+    will-change: transform;
+}
