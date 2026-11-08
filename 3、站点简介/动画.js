@@ -171,10 +171,11 @@
        ② 中文字与字之间插零宽空格（ZWSP）而不是普通空格：
           行内块之间没有空白时浏览器不给断行机会，整段会变成一条不断行的长条直接溢出；
           ZWSP 只提供断行点、不占宽度，所以换行与原来逐字排版完全一致。
-       初始的「隐身 + 下沉」直接写成内联样式，不等 gsap——
+       初始的「隐身」（opacity:0）直接写成内联样式，不等 gsap——
        以前写在 hideWords 的 gsap.set 里，库晚到时字早就亮着，动画看起来就"不见了" */
     var CN_PUNCT = /[，。、；：？！…—·“”‘’（）《》〈〉,.;:?!'"()\[\]{}]/;
-    var WORD_RISE = 14;    /* 每个字/词起来前先下沉的像素，配合 back 缓动就是"跳出来" */
+    /* 2026-11-08 第三版：用户不要位移了（"有一个斜着上来的动画，不需要"）。
+       现在每个字/词只做透明度，按阅读顺序从左到右依次亮起来，不再带 y 偏移。 */
 
     var splitWords = function (el) {
         var text = el.textContent.replace(/\s+/g, " ").trim();
@@ -197,7 +198,6 @@
             s.className = "word";
             s.textContent = w;
             s.style.opacity = "0";
-            s.style.transform = "translate3d(0," + WORD_RISE + "px,0)";
             el.appendChild(s);
             spans.push(s);
             if (i < tokens.length - 1) {
@@ -207,33 +207,28 @@
         return spans;
     };
 
-    /* 标题中文：照抄开场「支援未来」那套——字块外面套一层 overflow:hidden 的遮罩，
-       字块自己从 translateY(120%) 抬回 0，两字一组错峰 0.06s。
-       只包一层 span，原文、字号、字距、换行点一概不动。
+    /* 标题中文：照抄开场「支援未来」那套遮罩——整串字装进一个 overflow:hidden 的壳里，
+       从 translateY(120%) 一起抬回 0。
+       2026-11-08 第三版：用户要「四个字同时出现，不要一个一个上来」，
+       所以不再按两字一组拆分、也去掉错峰 —— 整个标题就是一个字块，
+       起落完全同步（拆分反而会让首尾差 0.06s，肉眼能看出是两段）。
+       只包两层 span，原文、字号、字距、换行点一概不动。
        初始位移同样写成内联样式，不依赖 gsap 是否已就位。 */
     var splitTitleCn = function (el) {
         if (!el) return [];
         if (el.querySelector(".cn-mask")) return [].slice.call(el.querySelectorAll(".cn-word"));
         var raw = el.textContent.trim();
         if (!raw) return [];
-        var parts;
-        if (/^[\u4e00-\u9fff]{4}$/.test(raw)) parts = [raw.slice(0, 2), raw.slice(2)];  /* 四字：两字一组 */
-        else if (/^[\u4e00-\u9fff]+$/.test(raw)) parts = raw.split("");                 /* 其它字数：一字一组 */
-        else parts = [raw];
         el.textContent = "";
-        var words = [];
-        parts.forEach(function (p) {
-            var mask = document.createElement("span");
-            mask.className = "cn-mask";
-            var w = document.createElement("span");
-            w.className = "cn-word";
-            w.textContent = p;
-            w.style.transform = "translate3d(0,120%,0)";
-            mask.appendChild(w);
-            el.appendChild(mask);
-            words.push(w);
-        });
-        return words;
+        var mask = document.createElement("span");
+        mask.className = "cn-mask";
+        var w = document.createElement("span");
+        w.className = "cn-word";
+        w.textContent = raw;
+        w.style.transform = "translate3d(0,120%,0)";
+        mask.appendChild(w);
+        el.appendChild(mask);
+        return [w];
     };
 
     /* 小标题乱码：定时器每 TICK_MS 才重画一次，字符肉眼可见地跳；
@@ -271,22 +266,25 @@
         }, TICK_MS);
     };
 
-    /* 正文：字/词依次「跳出来」——从下沉 14px 回到原位，同时显影。
-       2026-11-08 第二版：用户要求中文和英文都要逐个跳出来（原来只有 opacity，
-       且中文整段算一个词，等于没动）。缓动用 back.out 带一点回弹，才像"跳"。
-       词数多（中英双文一段约 130~160 格）时自动收紧间隔，总时长压在 1.5s 左右，
-       不会拖成三四秒的慢动作。 */
+    /* 正文：字/词按阅读顺序从左到右依次亮起，只动 opacity，不做任何位移。
+       2026-11-08 第三版修正：
+         · 用户反馈"有一个斜着上来的动画"——那是每个词 y:14→0 叠出来的斜向波，
+           现在彻底删掉位移，pure fade；
+         · 用户反馈"速度有点快"——原来按 1.5s 排完，现在放宽到 REVEAL_SPAN 秒，
+           单字淡入也从 .5s 提到 .6s，整段落在 3s 出头，慢慢扫过去。
+       词多（中英双文一段约 130~160 格）时自动收紧间隔，但上限 0.06s，
+       下限由 REVEAL_SPAN 兜住，不会因为词多就变回"唰"一下。 */
+    var REVEAL_SPAN = 2.4;    /* 整串字排完的时间（秒），不含最后一字的淡入 */
     var staggerFor = function (n) {
-        return Math.min(0.05, 1.5 / Math.max(n, 1));
+        return Math.min(0.06, REVEAL_SPAN / Math.max(n, 1));
     };
     var runWordReveal = function (words) {
         gsap.to(words, {
             opacity: 1,
-            y: 0,
-            duration: 0.5,
-            ease: "back.out(1.6)",
+            duration: 0.6,
+            ease: "power1.out",
             stagger: staggerFor(words.length),
-            delay: 0.18,          /* 让标题先抬出来，正文紧跟着起 */
+            delay: 0.2,           /* 让标题先抬出来，正文紧跟着起 */
         });
     };
 
@@ -300,8 +298,7 @@
         gsap.to(words, {
             yPercent: 0,
             duration: 0.9,
-            ease: "power3.out",
-            stagger: 0.06,
+            ease: "power3.out",   /* 整块一起抬，没有 stagger */
             delay: 0.05,
         });
     };
@@ -387,16 +384,15 @@
             if (it.words.length) runWordReveal(it.words);
         } else {
             /* 库没到：同款位移换成 CSS 过渡，绝不把字停在不可见状态 */
-            it.cnWords.forEach(function (w, i) {
-                w.style.transition = "transform .9s cubic-bezier(.215,.61,.355,1) " + (i * 0.06).toFixed(2) + "s";
+            it.cnWords.forEach(function (w) {
+                w.style.transition = "transform .9s cubic-bezier(.215,.61,.355,1)";
                 w.style.transform = "translate3d(0,0,0)";
             });
+            var step = staggerFor(it.words.length);
             it.words.forEach(function (w, i) {
-                var d = (0.18 + i * 0.012).toFixed(3) + "s";
-                w.style.transition = "opacity .5s ease-out " + d +
-                    ", transform .5s cubic-bezier(.34,1.56,.64,1) " + d;
+                var d = (0.2 + i * step).toFixed(3) + "s";
+                w.style.transition = "opacity .6s ease-out " + d;
                 w.style.opacity = "1";
-                w.style.transform = "translate3d(0,0,0)";
             });
         }
     }

@@ -953,13 +953,26 @@ html, body { overscroll-behavior: none; }
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: 0.01em;
-  margin-bottom: 0.04em;
+  margin-bottom: 0;         /* 与英文的间距交给 .hero-title-en 的 margin-top，只留一处可控 */
 }
 
+/* 英文第二行：不再跟中文同字号，收到 0.52em。
+   原因（2026-11-08，用户反馈"有点不和谐"）：两行同字号时，4 个汉字只占 21vw 宽，
+   而 "Reinforce the future" 要 39vw —— 上窄下宽、右端参差 260px，
+   看着像两行各自为政，而不是一个标题块。
+   实测（h1 = 5vw）：1440 宽下中文 297.5px / 英文 0.50em 时 305px；
+   1920 宽下 398px / 407px —— 两行几乎等宽，左右共边，成一块干净的矩形。
+   同时英文降为副标题层级（0.52×5vw ≈ 2.6vw ≈ 37px@1440），
+   与三段卡片"大中文 + 小英文"的语言一致。
+   字距改回 +0.01em：h1 继承下来的 -0.03em 是给 5vw 大字收边用的，
+   小字号下会把字母挤在一起。
+   行高 1.1 + margin-top .16em：让英文贴着中文下沿但不粘字脚。 */
 .hero-content .hero-content-block:nth-child(1) h1 .hero-title-en {
   display: block;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
+  font-size: 0.50em;
+  line-height: 1.1;
+  letter-spacing: 0.012em;
+  margin-top: 0.18em;
 }
 
 .hero-explore-btn {
@@ -1015,6 +1028,9 @@ html, body { overscroll-behavior: none; }
     letter-spacing: -0.0217em;
     margin-bottom: 3.2vw;
   }
+
+  /* 手机档不单独放大英文：字号跟着 h1 等比缩（≈16.8px@390），
+     两行宽度比与桌面一致，才不会又变成「上窄下宽」。 */
 
   .hero-explore-btn {
     /* 原站手机档按钮高 12vw，那是配 12.27vw 标题的比例；
