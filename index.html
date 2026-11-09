@@ -24,6 +24,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>增援未来</title>
 
+    <!-- 首帧底色（2026-11-09）：样式表到达前先铺这个深色，避免"白闪一下再转深"。
+         取值同 --dark（#141414），不是纯黑；紧接着 LQIP 模糊占位会盖上来，
+         所以这层只在最开始的几十~几百毫秒可见。 -->
+    <style>html{background-color:#141414;}</style>
+
     <!-- 站点图标：墨蓝底 + 四角星（星河 / 星辰大海，取开屏动画配色）。
          直接内嵌 data URI，不发额外请求。想换形状/颜色只改下面这个 SVG。 -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2363b4de'/%3E%3Cstop offset='1' stop-color='%231c508c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230a1a2e'/%3E%3Cpath d='M32 9Q35.5 28.5 55 32Q35.5 35.5 32 55Q28.5 35.5 9 32Q28.5 28.5 32 9Z' fill='url(%23g)'/%3E%3C/svg%3E" />
@@ -46,8 +51,15 @@
     <link rel="preload" as="font" type="font/woff2" crossorigin
           href="0、公共库/字体/dmsans-latin.woff2" />
 
+    <!-- 门面首屏大图预载（2026-11-09）：<img> 在 body 中部才被解析到，
+         这条让它和字体同时开始下载，能早几百毫秒。
+         不写 imagesrcset：<picture> 里的 <img> 没有 sizes，写反而会算错尺寸。
+         不支持 AVIF 的浏览器会因 type 不匹配直接跳过这条，不会白下。 -->
+    <link rel="preload" as="image" type="image/avif"
+          href="2、滚动门面/主图-开场.avif" fetchpriority="high" />
+
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=63" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=64" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
