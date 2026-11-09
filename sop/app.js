@@ -486,12 +486,15 @@
   }
 
   /* 点右栏：直接把该步标题滚到视口顶端（不留上方空白与分隔线） */
+  /* 点右栏跳转后临时「钉住」目标段：短页面滚不到底时，判定线会误判成下一段 */
+  let jumpPin = 0;
   function scrollToStep(id, behavior) {
     const view = $("#view");
     const el = document.getElementById(id);
     if (!view || !el) return;
+    jumpPin = Number(el.dataset.sn) || 0;
     const h = el.querySelector("h2") || el;
-    const top = h.getBoundingClientRect().top - view.getBoundingClientRect().top + view.scrollTop - 4;
+    const top = h.getBoundingClientRect().top - view.getBoundingClientRect().top + view.scrollTop - 28;
     view.scrollTo({ top: Math.max(0, top), behavior: behavior || "smooth" });
   }
 
@@ -512,10 +515,15 @@
     const steps = $$(".step", view);
     if (!steps.length) return;
     const base = view.getBoundingClientRect().top;
-    /* 判定线放在视口顶部往下 20px：标题刚滑到这条线以上，就算进入该段 */
+    /* 刚点过右栏：以点的那一段为准，直到用户自己滚动 */
+    if (jumpPin) {
+      if (S.step !== jumpPin) { S.step = jumpPin; syncActive(jumpPin); }
+      return;
+    }
+    /* 判定线放在视口顶部往下 40px：比跳转留白（28px）再低一点，跳完立刻就是当前段 */
     let n = Number(steps[0].dataset.sn);
     for (let i = 0; i < steps.length; i++) {
-      if (steps[i].getBoundingClientRect().top - base <= 20) n = Number(steps[i].dataset.sn);
+      if (steps[i].getBoundingClientRect().top - base <= 40) n = Number(steps[i].dataset.sn);
       else break;
     }
     /* 已经滚到底：最后一步哪怕顶不到判定线，也算当前 */
@@ -552,6 +560,7 @@
     S.view = "flow"; S.flowId = fid; S.step = step || 1; S.mode = mode || "detail";
     save();
     document.body.classList.remove("nav-open");
+    jumpPin = 0;
     render();
     $("#view").scrollTop = 0;
     if (step && step > 1) scrollToStep(stepId(step), "auto");
@@ -818,6 +827,11 @@
     $("#nav").classList.toggle("scrolled", $("#view").scrollTop > 4);
     spyOnScroll();
   }, { passive: true });
+
+  /* 用户自己动手滚动（滚轮 / 触摸 / 拖滚动条）就解除钉住 */
+  ["wheel", "touchmove", "pointerdown"].forEach((ev) => {
+    $("#view").addEventListener(ev, () => { jumpPin = 0; }, { passive: true });
+  });
 
   /* 窗口尺寸变化后，段落位置会变，重算一次当前段 */
   window.addEventListener("resize", () => spyCalc(), { passive: true });

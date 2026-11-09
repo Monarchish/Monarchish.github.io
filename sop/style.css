@@ -460,8 +460,8 @@ a { color: var(--vp-c-brand-1); }
   align-items: baseline;
   gap: 10px;
   margin: 44px 0 4px;
-  padding-top: 24px;
-  border-top: 1px solid var(--vp-c-divider);
+  padding-top: 0;
+  border-top: 0;
 }
 .step:first-of-type .step-h { margin-top: 0; padding-top: 0; border-top: 0; }
 .step-h .sn {
