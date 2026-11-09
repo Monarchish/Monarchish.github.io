@@ -525,6 +525,8 @@ a { color: var(--vp-c-brand-1); }
 .tk { font-style: normal; white-space: nowrap; color: inherit; }
 .tk.long { white-space: normal; }
 .tk.fill { color: #8a5a10; }
+/* ＝ 值行：另起一行，值与目标左对齐（换行由 app.js 的 <br class="eqbr"> 负责） */
+.eq { color: inherit; }
 /* 连接词：从 / 到 / 或 / 和 */
 .acts strong.cn { font-weight: 700; color: inherit; }
 

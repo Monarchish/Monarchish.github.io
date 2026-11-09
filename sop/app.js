@@ -176,7 +176,9 @@
         /* 长内容（公式、整段说明）允许换行，避免把卡片撑破；短名字保持不断行 */
         const cls = (s[0] === "【" ? "tk fill" : "tk") + (inner.length > 14 ? " long" : "");
         return `<span class="${cls}">${spacedToken(s)}</span>`;
-      });
+      })
+      /* ＝ 统一换行：目标一行、值另起一行（2026-11-09 定稿），值行与目标对齐更好读 */
+      .replace(/＝/g, '<br class="eqbr"><span class="eq">＝</span>');
   };
 
   /* 🔔 是 OTL 自带的标记，不属于内容，渲染时一律剔除 */
