@@ -463,7 +463,7 @@ a { color: var(--vp-c-brand-1); }
   padding-top: 24px;
   border-top: 1px solid var(--vp-c-divider);
 }
-.step:first-of-type .step-h { margin-top: 44px; }
+.step:first-of-type .step-h { margin-top: 0; padding-top: 0; border-top: 0; }
 .step-h .sn {
   flex: 0 0 auto;
   position: relative;

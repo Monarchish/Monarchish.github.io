@@ -244,7 +244,6 @@
     return `<div class="page">
       <div class="fhead">
         ${HEAD.code ? `<div class="fcode"><b>${esc(f.code)}</b><span>${esc(f.version)}</span><span>·</span><span>${esc(domainById(f.domain).name)}</span></div>` : ""}
-        <h1>${esc(f.h1 || f.title)}</h1>
         ${f.done ? `<p class="lead">${esc(f.done)}</p>` : ""}
 
         ${HEAD.facts ? `<dl class="facts">
@@ -486,12 +485,13 @@
       </nav>`;
   }
 
-  /* 点右栏的 01 / 02：把对应步骤标题滚到视口顶部下方一点（留 28px 呼吸） */
+  /* 点右栏：直接把该步标题滚到视口顶端（不留上方空白与分隔线） */
   function scrollToStep(id, behavior) {
     const view = $("#view");
     const el = document.getElementById(id);
     if (!view || !el) return;
-    const top = el.getBoundingClientRect().top - view.getBoundingClientRect().top + view.scrollTop - 28;
+    const h = el.querySelector("h2") || el;
+    const top = h.getBoundingClientRect().top - view.getBoundingClientRect().top + view.scrollTop - 4;
     view.scrollTo({ top: Math.max(0, top), behavior: behavior || "smooth" });
   }
 
@@ -512,10 +512,10 @@
     const steps = $$(".step", view);
     if (!steps.length) return;
     const base = view.getBoundingClientRect().top;
-    /* 判定线放在视口顶部往下 96px：标题刚滑到这条线以上，就算进入该段 */
+    /* 判定线放在视口顶部往下 20px：标题刚滑到这条线以上，就算进入该段 */
     let n = Number(steps[0].dataset.sn);
     for (let i = 0; i < steps.length; i++) {
-      if (steps[i].getBoundingClientRect().top - base <= 96) n = Number(steps[i].dataset.sn);
+      if (steps[i].getBoundingClientRect().top - base <= 20) n = Number(steps[i].dataset.sn);
       else break;
     }
     /* 已经滚到底：最后一步哪怕顶不到判定线，也算当前 */
