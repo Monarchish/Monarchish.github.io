@@ -267,24 +267,29 @@
     };
 
     /* 正文：字/词按阅读顺序从左到右依次亮起，只动 opacity，不做任何位移。
-       2026-11-08 第三版修正：
-         · 用户反馈"有一个斜着上来的动画"——那是每个词 y:14→0 叠出来的斜向波，
-           现在彻底删掉位移，pure fade；
-         · 用户反馈"速度有点快"——原来按 1.5s 排完，现在放宽到 REVEAL_SPAN 秒，
-           单字淡入也从 .5s 提到 .6s，整段落在 3s 出头，慢慢扫过去。
-       词多（中英双文一段约 130~160 格）时自动收紧间隔，但上限 0.06s，
-       下限由 REVEAL_SPAN 兜住，不会因为词多就变回"唰"一下。 */
-    var REVEAL_SPAN = 2.4;    /* 整串字排完的时间（秒），不含最后一字的淡入 */
+       2026-11-09 第四版：
+         · 中英**同时**开演 —— 以前是把英文接在中文后面排队（中文念完才轮到英文），
+           视觉上像两段各自加载；现在每段单独一条补间、同一个 delay 一起起跑，
+           各自的间隔按自身长度算，所以两段同时开始、同时收尾。
+         · 再放慢：单组排完的时间 REVEAL_SPAN 从 2.4s 提到 3.2s，单字淡入 .6s→.7s，
+           整段约 4.1s，肉眼能一个字一个字看清楚。
+       词多的组间隔会自动收紧（上限 0.09s），但总时长由 REVEAL_SPAN 兜住，
+       不会因为字多就变回"唰"一下。 */
+    var REVEAL_SPAN = 3.2;    /* 每组排完的时间（秒），不含最后一字的淡入 */
+    var REVEAL_DELAY = 0.22;  /* 等标题抬出来再起 */
     var staggerFor = function (n) {
-        return Math.min(0.06, REVEAL_SPAN / Math.max(n, 1));
+        return Math.min(0.09, REVEAL_SPAN / Math.max(n, 1));
     };
-    var runWordReveal = function (words) {
-        gsap.to(words, {
-            opacity: 1,
-            duration: 0.6,
-            ease: "power1.out",
-            stagger: staggerFor(words.length),
-            delay: 0.2,           /* 让标题先抬出来，正文紧跟着起 */
+    var runWordReveal = function (groups) {
+        groups.forEach(function (g) {
+            if (!g.length) return;
+            gsap.to(g, {
+                opacity: 1,
+                duration: 0.7,
+                ease: "power1.out",
+                stagger: staggerFor(g.length),
+                delay: REVEAL_DELAY,
+            });
         });
     };
 
@@ -318,11 +323,11 @@
         var text = block.querySelector(".value-text");
         var btn = block.querySelector(".value-btn");
         var label = btn ? btn.querySelector(".value-btn-label") : null;
-        /* 正文中英两段一起排队：中文逐字、英文逐词，先后顺序与阅读顺序一致 */
+        /* 正文：中文逐字、英文逐词，但各成一组、同时开演（不再排队）。
+           groups = [[中文字块…], [英文词…]]，play 里每组一条补间。 */
+        var groups = [].slice.call(block.querySelectorAll(".value-text")).map(splitWords);
         var words = [];
-        [].slice.call(block.querySelectorAll(".value-text")).forEach(function (t) {
-            words = words.concat(splitWords(t));
-        });
+        groups.forEach(function (g) { words = words.concat(g); });
         return {
             block: block,
             content: block.querySelector(".value-content") || block,  /* 触发器挂在文字容器上 */
@@ -331,6 +336,7 @@
             cnWords: cnWords,
             text: text,
             words: words,
+            groups: groups,
             btn: btn,
             label: label,
             labelText: label ? label.textContent : "",
@@ -381,18 +387,20 @@
         if (window.gsap) {
             /* 中文标题：遮罩内从下往上抬出；正文：字/词逐个跳出来 */
             if (it.cnWords.length) runTitleCnReveal(it.cnWords);
-            if (it.words.length) runWordReveal(it.words);
+            if (it.groups.length) runWordReveal(it.groups);
         } else {
             /* 库没到：同款位移换成 CSS 过渡，绝不把字停在不可见状态 */
             it.cnWords.forEach(function (w) {
                 w.style.transition = "transform .9s cubic-bezier(.215,.61,.355,1)";
                 w.style.transform = "translate3d(0,0,0)";
             });
-            var step = staggerFor(it.words.length);
-            it.words.forEach(function (w, i) {
-                var d = (0.2 + i * step).toFixed(3) + "s";
-                w.style.transition = "opacity .6s ease-out " + d;
-                w.style.opacity = "1";
+            it.groups.forEach(function (g) {
+                var step = staggerFor(g.length);
+                g.forEach(function (w, i) {
+                    var d = (REVEAL_DELAY + i * step).toFixed(3) + "s";
+                    w.style.transition = "opacity .7s ease-out " + d;
+                    w.style.opacity = "1";
+                });
             });
         }
     }

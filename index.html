@@ -28,25 +28,23 @@
          直接内嵌 data URI，不发额外请求。想换形状/颜色只改下面这个 SVG。 -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2363b4de'/%3E%3Cstop offset='1' stop-color='%231c508c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230a1a2e'/%3E%3Cpath d='M32 9Q35.5 28.5 55 32Q35.5 35.5 32 55Q28.5 35.5 9 32Q28.5 28.5 32 9Z' fill='url(%23g)'/%3E%3C/svg%3E" />
 
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <!-- 2026-11-09：删掉 cdnjs / jsdelivr 的 preconnect —— 库已全部同源本地引入，
+         平时根本不发第三方请求；留着这两条只会白白多开两条 TCP/TLS 连接。
+         CDN 仍然留在下面的兜底列表里，真需要时才连。 -->
     <!-- 门面大图提前预载：开屏动画演的同时它就在下载，进门面时不至于画半张图 -->
 
-    <!-- 开场与门面用的字体：与 handbook 原版同一份（DM Sans / DM Mono / Noto Sans SC）。
-         改成"非阻塞"加载（media=print 先不阻塞渲染，加载完再切成 all）：
-         Google Fonts 在部分网络被拦时，普通的 <link rel=stylesheet> 会卡住首屏白屏很久；
-         这样即使取不到，也只是回退到系统字体，页面照常秒开。 -->
-    <link rel="stylesheet" media="print" onload="this.media='all'"
-          href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
-    <noscript>
-        <link rel="stylesheet"
-              href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
-    </noscript>
+    <!-- 字体全部自托管（2026-11-09）：原来这里挂 Google Fonts 的 css2 请求，
+         国内线路经常 5~20s 才超时，首屏一直在等它；@font-face 也由它下发。
+         现在 DM Sans / DM Mono 打进 0、公共库/字体/，与本站同源，
+         中文字体直接用系统（PingFang SC / 微软雅黑），不再发任何第三方字体请求。 -->
     <!-- 简介/页脚用的两个字体（自托管，同源直取，不再依赖 CDN） -->
     <link rel="preload" as="font" type="font/woff2" crossorigin
           href="0、公共库/字体/space-grotesk-500.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin
           href="0、公共库/字体/jetbrains-mono-400.woff2" />
+    <!-- 首屏大标题的英文行吃 DM Sans，提前取（中文字行走系统字体，无需下载） -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="0、公共库/字体/dmsans-latin.woff2" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
     <link rel="stylesheet" href="2、滚动门面/样式.css?v=62" />
@@ -55,8 +53,21 @@
     <!-- 站点简介与页脚 -->
     <link rel="stylesheet" href="3、站点简介/样式.css?v=30" />
     <link rel="stylesheet" href="4、页脚/样式.css?v=8" />
+    <!-- ===================== 动画库：全部同源本地文件，defer =====================
+         2026-11-09 改：原来是页面底部用 JS 动态注入 + Promise 链（6s 超时 / CDN 兜底），
+         网络一慢（GitHub Pages 本身 TTFB 就 1~2s）就要等好几秒才轮到动画，
+         期间用户已经滚过去 → 触发条件错过 → 看起来就是"动画没出来"。
+         现在直接在 head 里 defer 引入：不阻塞解析，且保证在 DOMContentLoaded 之前
+         就位；下面那段动态加载逻辑只作为"本地文件也取不到"时的兜底。
+         顺序不能动：gsap → ScrollTrigger → lenis → ScrambleText（插件依赖核心）。 -->
+    <script src="0、公共库/gsap.min.js?v=4" defer></script>
+    <script src="0、公共库/ScrollTrigger.min.js?v=4" defer></script>
+    <script src="0、公共库/lenis.min.js?v=4" defer></script>
+    <script src="0、公共库/ScrambleTextPlugin.min.js?v=2" defer></script>
+    <script src="2、滚动门面/动画.js?v=29" defer></script>
+
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
-    <script src="3、站点简介/动画.js?v=16" defer></script>
+    <script src="3、站点简介/动画.js?v=17" defer></script>
     <script src="4、页脚/动画.js?v=9" defer></script>
 
     <style>
@@ -85,6 +96,32 @@
             font-weight: 500;
             font-display: swap;
             src: url("0、公共库/字体/jetbrains-mono-500.woff2") format("woff2");
+        }
+
+        /* DM Sans：可变字体（wght 轴），一个 36KB 的 latin 子集覆盖 400/500/600；
+           latin-ext 用不到，没下载。
+           ⚠ 用 format("woff2-variations") 声明，配合 font-weight 区间，
+             浏览器才会真的按 500/600 去取轴值（否则会被当成固定 400）。 */
+        @font-face {
+            font-family: "DM Sans";
+            font-style: normal;
+            font-weight: 400 700;
+            font-display: swap;
+            src: url("0、公共库/字体/dmsans-latin.woff2") format("woff2-variations");
+        }
+        @font-face {
+            font-family: "DM Mono";
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url("0、公共库/字体/dmmono-400.woff2") format("woff2");
+        }
+        @font-face {
+            font-family: "DM Mono";
+            font-style: normal;
+            font-weight: 500;
+            font-display: swap;
+            src: url("0、公共库/字体/dmmono-500.woff2") format("woff2");
         }
 
         /* 掩膜开窗：照 handbook 入口里的内联块，只把图指到 2、滚动门面/ */
@@ -224,7 +261,7 @@
             </picture>
             <picture>
                 <source srcset="2、滚动门面/主图-结尾.avif" type="image/avif" />
-                <img class="img2" src="2、滚动门面/主图-结尾.webp" alt="" style="opacity:0" />
+                <img class="img2" src="2、滚动门面/主图-结尾.webp" alt="" fetchpriority="low" style="opacity:0" />
             </picture>
         </div>
         <!-- 细网格（v24 拆层）：单独成层、z-index 1（黑幕 z2 之下）——黑幕的窗口
@@ -440,10 +477,10 @@
 
     <!-- ===================== 库与动画脚本 =====================
          顺序照 handbook 原版：gsap → ScrollTrigger → CustomEase → lenis → 动画脚本。
-         这里用顺序注入而不是直接写 <script src>，是为了 ?hero=0 时不白下载这几个库，
-         而且某个库挂掉时不会把整页卡住（少了库就退回"直接看目录"，站点永远能用）。
-         注意：本站这两个脚本（07.开屏动画.js / 04.Hero门面.js）也不要改成静态 <script src>，
-         静态标签会阻塞后面的脚本解析，网络一卡整页都要等（试过，会卡 9 秒）。 -->
+         ★ 2026-11-09 起，库和门面脚本都改成 head 里的 defer 静态引入（见上面 62~70 行），
+           这里的动态注入只作为兜底：本地文件缺失/被代理拦截时才会发请求。
+           注意必须用 defer —— 不带 defer 的 <script src> 会阻塞解析，网络一卡整页等 9 秒；
+           defer 只是"延后执行"、不阻塞解析，而且保证在 DOMContentLoaded 前执行完。 -->
     <script>
         (function () {
             var html = document.documentElement;
@@ -747,7 +784,7 @@
                     ]
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
-                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=28"] }
+                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=29"] }
             };
 
             /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */
@@ -808,33 +845,44 @@
                彼此没有依赖——门面脚本加载时只定义全局函数，
                真正需要 gsap 是在 startSite/armHero 里才发生的，所以可以同时取。
                并行之后最坏耗时从"几个库相加"变成"取其中最长的一个"。 */
-            var gsapReady = ensureLib(LIBS.gsap);
-            var stReady = ensureLib(LIBS.scrollTrigger);
-            var lenisReady = ensureLib(LIBS.lenis);
-            /* ScrambleText 是 gsap 插件：必须等 gsap 核心就位后再加载，
-               否则它加载时找不到 window.gsap，注册不上（等于白下） */
-            var scrambleReady = gsapReady.then(function (ok) {
-                return ok ? ensureLib(LIBS.scrambleText) : false;
-            });
-            var heroScriptReady = ensureLib(LIBS.hero);
+            /* ★ 2026-11-09：库已经改成 head 里的 defer 脚本，到这里（DOMContentLoaded）
+               时 window.gsap / ScrollTrigger / Lenis / ScrambleTextPlugin /
+               SupportFutureScroll 全都就位了，ensureLib 直接返回 resolved，
+               一个网络请求都不发 —— 动画从第一帧起就有效。
+               下面这套多源 + 超时的逻辑只在"本地文件也取不到"（代理拦截、缓存损坏、
+               文件被误删）时才真正干活。 */
+            function acquireLibs() {
+                var gsapReady = ensureLib(LIBS.gsap);
+                var stReady = ensureLib(LIBS.scrollTrigger);
+                var lenisReady = ensureLib(LIBS.lenis);
+                /* ScrambleText 是 gsap 插件：必须等 gsap 核心就位后再加载，
+                   否则它加载时找不到 window.gsap，注册不上（等于白下） */
+                var scrambleReady = gsapReady.then(function (ok) {
+                    return ok ? ensureLib(LIBS.scrambleText) : false;
+                });
+                var heroScriptReady = ensureLib(LIBS.hero);
 
-            /* 开屏已禁用（2026-11-03）：不再等待任何开屏资源（CustomEase /
-               开屏动画.js 已不再下载），boot 立刻执行——它会走"不演开屏"
-               分支：收开场层、解锁站点、照常启动门面。 */
-            var revealChain = Promise.resolve();
+                /* 开屏已禁用（2026-11-03）：不再等待任何开屏资源，boot 立刻执行 */
+                var revealChain = Promise.resolve();
 
-            var heroChain = Promise.all([gsapReady, stReady, lenisReady, scrambleReady, heroScriptReady]);
+                var heroChain = Promise.all([gsapReady, stReady, lenisReady, scrambleReady, heroScriptReady]);
 
-            /* 开演：开屏已禁用，boot 立即执行（走"不演开屏"分支进站点）。
-               loadOne 本来就带超时，门面链路一定会结束，不会挂死。 */
-            revealChain.then(function () { boot(); });
+                revealChain.then(function () { boot(); });
 
-            /* 极端兜底：万一链路意外挂死，最多 22 秒就放行进站，不让人一直看黑屏。
-               这里刻意给到 22 秒（而不是原来的 12 秒）——原来的值太短，
-               链路稍慢就会抢在库到位前判"缺库"，把正在路上的开屏整段砍掉，
-               而且一旦砍掉就永久作废（started 已置位），后面库到了也不播。
-               线上"开屏时有时无、本地却永远正常"就是这么来的。 */
-            setTimeout(function () { if (!started) boot(); }, 22000);
+                /* 极端兜底：万一链路意外挂死，最多 22 秒就放行进站，不让人一直看黑屏。 */
+                setTimeout(function () { if (!started) boot(); }, 22000);
+
+                /* 库齐了就立刻把门面挂上，不再等用户滚到那儿 */
+                heroChain.then(function () { armHero(0); });
+            }
+
+            /* defer 脚本在 DOMContentLoaded 之前执行完；这段内联脚本在解析期就跑了，
+               所以必须等 DOMContentLoaded 再判断，否则会误判"缺库"重复下载一遍。 */
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", acquireLibs);
+            } else {
+                acquireLibs();
+            }
         })();
     </script>
 

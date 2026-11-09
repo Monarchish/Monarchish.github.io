@@ -960,8 +960,9 @@ html, body { overscroll-behavior: none; }
    原因（2026-11-08，用户反馈"有点不和谐"）：两行同字号时，4 个汉字只占 21vw 宽，
    而 "Reinforce the future" 要 39vw —— 上窄下宽、右端参差 260px，
    看着像两行各自为政，而不是一个标题块。
-   实测（h1 = 5vw）：1440 宽下中文 297.5px / 英文 0.50em 时 305px；
-   1920 宽下 398px / 407px —— 两行几乎等宽，左右共边，成一块干净的矩形。
+   实测（h1 = 5vw，英文用自托管的 DM Sans 量）：0.455em 时 1440 下
+   中文 297.5px / 英文 304px、1920 下 398 / 407 —— 两行几乎等宽、左右共边，
+   成一个干净的矩形块。
    同时英文降为副标题层级（0.52×5vw ≈ 2.6vw ≈ 37px@1440），
    与三段卡片"大中文 + 小英文"的语言一致。
    字距改回 +0.01em：h1 继承下来的 -0.03em 是给 5vw 大字收边用的，
@@ -969,10 +970,10 @@ html, body { overscroll-behavior: none; }
    行高 1.1 + margin-top .16em：让英文贴着中文下沿但不粘字脚。 */
 .hero-content .hero-content-block:nth-child(1) h1 .hero-title-en {
   display: block;
-  font-size: 0.50em;
+  font-size: 0.455em;
   line-height: 1.1;
   letter-spacing: 0.012em;
-  margin-top: 0.18em;
+  margin-top: 0.20em;
 }
 
 .hero-explore-btn {
