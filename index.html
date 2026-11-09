@@ -100,14 +100,15 @@
 
         /* DM Sans：可变字体（wght 轴），一个 36KB 的 latin 子集覆盖 400/500/600；
            latin-ext 用不到，没下载。
-           ⚠ 用 format("woff2-variations") 声明，配合 font-weight 区间，
-             浏览器才会真的按 500/600 去取轴值（否则会被当成固定 400）。 */
+           ⚠ format 写普通的 "woff2"：woff2-variations 是旧写法，Safari/iOS 上
+             会被整条丢弃 → 直接掉回系统字体。现代浏览器用 "woff2" 一样读 wght 轴，
+             配合下面的 font-weight 区间，500/600 才取到真的字重（不是合成加粗）。 */
         @font-face {
             font-family: "DM Sans";
             font-style: normal;
             font-weight: 400 700;
             font-display: swap;
-            src: url("0、公共库/字体/dmsans-latin.woff2") format("woff2-variations");
+            src: url("0、公共库/字体/dmsans-latin.woff2") format("woff2");
         }
         @font-face {
             font-family: "DM Mono";
