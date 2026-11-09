@@ -7,7 +7,7 @@
   "use strict";
 
   /* 流程头显示开关（2026-11-05 作者要求先隐藏）：代码/字段/元信息/常见问题 */
-  const HEAD = { code: false, facts: false, meta: false, faq: false };
+  const HEAD = { code: false, facts: false, meta: false, faq: true };
 
   /* 步骤区显示开关（2026-11-05 作者要求先隐藏）：说明/操作数/工具/产出/自检/异常/坑/原始记录/全部步骤/底部导航 */
   const STEP = { n: false, desc: false, ops: false, tools: false, outputs: false, checks: false, exceptions: false, pitfalls: false, raw: false, list: false, foot: false };
@@ -18,7 +18,7 @@
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
   /* 目前只上「采购 / 销售」；其余域（准入、财务、其他）先不上站 */
-  const HIDDEN_DOM = { OTH: true, ADM: true, FIN: true };
+  const HIDDEN_DOM = { OTH: true, ADM: true };
   const DOMAINS = DB.domains.filter((d) => !HIDDEN_DOM[d.id]);
   const FLOWS = DB.flows.filter((f) => !HIDDEN_DOM[f.domain]);
   const VIS_STEPS = FLOWS.reduce((a, f) => a + f.steps.length, 0);
@@ -261,10 +261,10 @@
           <span>更新 <em>${esc(f.updated)}</em></span>
         </div>` : ""}
 
-        ${HEAD.faq ? faqBlock(f) : ""}
       </div>
 
       ${S.mode === "detail" ? renderAllSteps(f) : renderList(f)}
+      ${HEAD.faq ? `<div class="faqwrap">${faqBlock(f)}</div>` : ""}
     </div>`;
   }
 
