@@ -146,32 +146,37 @@
   const NUM = /^\d+\s*[、.．]/;
   const ONEKEY = /^(Enter|Return|Esc|Tab|Space|F\d{1,2}|Alt|Ctrl|Shift)$/i;
 
-  /* 括号语法着色：动作串里四类对象各用一种样式（已转义的文本上匹配，<> 不受影响） */
-  const TOKEN = /【[^】]*】|〈[^〉]*〉|〔[^〕]*〕|\[[^\]]*\]|“[^”]*”/g;
+  /* 符号语法着色（2026-11-09 简化）：全站只保留两种符号——
+     「X」= 界面上原样照抄的名字 / 值；【X】= 需要使用者自己填的占位值。 */
+  const TOKEN = /【[^】]*】|「[^」]*」/g;
   /* 连接词（从 / 到 / 或 / 和）加粗，夹在符号之间才认。
-     左侧放行「开括号」是为了 `]（从 … 到 …）` 这种写法里「从」也能加粗，
-     否则同一句里只有「到」是粗的、看着一头轻一头重（2026-11-06 统一）。 */
-  const CONN = /([\s）〉】\]”（〈【〔\[“]|^)(从|到|或|和)(?=[\s〈【\[“])/g;
-  /* 括号与内容之间各留一个空格：【宝时达】→【 宝时达 】，“文字”→“ 文字 ” */
-  const PAD = { "【": "】", "〈": "〉", "〔": "〕", "[": "]", "“": "”" };
+     纯文字里的「从 … 到 …」（如 从 Z 列到 BW 列）不加粗——口语化写法不必强调。 */
+  const CONN = /([\s）】」”（【「]|^)(从|到|或|和)(?=[\s【「])/g;
+  /* 括号与内容之间各留一个空格：「宝时达」→「 宝时达 」，【宝时达】→【 宝时达 】 */
+  const PAD = { "【": "】", "「": "」" };
   const spacedToken = (t) => {
     const close = PAD[t[0]];
     if (!close) return t;
     const inner = t.slice(1, -1).trim();
     return `${t[0]} ${inner} ${close}`;
   };
-  /* 相邻的两个符号之间也留一个空格：][ → ] [、】或 → 】 或 */
+  /* 相邻的两个符号之间也留一个空格：」「 → 」 「、】或 → 】 或 */
   const SPACE_OUT = [
-    [/([】〉〕\]”])(?=[【〈〔\[“])/g, "$1 "],
-    [/([】〉〕\]”])(?=[从到或和])/g, "$1 "],
-    [/(从|到|或|和)(?=[【〈〔\[“])/g, "$1 "],
+    [/([】」])(?=[【「])/g, "$1 "],
+    [/([】」])(?=[从到或和])/g, "$1 "],
+    [/(从|到|或|和)(?=[【「])/g, "$1 "],
   ];
   const decorate = (t) => {
     let out = t;
     for (const [re, rep] of SPACE_OUT) out = out.replace(re, rep);
     return out
       .replace(CONN, (_, pre, w) => `${pre}<strong class="cn">${w}</strong>`)
-      .replace(TOKEN, (s) => `<span class="tk">${spacedToken(s)}</span>`);
+      .replace(TOKEN, (s) => {
+        const inner = s.slice(1, -1).trim();
+        /* 长内容（公式、整段说明）允许换行，避免把卡片撑破；短名字保持不断行 */
+        const cls = (s[0] === "【" ? "tk fill" : "tk") + (inner.length > 14 ? " long" : "");
+        return `<span class="${cls}">${spacedToken(s)}</span>`;
+      });
   };
 
   /* 🔔 是 OTL 自带的标记，不属于内容，渲染时一律剔除 */

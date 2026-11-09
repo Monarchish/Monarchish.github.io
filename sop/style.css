@@ -520,8 +520,11 @@ a { color: var(--vp-c-brand-1); }
   white-space: nowrap;
 }
 
-/* 括号语法：不靠颜色区分，只靠符号本身；全部与正文同色 */
+/* 符号语法：全站只有两种符号。「X」= 原样照抄（与正文同色）；
+   【X】= 待填占位值，用暖棕色提示「这里要换成你自己的数据」。 */
 .tk { font-style: normal; white-space: nowrap; color: inherit; }
+.tk.long { white-space: normal; }
+.tk.fill { color: #8a5a10; }
 /* 连接词：从 / 到 / 或 / 和 */
 .acts strong.cn { font-weight: 700; color: inherit; }
 
