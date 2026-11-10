@@ -165,8 +165,6 @@
     [/([】」])(?=[【「])/g, "$1 "],
     [/([】」])(?=[从到或和])/g, "$1 "],
     [/(从|到|或|和)(?=[【「])/g, "$1 "],
-    /* 值里的二选一：「同意」OR「不同意」→ 两侧留空格，且统一大写 OR */
-    [/([】」])\s*(?:OR|Or|or)\s*(?=[【「])/g, "$1 OR "],
   ];
   const decorate = (t) => {
     let out = t;
@@ -217,8 +215,9 @@
       const rest = main.slice(m[1].length).replace(/^\s+/, "");
       return `<li class="act"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${decorate(esc(rest))}${det}</span></li>`;
     }
-    /* 明细行：去掉「明细：」三个字，改用 ⚠ 图标 + 灰底条（作者 2026-11-10 定稿） */
-    if (QUOTE.test(main)) return `<li class="quote">${decorate(esc(main.replace(/^明细[:：]\s*/, "")))}</li>`;
+    /* 明细行：作者 2026-11-10 二次定稿——不要 ⚠ 图标，恢复「明细：」字样，
+       只保留灰底灰线做区隔。 */
+    if (QUOTE.test(main)) return `<li class="quote">${decorate(esc(main))}</li>`;
     if (SUB.test(main)) return `<li class="sub">${decorate(esc(main))}</li>`;
     if (NUM.test(main)) return `<li class="num">${esc(main)}</li>`;
     return `<li>${esc(main)}${det}</li>`;

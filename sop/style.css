@@ -544,30 +544,17 @@ a { color: var(--vp-c-brand-1); }
 /* 连接词：从 / 到 / 或 / 和 */
 .acts strong.cn { font-weight: 700; color: inherit; }
 
-/* 明细行（v53）：不再用「明细：」三个字开头，改用与警示同款的 ⚠ 图标 + 灰底条。
-   与黄色警示区分：黄=「不注意会做错」，灰=「照这个范围看/抄」。 */
+/* 明细行（v54）：作者二次定稿——不要 ⚠ 图标，恢复「明细：」文字，
+   只留灰底 + 左侧灰线做区隔（灰=照这个范围看/抄，黄=不注意会做错）。 */
 .acts li.quote, .run-acts li.quote {
   margin: 6px 0 8px;
-  padding: 7px 13px 7px 32px;
-  position: relative;
+  padding: 7px 13px;
   border-left: 3px solid #c9c9c1;
   border-radius: 0 6px 6px 0;
   background: #f2f2ee;
   font-size: 14.5px;
   line-height: 24px;
   color: #5c5f58;
-}
-.acts li.quote::before, .run-acts li.quote::before {
-  /* U+FE0F 强制彩色/实心呈现，与黄色警示条里正文的 ⚠ 保持同一个字形；
-     不指定正文字体时会回退成豆腐块 */
-  content: "⚠\FE0F";
-  position: absolute;
-  left: 10px;
-  top: 6px;
-  font-family: var(--vp-font-family-base);
-  font-size: 13px;
-  line-height: 24px;
-  color: #8a8d84;
 }
 
 /* 明细 / 括号补充：紧贴上一行，缩进一级、字变浅 */
