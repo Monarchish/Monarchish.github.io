@@ -371,6 +371,11 @@
   margin: 0 0 1.25vw;
 }
 
+/* v66：方点对齐中文「字面中心」，不再对齐基线。
+   h2 现在是 baseline 对齐的混排（1.9vw 中文 + 1.25vw 英文），
+   伪元素默认基线落在自身底边，于是方点贴在中文的脚线上、显得偏低。
+   align-self:center 让它落在行盒中线；汉字没有西文的下伸部，
+   行盒中线比汉字字面中心约低 0.05em，再用 translateY 微抬回来。 */
 .hero-content .hero-content-block h2::before {
   content: "";
   display: inline-block;
@@ -379,6 +384,8 @@
   background-color: currentColor;
   margin-right: 0.75vw;
   flex: 0 0 auto;
+  align-self: center;
+  transform: translateY(-0.05em);
   animation: blink-square 1s step-start infinite;
 }
 
@@ -982,13 +989,21 @@ html, body { overscroll-behavior: none; }
    与三段卡片"大中文 + 小英文"的语言一致。
    字距改回 +0.01em：h1 继承下来的 -0.03em 是给 5vw 大字收边用的，
    小字号下会把字母挤在一起。
-   行高 1.1 + margin-top .16em：让英文贴着中文下沿但不粘字脚。 */
+   行高 1.1 + margin-top .16em：让英文贴着中文下沿但不粘字脚。
+
+   v66（2026-11-10，用户定稿方向）：全大写 + 降亮，做中文的"影子"。
+   · text-transform: uppercase —— 白字中文是主体，英文退成一行标签；
+   · 颜色降到 62% 透明度，和 #f4f3e8 的中文拉开明度差；
+   · 大写后逻辑符变宽（同字号约 +26%），故字号收到 0.40em、字距放到 0.06em，
+     仍按"两行等宽、左右共边"校准（1440 实测中文 297.5px / 英文 ~300px）。 */
 .hero-content .hero-content-block:nth-child(1) h1 .hero-title-en {
   display: block;
-  font-size: 0.455em;
+  font-size: 0.335em;
   line-height: 1.1;
-  letter-spacing: 0.012em;
-  margin-top: 0.20em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(244, 243, 232, 0.62);
+  margin-top: 0.26em;
 }
 
 .hero-explore-btn {
