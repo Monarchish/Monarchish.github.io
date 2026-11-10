@@ -165,6 +165,8 @@
     [/([】」])(?=[【「])/g, "$1 "],
     [/([】」])(?=[从到或和])/g, "$1 "],
     [/(从|到|或|和)(?=[【「])/g, "$1 "],
+    /* 值里的二选一：「同意」OR「不同意」→ 两侧留空格，且统一大写 OR */
+    [/([】」])\s*(?:OR|Or|or)\s*(?=[【「])/g, "$1 OR "],
   ];
   const decorate = (t) => {
     let out = t;
@@ -177,14 +179,31 @@
         const cls = (s[0] === "【" ? "tk fill" : "tk") + (inner.length > 14 ? " long" : "");
         return `<span class="${cls}">${spacedToken(s)}</span>`;
       })
-      /* ＝ 统一换行：目标一行、值另起一行（2026-11-09 定稿），值行与目标对齐更好读 */
-      .replace(/＝/g, '<br class="eqbr"><span class="eq">＝</span>');
+      /* ＝ 已不再渲染成符号（2026-11-10 作者定稿：取消＝的表达）——
+         等号交给 actLi 拆成「动作行 + 值条」两行，见 splitEq。 */
+  };
+
+  /* ＝ 拆分：等号前是「动作 / 目标」，等号后是「值」。
+     值单独成条（.val，浅蓝底 + 左侧细线），所以作者看到的是一句话 + 一个值块，
+     而不是「目标 ＝ 值」这种算式。数据源仍用 ＝ 当分隔符，802 处不用改。 */
+  const splitEq = (a) => {
+    const i = a.indexOf("＝");
+    if (i < 0) return [a, ""];
+    const head = a.slice(0, i).trimEnd();
+    const val = a.slice(i + 1).trim();
+    return val ? [head, val] : [a, ""];
   };
 
   /* 🔔 是 OTL 自带的标记，不属于内容，渲染时一律剔除 */
   const NOBELL = (t) => t.replace(/🔔/g, "").replace(/^\s+/, "");
   const actLi = (a) => {
     a = NOBELL(a);
+    /* 有 ＝ 的行：拆成「动作行」+「值条」；值条不参与动词列，独占一行 */
+    const [head, val] = splitEq(a);
+    if (val) {
+      const body = head ? actLi(head) : "";
+      return body + `<li class="val">${decorate(esc(val))}</li>`;
+    }
     if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;
     if (LOOP.test(a)) return `<li class="loop"><span>${esc(a)}</span></li>`;
     if (WARN.test(a)) return `<li class="warn">${esc(a)}</li>`;
@@ -198,7 +217,8 @@
       const rest = main.slice(m[1].length).replace(/^\s+/, "");
       return `<li class="act"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${decorate(esc(rest))}${det}</span></li>`;
     }
-    if (QUOTE.test(main)) return `<li class="quote">${decorate(esc(main))}</li>`;
+    /* 明细行：去掉「明细：」三个字，改用 ⚠ 图标 + 灰底条（作者 2026-11-10 定稿） */
+    if (QUOTE.test(main)) return `<li class="quote">${decorate(esc(main.replace(/^明细[:：]\s*/, "")))}</li>`;
     if (SUB.test(main)) return `<li class="sub">${decorate(esc(main))}</li>`;
     if (NUM.test(main)) return `<li class="num">${esc(main)}</li>`;
     return `<li>${esc(main)}${det}</li>`;

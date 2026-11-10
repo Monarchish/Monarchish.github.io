@@ -481,13 +481,13 @@ a { color: var(--vp-c-brand-1); }
 .sec h3 { font-size: 18px; font-weight: 600; margin: 28px 0 10px; }
 .sec-slim h3 { border: none; }
 
-/* 动作清单：整块装进「蓝底 + 深蓝细边」的内容块里（照 OTL 的内容区） */
+/* 动作清单：v53 起取消「蓝底 + 深蓝细边」的整块外框（作者 2026-11-10 定稿）。
+   理由：整块蓝框 + 蓝色值条 + 黄色警示条三层色块打架；去掉外框后，
+   页面只剩三种色块——蓝=要填/要发的内容，黄=警示，灰=明细，
+   色块本身就承担了层级，不需要再画一个容器。 */
 .sbody {
-  margin: 16px 0 0;
-  padding: 14px 22px 18px 20px;
-  background: var(--vp-c-note-bg);
-  border: 1px solid var(--vp-c-note-border);
-  border-radius: 8px;
+  margin: 14px 0 0;
+  padding: 0 0 2px;
 }
 .acts { list-style: none; counter-reset: none; margin: 0; }
 .acts li {
@@ -525,19 +525,49 @@ a { color: var(--vp-c-brand-1); }
 .tk { font-style: normal; white-space: nowrap; color: inherit; }
 .tk.long { white-space: normal; }
 .tk.fill { color: #8a5a10; }
-/* ＝ 值行：另起一行，值与目标左对齐（换行由 app.js 的 <br class="eqbr"> 负责） */
-.eq { color: inherit; }
+/* ＝ 值行 → 值条（v53）：数据里的「＝」在渲染时已拆成独立的 .val 一行，
+   浅蓝底 + 左侧细线，专门承载「要输入 / 要发出去的原话」。
+   三层色块的分工：蓝＝值，黄＝警示，灰＝明细。 */
+.acts li.val, .run-acts li.val {
+  margin: 3px 0 9px 4px;
+  padding: 7px 13px;
+  border-left: 3px solid #a9c8ea;
+  border-radius: 0 6px 6px 0;
+  background: #edf4fc;
+  color: #1f3f5c;
+  font-size: 14.5px;
+  line-height: 23px;
+  font-weight: 500;
+}
+.acts li.val .tk { color: #1f3f5c; }
+.acts li.val .tk.fill { color: #8a5a10; }
 /* 连接词：从 / 到 / 或 / 和 */
 .acts strong.cn { font-weight: 700; color: inherit; }
 
-/* 明细行：OTL 的引用块 —— 左侧一道浅色竖线，正文灰字 */
+/* 明细行（v53）：不再用「明细：」三个字开头，改用与警示同款的 ⚠ 图标 + 灰底条。
+   与黄色警示区分：黄=「不注意会做错」，灰=「照这个范围看/抄」。 */
 .acts li.quote, .run-acts li.quote {
-  margin: 6px 0 4px;
-  padding: 1px 0 1px 14px;
-  border-left: 3px solid #ccd6e4;
+  margin: 6px 0 8px;
+  padding: 7px 13px 7px 32px;
+  position: relative;
+  border-left: 3px solid #c9c9c1;
+  border-radius: 0 6px 6px 0;
+  background: #f2f2ee;
   font-size: 14.5px;
-  line-height: 25px;
-  color: #767c85;
+  line-height: 24px;
+  color: #5c5f58;
+}
+.acts li.quote::before, .run-acts li.quote::before {
+  /* U+FE0F 强制彩色/实心呈现，与黄色警示条里正文的 ⚠ 保持同一个字形；
+     不指定正文字体时会回退成豆腐块 */
+  content: "⚠\FE0F";
+  position: absolute;
+  left: 10px;
+  top: 6px;
+  font-family: var(--vp-font-family-base);
+  font-size: 13px;
+  line-height: 24px;
+  color: #8a8d84;
 }
 
 /* 明细 / 括号补充：紧贴上一行，缩进一级、字变浅 */
@@ -702,7 +732,7 @@ table.tbl tr:hover td { background: var(--vp-c-bg-soft); }
   .step-h h2 { font-size: 20px; }
   .acts li { font-size: 15px; line-height: 26px; }
   .acts li .verb { font-size: 14px; }
-  .sbody { padding: 10px 14px 14px 12px; }
+  .sbody { padding: 0; }
   .acts li.sub { padding-left: 14px; }
   .acts li.act { gap: 7px; }
 }
