@@ -204,7 +204,7 @@
     }
     if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;
     if (LOOP.test(a)) return `<li class="loop"><span>${esc(a)}</span></li>`;
-    if (WARN.test(a)) return `<li class="warn">${esc(a)}</li>`;
+    if (WARN.test(a)) return `<li class="warn">${esc(a.replace(/^⚠\s*/, ""))}</li>`;
     if (BRANCH.test(a)) return `<li class="br">${esc(a)}</li>`;
     if (ONEKEY.test(a.trim())) return `<li class="act key"><span class="verb">${esc(a.trim())}</span></li>`;
     const dm = a.match(DETAIL);
