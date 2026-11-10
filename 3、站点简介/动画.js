@@ -437,18 +437,38 @@
         window.addEventListener("scroll", onScroll, { passive: true });
     }
 
-    /* 立即挂触发器：不等任何库。
-       初始的隐身/下沉已经写在 splitWords / splitTitleCn 的内联样式里，
-       不需要再单独 gsap.set 一遍（以前就是这一步依赖 gsap，
-       库晚到 → 字没被藏起来 → 触发时从 1 到 1，动画等于消失）。 */
-    items.forEach(arm);
+    /* 挂触发器（2026-11-10 第六版）：不再"立即"挂——等布局稳定后再挂。
+       原因（线上实锤）：本脚本在 DOMContentLoaded 就跑，而门面的
+       ScrollTrigger pin 那时还没建，整页比最终布局短一大截，
+       简介块在"假布局"里已经够到触发线 → 页面一加载动画就偷偷开演
+       （字藏在屏幕外亮），用户真正滑到位时只剩尾巴，后面的段落看不全。
+       做法：load + 500ms（pin 建好、ScrollTrigger refresh 完）再 arm；
+       极端情况下 load 迟迟不 fired 就用 3s 兜底。字本来就是内联
+       opacity:0 隐藏的，晚挂触发器不会有任何视觉副作用。 */
+    var armedAll = false;
+    function armAll() {
+        if (armedAll) return;
+        armedAll = true;
+        items.forEach(arm);
+        armFuse();
+    }
+    if (document.readyState === "complete") {
+        setTimeout(armAll, 500);
+    } else {
+        window.addEventListener("load", function () { setTimeout(armAll, 500); });
+        setTimeout(armAll, 3000);   /* load 迟到/被卡时的兜底 */
+    }
 
-    /* 保险丝：3s 后仍在视口里却没演过的块，强制演一次。
+    /* 保险丝：arm 后 3s 仍在触发线内却没演过的块，强制演一次。
        触发器本身有三层（已在视口 / IO / scroll），这里只是兜住极端情况，
-       免得任何一个环节被脚本打断时，字永久停在不可见状态。 */
-    setTimeout(function () {
-        items.forEach(function (it) { if (!it.done && inView(it.content)) play(it); });
-    }, 3000);
+       免得任何一个环节被脚本打断时，字永久停在不可见状态。
+       ⚠ 必须挂在 armAll 之后计时：提前跑的话 pin 还没建，"假布局"
+       会把远在屏幕外的块误判成已入视口（本轮 bug 的根源之一）。 */
+    function armFuse() {
+        setTimeout(function () {
+            items.forEach(function (it) { if (!it.done && inView(it.content)) play(it); });
+        }, 3000);
+    }
 
     /* 库是页面底部异步取回来的：就绪后补挂 ScrollTrigger 作为第二保险
        （IO 先触发也无妨，done 会拦住重复播放），并做 pin 布局校正 */
@@ -461,9 +481,13 @@
                 if (!it.done) {
                     ScrollTrigger.create({
                         trigger: it.content,
-                        start: "top 80%",
+                        start: "top 55%",   /* 与 IO / scroll 兜底同一条触发线 */
                         once: true,
-                        onEnter: function () { play(it); }
+                        /* ⚠ 必须实时校验：这些 ST 可能是在门面 pin 建好之前的
+                           旧布局上算的 start（偏小几千像素），滚动时会提前
+                           onEnter——线上实测三个块被一次全放完。位置不对就
+                           不演、不杀，由 IO / scroll 兜底在真正的 55% 线接管。 */
+                        onEnter: function () { if (inView(it.content)) play(it); }
                     });
                 }
             });
