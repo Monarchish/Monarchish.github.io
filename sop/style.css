@@ -556,6 +556,9 @@ a { color: var(--vp-c-brand-1); }
   line-height: 24px;
   color: #5c5f58;
 }
+/* 长明细逐项不断行（列名 + 列号必须在一起）；超长项交给 .wrap 正常折行 */
+.acts li.quote .qi, .run-acts li.quote .qi { white-space: nowrap; }
+.acts li.quote .qi.wrap, .run-acts li.quote .qi.wrap { white-space: normal; }
 
 /* 明细 / 括号补充：紧贴上一行，缩进一级、字变浅 */
 .acts li.sub {

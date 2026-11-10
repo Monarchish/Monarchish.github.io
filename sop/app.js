@@ -217,7 +217,19 @@
     }
     /* 明细行：作者 2026-11-10 二次定稿——不要 ⚠ 图标，恢复「明细：」字样，
        只保留灰底灰线做区隔。 */
-    if (QUOTE.test(main)) return `<li class="quote">${decorate(esc(main))}</li>`;
+    if (QUOTE.test(main)) {
+      /* 长明细（以「、」分列的列名清单，如台账 Z→BW）：逐项整体不断行，
+         否则窄屏会把「产地」和「（AB）」拆到两行；超长项（带括号说明）放开折行。 */
+      if (main.length > 120 && main.indexOf("、") >= 0) {
+        const cs = main.split("、");
+        const html = cs.map((c, i) => {
+          const cls = c.length <= 22 ? "qi" : "qi wrap";
+          return `<span class="${cls}">${decorate(esc(c))}</span>` + (i < cs.length - 1 ? "、" : "");
+        }).join("");
+        return `<li class="quote">${html}</li>`;
+      }
+      return `<li class="quote">${decorate(esc(main))}</li>`;
+    }
     if (SUB.test(main)) return `<li class="sub">${decorate(esc(main))}</li>`;
     if (NUM.test(main)) return `<li class="num">${esc(main)}</li>`;
     return `<li>${esc(main)}${det}</li>`;
