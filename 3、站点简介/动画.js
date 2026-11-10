@@ -51,81 +51,11 @@
     parallax();
 })();
 
-/* ---------- ③ 主页大字：逐行「从下往上 + 淡入」（ScrollTrigger） ----------
-   文本按 HTML 里的 <br> 拆行（不按空格拆词：这句子太长，逐词会散成 40 段），
-   每行包一个 .about-line，整行一起抬起来，行与行之间留 0.12s 的错峰。
-   触发点 top 85%（标题顶边进到屏下 15% 时开演），回滚时反向退回原状。
-   库没取到时走 CSS 过渡兜底，文字绝不会停在不可见状态。
-   ⚠ 单独一个 IIFE：上面 ② 有 `if (!assets.length) return;`，
-     写在一起的话没有图片时这段会被一起 return 掉。 */
-(function initAboutReveal() {
-    var title = document.querySelector(".about-title");
-    if (!title) return;
-
-    /* 按 <br> 拆行：只加包裹层，不改文本、不改换行点 */
-    if (!title.querySelector(".about-line")) {
-        var parts = title.innerHTML.split(/<br\s*\/?>/i);
-        title.innerHTML = parts.map(function (t) {
-            return '<span class="about-line">' + t + "</span>";
-        }).join("");
-    }
-    var lines = [].slice.call(title.querySelectorAll(".about-line"));
-    if (!lines.length) return;
-
-    function playWithGsap() {
-        gsap.registerPlugin(ScrollTrigger);
-        gsap.fromTo(lines,
-            { y: 60, opacity: 0 },
-            {
-                y: 0,
-                opacity: 1,
-                duration: 1.2,
-                ease: "power3.out",
-                stagger: 0.12,
-                scrollTrigger: {
-                    trigger: title,
-                    start: "top 85%",
-                    toggleActions: "play none none reverse"
-                }
-            });
-        ScrollTrigger.refresh();
-        /* 门面那一段是 pin 住的，pin-spacer 会把整页高度改一次：
-           如果本段在它建好之前就量了位置，start 会偏。等 load 完再校一遍。 */
-        var reflow = function () { ScrollTrigger.refresh(); };
-        if (document.readyState === "complete") setTimeout(reflow, 400);
-        else window.addEventListener("load", function () { setTimeout(reflow, 400); });
-    }
-
-    /* CSS 过渡兜底：同样的位移/缓动，用 IntersectionObserver 触发 */
-    function playWithCss() {
-        var vh = window.innerHeight;
-        lines.forEach(function (l, i) {
-            l.style.transitionDelay = (i * 0.12) + "s";
-            l.classList.add("about-line-js");
-        });
-        if ("IntersectionObserver" in window) {
-            var io = new IntersectionObserver(function (entries) {
-                entries.forEach(function (en) {
-                    en.target.classList.toggle("is-in", en.isIntersecting);
-                });
-            }, { rootMargin: "0px 0px -15% 0px" });
-            lines.forEach(function (l) { io.observe(l); });
-        }
-        /* 已经在视口里（直达简介 / 刷新停在半页）：不再等观察器回调，立刻补一次，
-           否则文字会停在 opacity:0 的状态上——宁可省掉动画，也不能让字看不见 */
-        lines.forEach(function (l) {
-            if (l.getBoundingClientRect().top < vh * 0.85) l.classList.add("is-in");
-        });
-    }
-
-    /* gsap / ScrollTrigger 是页面底部异步装载的：这里轮询等待，超时就兜底 */
-    var t0 = Date.now();
-    (function waitLibs() {
-        if (window.gsap && window.ScrollTrigger) { playWithGsap(); return; }
-        if (Date.now() - t0 > 4000) { playWithCss(); return; }
-        setTimeout(waitLibs, 120);
-    })();
-})();
+/* ---------- ③ 主页大字：v22 起取消入场特效（用户 2026-11-10 定稿）----------
+   这句是站点的核心定位句，应当一进来就"已经在那儿"，而不是表演一次。
+   原来的「按 <br> 拆行 → 每行上滑 60px + 淡入 + 0.12s 错峰 + ScrollTrigger 反向回滚」
+   整段删除；同时删掉了配套的 .about-line / .about-line-js CSS 与 JS 注入的 span，
+   文字直接由 HTML 静态输出，任何库没加载、脚本报错都不会出现"字看不见"的状态。 */
 
 /* ===================== 2026-11-03 重写：照抄门面母本（不发明新代码） =====================
    本段所有乱码/拆词/逐词逻辑逐行取自 2、滚动门面/动画.js 的 v56「文案入场」段：

@@ -63,7 +63,7 @@
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
-    <link rel="stylesheet" href="3、站点简介/样式.css?v=30" />
+    <link rel="stylesheet" href="3、站点简介/样式.css?v=31" />
     <link rel="stylesheet" href="4、页脚/样式.css?v=8" />
     <!-- ===================== 动画库：全部同源本地文件，defer =====================
          2026-11-09 改：原来是页面底部用 JS 动态注入 + Promise 链（6s 超时 / CDN 兜底），
@@ -79,7 +79,7 @@
     <script src="2、滚动门面/动画.js?v=31" defer></script>
 
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
-    <script src="3、站点简介/动画.js?v=21" defer></script>
+    <script src="3、站点简介/动画.js?v=22" defer></script>
     <script src="4、页脚/动画.js?v=9" defer></script>
 
     <style>
@@ -434,9 +434,16 @@
     <div class="site-shell" id="siteShell">
 
         <section class="home-intro" aria-label="站点简介">
-            <!-- 主页大字：JS 会按 <br> 拆成两行再逐行滑入（3、站点简介/动画.js 第 ③ 段）。
-                 换行位置就用这个 <br> 控制，不要靠自动折行。 -->
-            <h2 class="about-title">This space is where<br>memories, systems, and evolution meet.</h2>
+            <!-- 主页大字 = 站点核心定位句。2026-11-10 定稿：中英双语、零特效、静态输出。
+                 · 中文是主体（大字号黑字），英文退成副行（0.26em、55% 黑）做对照；
+                 · 换行点写死在这个 <br> 里：长句「记忆、系统与未来，」+ 短句「在这里交汇。」，
+                   上长下短是海报式构图，别交给自动折行；
+                 · 入场动画已整段删除（3、站点简介/动画.js 第 ③ 段只剩注释），
+                   这句要在任何情况下都立刻可见。 -->
+            <h2 class="about-title">
+                <span class="about-title-cn">记忆、系统与未来，<br>在这里交汇。</span>
+                <span class="about-title-en">This space is where memories, systems, and the future meet.</span>
+            </h2>
             <div class="intro-values">
                 <div class="value-block">
                     <div class="value-content">
