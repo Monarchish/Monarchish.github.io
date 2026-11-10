@@ -267,20 +267,25 @@
     };
 
     /* 正文：字/词按阅读顺序从左到右依次亮起，只动 opacity，不做任何位移。
-       2026-11-09 第四版：
-         · 中英**同时**开演 —— 以前是把英文接在中文后面排队（中文念完才轮到英文），
-           视觉上像两段各自加载；现在每段单独一条补间、同一个 delay 一起起跑，
-           各自的间隔按自身长度算，所以两段同时开始、同时收尾。
-         · 再放慢：单组排完的时间 REVEAL_SPAN 从 2.4s 提到 3.2s，单字淡入 .6s→.7s，
-           整段约 4.1s，肉眼能一个字一个字看清楚。
-       词多的组间隔会自动收紧（上限 0.09s），但总时长由 REVEAL_SPAN 兜住，
-       不会因为字多就变回"唰"一下。 */
+       2026-11-10 第五版（用户定稿）：回到「排队」——中文全部亮完之后，
+         英文才开始出现。第五版之前是中英同时起跑（v4），用户看了实际效果
+         还是希望先读完中文、再浮现英文。
+       实现：每组起跑时刻 = 前一组的「排完时刻」。一组的总时长 =
+         stagger × (词数 − 1) + 单词淡入 0.7s，组与组之间再留 0.25s 呼吸。
+       其余节奏不变：中文段排完仍约 3.2s（REVEAL_SPAN 兜住），单字淡入 .7s。
+       CSS 兜底分支（库没到时）用同一套时刻表，两条路径观感一致。 */
     var REVEAL_SPAN = 3.2;    /* 每组排完的时间（秒），不含最后一字的淡入 */
     var REVEAL_DELAY = 0.22;  /* 等标题抬出来再起 */
+    var REVEAL_GAP = 0.25;    /* 上一组亮完到下一组起跑之间的呼吸空隙 */
     var staggerFor = function (n) {
         return Math.min(0.09, REVEAL_SPAN / Math.max(n, 1));
     };
+    /* 一组从起跑到「最后一字淡入结束」的总秒数（用于推算下一组的起跑时刻） */
+    var groupSpanFor = function (n) {
+        return staggerFor(n) * Math.max(n - 1, 0) + 0.7;
+    };
     var runWordReveal = function (groups) {
+        var wait = REVEAL_DELAY;   /* 中文先起跑 */
         groups.forEach(function (g) {
             if (!g.length) return;
             gsap.to(g, {
@@ -288,8 +293,9 @@
                 duration: 0.7,
                 ease: "power1.out",
                 stagger: staggerFor(g.length),
-                delay: REVEAL_DELAY,
+                delay: wait,
             });
+            wait += groupSpanFor(g.length) + REVEAL_GAP;   /* 英文排在中文亮完之后 */
         });
     };
 
@@ -394,13 +400,16 @@
                 w.style.transition = "transform .9s cubic-bezier(.215,.61,.355,1)";
                 w.style.transform = "translate3d(0,0,0)";
             });
+            var waitAcc = REVEAL_DELAY;   /* 与 gsap 分支同一时刻表：英文排在中文亮完之后 */
             it.groups.forEach(function (g) {
                 var step = staggerFor(g.length);
+                var wait = waitAcc;
                 g.forEach(function (w, i) {
-                    var d = (REVEAL_DELAY + i * step).toFixed(3) + "s";
+                    var d = (wait + i * step).toFixed(3) + "s";
                     w.style.transition = "opacity .7s ease-out " + d;
                     w.style.opacity = "1";
                 });
+                waitAcc = wait + groupSpanFor(g.length) + REVEAL_GAP;
             });
         }
     }

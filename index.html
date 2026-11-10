@@ -79,7 +79,7 @@
     <script src="2、滚动门面/动画.js?v=29" defer></script>
 
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
-    <script src="3、站点简介/动画.js?v=17" defer></script>
+    <script src="3、站点简介/动画.js?v=18" defer></script>
     <script src="4、页脚/动画.js?v=9" defer></script>
 
     <style>
@@ -618,6 +618,11 @@
             }
 
             var siteStarted = false;
+            /* 2026-11-10：heroChain 原来是 acquireLibs 里的 var（只提升到那个函数内），
+               startSite 直接引用会 ReferenceError（线上实测），且抛错点之后的
+               Promise.all(...).then 交接（startSmooth + armHero）整段被跳过。
+               改成 IIFE 作用域的共享变量：acquireLibs 算好后赋进来。 */
+            var heroChainPromise = null;
             function startSite() {
                 if (siteStarted || !animMode) return;
                 siteStarted = true;
@@ -637,7 +642,7 @@
                 Promise.all([
                     /* 门面那两个库（ScrollTrigger / lenis）和门面脚本可能还在路上，
                        一起等，免得交接时门面还没准备好 */
-                    heroChain || Promise.resolve(),
+                    heroChainPromise || Promise.resolve(),
                     document.fonts ? document.fonts.ready : Promise.resolve()
                 ]).then(function () {
                     startSmooth();
@@ -879,6 +884,7 @@
                 var revealChain = Promise.resolve();
 
                 var heroChain = Promise.all([gsapReady, stReady, lenisReady, scrambleReady, heroScriptReady]);
+                heroChainPromise = heroChain;   /* 交给 startSite 共享（见上方注释） */
 
                 revealChain.then(function () { boot(); });
 
