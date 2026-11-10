@@ -267,16 +267,16 @@
     };
 
     /* 正文：字/词按阅读顺序从左到右依次亮起，只动 opacity，不做任何位移。
-       2026-11-10 第五版（用户定稿）：回到「排队」——中文全部亮完之后，
-         英文才开始出现。第五版之前是中英同时起跑（v4），用户看了实际效果
-         还是希望先读完中文、再浮现英文。
-       实现：每组起跑时刻 = 前一组的「排完时刻」。一组的总时长 =
-         stagger × (词数 − 1) + 单词淡入 0.7s，组与组之间再留 0.25s 呼吸。
-       其余节奏不变：中文段排完仍约 3.2s（REVEAL_SPAN 兜住），单字淡入 .7s。
+       2026-11-10 第六版（用户定稿）：英文不等中文全部亮完——
+         「中文快完结的时候」英文就开始进场（重叠尾部，不重叠主体）。
+       实现：下一组起跑时刻 = 上一组总时长 × 85%，即中文最后 ~15% 的
+         时间内英文已经开始亮，等中文最后一个字落定，英文前几个词也已
+         出现，节奏紧凑但不抢戏。
+       其余节奏不变：中文段排完仍约 3.2~3.9s（REVEAL_SPAN 兜住），单字淡入 .7s。
        CSS 兜底分支（库没到时）用同一套时刻表，两条路径观感一致。 */
     var REVEAL_SPAN = 3.2;    /* 每组排完的时间（秒），不含最后一字的淡入 */
     var REVEAL_DELAY = 0.22;  /* 等标题抬出来再起 */
-    var REVEAL_GAP = 0.25;    /* 上一组亮完到下一组起跑之间的呼吸空隙 */
+    var OVERLAP = 0.85;       /* 下一组在上一组进行到 85% 时进场（0.85 ≈ 尾部重叠） */
     var staggerFor = function (n) {
         return Math.min(0.09, REVEAL_SPAN / Math.max(n, 1));
     };
@@ -295,7 +295,7 @@
                 stagger: staggerFor(g.length),
                 delay: wait,
             });
-            wait += groupSpanFor(g.length) + REVEAL_GAP;   /* 英文排在中文亮完之后 */
+            wait += groupSpanFor(g.length) * OVERLAP;   /* 英文在中文快收尾时进场 */
         });
     };
 
@@ -378,11 +378,16 @@
        就永远不会创建 → 动画静默不播（实测 stCount 只有门面自己的 1 个）。
        新版：页面加载「立即」做三件事，一个库都不等——
          ① 已在视口内的块立刻演；
-         ② IntersectionObserver 挂主触发（rootMargin -20% ≈ top 80% 线）；
+         ② IntersectionObserver 挂主触发（rootMargin -45% ≈ top 55% 线）；
          ③ scroll 监听兜底。gsap 只负责「怎么演」，不负责「何时演」。
-       用户定稿：触发器绑 .value-content、start top 80%、once 只演一次。 */
+       触发线（2026-11-10 第六版用户定稿）：块顶到达屏幕 55% 线才开演。
+         原来 80% 线太靠下——块还在屏幕底部就开始播，等用户把块滑到
+         舒适的阅读位置，动画已经演完了大半，后面的段落根本看不全。
+         55% 线意味着块已经占了屏幕下半到中间的位置，开演时用户正好盯着它。
+       ⚠ inView（scroll 兜底）与 IO 的 rootMargin 必须是同一条线，
+         否则两条路径会在不同时刻开演。 */
     function inView(el) {
-        return el.getBoundingClientRect().top < window.innerHeight * 0.8;
+        return el.getBoundingClientRect().top < window.innerHeight * 0.55;
     }
 
     function play(it) {
@@ -400,7 +405,7 @@
                 w.style.transition = "transform .9s cubic-bezier(.215,.61,.355,1)";
                 w.style.transform = "translate3d(0,0,0)";
             });
-            var waitAcc = REVEAL_DELAY;   /* 与 gsap 分支同一时刻表：英文排在中文亮完之后 */
+            var waitAcc = REVEAL_DELAY;   /* 与 gsap 分支同一时刻表：英文在中文快收尾时进场 */
             it.groups.forEach(function (g) {
                 var step = staggerFor(g.length);
                 var wait = waitAcc;
@@ -409,7 +414,7 @@
                     w.style.transition = "opacity .7s ease-out " + d;
                     w.style.opacity = "1";
                 });
-                waitAcc = wait + groupSpanFor(g.length) + REVEAL_GAP;
+                waitAcc = wait + groupSpanFor(g.length) * OVERLAP;
             });
         }
     }
@@ -422,7 +427,7 @@
                 entries.forEach(function (en) {
                     if (en.isIntersecting) { play(it); io.disconnect(); }
                 });
-            }, { rootMargin: "0px 0px -20% 0px" });
+            }, { rootMargin: "0px 0px -45% 0px" });
             io.observe(it.content);
         }
         /* scroll 兜底：IO 都不可用的老浏览器也能演（done 防重入） */
