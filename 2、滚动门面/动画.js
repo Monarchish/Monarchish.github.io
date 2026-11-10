@@ -187,8 +187,11 @@
     measureScramble();
 
     /* ② 英文小标题乱码：定时器每 TICK_MS 才重画一次，字符肉眼可见地跳；
-       每 PER_WORD_TICKS 拍落定一个词，落完即收（门面原有节奏，一行未动） */
-    const runTitleScramble = (el, text) => {
+       每 PER_WORD_TICKS 拍落定一个词，落完即收（门面原有节奏，一行未动）
+       v31：加 ticksPerWord 可选参数——首屏大标题英文用 2 拍/词（≈260ms），
+       落定更快，不和主标题抬出抢戏 */
+    const runTitleScramble = (el, text, ticksPerWord) => {
+      const perWord = ticksPerWord || PER_WORD_TICKS;
       const parts = text.split(/(\s+)/); // 单词 / 空白交替，空白原样保留
       const wordPos = [];
       for (let i = 0; i < parts.length; i++) {
@@ -214,7 +217,7 @@
       render(0);
       const timer = setInterval(() => {
         ticks++;
-        const settled = Math.floor(ticks / PER_WORD_TICKS);
+        const settled = Math.floor(ticks / perWord);
         if (settled >= total) {
           clearInterval(timer);
           el.textContent = text; // 收尾写回原文，杜绝残留乱码
@@ -224,26 +227,29 @@
       }, TICK_MS);
     };
 
-    /* ③ 正文：字/词依次淡入，只动 opacity，不做任何位移（用户定稿：不要从下往上） */
+    /* ③ 正文：字/词依次淡入，只动 opacity，不做任何位移（用户定稿：不要从下往上）
+       v31 提速（2026-11-10，用户反馈"等内容全出现才能往下滑"）：整段节奏收快约 30%——
+       单字淡入 0.5→0.4、字距 stagger 0.05→0.035、标题抬出 0.9→0.7、英文进场点 85%→75%。
+       最长一段（起源）总时长 4.2s → 2.9s，排队结构（中→英）保持不变。 */
     const runWordReveal = (words, extraDelay) => {
       gsap.to(words, {
         opacity: 1,
-        duration: 0.5,
+        duration: 0.4,
         ease: "power1.out",
-        stagger: 0.05,
+        stagger: 0.035,
         delay: extraDelay || 0,
       });
     };
 
     /* 中文标题抬出：先 gsap.set 归零内联 translate3d 再动 yPercent，
        否则 gsap 读到的是已换算的 px 位移，会残留（站点简介同款教训） */
-    const REVEAL_DELAY = 0.15;  /* 等标题抬出来一点再起 */
-    const OVERLAP = 0.85;       /* 英文在中文进行到 85% 时进场（站点简介 v21 同款） */
-    const groupSpanFor = (n) => 0.05 * Math.max(n - 1, 0) + 0.5;  /* stagger×(n−1)+单字淡入 */
+    const REVEAL_DELAY = 0.12;  /* 等标题抬出来一点再起 */
+    const OVERLAP = 0.75;       /* 英文在中文进行到 75% 时进场（v31 提速同步收紧） */
+    const groupSpanFor = (n) => 0.035 * Math.max(n - 1, 0) + 0.4;  /* stagger×(n−1)+单字淡入 */
     const runTitleCnReveal = (word) => {
       if (!word) return;
       gsap.set(word, { x: 0, y: 0, yPercent: 120 });
-      gsap.to(word, { yPercent: 0, duration: 0.9, ease: "power3.out", delay: 0.05 });
+      gsap.to(word, { yPercent: 0, duration: 0.7, ease: "power3.out", delay: 0.05 });
     };
 
     const runScramble = (movedUp, vh) => {
@@ -261,13 +267,22 @@
 
     /* ① 大标题入场：y 100 → 0 + 淡入，一次，无乱码（用户指定参数）
        2026-11-08：下面那个黄色按钮（EXPLORE ORIGIN）的入场动画按用户要求整段删除——
-       按钮现在从第一帧就静态在位，只保留悬停乱码。 */
+       按钮现在从第一帧就静态在位，只保留悬停乱码。
+       v31（2026-11-10，用户拍板）：英文第二行加快速乱码入场——与三段英文标签、
+       按钮悬停的乱码母题呼应；中文仍走遮罩抬出（汉字跳不动乱码，老结论）。
+       乱码只改 .hero-title-en 的 textContent，不碰 h1 的 y/opacity 入场；
+       2 拍/词（TICK_MS 130 → ≈260ms/词，3 词 ≈0.8s），起手延迟 0.35s
+       与标题抬出重叠，整体不拖慢首屏。 */
     if (heroTitleEl) {
       gsap.fromTo(
         heroTitleEl,
         { y: 100, opacity: 0 },
         { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.15, clearProps: "transform,opacity" }
       );
+      const heroTitleEn = heroTitleEl.querySelector(".hero-title-en");
+      if (heroTitleEn) {
+        setTimeout(() => runTitleScramble(heroTitleEn, heroTitleEn.textContent, 2), 350);
+      }
     }
 
     /* ============================================================
