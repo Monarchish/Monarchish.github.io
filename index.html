@@ -59,7 +59,7 @@
           href="2、滚动门面/主图-开场.avif" fetchpriority="high" />
 
     <!-- 滚动门面（handbook 原版 css/inversa-hero.css） -->
-    <link rel="stylesheet" href="2、滚动门面/样式.css?v=64" />
+    <link rel="stylesheet" href="2、滚动门面/样式.css?v=65" />
     <!-- 开场动画（handbook 原版 css/reveal.css） -->
     <link rel="stylesheet" href="1、开屏动画/样式.css?v=6" />
     <!-- 站点简介与页脚 -->
@@ -76,7 +76,7 @@
     <script src="0、公共库/ScrollTrigger.min.js?v=4" defer></script>
     <script src="0、公共库/lenis.min.js?v=4" defer></script>
     <script src="0、公共库/ScrambleTextPlugin.min.js?v=2" defer></script>
-    <script src="2、滚动门面/动画.js?v=29" defer></script>
+    <script src="2、滚动门面/动画.js?v=30" defer></script>
 
     <!-- 简介的鼠标晃动（原生 JS，defer 等 DOM 齐了再跑） -->
     <script src="3、站点简介/动画.js?v=21" defer></script>
@@ -370,20 +370,23 @@
             </div>
             <div class="hero-content-block">
                 <div class="hero-content-copy">
-                    <h2>RAW FRAGMENTS</h2>
-                    <p>Joy, struggle, and everyday moments are distilled into a living archive. This is not just data. It is the unfiltered footprint of a human.</p>
+                    <h2><span class="hero-h2-cn">起源</span><span class="hero-h2-en">Origin</span></h2>
+                    <p class="hero-copy-cn">信息的碎片化与记忆的易失性，构成认知进化的根本阻力。<br>将隐性经验转化为持久化数据，是本系统建立的初始逻辑。</p>
+                    <p class="hero-copy-en">Information fragmentation and memory loss constitute fundamental barriers to cognitive evolution.<br>Converting tacit experience into persistent data is the initial logic of this system.</p>
                 </div>
             </div>
             <div class="hero-content-block">
                 <div class="hero-content-copy">
-                    <h2>SYSTEMATIC ORDER</h2>
-                    <p>Complex tasks are converted into precise workflows. By delegating repetitive operations to AI, cognitive capacity is restored. Focus on judgment and strategy.</p>
+                    <h2><span class="hero-h2-cn">架构</span><span class="hero-h2-en">Architecture</span></h2>
+                    <p class="hero-copy-cn">超越传统信息的静态归档属性，构建去中心化的个人认知基座。<br>依托算法协议的协同，实现双轨自动化运行。</p>
+                    <p class="hero-copy-en">Transcending traditional static archiving to construct a decentralized personal cognitive core.<br>Relying on algorithmic synergy to achieve dual-track automated operation.</p>
                 </div>
             </div>
             <div class="hero-content-block">
                 <div class="hero-content-copy">
-                    <h2>CONTINUOUS EVOLUTION</h2>
-                    <p>A lifelong system that learns and adapts. Bridging past experiences with future potential, it evolves into a cognitive companion, day by day.</p>
+                    <h2><span class="hero-h2-cn">演化</span><span class="hero-h2-en">Evolution</span></h2>
+                    <p class="hero-copy-cn">以系统的绝对秩序，抵御现实环境的熵增与不确定性。<br>极限降低认知负荷，将有限的算力精准定向于高阶决策。</p>
+                    <p class="hero-copy-en">Resisting environmental entropy through absolute systematic order.<br>Minimizing cognitive load to direct limited computational power toward high-level decisions.</p>
                 </div>
             </div>
         </div>
@@ -802,7 +805,7 @@
                     ]
                 },
                 /* 本站自己的脚本：只有一个来源，但同样校验（本站也可能被代理拦） */
-                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=29"] }
+                hero: { global: "SupportFutureScroll", urls: ["2、滚动门面/动画.js?v=30"] }
             };
 
             /* 加载单个脚本：成功/失败/超时都会 resolve，绝不把流程卡死 */

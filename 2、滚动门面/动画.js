@@ -74,34 +74,108 @@
     /* 首屏大标题：从乱码名单里摘出去，单独做滑入 */
     const heroTitleEl = heroContent.querySelector(".hero-content-block:nth-child(1) h1");
 
-    /* 正文拆词：单词各包一个 span，词间空格的文本节点原样保留，
-       这样宽度/换行与原来完全一致，只是每个词可以单独动 */
-    const splitWords = (el) => {
-      const text = el.textContent.replace(/\s+/g, " ").trim();
-      const words = text ? text.split(" ") : [];
-      el.textContent = "";
+    /* ============================================================
+       2026-11-10 第七版：三段改中英双语（起源 / 架构 / 演化）。
+       汉字跳不动乱码（scrambleToken 只替换 [A-Za-z]），所以照
+       3、站点简介 v21 已验收的方案改造：
+         · h2：.hero-h2-cn 中文遮罩抬出；.hero-h2-en 英文保留逐词乱码
+           （黄色 mono 小字 + 闪烁方点，门面原有识别元素一行不动）；
+         · 正文 .hero-copy-cn 中文逐字（标点粘前字，字间插 ZWSP 保断行）；
+         · .hero-copy-en 英文逐词，在中文进行到 85% 时进场（OVERLAP），
+           与站点简介 v21 同一节奏；
+         · 触发沿用原逻辑：内容上移后进入视口下缘 90% 线的那一段开始播，
+           但以「块」为单位整组触发（原来是 h2 / p 各自触发）。
+       ⚠ 触发条件、位移、蒙版、散点、网格一行未动。
+       ============================================================ */
+    const scrambleItems = [];
+
+    /* 中文逐字拆分：按 childNodes 遍历，<br> 原样保留（两行文案的换行点写死在结构里）；
+       标点粘在前一个字上（行首不孤挂逗号）；字间插零宽空格 ZWSP——
+       行内块之间没有空白时浏览器不给断行机会，整段会变成一条长条溢出 */
+    const CN_PUNCT = /[，。、；：？！…—·“”‘’（）《》〈〉,.;:?!'"()\[\]{}]/;
+    const splitChars = (el) => {
       const spans = [];
-      words.forEach((w, i) => {
-        const s = document.createElement("span");
-        s.className = "word";
-        s.textContent = w;
-        el.appendChild(s);
-        spans.push(s);
-        if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+      const nodes = [...el.childNodes];
+      el.textContent = "";
+      nodes.forEach((n) => {
+        if (n.tagName === "BR") { el.appendChild(document.createElement("br")); return; }
+        const tokens = [];
+        for (const ch of n.textContent) {
+          if (/\s/.test(ch)) continue;
+          if (CN_PUNCT.test(ch) && tokens.length) tokens[tokens.length - 1] += ch;
+          else tokens.push(ch);
+        }
+        tokens.forEach((w, i) => {
+          const s = document.createElement("span");
+          s.className = "word";
+          s.textContent = w;
+          el.appendChild(s);
+          spans.push(s);
+          if (i < tokens.length - 1) el.appendChild(document.createTextNode("\u200B"));
+        });
       });
       return spans;
     };
 
-    const scrambleItems = [];
-    heroContent.querySelectorAll("h1, h2, p").forEach((el) => {
-      if (el === heroTitleEl) return;             // 大标题不参与乱码
-      if (el.tagName === "P") {
-        const words = splitWords(el);
-        gsap.set(words, { opacity: 0 });          // 初始隐身，等触发时逐个淡入
-        scrambleItems.push({ el, words, top: 0, done: false });
-      } else {
-        scrambleItems.push({ el, text: el.textContent, top: 0, done: false });
-      }
+    /* 英文逐词拆分：同样按 childNodes 走，保住 <br> */
+    const splitEnWords = (el) => {
+      const spans = [];
+      const nodes = [...el.childNodes];
+      el.textContent = "";
+      nodes.forEach((n) => {
+        if (n.tagName === "BR") { el.appendChild(document.createElement("br")); return; }
+        const words = n.textContent.split(/\s+/).filter(Boolean);
+        words.forEach((w, i) => {
+          const s = document.createElement("span");
+          s.className = "word";
+          s.textContent = w;
+          el.appendChild(s);
+          spans.push(s);
+          if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+        });
+      });
+      return spans;
+    };
+
+    /* 中文标题遮罩：整串字装进 overflow:hidden 的壳，从 120% 抬回 0
+       （开场「支援未来」/站点简介标题同款；初始位移写内联样式，不依赖 gsap 时序） */
+    const splitTitleCn = (el) => {
+      if (!el || el.querySelector(".cn-mask")) return null;
+      const raw = el.textContent.trim();
+      if (!raw) return null;
+      el.textContent = "";
+      const mask = document.createElement("span");
+      mask.className = "cn-mask";
+      const w = document.createElement("span");
+      w.className = "cn-word";
+      w.textContent = raw;
+      w.style.transform = "translate3d(0,120%,0)";
+      mask.appendChild(w);
+      el.appendChild(mask);
+      return w;
+    };
+
+    heroContent.querySelectorAll(".hero-content-block").forEach((block) => {
+      const h2 = block.querySelector("h2");
+      if (!h2) return;                              // 第 1 块是大标题，不参与
+      const enTitleEl = h2.querySelector(".hero-h2-en");
+      const cnWords = [];
+      const enWords = [];
+      block.querySelectorAll("p").forEach((p) => {
+        if (p.classList.contains("hero-copy-cn")) cnWords.push(...splitChars(p));
+        else if (p.classList.contains("hero-copy-en")) enWords.push(...splitEnWords(p));
+      });
+      if (cnWords.length) gsap.set(cnWords, { opacity: 0 });   // 初始隐身，等触发时逐字亮起
+      if (enWords.length) gsap.set(enWords, { opacity: 0 });
+      scrambleItems.push({
+        el: h2,                                  // 触发量测仍挂块顶（h2 是块内最上元素）
+        cnWord: splitTitleCn(h2.querySelector(".hero-h2-cn")),
+        enTitle: enTitleEl ? { el: enTitleEl, text: enTitleEl.textContent } : null,
+        cnWords,
+        enWords,
+        top: 0,
+        done: false,
+      });
     });
 
     const measureScramble = () => {
@@ -112,8 +186,8 @@
     };
     measureScramble();
 
-    /* ② 小标题乱码：定时器每 TICK_MS 才重画一次，字符肉眼可见地跳；
-       每 PER_WORD_TICKS 拍落定一个词，落完即收 */
+    /* ② 英文小标题乱码：定时器每 TICK_MS 才重画一次，字符肉眼可见地跳；
+       每 PER_WORD_TICKS 拍落定一个词，落完即收（门面原有节奏，一行未动） */
     const runTitleScramble = (el, text) => {
       const parts = text.split(/(\s+)/); // 单词 / 空白交替，空白原样保留
       const wordPos = [];
@@ -150,24 +224,37 @@
       }, TICK_MS);
     };
 
-    /* ③ 正文：单词依次淡入，只动 opacity，不做任何位移（用户定稿：不要从下往上） */
-    const runWordReveal = (words) => {
+    /* ③ 正文：字/词依次淡入，只动 opacity，不做任何位移（用户定稿：不要从下往上） */
+    const runWordReveal = (words, extraDelay) => {
       gsap.to(words, {
         opacity: 1,
         duration: 0.5,
         ease: "power1.out",
         stagger: 0.05,
+        delay: extraDelay || 0,
       });
+    };
+
+    /* 中文标题抬出：先 gsap.set 归零内联 translate3d 再动 yPercent，
+       否则 gsap 读到的是已换算的 px 位移，会残留（站点简介同款教训） */
+    const REVEAL_DELAY = 0.15;  /* 等标题抬出来一点再起 */
+    const OVERLAP = 0.85;       /* 英文在中文进行到 85% 时进场（站点简介 v21 同款） */
+    const groupSpanFor = (n) => 0.05 * Math.max(n - 1, 0) + 0.5;  /* stagger×(n−1)+单字淡入 */
+    const runTitleCnReveal = (word) => {
+      if (!word) return;
+      gsap.set(word, { x: 0, y: 0, yPercent: 120 });
+      gsap.to(word, { yPercent: 0, duration: 0.9, ease: "power3.out", delay: 0.05 });
     };
 
     const runScramble = (movedUp, vh) => {
       scrambleItems.forEach((it) => {
         if (it.done || it.top - movedUp >= vh * 0.9) return;
         it.done = true;
-        if (it.words) {
-          runWordReveal(it.words);
-        } else {
-          runTitleScramble(it.el, it.text);
+        runTitleCnReveal(it.cnWord);
+        if (it.enTitle) runTitleScramble(it.enTitle.el, it.enTitle.text);
+        if (it.cnWords.length) runWordReveal(it.cnWords, REVEAL_DELAY);
+        if (it.enWords.length) {
+          runWordReveal(it.enWords, REVEAL_DELAY + groupSpanFor(it.cnWords.length) * OVERLAP);
         }
       });
     };

@@ -1026,6 +1026,55 @@ html, body { overscroll-behavior: none; }
   will-change: opacity;
 }
 
+/* ===== v65：三段中英双语（2026-11-10）=====
+   层级沿用站点简介已验收的「大中文 + 小英文」语言：
+   · h2 保留黄色 mono 小写化英文 + 闪烁方点（门面识别元素），中文「起源/架构/演化」
+     放大为白字主标题，两者基线对齐坐在同一行；
+   · 正文：中文为主（原 p 的字号颜色原样），英文收小、降透明度做副文；
+   · .cn-mask/.cn-word 是 JS 抬出动画的壳（overflow:hidden），与开场「支援未来」同款。 */
+.hero-content .hero-content-block h2 {
+  align-items: baseline;    /* 中文大字与英文小字基线对齐（原来 center 是同字号才好看） */
+}
+
+.hero-content .hero-content-block h2 .hero-h2-cn {
+  font-family: "DM Sans", "Noto Sans SC", sans-serif;
+  font-size: 1.9vw;         /* 站点简介 value-title-cn 同语言：中文主标题 */
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  color: #f4f3e8;
+  text-transform: none;     /* h2 的 uppercase 只该管英文 */
+}
+
+.hero-content .hero-content-block h2 .hero-h2-en {
+  font-size: 1.25vw;        /* 保持原有黄色 mono 标签字号 */
+  line-height: 1;
+  letter-spacing: 0.08em;
+  margin-left: 0.75vw;
+}
+
+.hero-content .hero-content-block h2 .hero-h2-cn .cn-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.08em;   /* 抬出动画时字脚不被裁 */
+  margin-bottom: -0.08em;
+}
+
+.hero-content .hero-content-block h2 .hero-h2-cn .cn-word {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* 英文正文：副文层级——收小一号、降透明度、行高放宽 */
+.hero-content .hero-content-block p.hero-copy-en {
+  font-size: 0.95vw;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  color: rgba(244, 243, 232, 0.55);
+  margin-top: 0.9vw;
+}
+
 /* 手机竖屏（本站统一 800px 档）：照原站 max-width:600 那套 rem 值换算
    1rem = 2.6667vw，即 .content left/bottom 1.2rem=3.2vw、标题 4.6rem=12.27vw；
    标题字号再压一档，避免 390 宽上把 "the future." 挤到第三行 */
@@ -1162,6 +1211,16 @@ html, body { overscroll-behavior: none; }
     margin-bottom: 3.2vw;
   }
 
+  /* v65 双语 span 有显式字号，窄屏要单独压回来（否则继承不到 h2 的 4.27vw） */
+  .hero-content .hero-content-block h2 .hero-h2-cn {
+    font-size: 6.4vw;       /* 中文主标题：比英文标签大半档 */
+  }
+
+  .hero-content .hero-content-block h2 .hero-h2-en {
+    font-size: 4.27vw;
+    margin-left: 2.4vw;
+  }
+
   .hero-content .hero-content-block h2::before {
     width: 1.07vw;
     height: 1.07vw;
@@ -1171,5 +1230,11 @@ html, body { overscroll-behavior: none; }
   .hero-content .hero-content-block p {
     font-size: 4.27vw;
     line-height: 1.62;
+  }
+
+  .hero-content .hero-content-block p.hero-copy-en {
+    font-size: 3.4vw;
+    line-height: 1.55;
+    margin-top: 2.4vw;
   }
 }
