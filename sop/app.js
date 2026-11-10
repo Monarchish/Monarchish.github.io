@@ -141,6 +141,9 @@
   const LOOP = /^【[^】]+】$/;
   const WARN = /^⚠/;
   const SUB = /^（.+）$/;
+  /* 作者 2026-11-10：这两条括号补充其实是「筛选条件 / 插入位置」的值，
+     按「蓝=值」的色块规则改用蓝色值条承载；括号原样保留，不做符号占位处理。 */
+  const BLUE_SUB = /^（(单个资源号|在下方插入行)）$/;
   /* 明细行：OTL 的引用块写法「明细：…」，带竖线 */
   const QUOTE = /^明细[:：]/;
   const NUM = /^\d+\s*[、.．]/;
@@ -230,9 +233,30 @@
       }
       return `<li class="quote">${decorate(esc(main))}</li>`;
     }
+    if (BLUE_SUB.test(main)) return `<li class="val subval">${esc(main)}</li>`;
     if (SUB.test(main)) return `<li class="sub">${decorate(esc(main))}</li>`;
     if (NUM.test(main)) return `<li class="num">${esc(main)}</li>`;
     return `<li>${esc(main)}${det}</li>`;
+  };
+
+  /* 作者 2026-11-10：毛重那四步要跟警示语待在同一个黄框里。
+     数据源仍是「一条 ⚠ 警示 + 紧随其后的 4 行动作」，这里只在渲染时并成一组；
+     其它流程的警示条完全不受影响。 */
+  const WARN_GROUP = /^⚠\s*注意：如果需要插入毛重/;
+  const actionsHtml = (actions) => {
+    const out = [];
+    for (let i = 0; i < actions.length; i++) {
+      const a = actions[i];
+      if (WARN_GROUP.test(a)) {
+        const lead = esc(a.replace(/^⚠\s*/, ""));
+        const steps = actions.slice(i + 1, i + 5).map(actLi).join("");
+        out.push(`<li class="warn wgroup"><div class="wg-lead">${lead}</div><ol class="wg-steps">${steps}</ol></li>`);
+        i += 4;
+      } else {
+        out.push(actLi(a));
+      }
+    }
+    return out.join("");
   };
 
   function rawBlock(s) {
@@ -322,7 +346,7 @@
       ${STEP.desc ? `<p class="sum">${esc(s.summary)}</p>` : ""}
 
       <section class="sec">
-        <div class="sbody"><ol class="acts">${s.actions.map(actLi).join("")}</ol></div>
+        <div class="sbody"><ol class="acts">${actionsHtml(s.actions)}</ol></div>
       </section>
 
       ${(STEP.tools && s.systems.length) ? `<section class="sec">
@@ -645,7 +669,7 @@
 
           <section class="run-sec">
             <h4>现在做</h4>
-            <ol class="run-acts">${s.actions.map(actLi).join("")}</ol>
+            <ol class="run-acts">${actionsHtml(s.actions)}</ol>
           </section>
 
           ${s.outputs.length ? `<section class="run-sec">
