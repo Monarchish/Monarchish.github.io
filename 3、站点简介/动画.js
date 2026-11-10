@@ -51,11 +51,97 @@
     parallax();
 })();
 
-/* ---------- ③ 主页大字：v22 起取消入场特效（用户 2026-11-10 定稿）----------
-   这句是站点的核心定位句，应当一进来就"已经在那儿"，而不是表演一次。
-   原来的「按 <br> 拆行 → 每行上滑 60px + 淡入 + 0.12s 错峰 + ScrollTrigger 反向回滚」
-   整段删除；同时删掉了配套的 .about-line / .about-line-js CSS 与 JS 注入的 span，
-   文字直接由 HTML 静态输出，任何库没加载、脚本报错都不会出现"字看不见"的状态。 */
+/* ---------- ③ 主页大字：逐行「从下往上 + 淡入」（ScrollTrigger）----------
+   v23（2026-11-10）：按用户要求恢复——导师站确实是这个动作，删早了。
+   结构已变（中文两行在 .about-title-cn 里、英文副行是 .about-title-en），
+   所以拆行从 title.innerHTML 收窄到 .about-title-cn：只在中文块内部按 <br> 拆，
+   再把英文副行接到队列末尾，得到「3 行依次上滑」，视觉与原方案（2 行）同一节奏。
+   每行 60px 上滑 + 淡入，行间错峰 0.12s；触发点 top 85%，回滚反向退回原状。
+   库没取到时走 CSS 过渡兜底（.about-line-js / .is-in），文字绝不会停在不可见状态。
+   ⚠ 单独一个 IIFE：上面 ② 有 `if (!assets.length) return;`，
+     写在一起的话没有图片时这段会被一起 return 掉。 */
+(function initAboutReveal() {
+    var title = document.querySelector(".about-title");
+    if (!title) return;
+
+    /* 按 <br> 拆行：只加包裹层，不改文本、不改换行点。
+       中文块拆完后，英文副行整块作为最后一行排队。 */
+    var cn = title.querySelector(".about-title-cn");
+    if (cn && !cn.querySelector(".about-line")) {
+        var parts = cn.innerHTML.split(/<br\s*\/?>/i);
+        cn.innerHTML = parts.map(function (t) {
+            return '<span class="about-line">' + t + "</span>";
+        }).join("");
+    }
+    var lines = [].slice.call(title.querySelectorAll(".about-line"));
+    var enLine = title.querySelector(".about-title-en");
+    if (enLine) lines.push(enLine);
+    if (!lines.length) return;
+
+    /* gsap 版：时间轴做一次，触发自己用「实时 rect」判，不再挂 ScrollTrigger。
+       为什么不用 ScrollTrigger：门面那段是 pin 住的，pin-spacer 会在建好之后
+       把整页高度改一次；本段如果在它之前量位置，start 会偏小数千 px
+       （实测 start=135，而标题实际在 4500px 处），一滚动就提前演完。
+       站点简介 v21 踩过同一个坑，这里的解法同样是"不看预算好的 start，看当下 rect"：
+       标题顶边进入视口 85% 处开演，退回 88% 以上反向收回（留 3% 迟滞防抖）。 */
+    function playWithGsap() {
+        gsap.set(lines, { y: 60, opacity: 0 });
+        var tl = gsap.timeline({ paused: true });
+        tl.to(lines, { y: 0, opacity: 1, duration: 1.2, ease: "power3.out", stagger: 0.12 });
+
+        var played = false;
+        var ticking = false;
+        function check() {
+            ticking = false;
+            var vh = window.innerHeight;
+            var top = title.getBoundingClientRect().top;
+            if (!played && top < vh * 0.85) { played = true; tl.play(); }
+            else if (played && top > vh * 0.88) { played = false; tl.reverse(); }
+        }
+        function onScroll() {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(check);
+        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll);
+        /* 直达简介 / 刷新停在半页：进来就该有的状态，立刻判一次 */
+        check();
+        /* 字体晚到会把标题高度改一次，位置跟着变：等 load 后与字体就绪再判一次 */
+        window.addEventListener("load", onScroll);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
+    }
+
+    /* CSS 过渡兜底：同样的位移/缓动，用 IntersectionObserver 触发 */
+    function playWithCss() {
+        var vh = window.innerHeight;
+        lines.forEach(function (l, i) {
+            l.style.transitionDelay = (i * 0.12) + "s";
+            l.classList.add("about-line-js");
+        });
+        if ("IntersectionObserver" in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    en.target.classList.toggle("is-in", en.isIntersecting);
+                });
+            }, { rootMargin: "0px 0px -15% 0px" });
+            lines.forEach(function (l) { io.observe(l); });
+        }
+        /* 已经在视口里（直达简介 / 刷新停在半页）：不再等观察器回调，立刻补一次，
+           否则文字会停在 opacity:0 的状态上——宁可省掉动画，也不能让字看不见 */
+        lines.forEach(function (l) {
+            if (l.getBoundingClientRect().top < vh * 0.85) l.classList.add("is-in");
+        });
+    }
+
+    /* gsap / ScrollTrigger 是页面底部异步装载的：这里轮询等待，超时就兜底 */
+    var t0 = Date.now();
+    (function waitLibs() {
+        if (window.gsap && window.ScrollTrigger) { playWithGsap(); return; }
+        if (Date.now() - t0 > 4000) { playWithCss(); return; }
+        setTimeout(waitLibs, 120);
+    })();
+})();
 
 /* ===================== 2026-11-03 重写：照抄门面母本（不发明新代码） =====================
    本段所有乱码/拆词/逐词逻辑逐行取自 2、滚动门面/动画.js 的 v56「文案入场」段：
