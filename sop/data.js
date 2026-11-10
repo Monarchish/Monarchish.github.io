@@ -70,7 +70,7 @@ window.SOP_DATA = {
       "steps": [
         {
           "n": 1,
-          "title": "让步单截图",
+          "title": "让步单查询",
           "summary": "",
           "code": false,
           "ops": 5,
