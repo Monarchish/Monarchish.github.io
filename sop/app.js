@@ -290,6 +290,13 @@
       /* 空行 = 条件块结束标记（作者 2026-11-11）：黄框到此为止，后面的行回到正常流程，
          标记本身不渲染。用于「光大/招行」这类并列条件块后面紧跟主流程的情形。 */
       if (!a) { i++; continue; }
+      /* 两行式筛选：「筛选（Filter）「列名」」紧跟「（条件）」括号行 —— 合并成单行，
+         渲染成与单行式一致的蓝底值条（蓝=值）。否则列名白底、只有条件蓝底，视觉割裂。 */
+      if (FILTER.test(a) && !/）\s*$/.test(a) && actions[i + 1] && SUB.test(actions[i + 1].trim())) {
+        out.push(actLi(a + actions[i + 1].trim()));
+        i += 2;
+        continue;
+      }
       if (WARN_GROUP.test(a)) {
         out.push(groupHtml(actions.slice(i, i + 5)));
         i += 5;
