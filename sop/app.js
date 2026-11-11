@@ -199,6 +199,7 @@
   /* 🔔 是 OTL 自带的标记，不属于内容，渲染时一律剔除 */
   const NOBELL = (t) => t.replace(/🔔/g, "").replace(/^\s+/, "");
   const actLi = (a) => {
+    if (!a) return "";
     a = NOBELL(a);
     /* 有 ＝ 的行：拆成「动作行」+「值条」；值条不参与动词列，独占一行 */
     const [head, val] = splitEq(a);
@@ -255,7 +256,7 @@
 
   const groupHtml = (rows) => {
     const lead = esc(rows[0].replace(/^⚠\s*/, ""));
-    const steps = rows.slice(1).map((x) => x.startsWith("⚠")
+    const steps = rows.slice(1).filter(Boolean).map((x) => x.startsWith("⚠")
       ? `<li class="wg-cond">${esc(x.replace(/^⚠\s*/, ""))}</li>`
       : actLi(x)).join("");
     return `<li class="warn wgroup"><div class="wg-lead">${lead}</div><ol class="wg-steps">${steps}</ol></li>`;
@@ -266,6 +267,9 @@
     let i = 0;
     while (i < actions.length) {
       const a = actions[i];
+      /* 空行 = 条件块结束标记（作者 2026-11-11）：黄框到此为止，后面的行回到正常流程，
+         标记本身不渲染。用于「光大/招行」这类并列条件块后面紧跟主流程的情形。 */
+      if (!a) { i++; continue; }
       if (WARN_GROUP.test(a)) {
         out.push(groupHtml(actions.slice(i, i + 5)));
         i += 5;
@@ -279,14 +283,14 @@
       }
       if (FAQ_LEAD.test(a)) {
         let j = i + 1;
-        while (j < actions.length && !FAQ_LEAD.test(actions[j]) && !SOLO_FAQ(actions[j])) j++;
+        while (j < actions.length && actions[j] && !FAQ_LEAD.test(actions[j]) && !SOLO_FAQ(actions[j])) j++;
         out.push(groupHtml(actions.slice(i, j)));
         i = j;
         continue;
       }
       if (LEAD.test(a)) {
         let j = i + 1;
-        while (j < actions.length && !LEAD.test(actions[j]) && !FAQ_LEAD.test(actions[j]) && !SOLO_FAQ(actions[j])) j++;
+        while (j < actions.length && actions[j] && !LEAD.test(actions[j]) && !FAQ_LEAD.test(actions[j]) && !SOLO_FAQ(actions[j])) j++;
         out.push(groupHtml(actions.slice(i, j)));
         i = j;
         continue;
