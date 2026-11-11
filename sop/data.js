@@ -4230,7 +4230,7 @@ window.SOP_DATA = {
             "点击（Left Click）「查询」",
             "点击（Left Click）「合同签名」",
             "点击（Left Click）「下载」",
-            "全部打印后给美晨姐盖章，然后交给财务。"
+            "全部打印后交给风控盖章。"
           ],
           "checks": [],
           "outputs": [],
