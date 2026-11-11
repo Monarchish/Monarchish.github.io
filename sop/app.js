@@ -149,6 +149,8 @@
   const QUOTE = /^明细[:：]/;
   const NUM = /^\d+\s*[、.．]/;
   const ONEKEY = /^(Enter|Return|Esc|Tab|Space|F\d{1,2}|Alt|Ctrl|Shift)$/i;
+  /* 筛选（Filter）行：其「列名」（条件）属于「值」，应统一蓝底值条承载（蓝=值） */
+  const FILTER = /^筛选（\s*Filter\s*）/;
 
   /* 符号语法着色（2026-11-09 简化）：全站只保留两种符号——
      「X」= 界面上原样照抄的名字 / 值；【X】= 需要使用者自己填的占位值。 */
@@ -201,6 +203,24 @@
   const actLi = (a) => {
     if (!a) return "";
     a = NOBELL(a);
+    /* 筛选（Filter）行：动词单独成 chip，其后的「列名」（条件）属于「值」应统一蓝底值条。
+       含 ＝ 的（如「列」＝【占位】）保持原样式（动词 + 列名同行白底，值单独蓝条）；
+       不含 ＝ 的（如「列名」（条件））把整段规格升级为蓝底值条，与含 ＝ 的筛选行视觉一致。 */
+    if (FILTER.test(a)) {
+      const [fhead, fval] = splitEq(a);
+      const fm = a.match(VERB);
+      const fverb = fm ? esc(SPACED(fm[1])) : "筛选（ Filter ）";
+      const fspec = fm ? fhead.slice(fm[1].length).trim() : fhead.trim();
+      if (fval) {
+        const body = fspec
+          ? `<li class="act"><span class="verb">${fverb}</span><span class="txt">${decorate(esc(fspec))}</span></li>`
+          : `<li class="act"><span class="verb">${fverb}</span></li>`;
+        return body + `<li class="val">${decorate(esc(fval))}</li>`;
+      }
+      let html = `<li class="act"><span class="verb">${fverb}</span></li>`;
+      if (fspec) html += `<li class="val">${decorate(esc(fspec))}</li>`;
+      return html;
+    }
     /* 有 ＝ 的行：拆成「动作行」+「值条」；值条不参与动词列，独占一行 */
     const [head, val] = splitEq(a);
     if (val) {
