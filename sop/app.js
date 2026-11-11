@@ -116,7 +116,9 @@
     const d = domainById(f.domain);
     /* 路径式层级：域 / 流程 / 当前步骤 */
     let c = `<span>${esc(d.name)}</span><span class="sep">/</span><b>${esc(f.title)}</b>`;
-    if (S.view === "flow" && S.mode === "detail") c += `<span class="sep">/</span><b>${esc(curStep().title)}</b>`;
+    /* 步骤被全部迁出的空流程：不追加「当前步骤」段，避免 curStep() 为 undefined 时报错；
+       非空流程的面包屑渲染与原来完全一致 */
+    if (S.view === "flow" && S.mode === "detail" && f.steps.length) c += `<span class="sep">/</span><b>${esc(curStep().title)}</b>`;
     if (S.view === "docs") c = `<b>单据索引</b>`;
     if (S.view === "terms") c = `<b>口径</b>`;
     if (S.view === "audit") c = `<b>完备度自检</b>`;
