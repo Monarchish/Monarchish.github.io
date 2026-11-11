@@ -628,6 +628,28 @@ a { color: var(--vp-c-brand-1); }
   font-weight: 400;
   color: #080f17;
 }
+/* 条件块内部再出现的分支警示句：不套第二层黄框，只做小标题 */
+.acts li.warn.wgroup .wg-steps > li.wg-cond,
+.run-acts li.warn.wgroup .wg-steps > li.wg-cond {
+  margin: 7px 0 3px;
+  padding: 0 0 0 10px;
+  border-left: 2px solid #e8cd96;
+  color: #8a6a24;
+  font-weight: 600;
+}
+/* 黄底条件块里的蓝色值条：淡化（作者 2026-11-11「淡化蓝色框试试」）。
+   半透明浅蓝 + 极淡左线 + 灰蓝字，不再跳出一个饱和蓝块。 */
+.acts li.warn.wgroup .wg-steps > li.val,
+.run-acts li.warn.wgroup .wg-steps > li.val {
+  margin: 4px 0 7px 3px;
+  padding: 5px 12px;
+  border-left: 2px solid #d7e3f0;
+  background: rgba(237, 244, 252, .5);
+  color: #64798d;
+  font-size: 14.5px;
+  line-height: 23px;
+  font-weight: 400;
+}
 
 /* 单个按键：Enter */
 .acts li.key .verb { background: var(--vp-c-verb-bg); }

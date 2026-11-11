@@ -141,9 +141,8 @@
   const LOOP = /^【[^】]+】$/;
   const WARN = /^⚠/;
   const SUB = /^（.+）$/;
-  /* 作者 2026-11-10：这两条括号补充其实是「筛选条件 / 插入位置」的值，
-     按「蓝=值」的色块规则改用蓝色值条承载；括号原样保留，不做符号占位处理。 */
-  const BLUE_SUB = /^（(单个资源号|在下方插入行)）$/;
+  /* 作者 2026-11-11：全部括号补充行统一按「蓝=值」用蓝色值条承载，
+     括号原样保留，不做符号占位处理；黄框内的值条再由 CSS 淡化。 */
   /* 明细行：OTL 的引用块写法「明细：…」，带竖线 */
   const QUOTE = /^明细[:：]/;
   const NUM = /^\d+\s*[、.．]/;
@@ -233,28 +232,65 @@
       }
       return `<li class="quote">${decorate(esc(main))}</li>`;
     }
-    if (BLUE_SUB.test(main)) return `<li class="val subval">${esc(main)}</li>`;
-    if (SUB.test(main)) return `<li class="sub">${decorate(esc(main))}</li>`;
+    if (SUB.test(main)) return `<li class="val subval">${decorate(esc(main))}</li>`;
     if (NUM.test(main)) return `<li class="num">${esc(main)}</li>`;
     return `<li>${esc(main)}${det}</li>`;
   };
 
-  /* 作者 2026-11-10：毛重那四步要跟警示语待在同一个黄框里。
-     数据源仍是「一条 ⚠ 警示 + 紧随其后的 4 行动作」，这里只在渲染时并成一组；
-     其它流程的警示条完全不受影响。 */
+  /* 条件块（作者 2026-11-11 定稿）：
+     以冒号收尾的警示句是「引子」，它下面的操作属于该条件 / FAQ，
+     不属于正常工作流程 —— 整组放进同一个黄底框，与主流程视觉区隔开。
+     · FAQ 块：以「按下列步骤操作 / 处理：」收尾，到下一个 FAQ 引子为止；
+     · 流程内分支：以「如果…则：」「招商银行：」等收尾，到下一个引子为止；
+     · 块内再出现的 ⚠ 分支句渲染成无底小标题，避免黄框里套黄框；
+     · 毛重四步是固定 4 行的老特例，优先单独处理。 */
+  const LEAD = /^⚠.*[：:]\s*$/;
+  const FAQ_LEAD = /^⚠\s*(?:如需|出现)「[^」]*」.*按下列步骤(?:操作|处理)：\s*$/;
+  /* 「一句话型 FAQ」：条件与答案融在同一条警示里（如「营业执照无法上传」），
+     它是独立的一条 FAQ，不该被并成上一条 FAQ 框里的小标题。 */
+  const SOLO_FAQ = (a) => /^⚠\s*(?:如需|出现)「[^」]*」/.test(a) && !LEAD.test(a) && !FAQ_LEAD.test(a);
   const WARN_GROUP = /^⚠\s*注意：如果需要插入毛重/;
+
+  const groupHtml = (rows) => {
+    const lead = esc(rows[0].replace(/^⚠\s*/, ""));
+    const steps = rows.slice(1).map((x) => x.startsWith("⚠")
+      ? `<li class="wg-cond">${esc(x.replace(/^⚠\s*/, ""))}</li>`
+      : actLi(x)).join("");
+    return `<li class="warn wgroup"><div class="wg-lead">${lead}</div><ol class="wg-steps">${steps}</ol></li>`;
+  };
+
   const actionsHtml = (actions) => {
     const out = [];
-    for (let i = 0; i < actions.length; i++) {
+    let i = 0;
+    while (i < actions.length) {
       const a = actions[i];
       if (WARN_GROUP.test(a)) {
-        const lead = esc(a.replace(/^⚠\s*/, ""));
-        const steps = actions.slice(i + 1, i + 5).map(actLi).join("");
-        out.push(`<li class="warn wgroup"><div class="wg-lead">${lead}</div><ol class="wg-steps">${steps}</ol></li>`);
-        i += 4;
-      } else {
-        out.push(actLi(a));
+        out.push(groupHtml(actions.slice(i, i + 5)));
+        i += 5;
+        continue;
       }
+      /* 一句话型 FAQ：自己就是完整的一条，单列为黄条，不吞后面的行 */
+      if (SOLO_FAQ(a)) {
+        out.push(actLi(a));
+        i++;
+        continue;
+      }
+      if (FAQ_LEAD.test(a)) {
+        let j = i + 1;
+        while (j < actions.length && !FAQ_LEAD.test(actions[j]) && !SOLO_FAQ(actions[j])) j++;
+        out.push(groupHtml(actions.slice(i, j)));
+        i = j;
+        continue;
+      }
+      if (LEAD.test(a)) {
+        let j = i + 1;
+        while (j < actions.length && !LEAD.test(actions[j]) && !FAQ_LEAD.test(actions[j]) && !SOLO_FAQ(actions[j])) j++;
+        out.push(groupHtml(actions.slice(i, j)));
+        i = j;
+        continue;
+      }
+      out.push(actLi(a));
+      i++;
     }
     return out.join("");
   };
