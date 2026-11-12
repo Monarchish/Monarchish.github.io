@@ -516,7 +516,7 @@ window.SOP_DATA = {
           "title": "台账登记",
           "summary": "",
           "code": false,
-          "ops": 12,
+          "ops": 10,
           "actions": [
             "打开（Open）「提货委托书」",
             "复制（Ctrl + C）「捆包号（H）」",
