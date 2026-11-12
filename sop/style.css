@@ -568,6 +568,86 @@ a { color: var(--vp-c-brand-1); }
 .acts li.quote .qi, .run-acts li.quote .qi { white-space: nowrap; }
 .acts li.quote .qi.wrap, .run-acts li.quote .qi.wrap { white-space: normal; }
 
+/* 长明细折叠（v59）：默认只露「明细：共 N 项 + 前两项预览」，点开才展开全文。
+   折叠的是明细而不是动作，概括行始终可见；黄框内也保持同样的紧凑规则。 */
+.acts li.quote.folded, .run-acts li.quote.folded { padding: 0; }
+.acts li.quote.folded details, .run-acts li.quote.folded details { margin: 0; }
+.acts li.quote.folded summary, .run-acts li.quote.folded summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 13px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.acts li.quote.folded summary::-webkit-details-marker,
+.run-acts li.quote.folded summary::-webkit-details-marker { display: none; }
+.acts li.quote.folded summary::marker { content: ""; }
+.acts li.quote.folded summary:hover { background: rgba(0, 0, 0, .025); border-radius: 0 6px 6px 0; }
+.acts li.quote.folded .qtag, .run-acts li.quote.folded .qtag {
+  font-weight: 600;
+  color: #5c5f58;
+  white-space: nowrap;
+}
+.acts li.quote.folded .qcount, .run-acts li.quote.folded .qcount {
+  color: #8a8d84;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+.acts li.quote.folded .qpreview, .run-acts li.quote.folded .qpreview {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #9a9d94;
+  font-size: 13px;
+}
+.acts li.quote.folded .qact, .run-acts li.quote.folded .qact {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #7f8479;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.acts li.quote.folded .qword::after, .run-acts li.quote.folded .qword::after { content: "展开"; }
+.acts li.quote.folded details[open] .qword::after,
+.run-acts li.quote.folded details[open] .qword::after { content: "收起"; }
+.acts li.quote.folded .qchev, .run-acts li.quote.folded .qchev {
+  display: inline-block;
+  transition: transform .18s ease;
+}
+.acts li.quote.folded details[open] .qchev,
+.run-acts li.quote.folded details[open] .qchev { transform: rotate(180deg); }
+.acts li.quote.folded .qbody, .run-acts li.quote.folded .qbody {
+  padding: 4px 13px 9px;
+  border-top: 1px solid #e0e0d8;
+}
+/* 位移明细：展开后按编号一行一步，顺序一目了然 */
+.acts li.quote .qstep, .run-acts li.quote .qstep {
+  display: flex;
+  gap: 10px;
+  padding: 2px 0;
+  line-height: 24px;
+}
+.acts li.quote .qn, .run-acts li.quote .qn {
+  flex: 0 0 18px;
+  text-align: right;
+  color: #a9aca2;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+}
+.acts li.quote .qt, .run-acts li.quote .qt { flex: 1 1 auto; min-width: 0; }
+/* 黄框内 .wg-steps > li 另有 padding:3px 0，需要更高优先级把折叠条压平 */
+.acts li.warn.wgroup .wg-steps > li.quote.folded,
+.run-acts li.warn.wgroup .wg-steps > li.quote.folded { padding: 0; }
+@media (max-width: 640px) {
+  .acts li.quote.folded .qpreview, .run-acts li.quote.folded .qpreview { display: none; }
+}
+
 /* 明细 / 括号补充：紧贴上一行，缩进一级、字变浅 */
 .acts li.sub {
   margin: -3px 0 6px 0;

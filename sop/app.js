@@ -268,18 +268,32 @@
       const cls = /^打开（\s*Open\s*）/.test(m[1]) ? "act opn" : "act";
       return `<li class="${cls}"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${decorate(esc(rest))}${det}</span></li>`;
     }
-    /* 明细行：作者 2026-11-10 二次定稿——不要 ⚠ 图标，恢复「明细：」字样，
-       只保留灰底灰线做区隔。 */
+    /* 明细行（灰=明细）：短明细整条铺开；长明细（>=5 项或 >120 字）默认折成
+       「明细：共 N 项 + 前两项预览」，点开才展开全文 —— 熟手只看概括行，
+       第一次做的人展开照抄。用原生 details：无额外脚本、键盘可用、可打印时展开。 */
     if (QUOTE.test(main)) {
-      /* 长明细（以「、」分列的列名清单，如台账 Z→BW）：逐项整体不断行，
-         否则窄屏会把「产地」和「（AB）」拆到两行；超长项（带括号说明）放开折行。 */
-      if (main.length > 120 && main.indexOf("、") >= 0) {
-        const cs = main.split("、");
-        const html = cs.map((c, i) => {
-          const cls = c.length <= 22 ? "qi" : "qi wrap";
-          return `<span class="${cls}">${decorate(esc(c))}</span>` + (i < cs.length - 1 ? "、" : "");
-        }).join("");
-        return `<li class="quote">${html}</li>`;
+      const body = main.replace(/^明细[:：]\s*/, "");
+      const parts = body.split("、");
+      const long = parts.length >= 5 || main.length > 120;
+      /* 「位移内容」的明细是逐行操作顺序，展开后按编号一行一步，第一次做的人照着走；
+         普通列名清单维持紧凑的逐项不断行排法（避免窄屏把「产地」和「（AB）」拆开）。 */
+      const isOpList = parts.length > 1 && parts.every((c) => /^(复制|剪切|填充|粘贴|打开|进入|点击|双击|输入|筛选)（/.test(c));
+      const html = isOpList
+        ? parts.map((c, i) => `<div class="qstep"><span class="qn">${i + 1}</span><span class="qt">${decorate(esc(c))}</span></div>`).join("")
+        : (body.length > 120 && parts.length > 1)
+          ? parts.map((c, i) => {
+            const cls = c.length <= 22 ? "qi" : "qi wrap";
+            return `<span class="${cls}">${decorate(esc(c))}</span>` + (i < parts.length - 1 ? "、" : "");
+          }).join("")
+          : decorate(esc(body));
+      if (long) {
+        const preview = parts.slice(0, 2).join("、").slice(0, 26);
+        const label = isOpList ? `共 ${parts.length} 步` : parts.length >= 2 ? `共 ${parts.length} 项` : "展开查看";
+        return `<li class="quote folded"><details>`
+          + `<summary><span class="qtag">明细：</span><span class="qcount">${label}</span>`
+          + (preview ? `<span class="qpreview">${esc(preview)}${parts.length > 2 ? "…" : ""}</span>` : "")
+          + `<span class="qact"><span class="qword"></span><span class="qchev">▾</span></span></summary>`
+          + `<div class="qbody">${html}</div></details></li>`;
       }
       return `<li class="quote">${decorate(esc(main))}</li>`;
     }
