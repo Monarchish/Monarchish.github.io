@@ -504,6 +504,14 @@ a { color: var(--vp-c-brand-1); }
 .acts li.act .txt { flex: 1 1 auto; min-width: 0; }
 .acts li.act .verb { margin-right: 0; }
 
+/* 打开（Open）＝ 场景切换：与上面那一组动作之间留一点呼吸感（作者 2026-11-12）。
+   只作用于主流程的直接子行、只加留白不加分隔线，黄框内的步骤保持紧凑；
+   首行不额外留白，因为 .sbody 本身已有上边距。 */
+.acts > li.act.opn:not(:first-child),
+.run-acts > li.act.opn:not(:first-child) {
+  margin-top: 13px;
+}
+
 /* 祈使句开头：按 OTL 的行内代码样式 —— 等宽字、浅灰底、整块加粗 */
 .acts li .verb, .run-acts li .verb {
   display: inline-block;

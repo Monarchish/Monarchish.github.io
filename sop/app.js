@@ -264,7 +264,9 @@
     const m = main.match(VERB);
     if (m) {
       const rest = main.slice(m[1].length).replace(/^\s+/, "");
-      return `<li class="act"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${decorate(esc(rest))}${det}</span></li>`;
+      /* 打开（Open）＝ 切换系统 / 文件的场景边界，主流程里给它上方留一点呼吸感 */
+      const cls = /^打开（\s*Open\s*）/.test(m[1]) ? "act opn" : "act";
+      return `<li class="${cls}"><span class="verb">${esc(SPACED(m[1]))}</span><span class="txt">${decorate(esc(rest))}${det}</span></li>`;
     }
     /* 明细行：作者 2026-11-10 二次定稿——不要 ⚠ 图标，恢复「明细：」字样，
        只保留灰底灰线做区隔。 */
