@@ -198,6 +198,20 @@
     return val ? [head, val] : [a, ""];
   };
 
+  /* 行尾括号补充（作者 2026-11-12 定稿）：「动词（…）「目标」（补充说明）」末尾的
+     括号属于「值」，拆出来单独渲染成蓝底值条，与独立成行的「（补充说明）」写法一致。
+     从末尾向左配平括号，可正确处理带嵌套括号的补充说明。 */
+  const trailingParen = (s) => {
+    const t = s.trimEnd();
+    if (!t.endsWith("）")) return -1;
+    let depth = 0;
+    for (let i = t.length - 1; i >= 0; i--) {
+      if (t[i] === "）") depth++;
+      else if (t[i] === "（" && --depth === 0) return i;
+    }
+    return -1;
+  };
+
   /* 🔔 是 OTL 自带的标记，不属于内容，渲染时一律剔除 */
   const NOBELL = (t) => t.replace(/🔔/g, "").replace(/^\s+/, "");
   const actLi = (a) => {
@@ -226,6 +240,18 @@
     if (val) {
       const body = head ? actLi(head) : "";
       return body + `<li class="val">${decorate(esc(val))}</li>`;
+    }
+    /* 行尾括号补充 → 蓝底值条。先剥掉行首动词自身的括号，
+       所以 回车（Enter）/ 新建（Ctrl + N）/ 保存（Ctrl + S）不会被误判；
+       只处理带「目标」符号的行，纯按键说明（如（向下选到最后一行））维持原样。 */
+    const vh = a.match(VERB);
+    if (vh && !/（明细：/.test(a)) {
+      const rest = a.slice(vh[1].length);
+      const p = trailingParen(rest);
+      if (p > 0 && /[「」【】]/.test(rest.slice(0, p))) {
+        return actLi(a.slice(0, vh[1].length + p).trimEnd())
+          + `<li class="val subval">${decorate(esc(rest.slice(p).trim()))}</li>`;
+      }
     }
     if (a.charAt(0) === "…") return `<li class="more">${esc(a)}</li>`;
     if (LOOP.test(a)) return `<li class="loop"><span>${esc(a)}</span></li>`;
