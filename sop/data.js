@@ -2590,7 +2590,7 @@ window.SOP_DATA = {
             "打开（Open）「出库函」",
             "粘贴（Ctrl + V）「重量(吨)（F）」",
             "保存（Ctrl + S）",
-            "按下（Ctrl + Alt + P）＝「打印预览」",
+            "打印预览（Ctrl + Alt + P）",
             "截图（Ctrl + Alt + A）",
             "⚠ 发给泉冠库。"
           ],
