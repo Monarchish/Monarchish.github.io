@@ -33,6 +33,8 @@
   /* 分组折叠状态见下方 domClosed */
   delete store.closed;
   store.stepClosed = store.stepClosed || {};
+  /* 明细折叠展开/收起状态：跨步骤切换与重渲染保留 */
+  store.foldOpen = store.foldOpen || {};
 
   const S = { view: "flow", flowId: FLOWS[0].id, step: 1, mode: "detail", q: "", run: false, runStep: 1 };
 
@@ -51,6 +53,7 @@
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
+  const hash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h.toString(36); };
   const ckey = (fid, n) => fid + ":" + n;
   const stepDone = (fid, s) => (store.checks[ckey(fid, s.n)] || []).filter(Boolean).length;
   const rawCount = (f) => f.steps.reduce((a, s) => a + ((s.raw && s.raw.length) || 0), 0);
@@ -214,7 +217,7 @@
 
   /* 🔔 是 OTL 自带的标记，不属于内容，渲染时一律剔除 */
   const NOBELL = (t) => t.replace(/🔔/g, "").replace(/^\s+/, "");
-  const actLi = (a) => {
+  const actLi = (a, ctx) => {
     if (!a) return "";
     a = NOBELL(a);
     /* 筛选（Filter）行：动词单独成 chip，其后的「列名」（条件）属于「值」应统一蓝底值条。
@@ -274,7 +277,7 @@
     if (QUOTE.test(main)) {
       const body = main.replace(/^明细[:：]\s*/, "");
       const parts = body.split("、");
-      const long = parts.length >= 5 || main.length > 120;
+      const long = parts.length >= 5 || (parts.length >= 2 && main.length > 120);
       /* 「位移内容」的明细是逐行操作顺序，展开后按编号一行一步，第一次做的人照着走；
          普通列名清单维持紧凑的逐项不断行排法（避免窄屏把「产地」和「（AB）」拆开）。 */
       const isOpList = parts.length > 1 && parts.every((c) => /^(复制|剪切|填充|粘贴|打开|进入|点击|双击|输入|筛选)（/.test(c));
@@ -286,15 +289,17 @@
             return `<span class="${cls}">${decorate(esc(c))}</span>` + (i < parts.length - 1 ? "、" : "");
           }).join("")
           : decorate(esc(body));
+      const fk = "fold:" + (ctx ? ctx.fid : "") + ":" + (ctx ? ctx.sn : "") + ":" + hash(body);
       if (long) {
         const preview = parts.slice(0, 2).join("、").slice(0, 26);
         const label = isOpList ? `共 ${parts.length} 步` : parts.length >= 2 ? `共 ${parts.length} 项` : "展开查看";
-        return `<li class="quote folded"><details>`
+        return `<li class="quote folded"><details${store.foldOpen[fk] === true ? " open" : ""} data-fold="${esc(fk)}">`
           + `<summary><span class="qtag">明细：</span><span class="qcount">${label}</span>`
           + (preview ? `<span class="qpreview">${esc(preview)}${parts.length > 2 ? "…" : ""}</span>` : "")
           + `<span class="qact"><span class="qword"></span><span class="qchev">▾</span></span></summary>`
           + `<div class="qbody">${html}</div></details></li>`;
       }
+      if (isOpList) return `<li class="quote">明细：${html}</li>`;
       return `<li class="quote">${decorate(esc(main))}</li>`;
     }
     if (SUB.test(main)) return `<li class="val subval">${decorate(esc(main))}</li>`;
@@ -316,15 +321,17 @@
   const SOLO_FAQ = (a) => /^⚠\s*(?:如需|出现)「[^」]*」/.test(a) && !LEAD.test(a) && !FAQ_LEAD.test(a);
   const WARN_GROUP = /^⚠\s*注意：如果需要插入毛重/;
 
-  const groupHtml = (rows) => {
+  const groupHtml = (rows, ctx) => {
     const lead = esc(rows[0].replace(/^⚠\s*/, ""));
     const steps = rows.slice(1).filter(Boolean).map((x) => x.startsWith("⚠")
       ? `<li class="wg-cond">${esc(x.replace(/^⚠\s*/, ""))}</li>`
-      : actLi(x)).join("");
+      : actLi(x, ctx)).join("");
     return `<li class="warn wgroup"><div class="wg-lead">${lead}</div><ol class="wg-steps">${steps}</ol></li>`;
   };
 
-  const actionsHtml = (actions) => {
+  const actionsHtml = (f, s) => {
+    const actions = s.actions;
+    const ctx = { fid: f.id, sn: s.n };
     const out = [];
     let i = 0;
     while (i < actions.length) {
@@ -335,7 +342,7 @@
       /* 两行式筛选：「筛选（Filter）「列名」」紧跟「（条件）」括号行 —— 合并成单行，
          渲染成与单行式一致的蓝底值条（蓝=值）。否则列名白底、只有条件蓝底，视觉割裂。 */
       if (FILTER.test(a) && !/）\s*$/.test(a) && actions[i + 1] && SUB.test(actions[i + 1].trim())) {
-        out.push(actLi(a + actions[i + 1].trim()));
+        out.push(actLi(a + actions[i + 1].trim(), ctx));
         i += 2;
         continue;
       }
@@ -346,21 +353,21 @@
       }
       /* 一句话型 FAQ：自己就是完整的一条，单列为黄条，不吞后面的行 */
       if (SOLO_FAQ(a)) {
-        out.push(actLi(a));
+        out.push(actLi(a, ctx));
         i++;
         continue;
       }
       if (FAQ_LEAD.test(a)) {
         let j = i + 1;
         while (j < actions.length && actions[j] && !FAQ_LEAD.test(actions[j]) && !SOLO_FAQ(actions[j])) j++;
-        out.push(groupHtml(actions.slice(i, j)));
+        out.push(groupHtml(actions.slice(i, j), ctx));
         i = j;
         continue;
       }
       if (LEAD.test(a)) {
         let j = i + 1;
         while (j < actions.length && actions[j] && !LEAD.test(actions[j]) && !FAQ_LEAD.test(actions[j]) && !SOLO_FAQ(actions[j])) j++;
-        out.push(groupHtml(actions.slice(i, j)));
+        out.push(groupHtml(actions.slice(i, j), ctx));
         i = j;
         continue;
       }
@@ -457,7 +464,7 @@
       ${STEP.desc ? `<p class="sum">${esc(s.summary)}</p>` : ""}
 
       <section class="sec">
-        <div class="sbody"><ol class="acts">${actionsHtml(s.actions)}</ol></div>
+        <div class="sbody"><ol class="acts">${actionsHtml(f, s)}</ol></div>
       </section>
 
       ${(STEP.tools && s.systems.length) ? `<section class="sec">
@@ -780,7 +787,7 @@
 
           <section class="run-sec">
             <h4>现在做</h4>
-            <ol class="run-acts">${actionsHtml(s.actions)}</ol>
+            <ol class="run-acts">${actionsHtml(f, s)}</ol>
           </section>
 
           ${s.outputs.length ? `<section class="run-sec">
@@ -987,6 +994,16 @@
     save();
     syncProgress();
   });
+
+  /* 明细折叠状态持久化：原生 details 的 toggle 事件不冒泡，用捕获阶段在 document 上
+     监听，按 data-fold 存 open 状态，切换步骤/流程再回来仍保持展开。 */
+  document.addEventListener("toggle", (e) => {
+    const d = e.target;
+    if (d && d.nodeType === 1 && d.matches && d.matches("details[data-fold]")) {
+      store.foldOpen[d.dataset.fold] = d.open;
+      save();
+    }
+  }, true);
 
   document.addEventListener("input", (e) => {
     if (e.target.id === "targetInput") { store.target[S.flowId] = e.target.value; save(); return; }
