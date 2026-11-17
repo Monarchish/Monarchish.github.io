@@ -203,6 +203,65 @@ a{color:inherit;text-decoration:none}
 }
 .prose p:last-child{margin-bottom:0}
 
+/* 现场照片 */
+figure.photo{
+  margin:1.9em 0;max-width:37em;
+}
+figure.photo img{
+  display:block;width:100%;max-width:620px;height:auto;
+  border:1px solid var(--line);border-radius:4px;
+  cursor:zoom-in;transition:opacity .2s,border-color .2s;
+  background:rgba(255,255,255,.02);
+}
+figure.photo img:hover{opacity:.92;border-color:var(--gold)}
+figure.photo figcaption{
+  font-family:var(--sans);font-size:12.5px;letter-spacing:.04em;
+  color:var(--muted);margin-top:10px;padding-left:2px;
+}
+
+/* 作文模板：书信大纲 */
+.letter-tpl{
+  font-family:var(--mono);font-size:clamp(13px,1.2vw,15px);line-height:1.9;
+  color:var(--ink-2);letter-spacing:.01em;max-width:37em;
+  margin:1.4em 0;padding:20px 24px;
+  border:1px solid var(--line);border-left:2px solid var(--gold);
+  border-radius:0 4px 4px 0;background:rgba(196,168,120,.035);
+  white-space:pre-line;
+}
+.prose code{
+  font-family:var(--mono);font-size:.9em;color:var(--gold);
+  background:rgba(196,168,120,.08);padding:2px 6px;border-radius:3px;
+}
+/* 作文七个主题 */
+.topic-list{list-style:none;max-width:37em;margin:1.1em 0 1.4em;padding:0}
+.topic-list li{
+  font-family:var(--serif);font-size:clamp(16px,1.5vw,18px);line-height:1.9;
+  color:var(--ink-2);padding:5px 0 5px 18px;position:relative;
+  border-bottom:1px solid var(--line-soft);
+}
+.topic-list li::before{
+  content:'·';position:absolute;left:2px;color:var(--gold);
+}
+
+/* 图片放大灯箱 */
+.lightbox{
+  position:fixed;inset:0;z-index:1000;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(8,12,18,.94);padding:4vh 4vw;cursor:zoom-out;
+}
+.lightbox.open{display:flex}
+.lightbox img{
+  max-width:100%;max-height:90vh;object-fit:contain;
+  border:1px solid var(--line);border-radius:4px;
+  box-shadow:0 20px 80px rgba(0,0,0,.6);
+}
+.lightbox .lb-close{
+  position:absolute;top:20px;right:26px;
+  font-family:var(--sans);font-size:32px;line-height:1;color:var(--muted);
+  cursor:pointer;transition:color .2s;
+}
+.lightbox .lb-close:hover{color:var(--ink)}
+
 /* 原文照录（毕业思想）：像一份旧文档 */
 .orig-note{
   font-family:var(--sans);font-size:13px;line-height:1.9;color:var(--gold);
@@ -280,6 +339,9 @@ a{color:inherit;text-decoration:none}
   .story-head{flex-wrap:wrap;gap:12px 16px}
   .story-head .s-tag{margin-left:0}
   .prose p{text-align:left}
+  figure.photo{margin:1.5em 0}
+  figure.photo img{max-width:100%}
+  .letter-tpl{font-size:12px;padding:16px 16px;overflow-x:auto}
   .chron-list li{flex-direction:column;gap:2px}
   .chron-list .yr{flex:none}
 }
