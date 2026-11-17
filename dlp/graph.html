@@ -29,6 +29,9 @@ a{color:inherit;text-decoration:none}
 .brand-en{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted);margin-left:8px;vertical-align:2px}
 .txtlink .arrow{font-size:15px;margin-left:6px;display:inline-block;transition:transform .2s}
 .txtlink:hover .arrow{transform:translateX(3px)}
+.top-links{display:flex;align-items:center;gap:22px}
+#peopleBtn{cursor:pointer;color:var(--gold);border-bottom:1px solid rgba(196,168,120,.4);padding-bottom:2px}
+#peopleBtn:hover{color:var(--ink)}
 
 #stage{position:absolute;inset:var(--nav-h) 0 0 0}
 canvas{display:block;width:100%;height:100%;cursor:grab}
@@ -74,6 +77,19 @@ canvas:active{cursor:grabbing}
 .panel-list a:hover .pt{color:var(--ink)}
 .panel-foot{padding:16px 32px 24px;border-top:1px solid var(--line);font-family:var(--sans);font-size:11px;color:var(--faint);line-height:1.8}
 
+/* 人物索引面板 */
+.people-chips{padding:16px 26px 18px;display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--line);max-height:186px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.people-chips button{
+  font-family:var(--sans);font-size:12px;letter-spacing:.03em;color:var(--ink-2);
+  background:rgba(233,227,213,.04);border:1px solid var(--line);border-radius:18px;
+  padding:5px 12px;cursor:pointer;transition:background .2s,border-color .2s,color .2s;
+}
+.people-chips button:hover{background:rgba(196,168,120,.12);border-color:rgba(196,168,120,.5);color:var(--ink)}
+.people-chips button.on{background:rgba(196,168,120,.18);border-color:var(--gold);color:var(--ink)}
+.people-chips button .cnt{font-family:var(--mono);font-size:10px;color:var(--gold);margin-left:5px}
+.people-panel .panel-list .pt{font-size:16px}
+.people-panel .panel-list .pc{font-family:var(--sans);font-size:10.5px;color:var(--faint);margin-left:auto;letter-spacing:.04em}
+
 .veil{position:fixed;inset:0;z-index:55;background:rgba(6,10,18,.5);opacity:0;pointer-events:none;transition:opacity .45s}
 .veil.show{opacity:1;pointer-events:auto}
 
@@ -83,6 +99,7 @@ canvas:active{cursor:grabbing}
 @media(max-width:720px){
   .brand{font-size:13px}.brand-en{display:none}
   .back,.txtlink{font-size:11px}.topbar{padding:0 14px}
+  .top-links{gap:12px}
   .hint{gap:12px;font-size:10px;bottom:18px}
   .hint .sep,.hint span:nth-child(3){display:none}
   .badge{bottom:58px;right:14px}
@@ -95,7 +112,10 @@ canvas:active{cursor:grabbing}
 <header class="topbar">
   <a class="back" href="../index.html"><span class="arrow">←</span>返回主页</a>
   <div class="brand">数字生命 · 星图<span class="brand-en">STAR MAP</span></div>
-  <a class="txtlink" href="index.html">文字版<span class="arrow">→</span></a>
+  <div class="top-links">
+    <span class="txtlink" id="peopleBtn" role="button" tabindex="0">按人物看</span>
+    <a class="txtlink" href="index.html">文字版<span class="arrow">→</span></a>
+  </div>
 </header>
 
 <div id="stage"><canvas id="cv"></canvas></div>
@@ -132,6 +152,19 @@ canvas:active{cursor:grabbing}
   <div class="panel-foot">点击任意一篇进入正文。星图里每颗光点的大小，取决于它与多少篇回忆共享了人与事。</div>
 </aside>
 
+<div class="veil" id="peopleVeil"></div>
+<aside class="panel people-panel" id="peoplePanel">
+  <div class="panel-head">
+    <div class="ph-kicker" id="ppKicker">BY PERSON · 人物索引</div>
+    <h2 id="ppTitle">人物</h2>
+    <div class="ph-sub" id="ppSub">点一个人，看关于他的所有篇</div>
+    <div class="panel-close" id="ppClose">×</div>
+  </div>
+  <div class="people-chips" id="peopleChips"></div>
+  <div class="panel-list" id="peopleList"></div>
+  <div class="panel-foot">同一个人在不同阶段反复出现。横向按人物、纵向按年龄段，两种顺序都能走一遍。</div>
+</aside>
+
 <script>
 (function(){
 'use strict';
@@ -146,7 +179,7 @@ var CH = [
   {n:'函授',   en:'DISTANCE',     school:'南京工程学院',       color:'#cf8fb0', ax:.80, ay:.78}
 ];
 
-/* ---------- 七十篇：编号 / 标题 / 章 / 共同的人与事 ---------- */
+/* ---------- 七十二篇：编号 / 标题 / 章 / 共同的人与事 ---------- */
 var RAW = [
  [1,'筷子',1,'奶奶,妈妈,代伙,勺子'],
  [2,'画画',1,'妈妈,老师,绘画'],
@@ -157,67 +190,69 @@ var RAW = [
  [7,'第一张画',1,'老师,绘画,讲故事'],
  [8,'很长很长的故事',1,'老师,讲故事,施俊辰'],
  [9,'一个西瓜',1,'老师,讲故事'],
- [10,'第一次过马路',2,'汪叶涵,爸妈'],
- [11,'楼梯口',2,'毛老师'],
- [12,'爸爸的校友',2,'陈英老师,爸爸,数学'],
- [13,'躲不掉的口算',2,'数学,象棋'],
- [14,'好词好句',2,'毛老师'],
- [15,'赛尔号',2,'潘天,爸爸'],
- [16,'黔驴技穷',2,'潘天,夏雨轩,讲故事'],
- [17,'丢下去的沙包',2,'顾纪元'],
- [18,'保温杯',2,'郑欣凯,乔李睿,妈妈'],
- [19,'书包',2,'乔李睿,夏仙梅老师,数学,琪琪姐姐'],
- [20,'流动班长',2,'数学'],
- [21,'英语开窍',2,'英语,补习,老师,尖子班'],
- [22,'分班',3,'考试'],
- [23,'初生牛犊',3,'学姐'],
- [24,'恨铁不成钢',3,'吴君老师,数学'],
- [25,'撕开的书',3,'凡海瑞'],
- [26,'五五开',3,'老童家,拳皇'],
- [27,'毕业那天',3,'毕业'],
- [28,'还联系着的人',3,'蒋杰,张康斯诚,沈正雨'],
- [29,'日记本',3,'吴君老师,数学,日记'],
- [30,'305宿舍',4,'郭岩,陈宇,管家豪,李唐晨,潘振洋'],
- [31,'最后一站',4,'劳动委员'],
- [32,'钱包',4,'班主任'],
- [33,'喘不过气',4,'劳动委员,班主任'],
- [34,'零食',4,'潘振洋'],
- [35,'趴下之前',4,'郝静老师,数学'],
- [36,'独自美丽',4,'郝静老师,扬州职业大学'],
- [37,'如鱼得水',4,'郝静老师,红十字会,志愿者'],
- [38,'天没亮就出发',4,'马拉松,志愿者,扬州大学'],
- [39,'毕业思想',4,'数学,志愿者,实习'],
- [40,'第一份工作',5,'康师傅,技师学院'],
- [41,'入选',5,'康师傅,石思荣,祝赵猛,夏前杨,卜闻东,潘振洋,周智鹏'],
- [42,'贝壳酒店',5,'石思荣,康师傅'],
- [43,'第一天',5,'康师傅,潘总'],
- [44,'消毒门后',5,'祝赵猛,夏前杨,潘振洋,石思荣,周智鹏'],
- [45,'调配',5,'祝赵猛,夏前杨,潘振洋,孙刘洋'],
- [46,'第一个走的人',5,'卜闻东,康师傅'],
- [47,'萃取',5,'夏前杨,小东北,芒果小酪'],
- [48,'又一个走的人',5,'夏前杨,潘振洋,妈妈'],
- [49,'仓库的凉快',5,'香精,粉子'],
- [50,'那道疤',5,'祝赵猛,小东北,爸爸,医院'],
- [51,'南京',5,'爸妈,南京'],
- [52,'复工',5,'爸妈,康师傅'],
- [53,'换滤芯',5,'调配'],
- [54,'bab',5,'bab,裴宇泽'],
- [55,'bab 里的人',5,'bab,安全员,裴宇泽'],
- [56,'藏手机',5,'bab,裴宇泽,门卫姐姐,王者荣耀'],
- [57,'周志鹏那一夜',5,'周志鹏,石思荣,调配'],
- [58,'再回调配',5,'祝赵猛,裴宇泽,调配'],
- [59,'那个新人',5,'调配'],
- [60,'离职',5,'石思荣,康师傅,技师学院'],
- [61,'这张证是怎么来的',6,'爸爸,升学,函授,南京工程学院'],
- [62,'学位英语',6,'函授,学位英语,考试'],
- [63,'准考证',6,'南京,考试,泰斯特'],
- [64,'那块指示牌',6,'南京,考试,南京工程学院'],
- [65,'那张作文模板',6,'B站,英语,作文,考试'],
- [66,'歪门邪道',6,'蒋杰,B站,颉斌斌,英语'],
- [67,'63分',6,'考试,英语,分数'],
- [68,'逛南工大',6,'蒋杰,张康斯诚,徐轩,沈正雨,南京'],
- [69,'给奶奶看学位证',6,'奶奶,江都,学位证'],
- [70,'要说遗憾',6,'考研,函授,遗憾']
+ [10,'牙印',1,'爷爷,奶奶,爸妈,热牛奶,椅子'],
+ [11,'墙上的老鼠',1,'奶奶,画画,墙,小老鼠'],
+ [12,'第一次过马路',2,'汪叶涵,爸妈'],
+ [13,'楼梯口',2,'毛老师'],
+ [14,'爸爸的校友',2,'陈英老师,爸爸,数学'],
+ [15,'躲不掉的口算',2,'数学,象棋'],
+ [16,'好词好句',2,'毛老师'],
+ [17,'赛尔号',2,'潘天,爸爸'],
+ [18,'黔驴技穷',2,'潘天,夏雨轩,讲故事'],
+ [19,'丢下去的沙包',2,'顾纪元'],
+ [20,'保温杯',2,'郑欣凯,乔李睿,妈妈'],
+ [21,'书包',2,'乔李睿,夏仙梅老师,数学,琪琪姐姐'],
+ [22,'流动班长',2,'数学'],
+ [23,'英语开窍',2,'英语,补习,老师,尖子班'],
+ [24,'分班',3,'考试'],
+ [25,'初生牛犊',3,'学姐'],
+ [26,'恨铁不成钢',3,'吴君老师,数学'],
+ [27,'撕开的书',3,'凡海瑞'],
+ [28,'五五开',3,'老童家,拳皇'],
+ [29,'毕业那天',3,'毕业'],
+ [30,'还联系着的人',3,'蒋杰,张康斯诚,沈正雨'],
+ [31,'日记本',3,'吴君老师,数学,日记'],
+ [32,'305宿舍',4,'郭岩,陈宇,管家豪,李唐晨,潘振洋'],
+ [33,'最后一站',4,'劳动委员'],
+ [34,'钱包',4,'班主任'],
+ [35,'喘不过气',4,'劳动委员,班主任'],
+ [36,'零食',4,'潘振洋'],
+ [37,'趴下之前',4,'郝静老师,数学'],
+ [38,'独自美丽',4,'郝静老师,扬州职业大学'],
+ [39,'如鱼得水',4,'郝静老师,红十字会,志愿者'],
+ [40,'天没亮就出发',4,'马拉松,志愿者,扬州大学'],
+ [41,'毕业思想',4,'数学,志愿者,实习'],
+ [42,'第一份工作',5,'康师傅,技师学院'],
+ [43,'入选',5,'康师傅,石思荣,祝赵猛,夏前杨,卜闻东,潘振洋,周智鹏'],
+ [44,'贝壳酒店',5,'石思荣,康师傅'],
+ [45,'第一天',5,'康师傅,潘总'],
+ [46,'消毒门后',5,'祝赵猛,夏前杨,潘振洋,石思荣,周智鹏'],
+ [47,'调配',5,'祝赵猛,夏前杨,潘振洋,孙刘洋'],
+ [48,'第一个走的人',5,'卜闻东,康师傅'],
+ [49,'萃取',5,'夏前杨,小东北,芒果小酪'],
+ [50,'又一个走的人',5,'夏前杨,潘振洋,妈妈'],
+ [51,'仓库的凉快',5,'香精,粉子'],
+ [52,'那道疤',5,'祝赵猛,小东北,爸爸,医院'],
+ [53,'南京',5,'爸妈,南京'],
+ [54,'复工',5,'爸妈,康师傅'],
+ [55,'换滤芯',5,'调配'],
+ [56,'bab',5,'bab,裴宇泽'],
+ [57,'bab 里的人',5,'bab,安全员,裴宇泽'],
+ [58,'藏手机',5,'bab,裴宇泽,门卫姐姐,王者荣耀'],
+ [59,'周志鹏那一夜',5,'周志鹏,石思荣,调配'],
+ [60,'再回调配',5,'祝赵猛,裴宇泽,调配'],
+ [61,'那个新人',5,'调配'],
+ [62,'离职',5,'石思荣,康师傅,技师学院'],
+ [63,'这张证是怎么来的',6,'爸爸,升学,函授,南京工程学院'],
+ [64,'学位英语',6,'函授,学位英语,考试'],
+ [65,'准考证',6,'南京,考试,泰斯特'],
+ [66,'那块指示牌',6,'南京,考试,南京工程学院'],
+ [67,'那张作文模板',6,'B站,英语,作文,考试'],
+ [68,'歪门邪道',6,'蒋杰,B站,颉斌斌,英语'],
+ [69,'63分',6,'考试,英语,分数'],
+ [70,'逛南工大',6,'蒋杰,张康斯诚,徐轩,沈正雨,南京'],
+ [71,'给奶奶看学位证',6,'奶奶,江都,学位证'],
+ [72,'要说遗憾',6,'考研,函授,遗憾']
 ];
 
 /* ---------- 建节点、边 ---------- */
@@ -244,6 +279,22 @@ Object.keys(nodesByTag).forEach(function(tag){
 nodes.forEach(function(n){ n.degree = 0; });
 edges.forEach(function(e){ nodes[e.a].degree++; nodes[e.b].degree++; });
 nodes.forEach(function(n){ n.r = 4.2 + Math.sqrt(n.degree) * 2.7; });
+
+/* ---------- 人物维度：从标签里认出"人"，供按人物筛选 ----------
+   每篇(page)本就带着共同的人与事；这里把其中的"人"单独抽出来建索引。
+   将来加新篇，只要标签里写了人名、且人名在下面这份名单里，就自动可被筛到。 */
+var PEOPLE = ('爷爷,奶奶,爸爸,妈妈,爸妈,小伙伴,老师,毛老师,陈英老师,夏仙梅老师,吴君老师,郝静老师,班主任,'+
+  '施俊辰,汪叶涵,潘天,夏雨轩,顾纪元,郑欣凯,乔李睿,琪琪姐姐,学姐,凡海瑞,老童家,蒋杰,张康斯诚,沈正雨,'+
+  '郭岩,陈宇,管家豪,李唐晨,潘振洋,徐轩,卜闻东,石思荣,祝赵猛,夏前杨,周智鹏,周志鹏,潘总,孙刘洋,'+
+  '小东北,裴宇泽,门卫姐姐,颉斌斌,劳动委员,安全员').split(',');
+var PEOPLE_SET={}; PEOPLE.forEach(function(p){ PEOPLE_SET[p]=1; });
+nodes.forEach(function(n){
+  n.people = n.tags.filter(function(t){ return PEOPLE_SET[t]; });
+});
+var peopleIdx={};
+nodes.forEach(function(n){
+  n.people.forEach(function(p){ (peopleIdx[p]=peopleIdx[p]||[]).push(n.i); });
+});
 
 /* ---------- 画布 / 相机 ---------- */
 var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
@@ -511,7 +562,7 @@ function openPanel(){
   var list = locked? nodes.filter(function(n){return n.ch===locked;}) : nodes;
   var c = locked?CH[locked-1]:null;
   phKicker.textContent = c? c.en+' · 按时间顺序' : '全部 · 按时间顺序';
-  phTitle.textContent = c? c.n : '七十篇';
+  phTitle.textContent = c? c.n : '七十二篇';
   phSub.textContent = c? (c.school+' · '+list.length+' 篇') : '幼儿园 · 小学 · 初中 · 职校 · 工作 · 函授';
   panelList.innerHTML='';
   list.forEach(function(n){
@@ -543,6 +594,72 @@ function checkAuto(){
   requestAnimationFrame(checkAuto);
 }
 checkAuto();
+
+/* ---------- 人物索引面板：按人物横着走一遍 ---------- */
+var ppanel=document.getElementById('peoplePanel'), pveil=document.getElementById('peopleVeil');
+var pChips=document.getElementById('peopleChips'), pList=document.getElementById('peopleList');
+var ppTitle=document.getElementById('ppTitle'), ppSub=document.getElementById('ppSub');
+var peoplePanelOpen=false, activePerson=null;
+
+var peopleSorted=Object.keys(peopleIdx).sort(function(a,b){
+  return peopleIdx[b].length-peopleIdx[a].length || a.localeCompare(b,'zh');
+});
+function renderPeopleChips(){
+  pChips.innerHTML='';
+  peopleSorted.forEach(function(p){
+    var b=document.createElement('button');
+    b.type='button';
+    b.innerHTML=p+'<span class="cnt">'+peopleIdx[p].length+'</span>';
+    if(activePerson===p) b.classList.add('on');
+    b.addEventListener('click',function(){ selectPerson(p); });
+    pChips.appendChild(b);
+  });
+}
+function selectPerson(p){
+  activePerson=(activePerson===p)?null:p;
+  renderPeopleChips();
+  pList.innerHTML='';
+  if(!activePerson){
+    ppTitle.textContent='人物';
+    ppSub.textContent='点一个人，看关于他的所有篇';
+    peopleSorted.forEach(function(name){
+      var a=document.createElement('a'); a.href='javascript:void(0)';
+      a.innerHTML='<span class="pn">·</span><span class="pt">'+name+'</span><span class="pc">'+peopleIdx[name].length+' 篇</span>';
+      a.addEventListener('click',function(){ selectPerson(name); });
+      pList.appendChild(a);
+    });
+    return;
+  }
+  ppTitle.textContent=activePerson;
+  var arr=peopleIdx[activePerson].slice().sort(function(a,b){ return nodes[a].no-nodes[b].no; });
+  ppSub.textContent='关于「'+activePerson+'」的 '+arr.length+' 篇 · 跨几段年岁';
+  arr.forEach(function(i){
+    var n=nodes[i], c=CH[n.ch-1];
+    var a=document.createElement('a');
+    a.href='index.html#s'+n.no;
+    a.innerHTML='<span class="pn">'+String(n.no).padStart(2,'0')+'</span><span class="pt">'+n.t+'</span><span class="pc">'+c.n+'</span>';
+    pList.appendChild(a);
+  });
+}
+function openPeoplePanel(){
+  if(panelOpen) return;
+  peoplePanelOpen=true;
+  ppanel.classList.add('show'); pveil.classList.add('show');
+  selectPerson(null);
+}
+function closePeoplePanel(){
+  peoplePanelOpen=false;
+  ppanel.classList.remove('show'); pveil.classList.remove('show');
+}
+document.getElementById('peopleBtn').addEventListener('click', openPeoplePanel);
+document.getElementById('peopleBtn').addEventListener('keydown',function(e){
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openPeoplePanel(); }
+});
+document.getElementById('ppClose').addEventListener('click', closePeoplePanel);
+pveil.addEventListener('click', closePeoplePanel);
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape' && peoplePanelOpen){ closePeoplePanel(); }
+});
 
 })();
 </script>
