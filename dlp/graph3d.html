@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星图 · 数字生命 · 3D</title>
+<meta name="description" content="写给你们，还有很多年以后的我。六段人生，六片星域。可以旋转的三维星图。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1a2e'/%3E%3Cpath d='M32 9Q35.5 28.5 55 32Q35.5 35.5 32 55Q28.5 28.5 9 32Q28.5 28.5 32 9Z' fill='%23c4a878'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#02040b; --ink:#e9e3d5; --ink-2:#c9c3b4; --muted:#8f938f; --faint:#5c6463;
+  --gold:#c4a878; --line:rgba(233,227,213,.12); --nav-h:60px;
+  --serif:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular","JetBrains Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+::selection{background:rgba(196,168,120,.28);color:#fff}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:50;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 30px;background:rgba(6,10,20,.72);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid var(--line)}
+.back,.txtlink{font-family:var(--sans);font-size:13px;color:var(--ink-2);transition:color .2s}
+.back:hover,.txtlink:hover{color:var(--gold)}
+.back .arrow{font-size:15px;margin-right:6px;transition:transform .2s;display:inline-block}
+.back:hover .arrow{transform:translateX(-3px)}
+.brand{font-family:var(--serif);font-size:15px;letter-spacing:.2em;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap}
+.brand-en{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted);margin-left:8px;vertical-align:2px}
+.txtlink .arrow{font-size:15px;margin-left:6px;display:inline-block;transition:transform .2s}
+.txtlink:hover .arrow{transform:translateX(3px)}
+.top-links{display:flex;align-items:center;gap:22px}
+.tlink{cursor:pointer;color:var(--gold);border-bottom:1px solid rgba(196,168,120,.4);padding-bottom:2px;transition:color .2s}
+.tlink:hover{color:var(--ink)}
+.tlink.on{color:var(--ink);border-bottom-color:var(--ink)}
+
+#stage{position:absolute;inset:var(--nav-h) 0 0 0}
+canvas{display:block;width:100%;height:100%;cursor:grab}
+canvas:active{cursor:grabbing}
+
+.loading{position:fixed;inset:var(--nav-h) 0 0 0;z-index:80;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:var(--bg);transition:opacity .8s}
+.loading.hide{opacity:0;pointer-events:none}
+.loading .l-ring{width:34px;height:34px;border:1px solid rgba(196,168,120,.18);border-top-color:var(--gold);border-radius:50%;animation:spin 1.1s linear infinite}
+.loading .l-txt{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--muted)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.tip{position:fixed;z-index:40;pointer-events:none;font-family:var(--sans);font-size:12px;color:var(--ink);background:rgba(16,23,38,.95);border:1px solid var(--line);border-radius:8px;padding:9px 13px;line-height:1.7;opacity:0;transform:translate(-50%,-130%);transition:opacity .15s;white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.tip.show{opacity:1}
+.tip b{font-family:var(--serif);font-size:14px;font-weight:400}
+.tip .meta{color:var(--muted);font-size:11px}
+.tip .tag{color:var(--gold)}
+
+/* 时间线：左侧六章图例 */
+.legend{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:2px}
+.legend .lg-title{font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:var(--faint);margin-bottom:10px;padding-left:2px}
+.legend button{display:flex;align-items:center;gap:10px;background:none;border:0;cursor:pointer;padding:6px 8px;border-radius:6px;font-family:var(--serif);font-size:13px;letter-spacing:.06em;color:var(--muted);transition:background .2s,color .2s;text-align:left}
+.legend button:hover{background:rgba(233,227,213,.05);color:var(--ink)}
+.legend button.on{color:var(--ink)}
+.legend .dot{width:7px;height:7px;border-radius:50%;box-shadow:0 0 10px currentColor;flex:0 0 7px}
+.legend .cnt{font-family:var(--mono);font-size:9px;color:var(--faint);margin-left:auto}
+
+.help{position:fixed;left:26px;bottom:22px;z-index:20;font-family:var(--sans);font-size:11px;line-height:1.9;color:var(--faint);pointer-events:none;opacity:.9;max-width:230px}
+.help b{color:var(--muted);font-weight:400}
+
+.hint{position:fixed;left:0;right:0;bottom:26px;z-index:20;display:flex;gap:22px;justify-content:center;align-items:center;flex-wrap:wrap;font-family:var(--sans);font-size:11px;letter-spacing:.05em;color:var(--faint);pointer-events:none;padding:0 16px}
+.hint kbd{font-family:var(--mono);font-size:10px;color:var(--gold);border:1px solid rgba(196,168,120,.35);border-radius:4px;padding:2px 7px;background:rgba(196,168,120,.05)}
+.hint .sep{width:1px;height:12px;background:var(--line)}
+
+.badge{position:fixed;right:26px;bottom:24px;z-index:20;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--faint);border:1px solid var(--line);border-radius:20px;padding:6px 13px;background:rgba(6,10,20,.6)}
+.badge b{color:var(--gold);font-weight:400}
+
+.veil{position:fixed;inset:0;z-index:55;background:rgba(4,7,15,.55);opacity:0;pointer-events:none;transition:opacity .45s}
+.veil.show{opacity:1;pointer-events:auto}
+
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(460px,92vw);z-index:60;background:rgba(10,16,29,.97);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-left:1px solid var(--line);transform:translateX(102%);transition:transform .45s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.5)}
+.panel.show{transform:translateX(0)}
+.panel-head{padding:34px 30px 20px;border-bottom:1px solid var(--line);position:relative}
+.panel-head .ph-kicker{font-family:var(--mono);font-size:10px;letter-spacing:.24em;color:var(--gold)}
+.panel-head h2{font-family:var(--serif);font-weight:400;font-size:29px;letter-spacing:.1em;margin-top:10px;line-height:1.3}
+.panel-head .ph-sub{font-family:var(--sans);font-size:12px;color:var(--muted);margin-top:9px;letter-spacing:.05em}
+.panel-close{position:absolute;right:24px;top:30px;font-family:var(--sans);font-size:22px;color:var(--muted);cursor:pointer;line-height:1;transition:color .2s}
+.panel-close:hover{color:var(--ink)}
+.panel-body{overflow-y:auto;padding:20px 30px 40px;flex:1;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+
+/* 篇章详情 */
+.story-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.story-meta .chip{font-family:var(--sans);font-size:10.5px;letter-spacing:.05em;color:var(--ink-2);border:1px solid var(--line);border-radius:16px;padding:4px 11px}
+.story-meta .chip.ch{color:#0a0d16;font-weight:500;border-color:transparent}
+.story-tags{font-family:var(--sans);font-size:11.5px;line-height:2;color:var(--faint);margin:14px 0 24px}
+.story-tags b{color:var(--muted);font-weight:400}
+.story-tags .tg{color:var(--gold);margin-right:9px}
+.goto{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:13px;letter-spacing:.08em;color:var(--gold);border:1px solid rgba(196,168,120,.45);background:rgba(196,168,120,.07);border-radius:24px;padding:10px 24px;cursor:pointer;transition:background .2s}
+.goto:hover{background:rgba(196,168,120,.18)}
+.goto .arrow{transition:transform .2s}
+.goto:hover .arrow{transform:translateX(3px)}
+.story-quote{font-family:var(--serif);font-size:14px;line-height:2;color:var(--ink-2);border-left:2px solid var(--gold);padding-left:16px;margin-top:26px;opacity:.9}
+
+/* 目录列表 */
+.list-item{display:flex;align-items:baseline;gap:16px;padding:11px 12px;border-radius:7px;border-left:2px solid transparent;cursor:pointer;transition:background .2s,border-color .2s}
+.list-item:hover{background:rgba(233,227,213,.04);border-left-color:var(--gold)}
+.list-item .pn{font-family:var(--mono);font-size:11px;color:var(--gold);flex:0 0 28px}
+.list-item .pt{font-family:var(--serif);font-size:16px;color:var(--ink-2);letter-spacing:.04em}
+.list-item:hover .pt{color:var(--ink)}
+.list-item .pc{font-family:var(--sans);font-size:10px;color:var(--faint);margin-left:auto;letter-spacing:.04em}
+
+/* 人物 chips */
+.people-chips{padding:16px 24px 16px;display:flex;flex-wrap:wrap;gap:7px;border-bottom:1px solid var(--line);max-height:170px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.people-chips button{font-family:var(--sans);font-size:11.5px;letter-spacing:.03em;color:var(--ink-2);background:rgba(233,227,213,.04);border:1px solid var(--line);border-radius:18px;padding:5px 11px;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.people-chips button:hover{background:rgba(196,168,120,.12);border-color:rgba(196,168,120,.5);color:var(--ink)}
+.people-chips button.on{background:rgba(196,168,120,.18);border-color:var(--gold);color:var(--ink)}
+.people-chips button .cnt{font-family:var(--mono);font-size:9.5px;color:var(--gold);margin-left:5px}
+
+.panel-foot{padding:14px 30px 22px;border-top:1px solid var(--line);font-family:var(--sans);font-size:10.5px;color:var(--faint);line-height:1.8}
+
+@media(max-width:720px){
+  .brand{font-size:12px}.brand-en{display:none}
+  .back,.txtlink{font-size:11px}.topbar{padding:0 12px}.top-links{gap:12px}
+  .legend{left:10px;gap:0}.legend button{font-size:11px;padding:4px 5px;gap:7px}.legend .cnt{display:none}
+  .help{display:none}.hint{gap:12px;font-size:9.5px;bottom:16px}.hint .sep{display:none}
+  .badge{bottom:52px;right:12px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="back" href="../index.html"><span class="arrow">←</span>返回主页</a>
+  <div class="brand">数字生命 · 星图<span class="brand-en">STAR MAP · 3D</span></div>
+  <div class="top-links">
+    <span class="tlink" id="peopleBtn">按人物看</span>
+    <a class="txtlink" href="graph.html">2D 版<span class="arrow">→</span></a>
+    <a class="txtlink" href="index.html">文字版<span class="arrow">→</span></a>
+  </div>
+</header>
+
+<div id="stage"></div>
+
+<div class="loading" id="loading"><div class="l-ring"></div><div class="l-txt">点亮星海…</div></div>
+
+<div class="legend" id="legend">
+  <div class="lg-title">六片星域</div>
+  <div id="legendItems"></div>
+</div>
+
+<div class="help"><b>每一颗光点，是一篇回忆。</b><br>点越大，和别的回忆牵连越深。<br>连线，是它们共同记得的人与事。<br>拖一拖，让整片星海转起来。</div>
+
+<div class="tip" id="tip"></div>
+
+<div class="hint">
+  <span><kbd>拖动</kbd> 旋转星海</span>
+  <span class="sep"></span>
+  <span><kbd>滚轮</kbd> 拉近拉远</span>
+  <span class="sep"></span>
+  <span><kbd>点光点</kbd> 看这一篇</span>
+</div>
+<div class="badge">三维 · <b>六片星域 · 七十二篇</b></div>
+
+<div class="veil" id="veil"></div>
+<aside class="panel" id="panel">
+  <div class="panel-head">
+    <div class="ph-kicker" id="phKicker">A MEMORY · 一篇回忆</div>
+    <h2 id="phTitle">标题</h2>
+    <div class="ph-sub" id="phSub"></div>
+    <div class="panel-close" id="panelClose">×</div>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+  <div class="panel-foot" id="panelFoot">光点的大小，取决于它与多少篇回忆共享了人与事。</div>
+</aside>
+
+<div class="veil" id="peopleVeil"></div>
+<aside class="panel" id="peoplePanel">
+  <div class="panel-head">
+    <div class="ph-kicker">BY PERSON · 人物索引</div>
+    <h2>按人物看</h2>
+    <div class="ph-sub">点一个人，看关于他的所有篇</div>
+    <div class="panel-close" id="ppClose">×</div>
+  </div>
+  <div class="people-chips" id="peopleChips"></div>
+  <div class="panel-body" id="peopleList"></div>
+  <div class="panel-foot">同一个人在不同阶段反复出现。纵向按年龄、横向按人物，两种顺序都能走一遍。</div>
+</aside>
+
+<script src="vendor/three.min.js"></script>
+<script src="vendor/EffectComposer.js"></script>
+<script src="vendor/RenderPass.js"></script>
+<script src="vendor/ShaderPass.js"></script>
+<script src="vendor/UnrealBloomPass.js"></script>
+<script src="vendor/CopyShader.js"></script>
+<script src="vendor/LuminosityHighPassShader.js"></script>
+<script src="vendor/3d-force-graph.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============ 数据 ============ */
+var CH = [
+  {n:'幼儿园', en:'KINDERGARTEN', school:'江都区机关幼儿园', color:'#c4a878', ax:.20, ay:.24},
+  {n:'小学',   en:'PRIMARY',      school:'江都区实验小学',   color:'#7fb3d5', ax:.52, ay:.16},
+  {n:'初中',   en:'MIDDLE',       school:'江都区第二中学',   color:'#a898cf', ax:.50, ay:.50},
+  {n:'职校',   en:'VOCATIONAL',   school:'扬州技师学院',     color:'#7fc4a8', ax:.26, ay:.80},
+  {n:'工作',   en:'WORK',         school:'2019 — 至今',       color:'#d99a68', ax:.84, ay:.30},
+  {n:'函授',   en:'DISTANCE',     school:'南京工程学院',       color:'#cf8fb0', ax:.80, ay:.78}
+];
+var RAW = [
+ [1,'筷子',1,'奶奶,妈妈,代伙,勺子'],
+ [2,'画画',1,'妈妈,老师,绘画'],
+ [3,'一瓶娃哈哈',1,'老师,妈妈,小伙伴,玻璃鼻子'],
+ [4,'跳蚤市场',1,'奶奶,老师,小伙伴'],
+ [5,'游泳的小猪',1,'老师,公开课'],
+ [6,'奥特曼',1,'奶奶,老师,代伙'],
+ [7,'第一张画',1,'老师,绘画,讲故事'],
+ [8,'很长很长的故事',1,'老师,讲故事,施俊辰'],
+ [9,'一个西瓜',1,'老师,讲故事'],
+ [10,'牙印',1,'爷爷,奶奶,爸妈,热牛奶,椅子'],
+ [11,'墙上的老鼠',1,'奶奶,画画,墙,小老鼠'],
+ [12,'第一次过马路',2,'汪叶涵,爸妈'],
+ [13,'楼梯口',2,'毛老师'],
+ [14,'爸爸的校友',2,'陈英老师,爸爸,数学'],
+ [15,'躲不掉的口算',2,'数学,象棋'],
+ [16,'好词好句',2,'毛老师'],
+ [17,'赛尔号',2,'潘天,爸爸'],
+ [18,'黔驴技穷',2,'潘天,夏雨轩,讲故事'],
+ [19,'丢下去的沙包',2,'顾纪元'],
+ [20,'保温杯',2,'郑欣凯,乔李睿,妈妈'],
+ [21,'书包',2,'乔李睿,夏仙梅老师,数学,琪琪姐姐'],
+ [22,'流动班长',2,'数学'],
+ [23,'英语开窍',2,'英语,补习,老师,尖子班'],
+ [24,'分班',3,'考试'],
+ [25,'初生牛犊',3,'学姐'],
+ [26,'恨铁不成钢',3,'吴君老师,数学'],
+ [27,'撕开的书',3,'凡海瑞'],
+ [28,'五五开',3,'老童家,拳皇'],
+ [29,'毕业那天',3,'毕业'],
+ [30,'还联系着的人',3,'蒋杰,张康斯诚,沈正雨'],
+ [31,'日记本',3,'吴君老师,数学,日记'],
+ [32,'305宿舍',4,'郭岩,陈宇,管家豪,李唐晨,潘振洋'],
+ [33,'最后一站',4,'劳动委员'],
+ [34,'钱包',4,'班主任'],
+ [35,'喘不过气',4,'劳动委员,班主任'],
+ [36,'零食',4,'潘振洋'],
+ [37,'趴下之前',4,'郝静老师,数学'],
+ [38,'独自美丽',4,'郝静老师,扬州职业大学'],
+ [39,'如鱼得水',4,'郝静老师,红十字会,志愿者'],
+ [40,'天没亮就出发',4,'马拉松,志愿者,扬州大学'],
+ [41,'毕业思想',4,'数学,志愿者,实习'],
+ [42,'第一份工作',5,'康师傅,技师学院'],
+ [43,'入选',5,'康师傅,石思荣,祝赵猛,夏前杨,卜闻东,潘振洋,周智鹏'],
+ [44,'贝壳酒店',5,'石思荣,康师傅'],
+ [45,'第一天',5,'康师傅,潘总'],
+ [46,'消毒门后',5,'祝赵猛,夏前杨,潘振洋,石思荣,周智鹏'],
+ [47,'调配',5,'祝赵猛,夏前杨,潘振洋,孙刘洋'],
+ [48,'第一个走的人',5,'卜闻东,康师傅'],
+ [49,'萃取',5,'夏前杨,小东北,芒果小酪'],
+ [50,'又一个走的人',5,'夏前杨,潘振洋,妈妈'],
+ [51,'仓库的凉快',5,'香精,粉子'],
+ [52,'那道疤',5,'祝赵猛,小东北,爸爸,医院'],
+ [53,'南京',5,'爸妈,南京'],
+ [54,'复工',5,'爸妈,康师傅'],
+ [55,'换滤芯',5,'调配'],
+ [56,'bab',5,'bab,裴宇泽'],
+ [57,'bab 里的人',5,'bab,安全员,裴宇泽'],
+ [58,'藏手机',5,'bab,裴宇泽,门卫姐姐,王者荣耀'],
+ [59,'周志鹏那一夜',5,'周志鹏,石思荣,调配'],
+ [60,'再回调配',5,'祝赵猛,裴宇泽,调配'],
+ [61,'那个新人',5,'调配'],
+ [62,'离职',5,'石思荣,康师傅,技师学院'],
+ [63,'这张证是怎么来的',6,'爸爸,升学,函授,南京工程学院'],
+ [64,'学位英语',6,'函授,学位英语,考试'],
+ [65,'准考证',6,'南京,考试,泰斯特'],
+ [66,'那块指示牌',6,'南京,考试,南京工程学院'],
+ [67,'那张作文模板',6,'B站,英语,作文,考试'],
+ [68,'歪门邪道',6,'蒋杰,B站,颉斌斌,英语'],
+ [69,'63分',6,'考试,英语,分数'],
+ [70,'逛南工大',6,'蒋杰,张康斯诚,徐轩,沈正雨,南京'],
+ [71,'给奶奶看学位证',6,'奶奶,江都,学位证'],
+ [72,'要说遗憾',6,'考研,函授,遗憾']
+];
+var PEOPLE = ('爷爷,奶奶,爸爸,妈妈,爸妈,小伙伴,老师,毛老师,陈英老师,夏仙梅老师,吴君老师,郝静老师,班主任,'+
+  '施俊辰,汪叶涵,潘天,夏雨轩,顾纪元,郑欣凯,乔李睿,琪琪姐姐,学姐,凡海瑞,老童家,蒋杰,张康斯诚,沈正雨,'+
+  '郭岩,陈宇,管家豪,李唐晨,潘振洋,徐轩,卜闻东,石思荣,祝赵猛,夏前杨,周智鹏,周志鹏,潘总,孙刘洋,'+
+  '小东北,裴宇泽,门卫姐姐,颉斌斌,劳动委员,安全员').split(',');
+var PEOPLE_SET={}; PEOPLE.forEach(function(p){ PEOPLE_SET[p]=1; });
+
+/* 建节点 + 边 */
+var nodes = RAW.map(function(r,i){
+  return {id:'s'+r[0], no:r[0], t:r[1], ch:r[2], tags:r[3].split(','), degree:0, val:1, color:CH[r[2]-1].color};
+});
+var byTag={}, seen={}, links=[];
+RAW.forEach(function(r,i){
+  r[3].split(',').forEach(function(tag){ (byTag[tag]=byTag[tag]||[]).push(i); });
+});
+Object.keys(byTag).forEach(function(tag){
+  var a=byTag[tag];
+  for(var i=0;i<a.length;i++)for(var j=i+1;j<a.length;j++){
+    var x=Math.min(a[i],a[j]), y=Math.max(a[i],a[j]), key=x+'-'+y;
+    if(!seen[key]){ seen[key]=links.length; links.push({source:nodes[x].id,target:nodes[y].id,w:0}); }
+    links[seen[key]].w++;
+  }
+});
+links.forEach(function(l){ nodes[+l.source.slice(1)-1].degree++; nodes[+l.target.slice(1)-1].degree++; });
+nodes.forEach(function(n){ n.val = 1.6 + Math.sqrt(n.degree)*0.85; });
+
+/* 人物索引 */
+var peopleIdx={};
+nodes.forEach(function(n){
+  n.people = n.tags.filter(function(t){ return PEOPLE_SET[t]; });
+  n.people.forEach(function(p){ (peopleIdx[p]=peopleIdx[p]||[]).push(n.no); });
+});
+
+/* 六章锚点：映射到 3D，交替纵深，让六团分开 */
+var SPAN=210;
+CH.forEach(function(c,ci){
+  var ang = ci/6*Math.PI*2 + 0.3;
+  c.px = (c.ax-0.5)*2*SPAN + Math.cos(ang)*22;
+  c.py = -(c.ay-0.5)*2*SPAN;
+  c.pz = (ci%2===0 ? -1:1) * (95 + (ci%3)*50);
+});
+nodes.forEach(function(n){
+  var c=CH[n.ch-1];
+  n.x = c.px + (Math.random()-.5)*50;
+  n.y = c.py + (Math.random()-.5)*50;
+  n.z = c.pz + (Math.random()-.5)*50;
+});
+
+/* ============ 辉光星点贴图（canvas 预绘，带章节色 + 十字星芒） ============ */
+function hex2rgb(h){ h=h.replace('#',''); return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)]; }
+function mixWhite(rgb,k){ return [Math.round(rgb[0]+(255-rgb[0])*k),Math.round(rgb[1]+(255-rgb[1])*k),Math.round(rgb[2]+(255-rgb[2])*k)]; }
+var spriteCache={};
+function glowTexture(color, spike){
+  var key=color+'|'+(spike?1:0);
+  if(spriteCache[key]) return spriteCache[key];
+  var S=128, cv=document.createElement('canvas'); cv.width=cv.height=S;
+  var x=cv.getContext('2d'), rgb=hex2rgb(color), core=mixWhite(rgb,0.55), c=S/2;
+  x.globalCompositeOperation='lighter';
+  /* 外层彩色光晕 */
+  var glow=x.createRadialGradient(c,c,0,c,c,S*0.5);
+  glow.addColorStop(0,   'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0.55)');
+  glow.addColorStop(0.18,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0.30)');
+  glow.addColorStop(0.45,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0.08)');
+  glow.addColorStop(1,   'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0)');
+  x.fillStyle=glow; x.fillRect(0,0,S,S);
+  /* 十字星芒 */
+  if(spike){
+    function beam(horizontal){
+      x.save(); x.translate(c,c); if(!horizontal) x.rotate(Math.PI/2);
+      var g=x.createLinearGradient(-S*0.5,0,S*0.5,0);
+      g.addColorStop(0,'rgba('+core[0]+','+core[1]+','+core[2]+',0)');
+      g.addColorStop(0.5,'rgba('+core[0]+','+core[1]+','+core[2]+',0.5)');
+      g.addColorStop(1,'rgba('+core[0]+','+core[1]+','+core[2]+',0)');
+      x.fillStyle=g; x.fillRect(-S*0.5,-0.9,S,1.8);
+      x.restore();
+    }
+    beam(true); beam(false);
+  }
+  /* 偏白星核 */
+  var k=x.createRadialGradient(c,c,0,c,c,S*0.11);
+  k.addColorStop(0,'rgba(255,255,255,1)');
+  k.addColorStop(0.35,'rgba('+core[0]+','+core[1]+','+core[2]+',0.95)');
+  k.addColorStop(1,'rgba('+core[0]+','+core[1]+','+core[2]+',0)');
+  x.fillStyle=k; x.beginPath(); x.arc(c,c,S*0.11,0,6.283); x.fill();
+  var tex=new THREE.CanvasTexture(cv);
+  spriteCache[key]=tex; return tex;
+}
+
+/* ============ 3D 场景 ============ */
+var stage=document.getElementById('stage');
+var Graph=ForceGraph3D()(stage)
+  .backgroundColor('#02040b')
+  .showNavInfo(false)
+  .graphData({nodes:nodes, links:links})
+  .nodeThreeObject(function(n){
+    var spike = n.degree>=7;
+    var mat=new THREE.SpriteMaterial({
+      map:glowTexture(n.color,spike),
+      transparent:true, blending:THREE.AdditiveBlending,
+      depthWrite:false, opacity:1.0
+    });
+    var sp=new THREE.Sprite(mat);
+    var size=(7.5+n.val*4.2)*(spike?1.22:1);
+    sp.scale.set(size,size,1);
+    return sp;
+  })
+  .linkColor(function(l){ return 'rgba(150,170,205,0.13)'; })
+  .linkWidth(0.45)
+  .linkDirectionalParticles(function(l){ return l.w>=3 ? 1 : 0; })
+  .linkDirectionalParticleSpeed(0.003)
+  .linkDirectionalParticleWidth(1.3)
+  .linkDirectionalParticleColor(function(l){ return 'rgba(196,168,120,0.7)'; })
+  .nodeLabel(function(){ return ''; })
+  .onNodeHover(handleHover)
+  .onNodeClick(handleClick)
+  .onBackgroundClick(clearFocus)
+  .cooldownTime(14000)
+  .warmupTicks(30);
+
+var scene=Graph.scene();
+var camera=Graph.camera();
+
+/* 力：六章软边界——只在飘出本星域时才轻拉回来，章内自由铺开 */
+Graph.d3Force('charge').strength(-130).distanceMax(300);
+Graph.d3Force('link').distance(30);
+Graph.d3Force('chapter', function(){
+  nodes.forEach(function(n){
+    var c=CH[n.ch-1];
+    var dx=n.x-c.px, dy=n.y-c.py, dz=n.z-c.pz;
+    var d=Math.hypot(dx,dy,dz), soft=110;
+    if(d>soft){
+      var k=(d-soft)/d*0.10;
+      n.vx-=dx*k; n.vy-=dy*k; n.vz-=dz*k;
+    }
+  });
+});
+
+/* 深空星尘：三层视差 */
+(function starfield(){
+  function layer(N,rMin,rMax,color,size,opacity){
+    var geo=new THREE.BufferGeometry(), pos=new Float32Array(N*3);
+    for(var i=0;i<N;i++){
+      var r=rMin+Math.random()*(rMax-rMin), th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+      pos[i*3]=r*Math.sin(ph)*Math.cos(th);
+      pos[i*3+1]=r*Math.sin(ph)*Math.sin(th);
+      pos[i*3+2]=r*Math.cos(ph);
+    }
+    geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    return new THREE.Points(geo,new THREE.PointsMaterial({color:color,size:size,sizeAttenuation:true,transparent:true,opacity:opacity,depthWrite:false,blending:THREE.AdditiveBlending}));
+  }
+  scene.add(layer(2600,600,1500,0xffffff,0.8,0.5));
+  scene.add(layer(1000,800,1800,0xbfd4ff,1.0,0.42));
+  scene.add(layer(600,500,1300,0x8f7fd8,2.4,0.09));
+})();
+
+/* 每章一层极淡星云 */
+CH.forEach(function(c){
+  var geo=new THREE.BufferGeometry(), pos=new Float32Array(280*3);
+  for(var i=0;i<280;i++){
+    var r=Math.pow(Math.random(),0.7)*95, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+    pos[i*3]=c.px+r*Math.sin(ph)*Math.cos(th);
+    pos[i*3+1]=c.py+r*Math.sin(ph)*Math.sin(th);
+    pos[i*3+2]=c.pz+r*Math.cos(ph);
+  }
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  var col=new THREE.Color(c.color);
+  var pts=new THREE.Points(geo,new THREE.PointsMaterial({color:col,size:3.2,sizeAttenuation:true,transparent:true,opacity:0.16,depthWrite:false,blending:THREE.AdditiveBlending}));
+  scene.add(pts);
+});
+
+/* 辉光：星点贴图自带光晕 + 温和 bloom（高阈值只让星核发光，不洗白颜色） */
+var renderer=Graph.renderer();
+renderer.toneMapping=THREE.NoToneMapping;
+var composer=Graph.postProcessingComposer();
+var bloom=new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth,window.innerHeight),0.7,0.5,0.55);
+composer.addPass(bloom);
+window.addEventListener('resize',function(){ bloom.setSize(window.innerWidth,window.innerHeight); });
+
+/* 点击涟漪 */
+var rings=[];
+function emitRing(node){
+  var geo=new THREE.RingGeometry(node.val*1.6,node.val*1.9,40);
+  var mat=new THREE.MeshBasicMaterial({color:new THREE.Color(node.color),transparent:true,opacity:0.55,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+  var ring=new THREE.Mesh(geo,mat); ring.userData={t:0,life:1.6};
+  ring.position.set(node.x||0,node.y||0,node.z||0); scene.add(ring); rings.push(ring);
+}
+
+/* 闲置自动旋转 */
+var lastAct=Date.now(), IDLE=3200, SPIN=0.00032, camAngle=0, camR=null, camH=null;
+['mousedown','mouseup','mousemove','wheel','touchstart','touchmove','keydown'].forEach(function(ev){
+  window.addEventListener(ev,function(){ lastAct=Date.now(); },{passive:true});
+});
+function idleRotate(){
+  var cp=camera.position;
+  if(Date.now()-lastAct<IDLE){
+    camR=Math.hypot(cp.x,cp.z); camH=cp.y; camAngle=Math.atan2(cp.x,cp.z); return;
+  }
+  if(camR===null){ camR=Math.hypot(cp.x,cp.z); camH=cp.y; camAngle=Math.atan2(cp.x,cp.z); }
+  camAngle+=SPIN;
+  Graph.cameraPosition({x:Math.sin(camAngle)*camR,y:camH,z:Math.cos(camAngle)*camR});
+}
+
+var clock=new THREE.Clock();
+function animate(){
+  var t=clock.getElapsedTime();
+  idleRotate();
+  for(var i=rings.length-1;i>=0;i--){
+    var r=rings[i]; r.userData.t+=0.016;
+    var k=r.userData.t/r.userData.life;
+    r.scale.setScalar(1+k*4.5); r.material.opacity=0.55*(1-k); r.lookAt(camera.position);
+    if(k>=1){ scene.remove(r); r.geometry.dispose(); r.material.dispose(); rings.splice(i,1); }
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* 初始机位：全景 */
+Graph.cameraPosition({x:0,y:40,z:620});
+setTimeout(function(){ document.getElementById('loading').classList.add('hide'); }, 900);
+
+/* ============ 交互 ============ */
+var tip=document.getElementById('tip');
+var panel=document.getElementById('panel'), veil=document.getElementById('veil');
+var peoplePanel=document.getElementById('peoplePanel'), peopleVeil=document.getElementById('peopleVeil');
+
+function handleHover(n){
+  if(!n){ tip.classList.remove('show'); document.getElementById('stage').style.cursor='grab'; return; }
+  document.getElementById('stage').style.cursor='pointer';
+  var c=CH[n.ch-1];
+  tip.innerHTML='<b>'+n.no+' · '+n.t+'</b><br><span class="meta">'+c.n+' · '+n.tags.length+' 个共同的人与事</span>';
+  tip.style.left=(Graph.__mouseX||0)+'px'; tip.style.top=(Graph.__mouseY||0)+'px';
+  tip.classList.add('show');
+}
+stage.addEventListener('mousemove',function(e){ tip.style.left=e.clientX+'px'; tip.style.top=e.clientY+'px'; });
+
+function openPanel(){ panel.classList.add('show'); veil.classList.add('show'); }
+function closePanel(){ panel.classList.remove('show'); veil.classList.remove('show'); }
+document.getElementById('panelClose').onclick=closePanel;
+veil.onclick=function(){ closePanel(); peoplePanel.classList.remove('show'); peopleVeil.classList.remove('show'); };
+
+function focusNode(n){
+  var dist=90+n.val*7;
+  var ratio=1+dist/Math.hypot(n.x||0,n.y||0,n.z||1);
+  Graph.cameraPosition({x:(n.x||0)*ratio,y:(n.y||0)*ratio,z:(n.z||0)*ratio},n,900);
+  emitRing(n);
+}
+
+function handleClick(n){
+  if(!n) return;
+  focusNode(n);
+  var c=CH[n.ch-1];
+  document.getElementById('phKicker').textContent='NO. '+String(n.no).padStart(2,'0')+' · 一篇回忆';
+  document.getElementById('phTitle').textContent=n.t;
+  document.getElementById('phSub').textContent=c.en+' · '+c.school;
+  var chips='<span class="chip ch" style="background:'+c.color+'">'+c.n+'</span>'+
+    n.people.map(function(p){ return '<span class="chip">'+p+'</span>'; }).join('');
+  var tags=n.tags.map(function(t){ return '<span class="tg">#'+t+'</span>'; }).join('');
+  document.getElementById('panelBody').innerHTML=
+    '<div class="story-meta">'+chips+'</div>'+
+    '<div class="story-tags"><b>共同记得的人与事</b><br>'+tags+'</div>'+
+    '<a class="goto" href="index.html#s'+n.no+'">进入正文 <span class="arrow">→</span></a>'+
+    '<div class="story-quote">这一篇写在「'+c.n+'」这段年纪里。沿着它的连线望出去，都是那时候记得的人。</div>';
+  document.getElementById('panelFoot').textContent='光点越大，和别的回忆牵连越深。这颗星连着 '+n.degree+' 颗别的星。';
+  openPanel();
+}
+function clearFocus(){ tip.classList.remove('show'); }
+
+/* 时间线图例 */
+var legendBox=document.getElementById('legendItems');
+CH.forEach(function(c,i){
+  var cnt=RAW.filter(function(r){ return r[2]===i+1; }).length;
+  var b=document.createElement('button');
+  b.innerHTML='<span class="dot" style="color:'+c.color+';background:'+c.color+'"></span>'+c.n+'<span class="cnt">'+cnt+'</span>';
+  b.onclick=function(){ focusChapter(i); };
+  legendBox.appendChild(b);
+});
+function focusChapter(i){
+  var c=CH[i];
+  Graph.cameraPosition({x:c.px*1.35,y:c.py*1.35+30,z:c.pz+230},{x:c.px,y:c.py,z:c.pz},1100);
+  document.getElementById('phKicker').textContent='CHAPTER '+(i+1)+' · '+c.en;
+  document.getElementById('phTitle').textContent=c.n;
+  document.getElementById('phSub').textContent=c.school+' · '+c.cnt+' 篇';
+  var list=RAW.filter(function(r){ return r[2]===i+1; }).map(function(r){
+    return '<div class="list-item" data-no="'+r[0]+'"><span class="pn">'+String(r[0]).padStart(2,'0')+'</span><span class="pt">'+r[1]+'</span></div>';
+  }).join('');
+  document.getElementById('panelBody').innerHTML=list;
+  document.getElementById('panelFoot').textContent='这一章的 '+RAW.filter(function(r){return r[2]===i+1;}).length+' 篇。点一篇，星海会转向它。';
+  Array.prototype.forEach.call(document.querySelectorAll('#panelBody .list-item'),function(el){
+    el.onclick=function(){
+      var no=+el.getAttribute('data-no'), n=nodes[no-1];
+      focusNode(n); handleClick(n);
+    };
+  });
+  openPanel();
+}
+
+/* 人物面板 */
+function openPeople(){
+  document.getElementById('peopleChips').innerHTML='';
+  var sorted=Object.keys(peopleIdx).sort(function(a,b){ return peopleIdx[b].length-peopleIdx[a].length || a.localeCompare(b,'zh'); });
+  sorted.forEach(function(p){
+    var b=document.createElement('button');
+    b.innerHTML=p+'<span class="cnt">'+peopleIdx[p].length+'</span>';
+    b.onclick=function(){
+      Array.prototype.forEach.call(document.querySelectorAll('#peopleChips button'),function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      showPerson(p);
+    };
+    document.getElementById('peopleChips').appendChild(b);
+  });
+  document.getElementById('peopleList').innerHTML='<div class="story-tags" style="margin-top:0">点上面一个人，或者，从一个名字开始逛。</div>';
+  peoplePanel.classList.add('show'); peopleVeil.classList.add('show');
+}
+function showPerson(name){
+  var arr=peopleIdx[name].slice().sort(function(a,b){return a-b;});
+  document.getElementById('peopleList').innerHTML=arr.map(function(no){
+    var n=nodes[no-1], c=CH[n.ch-1];
+    return '<div class="list-item" data-no="'+no+'"><span class="pn">'+String(no).padStart(2,'0')+'</span><span class="pt">'+n.t+'</span><span class="pc">'+c.n+'</span></div>';
+  }).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('#peopleList .list-item'),function(el){
+    el.onclick=function(){
+      var no=+el.getAttribute('data-no'), n=nodes[no-1];
+      peoplePanel.classList.remove('show'); peopleVeil.classList.remove('show');
+      focusNode(n); handleClick(n);
+    };
+  });
+}
+document.getElementById('peopleBtn').onclick=openPeople;
+document.getElementById('ppClose').onclick=function(){ peoplePanel.classList.remove('show'); peopleVeil.classList.remove('show'); };
+peopleVeil.onclick=function(){ peoplePanel.classList.remove('show'); peopleVeil.classList.remove('show'); };
+
+/* 调试探针 */
+window.__star3d={nodes:nodes,links:links,CH:CH,peopleIdx:peopleIdx,graph:Graph,handleClick:handleClick,openPeople:openPeople,focusChapter:focusChapter,showPerson:showPerson};
+})();
+</script>
+</body>
+</html>
