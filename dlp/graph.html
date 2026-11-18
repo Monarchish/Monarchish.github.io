@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1a2e'/%3E%3Cpath d='M32 9Q35.5 28.5 55 32Q35.5 35.5 32 55Q28.5 28.5 9 32Q28.5 28.5 32 9Z' fill='%23c4a878'/%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#0b101b; --ink:#e9e3d5; --ink-2:#c9c3b4; --muted:#8f938f; --faint:#5c6463;
+  --bg:#05070f; --ink:#e9e3d5; --ink-2:#c9c3b4; --muted:#8f938f; --faint:#5c6463;
   --gold:#c4a878; --line:rgba(233,227,213,.12); --nav-h:60px;
   --serif:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC","SimSun",serif;
   --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
@@ -391,86 +391,208 @@ function hex2rgba(hex,a){
   var h=hex.replace('#','');
   return 'rgba('+parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16)+','+a+')';
 }
+/* 星核往白偏，留住色相：纯白会把六片星域抹平 */
+function coreColor(hex){
+  var h=hex.replace('#','');
+  var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
+  function mix(v){ return Math.round(v+(255-v)*0.42); }
+  return 'rgb('+mix(r)+','+mix(g)+','+mix(b)+')';
+}
+/* 离屏辉光精灵（借鉴 dsh-memory-graph）：径向渐变，lighter 叠加时越密越亮 */
+var SPRITE=96, spriteCache={};
+function starSprite(hex){
+  if(spriteCache[hex]) return spriteCache[hex];
+  var c=document.createElement('canvas'); c.width=c.height=SPRITE;
+  var g=c.getContext('2d'), m=SPRITE/2;
+  var grad=g.createRadialGradient(m,m,0,m,m,m);
+  grad.addColorStop(0.00, hex2rgba(hex,0.95));
+  grad.addColorStop(0.16, hex2rgba(hex,0.55));
+  grad.addColorStop(0.42, hex2rgba(hex,0.14));
+  grad.addColorStop(1.00, hex2rgba(hex,0));
+  g.fillStyle=grad; g.fillRect(0,0,SPRITE,SPRITE);
+  spriteCache[hex]=c; return c;
+}
 
-/* ---------- 渲染 ---------- */
-var stars=[];
-for(var i=0;i<150;i++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*.9+.2,a:Math.random()*.5+.1});
-function draw(){
+/* ---------- 渲染：深空星图 ---------- */
+/* 远景星尘，分疏密两层，带缓慢明灭 */
+var dust=[];
+for(var i=0;i<210;i++) dust.push({x:Math.random(),y:Math.random(),r:Math.random()*0.9+0.2,a:Math.random()*0.5+0.08,ph:Math.random()*6.28,sp:Math.random()*1.2+0.3});
+var brightDust=[];
+for(var k=0;k<22;k++) brightDust.push({x:Math.random(),y:Math.random(),r:Math.random()*0.7+0.5,a:Math.random()*0.35+0.2,ph:Math.random()*6.28});
+
+function draw(ts){
+  ts = ts || 0;
   ctx.clearRect(0,0,W,H);
-  ctx.save();
-  stars.forEach(function(st){
-    ctx.fillStyle='rgba(233,227,213,'+(st.a*.5)+')';
+
+  /* 深空底色 */
+  ctx.fillStyle='#05070e'; ctx.fillRect(0,0,W,H);
+  /* 视差底色：极淡的蓝紫辉光，随相机轻微偏移，避免死黑 */
+  var ox=(cam.x-W/2)*-0.02, oy=(cam.y-H/2)*-0.02;
+  var bg=ctx.createRadialGradient(W*0.5+ox,H*0.44+oy,0,W*0.5+ox,H*0.44+oy,Math.max(W,H)*0.75);
+  bg.addColorStop(0,'rgba(58,84,150,0.11)');
+  bg.addColorStop(0.55,'rgba(30,42,82,0.05)');
+  bg.addColorStop(1,'rgba(5,7,14,0)');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  /* 星尘（屏幕空间，视差 + 明灭） */
+  dust.forEach(function(st){
+    var tw=0.65+0.35*Math.sin(ts*0.0005*st.sp+st.ph);
+    ctx.fillStyle='rgba(210,222,240,'+(st.a*tw)+')';
+    ctx.beginPath(); ctx.arc((st.x*W+ox*st.r*0.5)%W, (st.y*H+oy*st.r*0.5)%H, st.r, 0,6.283); ctx.fill();
+  });
+  brightDust.forEach(function(st){
+    var tw=0.55+0.45*Math.sin(ts*0.0007+st.ph);
+    ctx.fillStyle='rgba(235,242,255,'+(st.a*tw)+')';
     ctx.beginPath(); ctx.arc(st.x*W,st.y*H,st.r,0,6.283); ctx.fill();
   });
+
+  ctx.save();
   ctx.translate(W/2, H/2);
   ctx.scale(cam.zoom,cam.zoom);
   ctx.translate(-cam.x,-cam.y);
 
   var fadeOther = Math.max(0, Math.min(1,(focus-0.55)/0.9));
 
-  /* 星域光晕与名字 */
+  /* 星云：每簇一团极淡的雾，叠加混合 */
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
   CH.forEach(function(c,ci){
     var active = !locked || locked===ci+1;
-    var ga = (focus<0.9 ? 0.5 : (active?0.36:0.06)) * (1-fadeOther*0.35);
-    var grd = ctx.createRadialGradient(c.cx,c.cy,0,c.cx,c.cy,c.rad*1.35);
-    grd.addColorStop(0, hex2rgba(c.color, ga*0.28));
-    grd.addColorStop(0.62, hex2rgba(c.color, ga*0.08));
-    grd.addColorStop(1, hex2rgba(c.color,0));
+    var ga = (focus<0.9 ? 0.55 : (active?0.4:0.05)) * (1-fadeOther*0.35);
+    var grd = ctx.createRadialGradient(c.cx,c.cy,0,c.cx,c.cy,c.rad*1.5);
+    grd.addColorStop(0,   hex2rgba(c.color, ga*0.11));
+    grd.addColorStop(0.5, hex2rgba(c.color, ga*0.04));
+    grd.addColorStop(1,   hex2rgba(c.color,0));
     ctx.fillStyle=grd;
-    ctx.beginPath(); ctx.arc(c.cx,c.cy,c.rad*1.35,0,6.283); ctx.fill();
-    if(focus<1.35){
-      var la=(1-Math.max(0,(focus-0.6)/0.75))*(active?1:0.25);
+    ctx.beginPath(); ctx.arc(c.cx,c.cy,c.rad*1.5,0,6.283); ctx.fill();
+  });
+  ctx.restore();
+
+  /* 星域名字：世界空间，全景时浮现（放大后交给 HTML 章节标题） */
+  if(focus<1.2){
+    CH.forEach(function(c,ci){
+      var active = !locked || locked===ci+1;
+      var la=(1-Math.max(0,(focus-0.6)/0.6))*(active?1:0.22);
       if(la>0.03){
         ctx.textAlign='center'; ctx.textBaseline='middle';
-        var ly = Math.max(64/cam.zoom, c.cy-c.rad-26/cam.zoom);
-        ctx.fillStyle=hex2rgba(c.color, la*0.9);
-        ctx.font='300 '+Math.round(30/Math.max(1,cam.zoom*.75))+'px "Songti SC",serif';
+        var ly = c.cy-c.rad-18/cam.zoom;
+        ctx.fillStyle=hex2rgba(c.color, la*0.72);
+        ctx.font='300 '+Math.round(26/Math.max(1,cam.zoom*.7))+'px "Songti SC",serif';
         ctx.fillText(c.n, c.cx, ly);
-        ctx.fillStyle='rgba(233,227,213,'+la*0.28+')';
-        ctx.font=Math.round(10/Math.max(1,cam.zoom*.8))+'px ui-monospace,monospace';
-        ctx.fillText(c.en+'  ·  '+c.cnt+' 篇', c.cx, ly+22/Math.max(1,cam.zoom*.75));
+        ctx.fillStyle='rgba(198,212,232,'+la*0.34+')';
+        ctx.font=Math.round(9/Math.max(1,cam.zoom*.75))+'px ui-monospace,monospace';
+        ctx.fillText(c.en+'  ·  '+c.cnt+'篇', c.cx, ly+19/Math.max(1,cam.zoom*.7));
       }
-    }
-  });
+    });
+  }
 
-  /* 连线 */
+  /* 发丝级连线 */
   ctx.lineWidth = 0.7/cam.zoom;
   edges.forEach(function(e){
     var na=nodes[e.a], nb=nodes[e.b];
     if(locked && (na.ch!==locked || nb.ch!==locked) && e.tags.length<1) return;
     var cross = CH[na.ch-1]!==CH[nb.ch-1];
     var inA = !locked || na.ch===locked, inB = !locked || nb.ch===locked;
-    var a = (inA&&inB)?1:(cross?0.12:0.08);
-    a *= focus>0.55?(cross?0.5:0.75):0.55;
-    if(Math.min(na.alpha,nb.alpha)<0.05) return;
-    ctx.strokeStyle = cross ? 'rgba(196,168,120,'+(a*0.7)+')' : 'rgba(233,227,213,'+(a*0.32)+')';
+    var a = (inA&&inB)?1:(cross?0.11:0.07);
+    a *= focus>0.55?(cross?0.5:0.8):0.52;
+    a *= Math.min(na.alpha,nb.alpha);
+    if(a<0.012) return;
+    ctx.strokeStyle = cross ? 'rgba(150,178,214,'+(a*0.48)+')' : 'rgba(170,186,210,'+(a*0.27)+')';
     ctx.beginPath(); ctx.moveTo(na.x,na.y); ctx.lineTo(nb.x,nb.y); ctx.stroke();
   });
 
-  /* 节点 */
+  /* 星点：辉光精灵叠加 + 偏白星核 */
   nodes.forEach(function(n){
     var inCh = !locked || n.ch===locked;
-    var target = inCh ? 1 : Math.max(0.07,1-fadeOther);
+    var target = inCh ? 1 : Math.max(0.06,1-fadeOther);
     n.alpha += (target-n.alpha)*0.12;
     if(n.alpha<0.03) return;
     var c=CH[n.ch-1], isHover = hover===n.i;
-    var r=n.r*(isHover?1.28:1);
-    if(isHover){
-      ctx.fillStyle=hex2rgba(c.color,0.16*n.alpha);
-      ctx.beginPath(); ctx.arc(n.x,n.y,r*2.3,0,6.283); ctx.fill();
+    var r=n.r*(isHover?1.3:1);
+
+    /* 辉光：lighter 叠加，越密越亮 */
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    ctx.globalAlpha = n.alpha * (isHover?0.85:0.62);
+    var reach = r*(isHover?4.2:3.2);
+    ctx.drawImage(starSprite(c.color), n.x-reach, n.y-reach, reach*2, reach*2);
+
+    /* 十字星芒：度数高的枢纽才有，像恒星的光芒 */
+    if(n.degree>=9){
+      var spike = r*(2.2 + Math.min(n.degree,15)*0.14)*(isHover?1.25:1);
+      var strength = Math.min(0.55, 0.16 + n.degree*0.022)*n.alpha;
+      ctx.globalAlpha=1;
+      ctx.lineWidth=Math.max(0.8, r*0.28);
+      ctx.lineCap='round';
+      /* 横向 */
+      var gx=ctx.createLinearGradient(n.x-spike,n.y,n.x+spike,n.y);
+      gx.addColorStop(0,hex2rgba(c.color,0));
+      gx.addColorStop(0.5,hex2rgba(c.color,strength));
+      gx.addColorStop(1,hex2rgba(c.color,0));
+      ctx.strokeStyle=gx;
+      ctx.beginPath(); ctx.moveTo(n.x-spike,n.y); ctx.lineTo(n.x+spike,n.y); ctx.stroke();
+      /* 纵向 */
+      var gy=ctx.createLinearGradient(n.x,n.y-spike,n.x,n.y+spike);
+      gy.addColorStop(0,hex2rgba(c.color,0));
+      gy.addColorStop(0.5,hex2rgba(c.color,strength));
+      gy.addColorStop(1,hex2rgba(c.color,0));
+      ctx.strokeStyle=gy;
+      ctx.beginPath(); ctx.moveTo(n.x,n.y-spike); ctx.lineTo(n.x,n.y+spike); ctx.stroke();
     }
-    ctx.fillStyle=hex2rgba(c.color, (0.78+Math.min(n.degree,8)*0.02)*n.alpha);
-    ctx.beginPath(); ctx.arc(n.x,n.y,r,0,6.283); ctx.fill();
-    ctx.strokeStyle=hex2rgba(c.color, 0.9*n.alpha);
-    ctx.lineWidth=0.8/cam.zoom;
-    ctx.stroke();
-    if((focus>1.05 && inCh && cam.zoom>1.7) || isHover){
-      ctx.textAlign='center'; ctx.textBaseline='top';
-      ctx.fillStyle='rgba(233,227,213,'+(0.82*n.alpha)+')';
-      ctx.font=Math.round(11/Math.max(1,cam.zoom*0.72))+'px "Songti SC",serif';
-      ctx.fillText(n.t, n.x, n.y+r+3/cam.zoom);
+    ctx.restore();
+
+    /* 星核 */
+    ctx.fillStyle = coreColor(c.color);
+    ctx.globalAlpha = n.alpha;
+    ctx.beginPath(); ctx.arc(n.x,n.y, Math.max(1.1/cam.zoom, r*0.44), 0,6.283); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    if(isHover){
+      ctx.strokeStyle='rgba(224,236,255,0.9)';
+      ctx.lineWidth=1/cam.zoom;
+      ctx.beginPath(); ctx.arc(n.x,n.y,r+4/cam.zoom,0,6.283); ctx.stroke();
     }
   });
+
+  /* 标签：屏幕空间绘制，字号恒定，碰撞排队 */
+  var placed=[];
+  function tryPlace(x0,y0,x1,y1){
+    for(var q=0;q<placed.length;q++){
+      var p=placed[q];
+      if(x0<p[2] && x1>p[0] && y0<p[3] && y1>p[1]) return false;
+    }
+    placed.push([x0,y0,x1,y1]); return true;
+  }
+  function toScreen(n){ return {x:(n.x-cam.x)*cam.zoom+W/2, y:(n.y-cam.y)*cam.zoom+H/2}; }
+  var labelBudget=9;
+  var pool = nodes.filter(function(n){ return !locked || n.ch===locked; })
+                  .sort(function(a,b){ return b.degree-a.degree; });
+  /* 悬停的优先 */
+  if(hover!=null && (!locked || nodes[hover].ch===locked)){
+    var hn=nodes[hover], hp=toScreen(hn);
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.font='13px "Songti SC",serif';
+    ctx.strokeStyle='rgba(5,7,14,0.9)'; ctx.lineWidth=3;
+    ctx.strokeText(hn.t, hp.x, hp.y-hn.r*cam.zoom-8);
+    ctx.fillStyle='#f2f6ff'; ctx.fillText(hn.t, hp.x, hp.y-hn.r*cam.zoom-8);
+  }
+  if((focus>1.25 && cam.zoom>1.6) || isNaN(cam.zoom)){
+    pool.forEach(function(n){
+      if(labelBudget<=0) return;
+      var p=toScreen(n);
+      if(p.x<-30||p.x>W+30||p.y<-15||p.y>H+15) return;
+      var text=n.t.length>9?n.t.slice(0,8)+'…':n.t;
+      ctx.font='11px "Songti SC",serif';
+      var tw=ctx.measureText(text).width;
+      var lx=p.x, ly=p.y-n.r*cam.zoom-7;
+      if(!tryPlace(lx-tw/2-2,ly-11,lx+tw/2+2,ly+3)) return;
+      ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.strokeStyle='rgba(5,7,14,0.85)'; ctx.lineWidth=3;
+      ctx.strokeText(text,lx,ly);
+      ctx.fillStyle='rgba(222,231,246,'+(0.55*n.alpha+0.2)+')'; ctx.fillText(text,lx,ly);
+      labelBudget--;
+    });
+  }
   ctx.restore();
   requestAnimationFrame(draw);
 }
