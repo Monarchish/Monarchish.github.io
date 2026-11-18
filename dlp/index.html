@@ -1177,6 +1177,31 @@ Yours truly,<br>
 </div>
 
 <script>
+  // 带 #sN 进入时精准定位（先关平滑+懒加载避免锚点漂移）
+  (function () {
+    if (!location.hash) return;
+    // 懒加载图改为立即加载，让 load 时页面高度稳定
+    Array.prototype.forEach.call(document.querySelectorAll('img[loading="lazy"]'), function (im) {
+      im.setAttribute('loading', 'eager');
+    });
+    function jump() {
+      var el = document.getElementById(location.hash.slice(1));
+      if (!el) return;
+      var nav = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'), 10) || 70;
+      var root = document.documentElement;
+      var prev = root.style.scrollBehavior;
+      root.style.scrollBehavior = 'auto';
+      function pos() { return el.getBoundingClientRect().top + window.pageYOffset - nav - 8; }
+      window.scrollTo(0, pos());
+      // 图片撑高后再校正一次
+      setTimeout(function () { window.scrollTo(0, pos()); }, 150);
+      setTimeout(function () { root.style.scrollBehavior = prev; }, 200);
+    }
+    if (document.readyState === 'complete') jump();
+    else window.addEventListener('load', jump);
+    window.addEventListener('hashchange', function () { setTimeout(jump, 30); });
+  })();
+
   // 目录随滚动高亮当前篇
   (function () {
     var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
