@@ -161,7 +161,7 @@ canvas:active{cursor:grabbing}
   <div id="legendItems"></div>
 </div>
 
-<div class="help"><b>每一颗光点，是一篇回忆。</b><br>点越大，和别的回忆牵连越深。<br>连线，是它们共同记得的人与事。<br>拖一拖，让整片星海转起来。</div>
+<div class="help"><b>每一颗光点，是一篇回忆。</b><br>一颗一颗，先把这片宇宙铺满。<br>淡淡的连线，是它们共同记得的人与事。<br>点一颗，就地读完它；拖一拖，让星海转起来。</div>
 
 <div class="tip" id="tip"></div>
 
@@ -364,7 +364,8 @@ Object.keys(byTag).forEach(function(tag){
   }
 });
 links.forEach(function(l){ nodes[+l.source.slice(1)-1].degree++; nodes[+l.target.slice(1)-1].degree++; });
-nodes.forEach(function(n){ n.val = 1.6 + Math.sqrt(n.degree)*0.85; });
+/* 铺满模式：每颗故事星尽量均等，不因关联多少而差太多（关联仍保留在点击详情里） */
+nodes.forEach(function(n){ n.val = 2.2 + Math.sqrt(n.degree)*0.22; });
 
 /* 人物索引 */
 var peopleIdx={};
@@ -373,19 +374,19 @@ nodes.forEach(function(n){
   n.people.forEach(function(p){ (peopleIdx[p]=peopleIdx[p]||[]).push(n.no); });
 });
 
-/* 六章锚点：映射到 3D，交替纵深，让六团分开 */
-var SPAN=210;
+/* 六章锚点：映射到 3D，铺满整个宇宙。六片星域拉开距离，章内充分散开。 */
+var SPAN=380, XSTRETCH=1.5;
 CH.forEach(function(c,ci){
   var ang = ci/6*Math.PI*2 + 0.3;
-  c.px = (c.ax-0.5)*2*SPAN + Math.cos(ang)*22;
+  c.px = ((c.ax-0.5)*2*SPAN + Math.cos(ang)*30)*XSTRETCH;
   c.py = -(c.ay-0.5)*2*SPAN;
-  c.pz = (ci%2===0 ? -1:1) * (95 + (ci%3)*50);
+  c.pz = (ci%2===0 ? -1:1) * (120 + (ci%3)*70);
 });
 nodes.forEach(function(n){
   var c=CH[n.ch-1];
-  n.x = c.px + (Math.random()-.5)*50;
-  n.y = c.py + (Math.random()-.5)*50;
-  n.z = c.pz + (Math.random()-.5)*50;
+  n.x = c.px + (Math.random()-.5)*230*XSTRETCH;
+  n.y = c.py + (Math.random()-.5)*230;
+  n.z = c.pz + (Math.random()-.5)*160;
 });
 
 /* ============ 辉光星点贴图（canvas 预绘，带章节色 + 十字星芒） ============ */
@@ -442,16 +443,13 @@ var Graph=ForceGraph3D()(stage)
       depthWrite:false, opacity:1.0
     });
     var sp=new THREE.Sprite(mat);
-    var size=(7.5+n.val*4.2)*(spike?1.22:1);
+    var size=(6.5+n.val*3.0)*(spike?1.18:1);
     sp.scale.set(size,size,1);
     return sp;
   })
-  .linkColor(function(l){ return 'rgba(150,170,205,0.13)'; })
-  .linkWidth(0.45)
-  .linkDirectionalParticles(function(l){ return l.w>=3 ? 1 : 0; })
-  .linkDirectionalParticleSpeed(0.003)
-  .linkDirectionalParticleWidth(1.3)
-  .linkDirectionalParticleColor(function(l){ return 'rgba(196,168,120,0.7)'; })
+  .linkColor(function(l){ return 'rgba(150,170,205,0.075)'; })
+  .linkWidth(0.35)
+  .linkDirectionalParticles(0)
   .nodeLabel(function(){ return ''; })
   .onNodeHover(handleHover)
   .onNodeClick(handleClick)
@@ -462,16 +460,16 @@ var Graph=ForceGraph3D()(stage)
 var scene=Graph.scene();
 var camera=Graph.camera();
 
-/* 力：六章软边界——只在飘出本星域时才轻拉回来，章内自由铺开 */
-Graph.d3Force('charge').strength(-130).distanceMax(300);
-Graph.d3Force('link').distance(30);
+/* 力：铺满模式——弱化连线聚拢、加强互斥，六章只做很宽的软边界 */
+Graph.d3Force('charge').strength(-95).distanceMax(210);
+Graph.d3Force('link').distance(150).strength(0.06);
 Graph.d3Force('chapter', function(){
   nodes.forEach(function(n){
     var c=CH[n.ch-1];
     var dx=n.x-c.px, dy=n.y-c.py, dz=n.z-c.pz;
-    var d=Math.hypot(dx,dy,dz), soft=110;
+    var d=Math.hypot(dx,dy,dz), soft=230;
     if(d>soft){
-      var k=(d-soft)/d*0.10;
+      var k=(d-soft)/d*0.06;
       n.vx-=dx*k; n.vy-=dy*k; n.vz-=dz*k;
     }
   });
@@ -499,7 +497,7 @@ Graph.d3Force('chapter', function(){
 CH.forEach(function(c){
   var geo=new THREE.BufferGeometry(), pos=new Float32Array(280*3);
   for(var i=0;i<280;i++){
-    var r=Math.pow(Math.random(),0.7)*95, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+    var r=Math.pow(Math.random(),0.7)*165, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
     pos[i*3]=c.px+r*Math.sin(ph)*Math.cos(th);
     pos[i*3+1]=c.py+r*Math.sin(ph)*Math.sin(th);
     pos[i*3+2]=c.pz+r*Math.cos(ph);
@@ -556,8 +554,8 @@ function animate(){
 }
 animate();
 
-/* 初始机位：全景 */
-Graph.cameraPosition({x:0,y:40,z:620});
+/* 初始机位：全景（宇宙铺满后需要拉远） */
+Graph.cameraPosition({x:0,y:20,z:900});
 setTimeout(function(){ document.getElementById('loading').classList.add('hide'); }, 900);
 
 /* ============ 交互 ============ */
@@ -616,7 +614,7 @@ function handleClick(n){
     '<div class="story-tags" style="margin-top:28px"><b>共同记得的人与事</b><br>'+tags+'</div>'+
     '<a class="goto" href="index.html#s'+n.no+'">在文字版中打开 <span class="arrow">→</span></a>';
   bindLightbox();
-  document.getElementById('panelFoot').textContent='光点越大，和别的回忆牵连越深。这颗星连着 '+n.degree+' 颗别的星。';
+  document.getElementById('panelFoot').textContent='每颗星都是一篇独立的回忆。这颗星，和另外 '+n.degree+' 颗记得同样的人与事。';
   setWordCount('截至第 '+n.no+' 篇', n.no);
   openPanel();
 }
