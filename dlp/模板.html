@@ -62,12 +62,14 @@
   #panel .p-title{min-width:0;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   #panel .p-body{margin-top:14px;font:17px/2 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;
         letter-spacing:.03em;color:#ddd3f0}
+  #panel .p-body img{display:block;max-width:100%;height:auto;max-height:42vh;margin:12px auto 4px;border-radius:6px}
   /* ── 竖屏模式：覆盖放最后，才盖得住上面的基础样式 ── */
   body.vmode #panel.box-sizing, body.vmode #panel{box-sizing:border-box !important;padding:16px 18px 24vh !important;
     max-height:46vh;overflow-y:auto;background:linear-gradient(to top,rgba(5,2,12,.94) 0%,rgba(5,2,12,.78) 58%,rgba(5,2,12,0) 100%) !important}
   body.vmode #panel .p-title{font-size:18px !important;line-height:1.5 !important;letter-spacing:.02em !important;
     display:-webkit-box !important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-width:0;flex:1}
   body.vmode #panel .p-body{font-size:13px !important;line-height:1.75 !important;margin-top:8px !important;letter-spacing:.01em !important}
+  body.vmode #panel .p-body img{max-height:30vh !important}
   body.vmode #panel .p-meta{font-size:11px !important;margin-top:6px !important;gap:10px !important}
   body.vmode #panel .p-inner{max-width:88% !important;width:88% !important}
   body.vmode #panel .p-top{width:100% !important;min-width:0}
@@ -780,7 +782,7 @@ const pMarkPath = document.getElementById('pMarkPath');
   function showPanel(n) {
     if (!n) { panel.classList.remove('on'); return; }
     pTitle.textContent = n.title || (n.text.length > 60 ? n.text.slice(0, 60) + '…' : n.text);
-    pDate.textContent = n.dateText || new Date(n.at).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.');
+    pDate.textContent = n.dateText || '';
     pBadge.textContent = n.key ? n.key : (n.owner === 'her' ? '关于' + USER_NAME : '关于我');
     if (n.html) { pBody.innerHTML = n.html; } else { pBody.textContent = n.text; }
     syncLike(n);
@@ -848,30 +850,41 @@ const pMarkPath = document.getElementById('pMarkPath');
   const tocList = document.getElementById('tocList');
   const tocSub = document.getElementById('tocSub');
   tocSub.textContent = stars.length + ' 篇 · 按时间排列，点一条就飞到那颗星';
+  // 章节按人生叙事排序：学业在前（按年龄），其后按公司分段的工作，函授收尾
+  const CHAPTER_ORDER = ['关于我',
+    '江都区机关幼儿园', '江都区实验小学', '江都区第二中学', '扬州技师学院',
+    '扬州顶津食品有限公司（康师傅）', '南京工程学院', '同创浦江（上海）贸易有限公司'];
   (function buildToc() {
-    const frag = document.createDocumentFragment();
-    let lastKey = null, idx = 0;
+    // 先按 key 分组（组内保持时间序）
+    const gmap = new Map(), firstSeen = [];
     stars.forEach(function (n) {
       const k = n.key || '其他';
-      if (k !== lastKey) {
-        lastKey = k;
-        const h = document.createElement('div');
-        h.className = 'toc-chap';
-        h.textContent = k;
-        frag.appendChild(h);
-      }
-      idx++;
-      const it = document.createElement('div');
-      it.className = 'toc-item';
-      const no = document.createElement('span'); no.className = 'no'; no.textContent = String(idx).padStart(3, '0');
-      const t = document.createElement('span'); t.className = 't'; t.textContent = n.title || n.text.slice(0, 24);
-      const d = document.createElement('span'); d.className = 'd'; d.textContent = n.dateText || '';
-      it.appendChild(no); it.appendChild(t); it.appendChild(d);
-      it.addEventListener('click', function () {
-        selectStar(n);
-        toc.classList.remove('on');
+      if (!gmap.has(k)) { gmap.set(k, []); firstSeen.push(k); }
+      gmap.get(k).push(n);
+    });
+    const orderedKeys = CHAPTER_ORDER.filter(function (k) { return gmap.has(k); })
+      .concat(firstSeen.filter(function (k) { return CHAPTER_ORDER.indexOf(k) < 0; }));
+    const frag = document.createDocumentFragment();
+    let idx = 0;
+    orderedKeys.forEach(function (k) {
+      const h = document.createElement('div');
+      h.className = 'toc-chap';
+      h.textContent = k;
+      frag.appendChild(h);
+      gmap.get(k).forEach(function (n) {
+        idx++;
+        const it = document.createElement('div');
+        it.className = 'toc-item';
+        const no = document.createElement('span'); no.className = 'no'; no.textContent = String(idx).padStart(3, '0');
+        const t = document.createElement('span'); t.className = 't'; t.textContent = n.title || n.text.slice(0, 24);
+        const d = document.createElement('span'); d.className = 'd'; d.textContent = n.dateText || '';
+        it.appendChild(no); it.appendChild(t); it.appendChild(d);
+        it.addEventListener('click', function () {
+          selectStar(n);
+          toc.classList.remove('on');
+        });
+        frag.appendChild(it);
       });
-      frag.appendChild(it);
     });
     tocList.appendChild(frag);
   })();
