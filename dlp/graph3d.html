@@ -385,6 +385,10 @@ Object.keys(byTag).forEach(function(tag){
 });
 /* 金线=同一故事拆出的同源星；青线=赛尔号星云；淡线=共享人物/事的通用关联 */
 var NEBULA_SET={}; NEBULA.forEach(function(no){ NEBULA_SET[no]=1; });
+/* 人物线：同一个人的故事散落在不同年龄段，按时间顺序串成一条链 */
+var PERSON_LINES=[{name:'爷爷', color:'rgba(236,140,132,0.9)', nums:[10,12,14,15,16,17,18,49,50,51,52,53,73]}];
+var PERSON_SETS={}, PERSON_OF={};
+PERSON_LINES.forEach(function(pl){ PERSON_SETS[pl.name]=pl.nums; pl.nums.forEach(function(no){ PERSON_OF[no]=pl.name; }); });
 links.forEach(function(l){
   var a=+l.source.slice(1), b=+l.target.slice(1);
   var gx=groupOf(a), gy=groupOf(b);
@@ -402,6 +406,18 @@ for(var ni=0;ni<NEBULA.length;ni++)for(var nj=ni+1;nj<NEBULA.length;nj++){
   }
   links[seen[key]].nebula=true;
 }
+/* 人物线：按时间顺序，把同一人的故事星两两串成一条链（不是全连） */
+PERSON_LINES.forEach(function(pl){
+  for(var pi=0;pi<pl.nums.length-1;pi++){
+    var pa=pl.nums[pi], pb=pl.nums[pi+1], x=Math.min(pa,pb)-1, y=Math.max(pa,pb)-1, key=x+'-'+y;
+    if(!seen[key]){
+      seen[key]=links.length;
+      links.push({source:nodes[x].id,target:nodes[y].id,w:0,shared:[]});
+      nodes[x].degree++; nodes[y].degree++;
+    }
+    links[seen[key]].person=pl.name;
+  }
+});
 
 /* 铺满模式：每颗故事星尽量均等，不因关联多少而差太多（关联仍保留在点击详情里） */
 nodes.forEach(function(n){ n.val = 2.2 + Math.sqrt(n.degree)*0.22; });
@@ -493,8 +509,8 @@ var Graph=ForceGraph3D()(stage)
     sp.scale.set(size,size,1);
     return sp;
   })
-  .linkColor(function(l){ return l.strong ? 'rgba(212,178,110,0.5)' : l.nebula ? 'rgba(96,205,224,0.42)' : 'rgba(150,170,205,0.10)'; })
-  .linkWidth(function(l){ return l.strong ? 0.85 : l.nebula ? 0.7 : 0.35; })
+  .linkColor(function(l){ return l.strong ? 'rgba(212,178,110,0.5)' : l.nebula ? 'rgba(96,205,224,0.42)' : l.person ? PERSON_LINES.filter(function(p){return p.name===l.person;})[0].color : 'rgba(150,170,205,0.10)'; })
+  .linkWidth(function(l){ return l.strong ? 0.85 : l.nebula ? 0.7 : l.person ? 1.6 : 0.35; })
   .linkDirectionalParticles(0)
   .nodeLabel(function(){ return ''; })
   .onNodeHover(handleHover)
@@ -695,14 +711,14 @@ function handleClick(n){
   var tags=n.tags.map(function(t){ return '<span class="tg">#'+t+'</span>'; }).join('');
   var body = STORIES[n.no] || '<p>（这一篇的正文还在整理中）</p>';
   var sibHtml='';
-  var gi=groupOf(n.no), inNebula=!!NEBULA_SET[n.no];
-  if(gi>=0 || inNebula){
-    var list = gi>=0 ? GROUPS[gi] : NEBULA;
+  var gi=groupOf(n.no), inNebula=!!NEBULA_SET[n.no], person=PERSON_OF[n.no];
+  if(gi>=0 || inNebula || person){
+    var list = person ? PERSON_SETS[person] : (gi>=0 ? GROUPS[gi] : NEBULA);
     var sibs=list.map(function(no){
       if(no===n.no) return '<span class="sib cur">'+nodes[no-1].t+'</span>';
       return '<span class="sib" data-no="'+no+'">'+nodes[no-1].t+'</span>';
     }).join('');
-    var label = inNebula ? '赛尔号星云里的其他星' : '同一个故事的其他星';
+    var label = person ? (person+'线上的其他星') : (inNebula ? '赛尔号星云里的其他星' : '同一个故事的其他星');
     sibHtml='<div class="siblings"><b>'+label+'</b>'+sibs+'</div>';
   }
   document.getElementById('panelBody').innerHTML=
@@ -715,11 +731,13 @@ function handleClick(n){
     el.onclick=function(){ handleClick(nodes[+el.getAttribute('data-no')-1]); setWordCount('截至第 '+n.no+' 篇',n.no); };
   });
   bindLightbox();
-  document.getElementById('panelFoot').textContent= inNebula
-    ? '赛尔号星云：这些星都在小学星域，青线把它们连在一起。'
-    : gi>=0
-      ? '这几颗星，是同一个故事拆开来的。金线把它们连在一起。'
-      : '每颗星都是一个小故事。这颗星，和另外 '+n.degree+' 颗记得同样的人与事。';
+  document.getElementById('panelFoot').textContent= person
+    ? '玫瑰色的线，按时间顺序把'+person+'的故事串成一条。这些星散在好几个年龄段，从童年一路连到告别。'
+    : inNebula
+      ? '赛尔号星云：这些星都在小学星域，青线把它们连在一起。'
+      : gi>=0
+        ? '这几颗星，是同一个故事拆开来的。金线把它们连在一起。'
+        : '每颗星都是一个小故事。这颗星，和另外 '+n.degree+' 颗记得同样的人与事。';
   setWordCount('截至第 '+n.no+' 篇', n.no);
   openPanel();
 }
