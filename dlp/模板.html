@@ -17,22 +17,29 @@
   body.vmode #panel .p-body{font-size:13px;line-height:1.75}
   body.vmode #panel .p-meta{font-size:11px;margin-top:6px}
   body.vmode #panel .p-body{margin-top:8px}
-  body.vmode #hint b{display:none}
-  #hint{position:absolute;left:0;right:0;bottom:18px;text-align:center;pointer-events:none;
-        font:11px/1.8 Georgia,serif;font-style:italic;letter-spacing:.18em;color:#4b4463}
-  #stat{position:absolute;left:26px;top:26px;font:11px/1.9 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;
-        letter-spacing:.08em;color:#413a5c;pointer-events:none}
-  #tools{position:absolute;right:22px;bottom:20px;display:flex;gap:8px;transition:opacity .6s}
-  #tools.idle{opacity:.18}
-  /* 沉浸模式（H）：只留星空，界面全藏起来 */
-  body.no-ui #stat,
-  body.no-ui #hint,
-  body.no-ui #tools{opacity:0;pointer-events:none}
-  #tools button{padding:7px 14px;cursor:pointer;
+  /* ── 目录（左下角入口，看所有文案） ── */
+  #tocBtn{position:absolute;left:22px;bottom:20px;z-index:5;padding:7px 14px;cursor:pointer;
         background:rgba(20,14,38,.55);border:1px solid rgba(150,130,220,.35);border-radius:999px;
         color:#9d90c4;font:11px/1.4 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;letter-spacing:.12em;
         backdrop-filter:blur(6px);transition:color .25s,border-color .25s,background .25s}
-  #tools button:hover{color:#e6dcff;border-color:rgba(190,170,255,.7);background:rgba(30,20,56,.75)}
+  #tocBtn:hover{color:#e6dcff;border-color:rgba(190,170,255,.7);background:rgba(30,20,56,.75)}
+  #toc{position:fixed;inset:0;z-index:10;display:none;box-sizing:border-box;
+        background:rgba(4,2,10,.93);backdrop-filter:blur(10px)}
+  #toc.on{display:block}
+  #toc .toc-inner{max-width:860px;margin:0 auto;box-sizing:border-box;height:100%;overflow-y:auto;padding:38px 24px 70px}
+  #toc .toc-head{display:flex;align-items:center;gap:12px;
+        font:600 17px/1.6 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;color:#f2eaff;letter-spacing:.08em}
+  #toc .toc-sub{font:12px/1.6 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;color:#8d81b3;margin:4px 0 10px;letter-spacing:.1em}
+  #tocClose{margin-left:auto;cursor:pointer;padding:4px 12px;border-radius:999px;
+        border:1px solid rgba(150,130,220,.35);color:#9d90c4;font-size:12px;background:none}
+  #tocClose:hover{color:#e6dcff;border-color:rgba(190,170,255,.7)}
+  #toc .toc-chap{font:600 13px/1.6 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;color:#c9b8f2;
+        letter-spacing:.22em;margin:20px 0 6px;padding-left:2px}
+  #toc .toc-item{display:flex;align-items:baseline;gap:12px;padding:7px 10px;border-radius:8px;cursor:pointer}
+  #toc .toc-item:hover{background:rgba(120,100,200,.16)}
+  #toc .toc-item .no{flex:0 0 34px;font:11px/1.6 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;color:#6f6690}
+  #toc .toc-item .t{font:14px/1.6 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;color:#e6dcff}
+  #toc .toc-item .d{margin-left:auto;flex:0 0 auto;font:11px/1.6 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;color:#8d81b3;letter-spacing:.06em}
   #panel{position:absolute;left:0;right:0;bottom:0;box-sizing:border-box;padding:26px 6vw 34px;pointer-events:none;
          background:linear-gradient(to top,rgba(4,2,10,.86) 0%,rgba(4,2,10,.55) 55%,rgba(4,2,10,0) 100%);
          opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease}
@@ -73,12 +80,13 @@
 <body>
 <div id="stage">
 <canvas id="c"></canvas>
-<div id="stat"></div>
-<div id="hint">拖动 · 环视　　滚轮 · 靠近　　点一颗星，点亮它的星座</div>
-<div id="tools">
-  <button id="replay" title="重播开场（R）">↻ 重播</button>
-  <button id="vert" title="竖屏模式（V）">▯ 竖屏</button>
-  <button id="fs" title="全屏（F）">⛶ 全屏</button>
+<button id="tocBtn" title="查看所有记忆">☰ 目录</button>
+<div id="toc">
+  <div class="toc-inner">
+    <div class="toc-head">拾光 · 全部记忆<button id="tocClose">✕ 关闭</button></div>
+    <div class="toc-sub" id="tocSub"></div>
+    <div id="tocList"></div>
+  </div>
 </div>
 <div id="panel">
   <div class="p-inner">
@@ -456,38 +464,39 @@ const pMarkPath = document.getElementById('pMarkPath');
   // ── 关系 ────────────────────────────────────────────────
   // 调试：?pick=N 自动选中第 N 颗星（截图用）
   const PICK_N = (function () { const m = location.search.match(/[?&]pick=(\d+)/); return m ? parseInt(m[1], 10) : -1; })();
-  // ── 星座：同组的记忆结成一张固定的图 ──────────────────
-  // 规则：每组按时间排序，每颗新星连到"离它最近的旧星"。
-  // 这样连线一旦连上就永不变——新记忆只是旁边多一颗，图不会重排。
-  const CONSTELL = new Map();
-  (function buildConstellations() {
-    const groups = new Map();
-    stars.forEach(function (n) {
-      const tag = (n.tags[0] || n.related[0] || n.cat || 'other');
-      const k = String(tag);
-      if (!groups.has(k)) groups.set(k, []);
-      groups.get(k).push(n);
-    });
-    groups.forEach(function (list, k) {
+  // ── 人物故事线：同一个人的记忆，按时间顺序连成一条线 ──
+  // 人物名单来自 记忆.json 的 persons 字段（gen.mjs 透传）。
+  // 点开其中一颗星，就把TA的整条线用细线画出来。
+  const PERSONS = (DATA && Array.isArray(DATA.persons)) ? DATA.persons : [];
+  const CHAINS = new Map();   // 人物名 -> { members: [星...按时间排序], edges: [[a,b],...] }
+  (function buildChains() {
+    PERSONS.forEach(function (p) {
+      const list = stars.filter(function (n) {
+        if (n.tags.indexOf(p) >= 0) return true;
+        if (n.title && n.title.indexOf(p) >= 0) return true;
+        return false;
+      });
+      if (list.length < 2) return;
       list.sort(function (a, b) { return (a.at || 0) - (b.at || 0); });
       const edges = [];
-      for (let i = 1; i < list.length; i++) {
-        let best = 0, bd = 1e9;
-        for (let j = 0; j < i; j++) {
-          const dx = list[i].x - list[j].x, dz = list[i].z - list[j].z;
-          const d = dx * dx + dz * dz;
-          if (d < bd) { bd = d; best = j; }
-        }
-        edges.push([list[best], list[i]]);
-      }
-      CONSTELL.set(k, { edges: edges, members: list });
+      for (let i = 1; i < list.length; i++) edges.push([list[i - 1], list[i]]);
+      CHAINS.set(p, { name: p, members: list, edges: edges });
     });
   })();
-
-  function constOf(n) {
-    if (!n) return null;
-    const tag = (n.tags[0] || n.related[0] || n.cat || 'other');
-    return CONSTELL.get(String(tag)) || null;
+  // 「爸妈」标签同时算进爸爸妈妈
+  function chainsOf(n) {
+    if (!n) return [];
+    const out = [];
+    CHAINS.forEach(function (c) {
+      if (c.members.indexOf(n) >= 0) out.push(c);
+    });
+    if (n.tags.indexOf('爸妈') >= 0) {
+      ['爸爸', '妈妈'].forEach(function (p) {
+        const c = CHAINS.get(p);
+        if (c && out.indexOf(c) < 0) out.push(c);
+      });
+    }
+    return out;
   }
 
   // ── 尺寸 ────────────────────────────────────────────────
@@ -507,7 +516,7 @@ const pMarkPath = document.getElementById('pMarkPath');
   // ── 绘制 ────────────────────────────────────────────────
   function draw(t) {
     const introLit = clamp((intro - 0.55) / 1.70, 0, 1);   // 和星点一起亮的开场曲线
-    if (PICK_N >= 0 && !selected && stars.length > PICK_N) { selected = stars[PICK_N]; if (pMarkPath) { pMarkPath.setAttribute('fill', 'rgb(' + selected.rgb + ')'); const sv = pMarkPath.parentNode; if (sv) sv.style.color = 'rgb(' + selected.rgb + ')'; } showPanel(selected); }
+    if (PICK_N >= 0 && !selected && stars.length > PICK_N) { selectStar(stars[PICK_N]); }
     if (W < 20 || H < 20) return;   // 还没量到尺寸，先别画（否则一片黑）
     cosT = Math.cos(theta); sinT = Math.sin(theta);
     cosP = Math.cos(phi + phiOff); sinP = Math.sin(phi + phiOff);
@@ -596,24 +605,22 @@ const pMarkPath = document.getElementById('pMarkPath');
       drawSprite(dot('255,255,255'), q.x, q.y, 7 * ps, 1.0 * reveal);
     });
 
-    // 星座连线：画的是这一组的固定图，点组里哪颗都一样
+    // 人物故事线：点开一颗星，把TA所在的人物线用细线画出来
     if (selected) {
-      const c0 = constOf(selected);
-      if (c0 && c0.edges.length) {
-        c0.edges.forEach(function (e) {
+      chainsOf(selected).forEach(function (chain) {
+        chain.edges.forEach(function (e) {
           const qa = project(e[0].x, e[0].y, e[0].z);
           const qb = project(e[1].x, e[1].y, e[1].z);
           if (!qa || !qb) return;
           const hot = (e[0] === selected || e[1] === selected);
-          const al = hot ? 0.75 : 0.42;
-          ctx.strokeStyle = 'rgba(' + selected.rgb + ',' + al.toFixed(3) + ')';
-          ctx.lineWidth = hot ? 1.9 : 1.2;
+          ctx.strokeStyle = 'rgba(' + selected.rgb + ',' + (hot ? 0.85 : 0.36).toFixed(3) + ')';
+          ctx.lineWidth = hot ? 1.5 : 0.9;
           ctx.beginPath();
           ctx.moveTo(qa.x, qa.y);
           ctx.lineTo(qb.x, qb.y);
           ctx.stroke();
         });
-      }
+      });
     }
 
     // 记忆星
@@ -713,7 +720,11 @@ const pMarkPath = document.getElementById('pMarkPath');
       }
     }
 
-    if (selected) { const c1 = constOf(selected); if (c1) c1.members.forEach(function (m) { m.ping = Math.max(m.ping, 0.3); }); }
+    if (selected) {
+      chainsOf(selected).forEach(function (c) {
+        c.members.forEach(function (m) { m.ping = Math.max(m.ping, 0.3); });
+      });
+    }
 
     // ── 暗角 + 薄雾：边缘沉下去，中间亮起来（景深错觉）
     ctx.globalCompositeOperation = 'source-over';
@@ -795,6 +806,20 @@ const pMarkPath = document.getElementById('pMarkPath');
     if (n !== hovered) { hovered = n; cv.style.cursor = n ? 'pointer' : 'grab'; }
   });
 
+  // ── 选中一颗星（点星 / 目录点条目都走这里） ──
+  function selectStar(n) {
+    selected = n || null;
+    if (selected && pMarkPath && selected.rgb) {
+      pMarkPath.setAttribute('fill', 'rgb(' + selected.rgb + ')');
+      const svgEl = pMarkPath.parentNode; if (svgEl) { svgEl.style.color = 'rgb(' + selected.rgb + ')'; const mk = svgEl.parentNode; if (mk) mk.style.setProperty('--glow', 'rgba(' + selected.rgb + ',0.75)'); }
+      pMarkPath.style.filter = 'drop-shadow(0 0 6px rgba(' + selected.rgb + ',0.9))';
+    } else if (pMarkPath) {
+      pMarkPath.setAttribute('fill', '#fff');
+      pMarkPath.style.filter = '';
+    }
+    showPanel(selected);
+  }
+
   function endDrag(e) {
     if (!dragging) return;
     dragging = false;
@@ -803,14 +828,7 @@ const pMarkPath = document.getElementById('pMarkPath');
       try { if (cv.hasPointerCapture(e.pointerId)) cv.releasePointerCapture(e.pointerId); } catch (err) { }
     }
     if (e && downAt && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) < 6) {
-      const n = pick(e.clientX - cvRect.left, e.clientY - cvRect.top);
-      selected = n;
-    if (pMarkPath && n && n.rgb) {
-      pMarkPath.setAttribute('fill', 'rgb(' + n.rgb + ')');
-      const svgEl = pMarkPath.parentNode; if (svgEl) { svgEl.style.color = 'rgb(' + n.rgb + ')'; const mk = svgEl.parentNode; if (mk) mk.style.setProperty('--glow', 'rgba(' + n.rgb + ',0.75)'); }
-      pMarkPath.style.filter = 'drop-shadow(0 0 6px rgba(' + n.rgb + ',0.9))';
-    }
-      showPanel(n);
+      selectStar(pick(e.clientX - cvRect.left, e.clientY - cvRect.top));
     }
     downAt = null;
   }
@@ -824,65 +842,53 @@ const pMarkPath = document.getElementById('pMarkPath');
     distGoal = clamp(distGoal * Math.exp(e.deltaY * 0.0011), 3.4, 20);
   }, { passive: false });
 
-  // ── 全屏（录屏用）
-  const fsBtn = document.getElementById('fs');
-  function toggleFS() {
-    if (!document.fullscreenElement) {
-      const p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
-      if (p && p.catch) p.catch(function () { });
-    } else if (document.exitFullscreen) {
-      document.exitFullscreen();
-    }
-  }
-  fsBtn.addEventListener('click', function (e) { e.stopPropagation(); toggleFS(); });
-  document.addEventListener('fullscreenchange', function () {
-    fsBtn.textContent = document.fullscreenElement ? '✕ 退出全屏' : '⛶ 全屏';
-  });
-
-  // 重播开场：不用刷新页面，直接从头再亮一次（录屏用）
-  const replayBtn = document.getElementById('replay');
-  function replay() {
-    T0 = performance.now();
-    intro = 0;
-    theta = 0.5; phi = 0.30; dist = 13.5; distGoal = 9.2;
-    selected = null; hovered = null;
-    showPanel(null);
-  }
-  replayBtn.addEventListener('click', function (e) { e.stopPropagation(); replay(); });
-
-  // 竖屏模式：中间一条 9:16，外边全黑（录抖音用）
-  const vertBtn = document.getElementById('vert');
-  function toggleVert() {
-    vmode = !vmode;
-    document.body.classList.toggle('vmode', vmode);
-    vertBtn.textContent = vmode ? '▭ 横屏' : '▯ 竖屏';
-    resize();
-    requestAnimationFrame(resize);
-  }
-  vertBtn.addEventListener('click', function (e) { e.stopPropagation(); toggleVert(); });
+  // ── 目录：左下角入口，看所有文案 ──
+  const tocBtn = document.getElementById('tocBtn');
+  const toc = document.getElementById('toc');
+  const tocList = document.getElementById('tocList');
+  const tocSub = document.getElementById('tocSub');
+  tocSub.textContent = stars.length + ' 篇 · 按时间排列，点一条就飞到那颗星';
+  (function buildToc() {
+    const frag = document.createDocumentFragment();
+    let lastKey = null, idx = 0;
+    stars.forEach(function (n) {
+      const k = n.key || '其他';
+      if (k !== lastKey) {
+        lastKey = k;
+        const h = document.createElement('div');
+        h.className = 'toc-chap';
+        h.textContent = k;
+        frag.appendChild(h);
+      }
+      idx++;
+      const it = document.createElement('div');
+      it.className = 'toc-item';
+      const no = document.createElement('span'); no.className = 'no'; no.textContent = String(idx).padStart(3, '0');
+      const t = document.createElement('span'); t.className = 't'; t.textContent = n.title || n.text.slice(0, 24);
+      const d = document.createElement('span'); d.className = 'd'; d.textContent = n.dateText || '';
+      it.appendChild(no); it.appendChild(t); it.appendChild(d);
+      it.addEventListener('click', function () {
+        selectStar(n);
+        toc.classList.remove('on');
+      });
+      frag.appendChild(it);
+    });
+    tocList.appendChild(frag);
+  })();
+  tocBtn.addEventListener('click', function (e) { e.stopPropagation(); toc.classList.add('on'); });
+  document.getElementById('tocClose').addEventListener('click', function (e) { e.stopPropagation(); toc.classList.remove('on'); });
+  toc.addEventListener('click', function (e) { if (e.target === toc) toc.classList.remove('on'); });
 
   // 窗格被拖动 / 浏览器缩放时，尺寸要跟着变（工作台里尤其需要）
   if (window.ResizeObserver) {
     new ResizeObserver(function () { resize(); }).observe(document.getElementById('stage'));
   }
 
-  // 鼠标不动就把按钮淡下去，录的时候不碍眼
-  const tools = document.getElementById('tools');
-  let idleTimer = null;
-  function wake() {
-    tools.classList.remove('idle');
-    clearTimeout(idleTimer);
-    idleTimer = setTimeout(function () { tools.classList.add('idle'); }, 2600);
-  }
-  window.addEventListener('mousemove', wake);
-  wake();
-
   window.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { selected = null; showPanel(null); }
-    if (e.key === 'f' || e.key === 'F') toggleFS();
-    if (e.key === 'r' || e.key === 'R') replay();
-    if (e.key === 'h' || e.key === 'H') document.body.classList.toggle('no-ui');
-    if (e.key === 'v' || e.key === 'V') toggleVert();
+    if (e.key === 'Escape') {
+      if (toc.classList.contains('on')) toc.classList.remove('on');
+      else selectStar(null);
+    }
   });
 
   window.addEventListener('resize', resize);
@@ -905,9 +911,6 @@ const pMarkPath = document.getElementById('pMarkPath');
     if (STILL) return;
     requestAnimationFrame(loop);
   }
-
-  document.getElementById('stat').textContent =
-    (DATA.demo ? '示例数据　·　' : '') + stars.length + ' 条记忆';
 
   window.__map = { stars: stars, project: project, state: function () { return { theta: theta, phi: phi, dist: dist, intro: intro }; } };
 

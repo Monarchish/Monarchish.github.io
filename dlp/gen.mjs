@@ -41,6 +41,7 @@ const traces = (raw.traces || []).map((t) => ({
 const payload = {
   self: raw.self || '大肥鱼',
   user: raw.user || '她',
+  persons: Array.isArray(raw.persons) ? raw.persons : [],
   generatedAt: new Date().toISOString(),
   memories,
   traces
