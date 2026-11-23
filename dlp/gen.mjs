@@ -42,6 +42,7 @@ const payload = {
   self: raw.self || '大肥鱼',
   user: raw.user || '她',
   persons: Array.isArray(raw.persons) ? raw.persons : [],
+  groups: Array.isArray(raw.groups) ? raw.groups : [],
   generatedAt: new Date().toISOString(),
   memories,
   traces

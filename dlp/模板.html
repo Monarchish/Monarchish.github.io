@@ -497,6 +497,24 @@ const pMarkPath = document.getElementById('pMarkPath');
     });
   })();
   // 「爸妈」标签同时算进爸爸妈妈
+  // ── 星座：记忆.json 的 groups 数组（如「雏鹰计划DAY1-DAY5」），组内星按给定顺序连线 ──
+  const GROUPS_RAW = (DATA && Array.isArray(DATA.groups)) ? DATA.groups : [];
+  const GCHAINS = [];   // { name, members: [星...按给定顺序], edges: [[a,b],...] }
+  (function buildGroups() {
+    GROUPS_RAW.forEach(function (g) {
+      const ids = (g && Array.isArray(g.ids)) ? g.ids : [];
+      const list = ids.map(function (id) {
+        return stars.find(function (n) { return n.id === id; });
+      }).filter(Boolean);
+      if (list.length < 2) return;
+      const edges = [];
+      for (let i = 1; i < list.length; i++) edges.push([list[i - 1], list[i]]);
+      GCHAINS.push({ name: String(g.name || ''), members: list, edges: edges });
+    });
+  })();
+  function groupsOf(n) {
+    return n ? GCHAINS.filter(function (c) { return c.members.indexOf(n) >= 0; }) : [];
+  }
   function chainsOf(n) {
     if (!n) return [];
     const out = [];
@@ -634,6 +652,21 @@ const pMarkPath = document.getElementById('pMarkPath');
           ctx.stroke();
         });
       });
+      // 星座连线：点开组内一颗星，把整个星座画出来（比人物线略亮）
+      groupsOf(selected).forEach(function (chain) {
+        chain.edges.forEach(function (e) {
+          const qa = project(e[0].x, e[0].y, e[0].z);
+          const qb = project(e[1].x, e[1].y, e[1].z);
+          if (!qa || !qb) return;
+          const hot = (e[0] === selected || e[1] === selected);
+          ctx.strokeStyle = 'rgba(' + selected.rgb + ',' + (hot ? 0.9 : 0.5).toFixed(3) + ')';
+          ctx.lineWidth = hot ? 1.7 : 1.0;
+          ctx.beginPath();
+          ctx.moveTo(qa.x, qa.y);
+          ctx.lineTo(qb.x, qb.y);
+          ctx.stroke();
+        });
+      });
     }
 
     // 记忆星
@@ -735,6 +768,9 @@ const pMarkPath = document.getElementById('pMarkPath');
 
     if (selected) {
       chainsOf(selected).forEach(function (c) {
+        c.members.forEach(function (m) { m.ping = Math.max(m.ping, 0.3); });
+      });
+      groupsOf(selected).forEach(function (c) {
         c.members.forEach(function (m) { m.ping = Math.max(m.ping, 0.3); });
       });
     }
