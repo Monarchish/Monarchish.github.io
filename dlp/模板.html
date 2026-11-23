@@ -23,6 +23,9 @@
         color:#9d90c4;font:11px/1.4 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;letter-spacing:.12em;
         backdrop-filter:blur(6px);transition:color .25s,border-color .25s,background .25s}
   #tocBtn:hover{color:#e6dcff;border-color:rgba(190,170,255,.7);background:rgba(30,20,56,.75)}
+  /* ── 右下角：全站字数（只有一串数字） ── */
+  #wc{position:absolute;right:18px;bottom:20px;z-index:5;pointer-events:none;
+        color:#5a5178;font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em}
   #toc{position:fixed;inset:0;z-index:10;display:none;box-sizing:border-box;
         background:rgba(4,2,10,.93);backdrop-filter:blur(10px)}
   #toc.on{display:block}
@@ -90,6 +93,7 @@
 <div id="stage">
 <canvas id="c"></canvas>
 <button id="tocBtn" title="查看所有记忆">☰ 目录</button>
+<div id="wc"></div>
 <div id="toc">
   <div class="toc-inner">
     <div class="toc-head">拾光 · 全部记忆<button id="tocClose">✕ 关闭</button></div>
@@ -933,6 +937,18 @@ const pMarkPath = document.getElementById('pMarkPath');
     if (STILL) return;
     requestAnimationFrame(loop);
   }
+
+  // ── 右下角字数：正文字符实时统计 ──
+  (function () {
+    const el = document.getElementById('wc');
+    function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+    function update() {
+      const total = stars.reduce(function (a, n) { return a + (n.text || '').length; }, 0);
+      el.textContent = fmt(total);
+    }
+    update();
+    window.__updateWordCount = update;
+  })();
 
   window.__map = { stars: stars, project: project, state: function () { return { theta: theta, phi: phi, dist: dist, intro: intro }; } };
 
