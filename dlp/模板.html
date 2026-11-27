@@ -890,12 +890,13 @@ const pMarkPath = document.getElementById('pMarkPath');
   const PASS_HASH = 4096451625;          // 密码哈希，明文不落在页面上
   let unlocked = false;
   try { unlocked = localStorage.getItem('sg_lock') === String(PASS_HASH); } catch (err) { }
-  let pendingStar = null;
+  let pendingStar = null, pendingToc = false;
   const lockEl = document.getElementById('lock');
   const lockInput = document.getElementById('lockInput');
   const lockErr = document.getElementById('lockErr');
-  function askPass(n) {
+  function askPass(n, openToc) {
     pendingStar = n || null;
+    pendingToc = !!openToc;
     lockErr.textContent = '';
     lockEl.classList.add('on');
     setTimeout(function () { lockInput.focus(); }, 60);
@@ -906,9 +907,14 @@ const pMarkPath = document.getElementById('pMarkPath');
       try { localStorage.setItem('sg_lock', String(PASS_HASH)); } catch (err) { }
       lockEl.classList.remove('on');
       lockInput.value = ''; lockErr.textContent = '';
-      try { document.getElementById('toc').classList.remove('on'); } catch (err) { }
-      const n = pendingStar; pendingStar = null;
-      if (n) selectStar(n);
+      const n = pendingStar, wantToc = pendingToc;
+      pendingStar = null; pendingToc = false;
+      if (wantToc) {
+        document.getElementById('toc').classList.add('on');
+      } else if (n) {
+        document.getElementById('toc').classList.remove('on');
+        selectStar(n);
+      }
     } else {
       lockErr.textContent = '密码不对，再想想';
       lockEl.classList.add('shake');
@@ -918,7 +924,7 @@ const pMarkPath = document.getElementById('pMarkPath');
   }
   document.getElementById('lockOk').addEventListener('click', function (e) { e.stopPropagation(); tryUnlock(); });
   lockInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryUnlock(); });
-  lockEl.addEventListener('click', function (e) { if (e.target === lockEl) { lockEl.classList.remove('on'); pendingStar = null; } });
+  lockEl.addEventListener('click', function (e) { if (e.target === lockEl) { lockEl.classList.remove('on'); pendingStar = null; pendingToc = false; } });
 
   // ── 选中一颗星（点星 / 目录点条目都走这里） ──
   function selectStar(n) {
@@ -1003,7 +1009,11 @@ const pMarkPath = document.getElementById('pMarkPath');
     });
     tocList.appendChild(frag);
   })();
-  tocBtn.addEventListener('click', function (e) { e.stopPropagation(); toc.classList.add('on'); });
+  tocBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (!unlocked) { askPass(null, true); return; }
+    toc.classList.add('on');
+  });
   document.getElementById('tocClose').addEventListener('click', function (e) { e.stopPropagation(); toc.classList.remove('on'); });
   toc.addEventListener('click', function (e) { if (e.target === toc) toc.classList.remove('on'); });
 
@@ -1014,7 +1024,8 @@ const pMarkPath = document.getElementById('pMarkPath');
 
   window.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-      if (toc.classList.contains('on')) toc.classList.remove('on');
+      if (lockEl.classList.contains('on')) { lockEl.classList.remove('on'); pendingStar = null; pendingToc = false; }
+      else if (toc.classList.contains('on')) toc.classList.remove('on');
       else selectStar(null);
     }
   });
