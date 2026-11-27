@@ -87,6 +87,27 @@
   body.vmode #panel .p-body{word-break:break-word !important;overflow-wrap:anywhere !important}
   body.vmode #panel .p-mark{transform:scale(.8);transform-origin:left center}
   body.vmode #panel #pLike{font-size:20px !important}
+  /* ── 密码门：点星 / 点目录条目时弹出 ── */
+  #lock{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
+        background:rgba(2,1,6,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  #lock.on{display:flex}
+  #lock .lock-card{width:min(320px,84vw);box-sizing:border-box;padding:34px 30px 30px;text-align:center;
+        border:1px solid rgba(170,140,255,.35);border-radius:14px;
+        background:rgba(16,10,34,.92);box-shadow:0 18px 60px rgba(0,0,0,.55)}
+  #lock .lock-t{font-size:34px;line-height:1}
+  #lock .lock-s{margin-top:14px;font:13px/1.8 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;
+        letter-spacing:.12em;color:#b3a6d9}
+  #lock input{margin-top:18px;width:100%;box-sizing:border-box;padding:10px 14px;text-align:center;
+        font:20px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.5em;text-indent:.5em;
+        color:#f2eaff;background:rgba(8,5,20,.9);border:1px solid rgba(170,140,255,.4);border-radius:8px;outline:none}
+  #lock input:focus{border-color:rgba(200,170,255,.85)}
+  #lock #lockErr{min-height:20px;margin-top:8px;font:12px/1.5 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;color:#e08a8a}
+  #lock button{margin-top:6px;width:100%;padding:10px 0;cursor:pointer;border-radius:8px;
+        font:15px/1.6 ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;letter-spacing:.3em;text-indent:.3em;
+        color:#f2eaff;background:rgba(120,90,220,.35);border:1px solid rgba(190,160,255,.55)}
+  #lock button:hover{background:rgba(140,110,240,.5)}
+  #lock.shake .lock-card{animation:lockShake .38s ease}
+  @keyframes lockShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}45%{transform:translateX(8px)}70%{transform:translateX(-5px)}}
 </style>
 </head>
 <body>
@@ -109,6 +130,15 @@
     </div>
     <div class="p-meta"><span id="pDate"></span><span class="p-badge" id="pBadge"></span><span id="pLike" style="cursor:pointer;font-size:26px;line-height:1;user-select:none;transition:transform .15s">♡</span></div>
     <div class="p-body" id="pBody"></div>
+  </div>
+</div>
+<div id="lock">
+  <div class="lock-card">
+    <div class="lock-t">🔒</div>
+    <div class="lock-s">这些记忆是私密的<br>输入密码后才能查看内容</div>
+    <input id="lockInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••">
+    <div id="lockErr"></div>
+    <button id="lockOk">解 锁</button>
   </div>
 </div>
 </div>
@@ -547,7 +577,7 @@ const pMarkPath = document.getElementById('pMarkPath');
   // ── 绘制 ────────────────────────────────────────────────
   function draw(t) {
     const introLit = clamp((intro - 0.55) / 1.70, 0, 1);   // 和星点一起亮的开场曲线
-    if (PICK_N >= 0 && !selected && stars.length > PICK_N) { selectStar(stars[PICK_N]); }
+    if (PICK_N >= 0 && unlocked && !selected && stars.length > PICK_N) { selectStar(stars[PICK_N]); }
     if (W < 20 || H < 20) return;   // 还没量到尺寸，先别画（否则一片黑）
     cosT = Math.cos(theta); sinT = Math.sin(theta);
     cosP = Math.cos(phi + phiOff); sinP = Math.sin(phi + phiOff);
@@ -711,7 +741,7 @@ const pMarkPath = document.getElementById('pMarkPath');
 
       if (isHov && !isSel) {
         ctx.globalCompositeOperation = 'source-over';
-        const label = n.text.length > 26 ? n.text.slice(0, 26) + '…' : n.text;
+        const label = n.title || (n.text.length > 26 ? n.text.slice(0, 26) + '…' : n.text);
         ctx.font = '13px ui-sans-serif, system-ui, "Microsoft YaHei", sans-serif';
         ctx.textAlign = 'center';
         const tw2 = ctx.measureText(label).width;
@@ -855,8 +885,44 @@ const pMarkPath = document.getElementById('pMarkPath');
     if (n !== hovered) { hovered = n; cv.style.cursor = n ? 'pointer' : 'grab'; }
   });
 
+  // ── 密码门：看正文要先解锁（星空、篇名简介不受影响） ──
+  function hashPass(s) { let h = 5381; for (let i = 0; i < s.length; i++) { h = (((h << 5) + h) ^ s.charCodeAt(i)) >>> 0; } return h; }
+  const PASS_HASH = 4096451625;          // 密码哈希，明文不落在页面上
+  let unlocked = false;
+  try { unlocked = localStorage.getItem('sg_lock') === String(PASS_HASH); } catch (err) { }
+  let pendingStar = null;
+  const lockEl = document.getElementById('lock');
+  const lockInput = document.getElementById('lockInput');
+  const lockErr = document.getElementById('lockErr');
+  function askPass(n) {
+    pendingStar = n || null;
+    lockErr.textContent = '';
+    lockEl.classList.add('on');
+    setTimeout(function () { lockInput.focus(); }, 60);
+  }
+  function tryUnlock() {
+    if (hashPass(lockInput.value.trim()) === PASS_HASH) {
+      unlocked = true;
+      try { localStorage.setItem('sg_lock', String(PASS_HASH)); } catch (err) { }
+      lockEl.classList.remove('on');
+      lockInput.value = ''; lockErr.textContent = '';
+      try { document.getElementById('toc').classList.remove('on'); } catch (err) { }
+      const n = pendingStar; pendingStar = null;
+      if (n) selectStar(n);
+    } else {
+      lockErr.textContent = '密码不对，再想想';
+      lockEl.classList.add('shake');
+      setTimeout(function () { lockEl.classList.remove('shake'); }, 420);
+      lockInput.select();
+    }
+  }
+  document.getElementById('lockOk').addEventListener('click', function (e) { e.stopPropagation(); tryUnlock(); });
+  lockInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryUnlock(); });
+  lockEl.addEventListener('click', function (e) { if (e.target === lockEl) { lockEl.classList.remove('on'); pendingStar = null; } });
+
   // ── 选中一颗星（点星 / 目录点条目都走这里） ──
   function selectStar(n) {
+    if (n && !unlocked) { askPass(n); return; }
     selected = n || null;
     if (selected && pMarkPath && selected.rgb) {
       pMarkPath.setAttribute('fill', 'rgb(' + selected.rgb + ')');
